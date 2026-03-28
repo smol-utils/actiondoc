@@ -74,7 +74,13 @@ func flushTag(tags *model.Tags, tag string, value *strings.Builder) {
 	if tag == "" {
 		return
 	}
-	v := strings.TrimSpace(value.String())
+	v := value.String()
+	if tag == "example" {
+		// Preserve indentation for examples; only trim trailing whitespace.
+		v = strings.TrimRight(v, " \t\n")
+	} else {
+		v = strings.TrimSpace(v)
+	}
 	switch tag {
 	case "desc":
 		tags.Desc = v

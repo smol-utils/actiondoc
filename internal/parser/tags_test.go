@@ -87,6 +87,15 @@ func TestParseTagsDeprecated(t *testing.T) {
 	}
 }
 
+func TestParseTagsExample(t *testing.T) {
+	comment := "# @example\n#   gh workflow run ci.yml\n#   gh workflow run ci.yml -f deploy=true"
+	tags := ParseTags(comment)
+	want := "  gh workflow run ci.yml\n  gh workflow run ci.yml -f deploy=true"
+	if tags.Example != want {
+		t.Errorf("example = %q, want %q", tags.Example, want)
+	}
+}
+
 func TestParseTagsOutputWithType(t *testing.T) {
 	comment := "# @output image-tag {semver} - The Docker image tag"
 	tags := ParseTags(comment)
