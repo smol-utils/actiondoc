@@ -27,6 +27,18 @@ func TestParseFileSample(t *testing.T) {
 	if w.Name != "CI Pipeline" {
 		t.Errorf("workflow name = %q", w.Name)
 	}
+	if w.Description == "" {
+		t.Error("expected workflow description")
+	}
+	if w.Tags.Since != "v1.0.0" {
+		t.Errorf("since = %q", w.Tags.Since)
+	}
+	if len(w.Tags.See) != 1 {
+		t.Errorf("see = %+v", w.Tags.See)
+	}
+	if len(w.Tags.Secrets) != 1 || w.Tags.Secrets[0].Name != "DEPLOY_KEY" {
+		t.Errorf("workflow secrets = %+v", w.Tags.Secrets)
+	}
 	if len(w.On) != 2 {
 		t.Errorf("triggers = %+v", w.On)
 	}

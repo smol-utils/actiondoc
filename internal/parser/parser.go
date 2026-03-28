@@ -30,8 +30,14 @@ func ParseFile(path string) (*model.Workflow, error) {
 		File: filepath.Base(path),
 	}
 
-	// Workflow-level tags from the top-of-file comment.
-	headComment := firstComment(&doc, root)
+	// Workflow-level tags from the top-of-file comment. yaml.v3 attaches a
+	// leading comment block to the first key node, not to the document or the
+	// root mapping, so check all three in priority order.
+	var firstKey *yaml.Node
+	if len(root.Content) > 0 {
+		firstKey = root.Content[0]
+	}
+	headComment := firstComment(&doc, root, firstKey)
 	w.Tags = ParseTags(headComment)
 	w.Description = w.Tags.Desc
 
