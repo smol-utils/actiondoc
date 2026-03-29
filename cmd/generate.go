@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"os"
@@ -15,6 +16,7 @@ import (
 func Generate(args []string) error {
 	fs := flag.NewFlagSet("generate", flag.ContinueOnError)
 	outFlag := fs.String("o", "", "output file (default: stdout)")
+	jsonFlag := fs.Bool("json", false, "output JSON instead of Markdown")
 	fs.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage: actiondoc generate [flags] [path]\n\n")
 		fmt.Fprintf(os.Stderr, "Generates documentation for GitHub Actions workflow files.\n\n")
@@ -40,17 +42,34 @@ func Generate(args []string) error {
 		return fmt.Errorf("no YAML files found in %s", path)
 	}
 
+	// Process each file, collecting results for JSON or rendering Markdown inline.
+	var jsonItems []any
 	var md strings.Builder
+
 	for _, f := range files {
 		w, err := parser.ParseFile(f)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "warning: %v\n", err)
 			continue
 		}
-		md.WriteString(renderer.RenderMarkdown(w))
+		if *jsonFlag {
+			jsonItems = append(jsonItems, w)
+		} else {
+			md.WriteString(renderer.RenderMarkdown(w))
+		}
 	}
 
-	output := md.String()
+	var output string
+	if *jsonFlag {
+		data, err := json.MarshalIndent(jsonItems, "", "  ")
+		if err != nil {
+			return fmt.Errorf("marshaling JSON: %w", err)
+		}
+		output = string(data) + "\n"
+	} else {
+		output = md.String()
+	}
+
 	if *outFlag != "" {
 		if err := os.WriteFile(*outFlag, []byte(output), 0644); err != nil {
 			return fmt.Errorf("writing %s: %w", *outFlag, err)
