@@ -168,6 +168,9 @@ func renderStep(b *strings.Builder, step *model.Step, num int) {
 	}
 	b.WriteString("\n")
 
+	if step.ID != "" {
+		fmt.Fprintf(b, "   - ID: `%s`\n", step.ID)
+	}
 	if step.Uses != "" {
 		fmt.Fprintf(b, "   - Uses: `%s`\n", step.Uses)
 	}
@@ -175,7 +178,27 @@ func renderStep(b *strings.Builder, step *model.Step, num int) {
 		fmt.Fprintf(b, "   - Condition: `%s`\n", step.If)
 	}
 
+	// Step-level tags
+	writeStepParams(b, "Output", step.Tags.Outputs)
+	writeStepParams(b, "Secret", step.Tags.Secrets)
+	writeStepParams(b, "Env", step.Tags.Envs)
+
 	b.WriteString("\n")
+}
+
+// writeStepParams writes inline bullet points for step-level params.
+func writeStepParams(b *strings.Builder, label string, params []model.Param) {
+	for _, p := range params {
+		typ := ""
+		if p.Type != "" {
+			typ = " {" + p.Type + "}"
+		}
+		desc := ""
+		if p.Description != "" {
+			desc = " - " + p.Description
+		}
+		fmt.Fprintf(b, "   - %s: `%s`%s%s\n", label, p.Name, typ, desc)
+	}
 }
 
 // writeParamTable writes a Markdown table for a slice of Params.
@@ -191,7 +214,7 @@ func writeParamTable(b *strings.Builder, params []model.Param) {
 		if desc == "" {
 			desc = "-"
 		}
-		fmt.Fprintf(b, "| `%s` | %s | %s |\n", p.Name, typ, desc)
+		fmt.Fprintf(b, "| `%s` | %s | %s |\n", escapeCell(p.Name), escapeCell(typ), escapeCell(desc))
 	}
 	b.WriteString("\n")
 }
@@ -203,4 +226,11 @@ func codelist(items []string) string {
 		parts[i] = "`" + s + "`"
 	}
 	return strings.Join(parts, ", ")
+}
+
+// escapeCell escapes characters that break Markdown table cells.
+func escapeCell(s string) string {
+	s = strings.ReplaceAll(s, "|", "\\|")
+	s = strings.ReplaceAll(s, "\n", " ")
+	return s
 }
