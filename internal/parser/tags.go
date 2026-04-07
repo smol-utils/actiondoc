@@ -7,7 +7,7 @@ import (
 )
 
 // ParseTags extracts ActionDoc tags from a comment string.
-// Each line is prefixed with "# " by yaml.v3 in the node's HeadComment.
+// Each line is prefixed with "# " by the YAML library.
 func ParseTags(comment string) model.Tags {
 	if comment == "" {
 		return model.Tags{}

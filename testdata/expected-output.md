@@ -34,7 +34,7 @@ Compile the application and produce build artifacts.
 
 #### Steps
 
-1. **Checkout** - Check out the repository at the triggering commit.
+1. **Checkout**
    - Uses: `actions/checkout@v4`
 
 2. **Build**

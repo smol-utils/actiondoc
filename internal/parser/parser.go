@@ -5,8 +5,9 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/goccy/go-yaml/ast"
+	yamlparser "github.com/goccy/go-yaml/parser"
 	"github.com/smol-utils/actiondoc/internal/model"
-	"gopkg.in/yaml.v3"
 )
 
 // ParseFile parses a single workflow YAML file into the IR.
@@ -16,42 +17,51 @@ func ParseFile(path string) (*model.Workflow, error) {
 		return nil, fmt.Errorf("reading %s: %w", path, err)
 	}
 
-	var doc yaml.Node
-	if err := yaml.Unmarshal(data, &doc); err != nil {
+	file, err := yamlparser.ParseBytes(data, yamlparser.ParseComments)
+	if err != nil {
 		return nil, fmt.Errorf("parsing %s: %w", path, err)
 	}
 
-	root := documentRoot(&doc)
-	if root == nil || root.Kind != yaml.MappingNode {
-		return nil, fmt.Errorf("%s: expected top-level mapping", path)
+	if len(file.Docs) == 0 {
+		return nil, fmt.Errorf("%s: no YAML documents found", path)
+	}
+	doc := file.Docs[0]
+
+	root, ok := doc.Body.(*ast.MappingNode)
+	if !ok {
+		// Could be a single MappingValueNode; wrap it.
+		if mv, ok := doc.Body.(*ast.MappingValueNode); ok {
+			root = &ast.MappingNode{Values: []*ast.MappingValueNode{mv}}
+		} else {
+			return nil, fmt.Errorf("%s: expected top-level mapping", path)
+		}
 	}
 
 	w := &model.Workflow{
 		File: filepath.Base(path),
 	}
 
-	// Workflow-level tags from the top-of-file comment. yaml.v3 attaches a
-	// leading comment block to the first key node, not to the document or the
-	// root mapping, so check all three in priority order.
-	var firstKey *yaml.Node
-	if len(root.Content) > 0 {
-		firstKey = root.Content[0]
+	// Workflow-level tags: the YAML library may attach the top-of-file comment
+	// to the document, root mapping, first MappingValueNode, or its key.
+	var firstMV, firstKey ast.Node
+	if len(root.Values) > 0 {
+		firstMV = root.Values[0]
+		firstKey = root.Values[0].Key
 	}
-	headComment := firstComment(&doc, root, firstKey)
+	headComment := findComment(doc, root, firstMV, firstKey)
 	w.Tags = ParseTags(headComment)
 	w.Description = w.Tags.Desc
 
-	// Walk top-level keys (Content is [key, value, key, value, ...]).
-	for i := 0; i+1 < len(root.Content); i += 2 {
-		key := root.Content[i]
-		val := root.Content[i+1]
-		switch key.Value {
+	// Walk top-level keys.
+	for _, mv := range root.Values {
+		keyStr := mapKeyString(mv.Key)
+		switch keyStr {
 		case "name":
-			w.Name = nodeString(val)
+			w.Name = nodeString(mv.Value)
 		case "on", "true":
-			w.On = parseTriggers(val)
+			w.On = parseTriggers(mv.Value)
 		case "jobs":
-			w.Jobs = parseJobs(val)
+			w.Jobs = parseJobs(mv.Value)
 		}
 	}
 
@@ -62,78 +72,104 @@ func ParseFile(path string) (*model.Workflow, error) {
 	return w, nil
 }
 
-// documentRoot unwraps a DocumentNode to its single content node.
-func documentRoot(doc *yaml.Node) *yaml.Node {
-	if doc.Kind == yaml.DocumentNode {
-		if len(doc.Content) > 0 {
-			return doc.Content[0]
-		}
-		return nil
+// commentString extracts the text from a CommentGroupNode.
+func commentString(cg *ast.CommentGroupNode) string {
+	if cg == nil {
+		return ""
 	}
-	return doc
+	return cg.String()
 }
 
-// firstComment returns the first non-empty head comment among the given nodes.
-func firstComment(nodes ...*yaml.Node) string {
+// findComment returns the first non-empty comment string from the given nodes.
+func findComment(nodes ...ast.Node) string {
 	for _, n := range nodes {
 		if n == nil {
 			continue
 		}
-		if n.HeadComment != "" {
-			return n.HeadComment
+		if s := commentString(n.GetComment()); s != "" {
+			return s
 		}
 	}
 	return ""
 }
 
-// nodeString extracts a plain scalar value from a node.
-func nodeString(node *yaml.Node) string {
+// mapKeyString extracts the string value from a mapping key node.
+func mapKeyString(node ast.MapKeyNode) string {
+	switch n := node.(type) {
+	case *ast.StringNode:
+		return n.Value
+	case *ast.BoolNode:
+		// YAML 1.1: "on" may be parsed as a boolean true.
+		return n.GetToken().Value
+	default:
+		return node.String()
+	}
+}
+
+// nodeString extracts a plain string value from a node.
+func nodeString(node ast.Node) string {
 	if node == nil {
 		return ""
 	}
-	return node.Value
+	switch n := node.(type) {
+	case *ast.StringNode:
+		return n.Value
+	case *ast.LiteralNode:
+		return n.Value.Value
+	case *ast.BoolNode:
+		return n.GetToken().Value
+	case *ast.IntegerNode:
+		return n.GetToken().Value
+	default:
+		return node.String()
+	}
 }
 
 // parseTriggers extracts event names from the on: node.
 // Handles: scalar ("push"), sequence ([push, pull_request]),
 // and mapping (push: { branches: [...] }).
-func parseTriggers(node *yaml.Node) []string {
-	switch node.Kind {
-	case yaml.ScalarNode:
-		return []string{node.Value}
-	case yaml.SequenceNode:
+func parseTriggers(node ast.Node) []string {
+	switch n := node.(type) {
+	case *ast.StringNode:
+		return []string{n.Value}
+	case *ast.BoolNode:
+		return []string{n.GetToken().Value}
+	case *ast.SequenceNode:
 		var triggers []string
-		for _, item := range node.Content {
-			triggers = append(triggers, item.Value)
+		for _, item := range n.Values {
+			triggers = append(triggers, nodeString(item))
 		}
 		return triggers
-	case yaml.MappingNode:
+	case *ast.MappingNode:
 		var triggers []string
-		for i := 0; i+1 < len(node.Content); i += 2 {
-			triggers = append(triggers, node.Content[i].Value)
+		for _, mv := range n.Values {
+			triggers = append(triggers, mapKeyString(mv.Key))
 		}
 		return triggers
+	case *ast.MappingValueNode:
+		return []string{mapKeyString(n.Key)}
 	}
 	return nil
 }
 
 // parseJobs extracts jobs from the jobs: mapping node.
-func parseJobs(node *yaml.Node) []model.Job {
-	if node.Kind != yaml.MappingNode {
+func parseJobs(node ast.Node) []model.Job {
+	mapping := toMapping(node)
+	if mapping == nil {
 		return nil
 	}
 
 	var jobs []model.Job
-	for i := 0; i+1 < len(node.Content); i += 2 {
-		key := node.Content[i]
-		val := node.Content[i+1]
+	for _, mv := range mapping.Values {
+		job := model.Job{
+			ID: mapKeyString(mv.Key),
+		}
 
-		job := model.Job{ID: key.Value}
-		job.Tags = ParseTags(firstComment(key))
+		job.Tags = ParseTags(findComment(mv, mv.Key))
 		job.Description = job.Tags.Desc
 
-		if val.Kind == yaml.MappingNode {
-			parseJobFields(&job, val)
+		if jobMapping := toMapping(mv.Value); jobMapping != nil {
+			parseJobFields(&job, jobMapping)
 		}
 
 		if job.Name == "" {
@@ -146,55 +182,56 @@ func parseJobs(node *yaml.Node) []model.Job {
 }
 
 // parseJobFields fills job fields from the job's mapping node.
-func parseJobFields(job *model.Job, node *yaml.Node) {
-	for i := 0; i+1 < len(node.Content); i += 2 {
-		key := node.Content[i]
-		val := node.Content[i+1]
-		switch key.Value {
+func parseJobFields(job *model.Job, mapping *ast.MappingNode) {
+	for _, mv := range mapping.Values {
+		keyStr := mapKeyString(mv.Key)
+		switch keyStr {
 		case "name":
-			job.Name = nodeString(val)
+			job.Name = nodeString(mv.Value)
 		case "runs-on":
-			job.RunsOn = nodeString(val)
+			job.RunsOn = nodeString(mv.Value)
 		case "needs":
-			job.Needs = parseStringOrSequence(val)
+			job.Needs = parseStringOrSequence(mv.Value)
 		case "if":
-			job.If = nodeString(val)
+			job.If = nodeString(mv.Value)
 		case "steps":
-			job.Steps = parseSteps(val)
+			job.Steps = parseSteps(mv.Value)
 		}
 	}
 }
 
 // parseSteps extracts steps from the steps: sequence node.
-func parseSteps(node *yaml.Node) []model.Step {
-	if node.Kind != yaml.SequenceNode {
+func parseSteps(node ast.Node) []model.Step {
+	seq, ok := node.(*ast.SequenceNode)
+	if !ok {
 		return nil
 	}
 
 	var steps []model.Step
-	for _, item := range node.Content {
-		if item.Kind != yaml.MappingNode {
+	for i, item := range seq.Values {
+		step := model.Step{}
+
+		itemMapping := toMapping(item)
+		if itemMapping == nil {
 			continue
 		}
 
-		step := model.Step{}
-		step.Tags = ParseTags(stepComment(item))
+		step.Tags = ParseTags(stepComment(seq, i, item, itemMapping))
 		step.Description = step.Tags.Desc
 
-		for i := 0; i+1 < len(item.Content); i += 2 {
-			key := item.Content[i]
-			val := item.Content[i+1]
-			switch key.Value {
+		for _, mv := range itemMapping.Values {
+			keyStr := mapKeyString(mv.Key)
+			switch keyStr {
 			case "name":
-				step.Name = nodeString(val)
+				step.Name = nodeString(mv.Value)
 			case "id":
-				step.ID = nodeString(val)
+				step.ID = nodeString(mv.Value)
 			case "uses":
-				step.Uses = nodeString(val)
+				step.Uses = nodeString(mv.Value)
 			case "run":
-				step.Run = nodeString(val)
+				step.Run = nodeString(mv.Value)
 			case "if":
-				step.If = nodeString(val)
+				step.If = nodeString(mv.Value)
 			}
 		}
 		steps = append(steps, step)
@@ -202,29 +239,46 @@ func parseSteps(node *yaml.Node) []model.Step {
 	return steps
 }
 
-// stepComment finds the comment for a step. yaml.v3 may attach the head comment
-// to the step's mapping node or to the first key inside it.
-func stepComment(item *yaml.Node) string {
-	if item.HeadComment != "" {
-		return item.HeadComment
+// stepComment finds the comment for a step. The YAML library may place it in:
+// the parallel ValueHeadComments array, the item node, or the first key inside.
+func stepComment(seq *ast.SequenceNode, i int, item ast.Node, mapping *ast.MappingNode) string {
+	if i < len(seq.ValueHeadComments) && seq.ValueHeadComments[i] != nil {
+		if s := commentString(seq.ValueHeadComments[i]); s != "" {
+			return s
+		}
 	}
-	if len(item.Content) > 0 {
-		return item.Content[0].HeadComment
+	if s := commentString(item.GetComment()); s != "" {
+		return s
+	}
+	if len(mapping.Values) > 0 {
+		first := mapping.Values[0]
+		return findComment(first, first.Key)
 	}
 	return ""
 }
 
 // parseStringOrSequence handles YAML values that can be a string or a sequence of strings.
-func parseStringOrSequence(node *yaml.Node) []string {
-	switch node.Kind {
-	case yaml.ScalarNode:
-		return []string{node.Value}
-	case yaml.SequenceNode:
+func parseStringOrSequence(node ast.Node) []string {
+	switch n := node.(type) {
+	case *ast.StringNode:
+		return []string{n.Value}
+	case *ast.SequenceNode:
 		var vals []string
-		for _, item := range node.Content {
-			vals = append(vals, item.Value)
+		for _, item := range n.Values {
+			vals = append(vals, nodeString(item))
 		}
 		return vals
+	}
+	return nil
+}
+
+// toMapping converts a node to a MappingNode, handling single MappingValueNode cases.
+func toMapping(node ast.Node) *ast.MappingNode {
+	switch n := node.(type) {
+	case *ast.MappingNode:
+		return n
+	case *ast.MappingValueNode:
+		return &ast.MappingNode{Values: []*ast.MappingValueNode{n}}
 	}
 	return nil
 }
