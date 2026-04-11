@@ -40,6 +40,65 @@ func TestGoldenOutput(t *testing.T) {
 	}
 }
 
+func TestGoldenActionOutput(t *testing.T) {
+	actionPath := testdataPath("action.yml")
+	goldenPath := testdataPath("expected-action-output.md")
+
+	a, err := parser.ParseActionFile(actionPath)
+	if err != nil {
+		t.Fatalf("ParseActionFile: %v", err)
+	}
+
+	got := RenderActionMarkdown(a)
+
+	want, err := os.ReadFile(goldenPath)
+	if err != nil {
+		t.Fatalf("reading golden file: %v", err)
+	}
+
+	if got != string(want) {
+		t.Errorf("output does not match golden file.\n\nTo update:\n  go run . generate testdata/action.yml > testdata/expected-action-output.md\n\nGot:\n%s", got)
+	}
+}
+
+func TestRenderActionMarkdownBasic(t *testing.T) {
+	a := &model.Action{
+		File:        "action.yml",
+		Name:        "My Action",
+		Description: "Does a thing.",
+		Inputs: []model.ActionInput{
+			{Name: "token", Description: "GitHub token", Required: true},
+			{Name: "env", Description: "Target environment", Required: false, Default: "staging"},
+		},
+		Outputs: []model.ActionOutput{
+			{Name: "result", Description: "The result"},
+		},
+		Runs: model.ActionRuns{Using: "node20"},
+	}
+
+	md := RenderActionMarkdown(a)
+
+	checks := []string{
+		"# My Action",
+		"Does a thing.",
+		"`node20`",
+		"## Inputs",
+		"| `token`",
+		"| Yes |",
+		"| `env`",
+		"| No |",
+		"`staging`",
+		"## Outputs",
+		"| `result`",
+	}
+
+	for _, want := range checks {
+		if !strings.Contains(md, want) {
+			t.Errorf("output missing %q\n\nFull output:\n%s", want, md)
+		}
+	}
+}
+
 func TestTableEscaping(t *testing.T) {
 	w := &model.Workflow{
 		File: "test.yml",

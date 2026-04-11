@@ -234,3 +234,89 @@ func escapeCell(s string) string {
 	s = strings.ReplaceAll(s, "\n", " ")
 	return s
 }
+
+// RenderActionMarkdown converts an Action data model into a Markdown document.
+func RenderActionMarkdown(a *model.Action) string {
+	var b strings.Builder
+
+	fmt.Fprintf(&b, "# %s\n\n", a.Name)
+
+	if a.Tags.Deprecated != "" {
+		fmt.Fprintf(&b, "> **Deprecated**: %s\n\n", a.Tags.Deprecated)
+	}
+
+	if a.Description != "" {
+		fmt.Fprintf(&b, "%s\n\n", a.Description)
+	}
+
+	// Properties table
+	b.WriteString("| Property | Value |\n")
+	b.WriteString("|----------|-------|\n")
+	fmt.Fprintf(&b, "| File | `%s` |\n", a.File)
+	if a.Runs.Using != "" {
+		fmt.Fprintf(&b, "| Runs with | `%s` |\n", a.Runs.Using)
+	}
+	if a.Tags.Since != "" {
+		fmt.Fprintf(&b, "| Since | %s |\n", a.Tags.Since)
+	}
+	b.WriteString("\n")
+
+	if len(a.Tags.See) > 0 {
+		b.WriteString("**See also:** ")
+		b.WriteString(strings.Join(a.Tags.See, ", "))
+		b.WriteString("\n\n")
+	}
+
+	// Inputs
+	if len(a.Inputs) > 0 {
+		b.WriteString("## Inputs\n\n")
+		b.WriteString("| Name | Description | Required | Default |\n")
+		b.WriteString("|------|-------------|----------|--------|\n")
+		for _, in := range a.Inputs {
+			req := "No"
+			if in.Required {
+				req = "Yes"
+			}
+			def := "-"
+			if in.Default != "" {
+				def = "`" + escapeCell(in.Default) + "`"
+			}
+			fmt.Fprintf(&b, "| `%s` | %s | %s | %s |\n",
+				escapeCell(in.Name), escapeCell(in.Description), req, def)
+		}
+		b.WriteString("\n")
+	}
+
+	// Outputs
+	if len(a.Outputs) > 0 {
+		b.WriteString("## Outputs\n\n")
+		b.WriteString("| Name | Description |\n")
+		b.WriteString("|------|-------------|\n")
+		for _, out := range a.Outputs {
+			desc := out.Description
+			if desc == "" {
+				desc = "-"
+			}
+			fmt.Fprintf(&b, "| `%s` | %s |\n", escapeCell(out.Name), escapeCell(desc))
+		}
+		b.WriteString("\n")
+	}
+
+	// Tags: secrets, envs
+	if len(a.Tags.Secrets) > 0 {
+		b.WriteString("## Secrets\n\n")
+		writeParamTable(&b, a.Tags.Secrets)
+	}
+	if len(a.Tags.Envs) > 0 {
+		b.WriteString("## Environment Variables\n\n")
+		writeParamTable(&b, a.Tags.Envs)
+	}
+
+	// Example
+	if a.Tags.Example != "" {
+		b.WriteString("## Example\n\n")
+		fmt.Fprintf(&b, "```\n%s\n```\n\n", a.Tags.Example)
+	}
+
+	return b.String()
+}

@@ -19,7 +19,7 @@ func Generate(args []string) error {
 	jsonFlag := fs.Bool("json", false, "output JSON instead of Markdown")
 	fs.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage: actiondoc generate [flags] [path]\n\n")
-		fmt.Fprintf(os.Stderr, "Generates documentation for GitHub Actions workflow files.\n\n")
+		fmt.Fprintf(os.Stderr, "Generates documentation for GitHub Actions workflow and action files.\n\n")
 		fmt.Fprintf(os.Stderr, "Arguments:\n")
 		fmt.Fprintf(os.Stderr, "  path    Path to a YAML file or directory (default: .github/workflows)\n\n")
 		fmt.Fprintf(os.Stderr, "Flags:\n")
@@ -47,15 +47,28 @@ func Generate(args []string) error {
 	var md strings.Builder
 
 	for _, f := range files {
-		w, err := parser.ParseFile(f)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "warning: %v\n", err)
-			continue
-		}
-		if *jsonFlag {
-			jsonItems = append(jsonItems, w)
+		if isActionFile(f) {
+			a, err := parser.ParseActionFile(f)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "warning: %v\n", err)
+				continue
+			}
+			if *jsonFlag {
+				jsonItems = append(jsonItems, a)
+			} else {
+				md.WriteString(renderer.RenderActionMarkdown(a))
+			}
 		} else {
-			md.WriteString(renderer.RenderMarkdown(w))
+			w, err := parser.ParseFile(f)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "warning: %v\n", err)
+				continue
+			}
+			if *jsonFlag {
+				jsonItems = append(jsonItems, w)
+			} else {
+				md.WriteString(renderer.RenderMarkdown(w))
+			}
 		}
 	}
 
@@ -78,6 +91,12 @@ func Generate(args []string) error {
 		fmt.Print(output)
 	}
 	return nil
+}
+
+// isActionFile returns true if the file is a GitHub Action metadata file.
+func isActionFile(path string) bool {
+	base := strings.ToLower(filepath.Base(path))
+	return base == "action.yml" || base == "action.yaml"
 }
 
 // resolveFiles returns a list of .yml/.yaml files from the given path.

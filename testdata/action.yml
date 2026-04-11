@@ -1,0 +1,37 @@
+# @since v1.0.0
+# @see https://docs.example.com/actions/deploy
+# @secret DEPLOY_TOKEN - Token for authenticating with the deployment target
+# @env CLUSTER_NAME - Kubernetes cluster name (must be set in repository variables)
+# @example
+#   - uses: my-org/deploy-action@v1
+#     with:
+#       environment: staging
+#       version: ${{ github.sha }}
+name: Deploy Action
+description: Deploy an application to the target environment.
+
+inputs:
+  environment:
+    description: Target deployment environment
+    required: true
+  version:
+    description: Version or commit SHA to deploy
+    required: true
+  dry-run:
+    description: Run without making changes
+    required: false
+    default: 'false'
+
+outputs:
+  deploy-url:
+    description: URL of the deployed application
+  deploy-id:
+    description: Unique identifier for this deployment
+
+runs:
+  using: node20
+  main: dist/index.js
+
+branding:
+  icon: upload-cloud
+  color: blue

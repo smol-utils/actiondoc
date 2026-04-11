@@ -87,3 +87,66 @@ func TestParseFileSample(t *testing.T) {
 		t.Error("expected deploy job to have an example")
 	}
 }
+
+func TestParseActionFile(t *testing.T) {
+	path := testdataPath("action.yml")
+	if _, err := os.Stat(path); err != nil {
+		t.Skipf("testdata not found: %v", err)
+	}
+
+	a, err := ParseActionFile(path)
+	if err != nil {
+		t.Fatalf("ParseActionFile: %v", err)
+	}
+
+	if a.Name != "Deploy Action" {
+		t.Errorf("name = %q", a.Name)
+	}
+	if a.Description != "Deploy an application to the target environment." {
+		t.Errorf("description = %q", a.Description)
+	}
+	if a.Runs.Using != "node20" {
+		t.Errorf("runs.using = %q", a.Runs.Using)
+	}
+	if a.Tags.Since != "v1.0.0" {
+		t.Errorf("since = %q", a.Tags.Since)
+	}
+	if len(a.Tags.See) != 1 {
+		t.Errorf("see = %+v", a.Tags.See)
+	}
+	if len(a.Tags.Secrets) != 1 || a.Tags.Secrets[0].Name != "DEPLOY_TOKEN" {
+		t.Errorf("secrets = %+v", a.Tags.Secrets)
+	}
+	if a.Tags.Example == "" {
+		t.Error("expected example")
+	}
+
+	// Inputs
+	if len(a.Inputs) != 3 {
+		t.Fatalf("expected 3 inputs, got %d", len(a.Inputs))
+	}
+	env := a.Inputs[0]
+	if env.Name != "environment" || !env.Required {
+		t.Errorf("input 0 = %+v", env)
+	}
+	dryRun := a.Inputs[2]
+	if dryRun.Name != "dry-run" || dryRun.Required || dryRun.Default != "false" {
+		t.Errorf("input 2 = %+v", dryRun)
+	}
+
+	// Outputs
+	if len(a.Outputs) != 2 {
+		t.Fatalf("expected 2 outputs, got %d", len(a.Outputs))
+	}
+	if a.Outputs[0].Name != "deploy-url" {
+		t.Errorf("output 0 name = %q", a.Outputs[0].Name)
+	}
+
+	// Branding
+	if a.Branding == nil {
+		t.Fatal("expected branding")
+	}
+	if a.Branding.Icon != "upload-cloud" || a.Branding.Color != "blue" {
+		t.Errorf("branding = %+v", a.Branding)
+	}
+}

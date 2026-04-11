@@ -52,3 +52,42 @@ type Param struct {
 	Type        string `json:"type,omitempty"`
 	Description string `json:"description,omitempty"`
 }
+
+// Action is the top-level data model for a GitHub Action metadata file (action.yml).
+type Action struct {
+	File        string         `json:"file"`
+	Name        string         `json:"name"`
+	Description string         `json:"description,omitempty"`
+	Inputs      []ActionInput  `json:"inputs,omitempty"`
+	Outputs     []ActionOutput `json:"outputs,omitempty"`
+	Runs        ActionRuns     `json:"runs"`
+	Branding    *Branding      `json:"branding,omitempty"`
+	Tags        Tags           `json:"tags,omitempty"`
+}
+
+// ActionInput is a single input defined in action.yml.
+type ActionInput struct {
+	Name        string `json:"name"`
+	Description string `json:"description,omitempty"`
+	Required    bool   `json:"required"`
+	Default     string `json:"default,omitempty"`
+}
+
+// ActionOutput is a single output defined in action.yml.
+type ActionOutput struct {
+	Name        string `json:"name"`
+	Description string `json:"description,omitempty"`
+}
+
+// ActionRuns describes how the action executes.
+type ActionRuns struct {
+	Using string `json:"using"`
+	Main  string `json:"main,omitempty"`
+	Image string `json:"image,omitempty"`
+}
+
+// Branding holds optional branding metadata.
+type Branding struct {
+	Icon  string `json:"icon,omitempty"`
+	Color string `json:"color,omitempty"`
+}
