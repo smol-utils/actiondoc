@@ -144,6 +144,5 @@ them with information the YAML can't express: `@secret`, `@env`, `@deprecated`, 
 
 ## Design Principles
 
-1. **Zero risk.** ActionDoc comments are standard YAML comments. They are invisible to GitHub Actions and all YAML parsers. Adding them cannot break your CI.
-2. **Graceful degradation.** If a workflow has no ActionDoc comments, the parser still produces useful documentation from the native YAML properties.
-3. **Familiar syntax.** Developers who have used JSDoc, JavaDoc, or Python docstrings will recognize the `@tag` pattern immediately.
+1. **No CI impact.** ActionDoc comments are standard YAML comments. They are invisible to GitHub Actions and all YAML parsers. Adding them cannot break your CI.
+2. **Familiar syntax.** The `@tag` comment pattern is familiar and widespread (JSDoc, JavaDoc, Python docstrings).

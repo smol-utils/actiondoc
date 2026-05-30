@@ -22,4 +22,3 @@ All notable changes to actiondoc are documented here.
 - DRY tags: only document what YAML can't express (name, needs, runs-on extracted automatically)
 - Data model as firewall: only parser.go imports the YAML library
 - Errors propagate; only main.go calls os.Exit
-- Zero-config: works on any repo with .github/workflows/ immediately

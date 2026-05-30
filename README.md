@@ -2,9 +2,9 @@
 
 > Generate documentation for GitHub Actions workflows using JSDoc-style comments.
 
-actiondoc reads your workflow files (`.github/workflows/*.yml`) and action metadata files
+actiondoc reads GitHub Actions workflow (`.github/workflows/*.yml`) and action files
 (`action.yml`), extracts both native YAML properties and ActionDoc comment tags, and
-generates Markdown documentation. Zero config -- it works on any repo immediately.
+generates Markdown documentation.
 
 For the comment standard, see [spec/actiondoc-spec.md](spec/actiondoc-spec.md).
 For a detailed history of changes, see [CHANGELOG.md](CHANGELOG.md).
@@ -193,14 +193,6 @@ make clean      # Remove build artifacts
 You can, but large repos accumulate dozens of workflow files with hundreds of steps. The
 biggest pain point is figuring out which secrets and environment variables need to be
 configured before a workflow will run. ActionDoc surfaces that information in one place.
-
----
-
-**Why comments instead of a separate config file?**
-
-Comments live next to the code they describe. They can't drift out of sync the way a
-separate docs file can. And they're invisible to GitHub Actions -- zero risk of breaking
-your CI by adding documentation.
 
 ---
 
