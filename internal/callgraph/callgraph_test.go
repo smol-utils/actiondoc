@@ -59,3 +59,31 @@ func TestBuildBasic(t *testing.T) {
 		t.Error("release.yml should reach at least build.yml")
 	}
 }
+
+// TestBuildCompositeResolution checks that a step-level local composite `uses:` resolves
+// to the exact action directory on a path-segment boundary -- "build" must not match a
+// sibling "my-build" -- and that the result is deterministic when dirs share a suffix.
+func TestBuildCompositeResolution(t *testing.T) {
+	caller := &model.Workflow{
+		File: "ci.yml", Name: "CI", On: []string{"push"},
+		Jobs: []model.Job{{ID: "build", RunsOn: "ubuntu-latest", Steps: []model.Step{
+			{Uses: "./.github/actions/build"},
+		}}},
+	}
+	g := Build([]Source{
+		{Path: "/repo/.github/workflows/ci.yml", Workflow: caller},
+		{Path: "/repo/.github/actions/my-build/action.yml", Action: &model.Action{Name: "My Build"}},
+		{Path: "/repo/.github/actions/build/action.yml", Action: &model.Action{Name: "Build"}},
+	})
+
+	want := "/repo/.github/actions/build/action.yml"
+	var got string
+	for _, e := range g.Calls("/repo/.github/workflows/ci.yml") {
+		if e.Kind == KindComposite {
+			got = e.ToID
+		}
+	}
+	if got != want {
+		t.Errorf("composite ./.github/actions/build resolved to %q, want %q (must not match my-build)", got, want)
+	}
+}

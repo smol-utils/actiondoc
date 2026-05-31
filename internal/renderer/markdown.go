@@ -43,29 +43,12 @@ func RenderMarkdown(w *model.Workflow) string {
 		b.WriteString("\n\n")
 	}
 
-	// Workflow-level secrets
-	if len(w.Tags.Secrets) > 0 {
-		b.WriteString("## Secrets\n\n")
-		writeParamTable(&b, w.Tags.Secrets)
-	}
-
-	// Workflow-level inputs
-	if len(w.Tags.Inputs) > 0 {
-		b.WriteString("## Inputs\n\n")
-		writeParamTable(&b, w.Tags.Inputs)
-	}
-
-	// Workflow-level env
-	if len(w.Tags.Envs) > 0 {
-		b.WriteString("## Environment Variables\n\n")
-		writeParamTable(&b, w.Tags.Envs)
-	}
-
-	// Workflow-level outputs
-	if len(w.Tags.Outputs) > 0 {
-		b.WriteString("## Outputs\n\n")
-		writeParamTable(&b, w.Tags.Outputs)
-	}
+	writeParamSections(&b, styleHeading,
+		paramSection{"Secrets", w.Tags.Secrets},
+		paramSection{"Inputs", w.Tags.Inputs},
+		paramSection{"Environment Variables", w.Tags.Envs},
+		paramSection{"Outputs", w.Tags.Outputs},
+	)
 
 	// Jobs
 	if len(w.Jobs) > 0 {
@@ -113,19 +96,11 @@ func renderJob(b *strings.Builder, job *model.Job) {
 		b.WriteString("\n")
 	}
 
-	// Job-level secrets/envs/outputs
-	if len(job.Tags.Secrets) > 0 {
-		b.WriteString("**Secrets:**\n\n")
-		writeParamTable(b, job.Tags.Secrets)
-	}
-	if len(job.Tags.Envs) > 0 {
-		b.WriteString("**Environment Variables:**\n\n")
-		writeParamTable(b, job.Tags.Envs)
-	}
-	if len(job.Tags.Outputs) > 0 {
-		b.WriteString("**Outputs:**\n\n")
-		writeParamTable(b, job.Tags.Outputs)
-	}
+	writeParamSections(b, styleBold,
+		paramSection{"Secrets", job.Tags.Secrets},
+		paramSection{"Environment Variables", job.Tags.Envs},
+		paramSection{"Outputs", job.Tags.Outputs},
+	)
 
 	// Example
 	if job.Tags.Example != "" {
@@ -219,6 +194,37 @@ func writeParamTable(b *strings.Builder, params []model.Param) {
 	b.WriteString("\n")
 }
 
+// sectionStyle selects how a param-table section heading is rendered.
+type sectionStyle int
+
+const (
+	styleHeading sectionStyle = iota // "## Title"
+	styleBold                        // "**Title:**"
+)
+
+// paramSection pairs a section title with its parameters.
+type paramSection struct {
+	title  string
+	params []model.Param
+}
+
+// writeParamSections writes each non-empty param-table section in order, using the given
+// heading style. Centralizes the "if present: heading + table" boilerplate shared by the
+// workflow, job, and action renderers so adding a section is a one-line change per site.
+func writeParamSections(b *strings.Builder, style sectionStyle, sections ...paramSection) {
+	for _, s := range sections {
+		if len(s.params) == 0 {
+			continue
+		}
+		if style == styleBold {
+			fmt.Fprintf(b, "**%s:**\n\n", s.title)
+		} else {
+			fmt.Fprintf(b, "## %s\n\n", s.title)
+		}
+		writeParamTable(b, s.params)
+	}
+}
+
 // codelist formats a slice of strings as inline code items.
 func codelist(items []string) string {
 	parts := make([]string, len(items))
@@ -305,15 +311,10 @@ func RenderActionMarkdown(a *model.Action) string {
 		b.WriteString("\n")
 	}
 
-	// Tags: secrets, envs
-	if len(a.Tags.Secrets) > 0 {
-		b.WriteString("## Secrets\n\n")
-		writeParamTable(&b, a.Tags.Secrets)
-	}
-	if len(a.Tags.Envs) > 0 {
-		b.WriteString("## Environment Variables\n\n")
-		writeParamTable(&b, a.Tags.Envs)
-	}
+	writeParamSections(&b, styleHeading,
+		paramSection{"Secrets", a.Tags.Secrets},
+		paramSection{"Environment Variables", a.Tags.Envs},
+	)
 
 	// Example
 	if a.Tags.Example != "" {

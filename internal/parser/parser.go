@@ -11,7 +11,6 @@ import (
 	"github.com/smol-utils/actiondoc/internal/model"
 )
 
-// ParseFile parses a single workflow YAML file into the IR.
 // firstMappingDoc returns the first YAML document whose body is a mapping, wrapping a
 // bare MappingValueNode if needed. goccy/go-yaml emits a leading comment-only document
 // when a file opens with a '#' comment block followed by a '---' document-start marker
@@ -32,6 +31,7 @@ func firstMappingDoc(file *ast.File) (*ast.DocumentNode, *ast.MappingNode, bool)
 	return nil, nil, false
 }
 
+// ParseFile parses a single workflow YAML file into the IR.
 func ParseFile(path string) (*model.Workflow, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {

@@ -87,25 +87,33 @@ func Build(sources []Source) *Graph {
 					return id, KindReusable, pin
 				}
 			}
-			// composite action: match by directory suffix
+			// composite action: match on a path-segment boundary, choosing the most
+			// specific (longest) match so resolution is deterministic regardless of
+			// map iteration order.
 			clean = strings.TrimSuffix(strings.TrimSuffix(clean, "/action.yml"), "/action.yaml")
+			var bestDir, bestID string
 			for dir, id := range actionDirSuffix {
-				if strings.HasSuffix(dir, clean) {
-					return id, KindComposite, pin
+				if dir == clean || strings.HasSuffix(dir, "/"+clean) {
+					if bestID == "" || len(dir) > len(bestDir) || (len(dir) == len(bestDir) && dir < bestDir) {
+						bestDir, bestID = dir, id
+					}
 				}
+			}
+			if bestID != "" {
+				return bestID, KindComposite, pin
 			}
 			return "", KindReusable, pin // local but unresolved
 		}
-		// cross-repo external reference: record as an external node, do not fetch.
-		ext := externalID(raw)
-		if _, ok := g.Nodes[ext]; !ok {
-			g.Nodes[ext] = &Node{ID: ext, Name: ext, External: true, IsAction: !strings.Contains(ref, "/.github/workflows/")}
+		// cross-repo external reference: record as an external node (keyed without the
+		// @pin so different pins of the same target collapse), do not fetch.
+		isWorkflow := strings.Contains(ref, "/.github/workflows/")
+		if _, ok := g.Nodes[ref]; !ok {
+			g.Nodes[ref] = &Node{ID: ref, Name: ref, External: true, IsAction: !isWorkflow}
 		}
-		kind = KindReusable
-		if !strings.Contains(ref, "/.github/workflows/") {
-			kind = KindComposite
+		if isWorkflow {
+			return ref, KindReusable, pin
 		}
-		return ext, kind, pin
+		return ref, KindComposite, pin
 	}
 
 	for _, s := range sources {
@@ -226,8 +234,6 @@ func splitPin(raw string) (ref, pin string) {
 	}
 	return raw, ""
 }
-
-func externalID(raw string) string { return raw }
 
 func displayName(name, path string) string {
 	if name != "" {
