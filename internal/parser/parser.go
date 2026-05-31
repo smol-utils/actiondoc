@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/goccy/go-yaml/ast"
 	yamlparser "github.com/goccy/go-yaml/parser"
@@ -209,8 +210,37 @@ func parseJobFields(job *model.Job, mapping *ast.MappingNode) {
 			job.If = nodeString(mv.Value)
 		case "steps":
 			job.Steps = parseSteps(mv.Value)
+		// --- v0.2.0 M1: reusable-workflow caller jobs ---
+		case "uses":
+			job.Uses = nodeString(mv.Value)
+		case "with":
+			job.With = parseKVMap(mv.Value)
+		case "secrets":
+			// `secrets: inherit` (scalar) vs an explicit mapping of forwarded secrets.
+			if strings.TrimSpace(nodeString(mv.Value)) == "inherit" {
+				job.SecretsInherit = true
+			} else {
+				job.Secrets = parseKVMap(mv.Value)
+			}
 		}
 	}
+}
+
+// parseKVMap parses a YAML mapping into an ordered slice of key/value pairs, preserving
+// source order. Used for reusable-workflow `with:`/`secrets:` forwarding maps.
+func parseKVMap(node ast.Node) []model.KV {
+	mapping := toMapping(node)
+	if mapping == nil {
+		return nil
+	}
+	var out []model.KV
+	for _, mv := range mapping.Values {
+		out = append(out, model.KV{
+			Key:   mapKeyString(mv.Key),
+			Value: nodeString(mv.Value),
+		})
+	}
+	return out
 }
 
 // parseSteps extracts steps from the steps: sequence node.

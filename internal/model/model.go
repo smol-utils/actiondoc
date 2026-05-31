@@ -20,6 +20,13 @@ type Job struct {
 	If          string   `json:"if,omitempty"`
 	Steps       []Step   `json:"steps"`
 	Tags        Tags     `json:"tags,omitempty"`
+
+	// --- v0.2.0 M1: reusable-workflow caller fields ---
+	// A job that calls a reusable workflow uses `uses:` instead of `runs-on:`/`steps:`.
+	Uses           string `json:"uses,omitempty"`            // reusable workflow call target (raw `uses:` value)
+	With           []KV   `json:"with,omitempty"`            // forwarded inputs (with:)
+	Secrets        []KV   `json:"secrets,omitempty"`         // forwarded secrets (explicit mapping)
+	SecretsInherit bool   `json:"secrets_inherit,omitempty"` // `secrets: inherit`
 }
 
 // Step represents a single step within a job.
@@ -51,6 +58,13 @@ type Param struct {
 	Name        string `json:"name"`
 	Type        string `json:"type,omitempty"`
 	Description string `json:"description,omitempty"`
+}
+
+// KV is an ordered key/value pair, used for reusable-workflow `with:`/`secrets:`
+// forwarding maps where source order is preserved for deterministic rendering.
+type KV struct {
+	Key   string `json:"key"`
+	Value string `json:"value"`
 }
 
 // Action is the top-level data model for a GitHub Action metadata file (action.yml).
