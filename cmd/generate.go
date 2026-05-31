@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
@@ -124,5 +125,40 @@ func resolveFiles(path string) ([]string, error) {
 			files = append(files, filepath.Join(path, e.Name()))
 		}
 	}
+
+	// item 6: when pointed at a .github/workflows directory, also auto-discover sibling
+	// composite actions under .github/actions/ so they render in the same output.
+	// (Composite actions placed directly inside the workflows dir are already picked up
+	// above, since action.yml/.yaml has a .yml/.yaml extension -- the vets-website case.)
+	if strings.EqualFold(filepath.Base(path), "workflows") {
+		discovered, err := discoverActionFiles(filepath.Join(filepath.Dir(path), "actions"))
+		if err != nil {
+			return nil, err
+		}
+		files = append(files, discovered...)
+	}
 	return files, nil
+}
+
+// discoverActionFiles walks dir (if present) for composite action metadata files named
+// action.yml/action.yaml, at any depth (composite-of-composite caps at 3 in the wild).
+// A missing dir is not an error.
+func discoverActionFiles(dir string) ([]string, error) {
+	if info, err := os.Stat(dir); err != nil || !info.IsDir() {
+		return nil, nil
+	}
+	var out []string
+	err := filepath.WalkDir(dir, func(p string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if d.IsDir() {
+			return nil
+		}
+		if isActionFile(p) {
+			out = append(out, p)
+		}
+		return nil
+	})
+	return out, err
 }
