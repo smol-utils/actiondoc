@@ -28,6 +28,19 @@ A continuation line is any comment line that does not start with `@`. It is appe
 #   end-to-end browser tests.
 ```
 
+## Tag Allowlist
+
+ActionDoc recognizes a **fixed allowlist** of `@`-prefixed tags in YAML comments:
+
+`@desc`, `@secret`, `@input`, `@env`, `@output`, `@deprecated`, `@see`, `@since`,
+`@example`
+
+Any other `@`-prefixed string in a comment is **ignored** -- not interpreted, not
+warned about. This guarantee lets ActionDoc coexist with other tooling that embeds its
+own `@`-markers in YAML comments (e.g. Lula compliance markers `@lulaStart` / `@lulaEnd`
+in defenseunicorns/uds-core). The allowlist is fixed by design; it is not configurable,
+so downstream tools can rely on exactly which markers ActionDoc consumes.
+
 ## Tag Reference
 
 ### `@desc <text>`
