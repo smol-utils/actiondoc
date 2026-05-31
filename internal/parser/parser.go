@@ -11,6 +11,26 @@ import (
 )
 
 // ParseFile parses a single workflow YAML file into the IR.
+// firstMappingDoc returns the first YAML document whose body is a mapping, wrapping a
+// bare MappingValueNode if needed. goccy/go-yaml emits a leading comment-only document
+// when a file opens with a '#' comment block followed by a '---' document-start marker
+// (e.g. ASF license headers); taking Docs[0] unconditionally then failed with
+// "expected top-level mapping" (bead actiondoc-efz). Iterating skips that comment doc.
+func firstMappingDoc(file *ast.File) (*ast.DocumentNode, *ast.MappingNode, bool) {
+	for _, doc := range file.Docs {
+		if doc == nil || doc.Body == nil {
+			continue
+		}
+		switch body := doc.Body.(type) {
+		case *ast.MappingNode:
+			return doc, body, true
+		case *ast.MappingValueNode:
+			return doc, &ast.MappingNode{Values: []*ast.MappingValueNode{body}}, true
+		}
+	}
+	return nil, nil, false
+}
+
 func ParseFile(path string) (*model.Workflow, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
@@ -25,16 +45,9 @@ func ParseFile(path string) (*model.Workflow, error) {
 	if len(file.Docs) == 0 {
 		return nil, fmt.Errorf("%s: no YAML documents found", path)
 	}
-	doc := file.Docs[0]
-
-	root, ok := doc.Body.(*ast.MappingNode)
+	doc, root, ok := firstMappingDoc(file)
 	if !ok {
-		// Could be a single MappingValueNode; wrap it.
-		if mv, ok := doc.Body.(*ast.MappingValueNode); ok {
-			root = &ast.MappingNode{Values: []*ast.MappingValueNode{mv}}
-		} else {
-			return nil, fmt.Errorf("%s: expected top-level mapping", path)
-		}
+		return nil, fmt.Errorf("%s: expected top-level mapping", path)
 	}
 
 	w := &model.Workflow{
@@ -298,15 +311,9 @@ func ParseActionFile(path string) (*model.Action, error) {
 	if len(file.Docs) == 0 {
 		return nil, fmt.Errorf("%s: no YAML documents found", path)
 	}
-	doc := file.Docs[0]
-
-	root, ok := doc.Body.(*ast.MappingNode)
+	doc, root, ok := firstMappingDoc(file)
 	if !ok {
-		if mv, ok := doc.Body.(*ast.MappingValueNode); ok {
-			root = &ast.MappingNode{Values: []*ast.MappingValueNode{mv}}
-		} else {
-			return nil, fmt.Errorf("%s: expected top-level mapping", path)
-		}
+		return nil, fmt.Errorf("%s: expected top-level mapping", path)
 	}
 
 	a := &model.Action{
