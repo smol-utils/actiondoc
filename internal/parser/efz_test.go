@@ -2,10 +2,10 @@ package parser
 
 import "testing"
 
-// TestParseFileHeaderCommentDoc is the regression test for bead actiondoc-efz: a file
-// that opens with a '#' comment block followed by a '---' document-start marker makes
-// goccy/go-yaml emit a leading comment-only document. The parser must skip it and parse
-// the first mapping document rather than failing with "expected top-level mapping".
+// TestParseFileHeaderCommentDoc covers a file that opens with a '#' comment block
+// followed by a '---' document-start marker, which makes goccy/go-yaml emit a leading
+// comment-only document. The parser must skip it and parse the first mapping document
+// rather than failing with "expected top-level mapping".
 func TestParseFileHeaderCommentDoc(t *testing.T) {
 	path := testdataPath("header-comment-doc.yml")
 

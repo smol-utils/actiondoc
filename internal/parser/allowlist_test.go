@@ -2,10 +2,9 @@ package parser
 
 import "testing"
 
-// TestParseTagsAllowlist locks the fixed @-tag allowlist (spec: "Tag Allowlist"):
-// unknown @-prefixed strings must be ignored entirely while interleaved allowlisted
-// tags still parse. Driver: defenseunicorns/uds-core embeds Lula markers
-// (@lulaStart/@lulaEnd) in YAML comments alongside ActionDoc tags.
+// TestParseTagsAllowlist locks the fixed @-tag allowlist: unknown @-prefixed strings
+// must be ignored entirely while interleaved allowlisted tags still parse. This lets
+// ActionDoc coexist with other tooling that embeds its own @-markers in YAML comments.
 func TestParseTagsAllowlist(t *testing.T) {
 	comment := `@lulaStart compliance-block
 @desc Deploys to production

@@ -1,11 +1,10 @@
 // Package callgraph builds the directed graph of `uses:` relationships across a scanned
 // set of workflows and composite actions: workflow -> reusable workflow (job-level
-// `uses:`) and workflow -> composite action (step-level local `uses:`). It is the
-// foundation (milestone M1) consumed by the reusable-workflow and call-graph rendering
-// features (roadmap items 7, 8, 12, 13, 14, 17, and the index counts in 23d/e).
+// `uses:`) and workflow -> composite action (step-level local `uses:`). It backs the
+// reusable-workflow and call-graph rendering features and the caller-count index.
 //
 // Cross-repo references (e.g. owner/repo/.github/workflows/x.yml@ref) are recorded as
-// external nodes and never fetched over the network, per the v0.2.0 scope.
+// external nodes and never fetched over the network.
 package callgraph
 
 import (
@@ -152,8 +151,8 @@ func (g *Graph) CalledBy(id string) []Edge {
 	return out
 }
 
-// CallerCount returns the number of distinct caller nodes for id (for the index +
-// fan-in collapsing, e.g. pytorch's 55-caller case).
+// CallerCount returns the number of distinct caller nodes for id (used by the index and
+// to collapse high fan-in cases where a reusable workflow has many callers).
 func (g *Graph) CallerCount(id string) int {
 	seen := map[string]bool{}
 	for _, e := range g.Edges {

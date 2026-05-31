@@ -15,8 +15,8 @@ import (
 // firstMappingDoc returns the first YAML document whose body is a mapping, wrapping a
 // bare MappingValueNode if needed. goccy/go-yaml emits a leading comment-only document
 // when a file opens with a '#' comment block followed by a '---' document-start marker
-// (e.g. ASF license headers); taking Docs[0] unconditionally then failed with
-// "expected top-level mapping" (bead actiondoc-efz). Iterating skips that comment doc.
+// (e.g. a license header). Taking Docs[0] unconditionally then fails with
+// "expected top-level mapping"; iterating skips the comment-only document.
 func firstMappingDoc(file *ast.File) (*ast.DocumentNode, *ast.MappingNode, bool) {
 	for _, doc := range file.Docs {
 		if doc == nil || doc.Body == nil {
@@ -210,7 +210,7 @@ func parseJobFields(job *model.Job, mapping *ast.MappingNode) {
 			job.If = nodeString(mv.Value)
 		case "steps":
 			job.Steps = parseSteps(mv.Value)
-		// --- v0.2.0 M1: reusable-workflow caller jobs ---
+		// Reusable-workflow caller jobs use uses:/with:/secrets: instead of steps.
 		case "uses":
 			job.Uses = nodeString(mv.Value)
 		case "with":

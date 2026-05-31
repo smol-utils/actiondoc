@@ -21,8 +21,8 @@ type Job struct {
 	Steps       []Step   `json:"steps"`
 	Tags        Tags     `json:"tags,omitempty"`
 
-	// --- v0.2.0 M1: reusable-workflow caller fields ---
-	// A job that calls a reusable workflow uses `uses:` instead of `runs-on:`/`steps:`.
+	// Reusable-workflow caller fields. A job that calls a reusable workflow uses
+	// `uses:` instead of `runs-on:`/`steps:`.
 	Uses           string `json:"uses,omitempty"`            // reusable workflow call target (raw `uses:` value)
 	With           []KV   `json:"with,omitempty"`            // forwarded inputs (with:)
 	Secrets        []KV   `json:"secrets,omitempty"`         // forwarded secrets (explicit mapping)

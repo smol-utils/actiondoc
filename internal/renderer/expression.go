@@ -3,7 +3,7 @@ package renderer
 import "strings"
 
 // expressions returns the inner text of each ${{ ... }} occurrence in s, in order.
-// Foundation hook (M4) for rendering matrix/run-name expressions (roadmap items 21, 10).
+// Used when rendering strings that embed expressions (matrix references, run-name).
 func expressions(s string) []string {
 	var out []string
 	for {
@@ -24,8 +24,8 @@ func expressions(s string) []string {
 
 // expressionKind classifies a GitHub Actions expression by its leading context token,
 // e.g. "matrix.java.version" -> "matrix", "github.event.x" -> "github". Returns "other"
-// if the context is unrecognized. Consumers decide render policy: matrix axes get
-// resolved to value lists (item 21); everything else renders verbatim (item 10).
+// if the context is unrecognized. Consumers decide render policy: matrix axes can be
+// resolved to value lists; everything else renders verbatim.
 func expressionKind(expr string) string {
 	expr = strings.TrimSpace(expr)
 	for _, ctx := range []string{

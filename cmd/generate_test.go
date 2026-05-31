@@ -6,8 +6,8 @@ import (
 	"testing"
 )
 
-// TestResolveFilesCompositeDiscovery verifies item 6: pointing at a .github/workflows
-// dir discovers both the workflow files and sibling composite actions under
+// TestResolveFilesCompositeDiscovery verifies that pointing at a .github/workflows dir
+// discovers both the workflow files and sibling composite actions under
 // .github/actions/ (including a nested one and a composite placed in the workflows dir).
 func TestResolveFilesCompositeDiscovery(t *testing.T) {
 	root := t.TempDir()
@@ -26,7 +26,7 @@ func TestResolveFilesCompositeDiscovery(t *testing.T) {
 	gh := filepath.Join(root, ".github")
 	write(filepath.Join(gh, "workflows", "ci.yml"))
 	write(filepath.Join(gh, "workflows", "release.yaml"))
-	write(filepath.Join(gh, "workflows", "action.yml"))             // composite in workflows dir (vets-website)
+	write(filepath.Join(gh, "workflows", "action.yml"))             // composite placed in the workflows dir
 	write(filepath.Join(gh, "actions", "build", "action.yml"))      // sibling composite
 	write(filepath.Join(gh, "actions", "deep", "x", "action.yaml")) // nested composite
 

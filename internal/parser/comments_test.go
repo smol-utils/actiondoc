@@ -21,8 +21,8 @@ func parseTopMapping(t *testing.T, src string) *ast.MappingNode {
 	return root
 }
 
-// TestTrailingComment verifies the M2 trailing-comment primitive extracts an inline
-// rationale comment from a mapping entry (driver pattern: detekt permission rationale).
+// TestTrailingComment verifies the trailing-comment helper extracts an inline rationale
+// comment from a mapping entry (e.g. a permission scope annotated with why it's needed).
 func TestTrailingComment(t *testing.T) {
 	root := parseTopMapping(t, "contents: read  # for actions/checkout to fetch code\n")
 	if len(root.Values) == 0 {
@@ -35,8 +35,8 @@ func TestTrailingComment(t *testing.T) {
 	}
 }
 
-// TestLeadingComment verifies the M2 leading-comment primitive (driver: item 19 implicit
-// @desc) cleans a head comment block.
+// TestLeadingComment verifies the leading-comment helper cleans a head comment block
+// (used to derive an implicit description).
 func TestLeadingComment(t *testing.T) {
 	root := parseTopMapping(t, "# Runs the nightly cleanup pipeline.\nname: cleanup\n")
 	if len(root.Values) == 0 {
