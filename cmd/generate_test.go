@@ -57,6 +57,17 @@ func TestResolveFilesCompositeDiscovery(t *testing.T) {
 	if len(got) != len(want) {
 		t.Errorf("got %d files, want %d: %v", len(got), len(want), got)
 	}
+
+	// Discovery order must be deterministic so directory-mode TOC/section order is stable.
+	for i := 0; i < 3; i++ {
+		again, err := resolveFiles(filepath.Join(gh, "workflows"))
+		if err != nil {
+			t.Fatalf("resolveFiles (repeat): %v", err)
+		}
+		if strings.Join(again, "\n") != strings.Join(got, "\n") {
+			t.Errorf("resolveFiles order not deterministic:\n first: %v\n again: %v", got, again)
+		}
+	}
 }
 
 // TestGenerateNoWorkflowName verifies that a workflow without a `name:` still renders a

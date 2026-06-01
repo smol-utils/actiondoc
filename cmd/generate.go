@@ -7,6 +7,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"github.com/smol-utils/actiondoc/internal/callgraph"
@@ -232,5 +233,9 @@ func discoverActionFiles(dir string) ([]string, error) {
 		}
 		return nil
 	})
+	// WalkDir already visits in lexical order, but sort explicitly so deterministic
+	// output (TOC + section ordering) doesn't silently depend on that implementation
+	// detail.
+	sort.Strings(out)
 	return out, err
 }
