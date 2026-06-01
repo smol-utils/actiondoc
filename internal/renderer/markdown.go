@@ -4,11 +4,23 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/smol-utils/actiondoc/internal/callgraph"
 	"github.com/smol-utils/actiondoc/internal/model"
 )
 
-// RenderMarkdown converts a Workflow IR into a Markdown document.
+// RenderMarkdown converts a Workflow IR into a Markdown document with no call-graph
+// context (single-file rendering). Reusable-workflow cross-links and the call-graph
+// sections are omitted; use RenderMarkdownGraph to include them.
 func RenderMarkdown(w *model.Workflow) string {
+	return RenderMarkdownGraph(w, nil, "")
+}
+
+// RenderMarkdownGraph converts a Workflow IR into a Markdown document, using the call
+// graph g (built from the whole scan set) to resolve reusable-workflow cross-links and to
+// render the call-graph / "called by" / transitive-requirements sections. id is this
+// workflow's node id in g. g may be nil and id empty, in which case the graph-derived
+// sections are skipped and the output matches single-file rendering.
+func RenderMarkdownGraph(w *model.Workflow, g *callgraph.Graph, id string) string {
 	var b strings.Builder
 
 	// Title
@@ -43,6 +55,12 @@ func RenderMarkdown(w *model.Workflow) string {
 		b.WriteString("\n\n")
 	}
 
+	// Call-graph sections (rendered only with graph context): downstream tree and
+	// transitive requirements on entry points, upstream chain on reusable workflows.
+	renderCallGraph(&b, g, id)
+	renderTransitiveRequirements(&b, g, id)
+	renderCalledBy(&b, g, id)
+
 	writeParamSections(&b, styleHeading,
 		paramSection{"Secrets", w.Tags.Secrets},
 		paramSection{"Inputs", w.Tags.Inputs},
@@ -53,15 +71,15 @@ func RenderMarkdown(w *model.Workflow) string {
 	// Jobs
 	if len(w.Jobs) > 0 {
 		b.WriteString("## Jobs\n\n")
-		for _, job := range w.Jobs {
-			renderJob(&b, &job)
+		for i := range w.Jobs {
+			renderJob(&b, &w.Jobs[i], g, id)
 		}
 	}
 
 	return b.String()
 }
 
-func renderJob(b *strings.Builder, job *model.Job) {
+func renderJob(b *strings.Builder, job *model.Job, g *callgraph.Graph, fromID string) {
 	// Job heading
 	if job.Name != job.ID {
 		fmt.Fprintf(b, "### %s (`%s`)\n\n", job.Name, job.ID)
@@ -77,6 +95,13 @@ func renderJob(b *strings.Builder, job *model.Job) {
 	// Description
 	if job.Description != "" {
 		fmt.Fprintf(b, "%s\n\n", job.Description)
+	}
+
+	// A job that calls a reusable workflow uses `uses:` instead of `runs-on:`/`steps:`;
+	// render its caller surface (callee link + forwarded inputs/secrets) and stop.
+	if job.Uses != "" {
+		renderCallerJob(b, job, g, fromID)
+		return
 	}
 
 	// Properties table

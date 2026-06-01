@@ -1,0 +1,38 @@
+# @desc Orchestrates the full release: build, publish, and notify.
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'The version to release'
+        required: true
+        type: string
+
+jobs:
+  # @desc Build and publish all release artifacts.
+  publish:
+    uses: ./.github/workflows/build_and_publish.yml
+    with:
+      version: ${{ inputs.version }}
+      channel: stable
+    secrets:
+      GPG_KEY: ${{ secrets.RELEASE_GPG_KEY }}
+
+  # @desc Announce the release in external channels.
+  notify:
+    uses: external-org/notifications/.github/workflows/notify.yml@v2
+    needs: publish
+    if: success()
+    secrets: inherit
+
+  # @desc Tag the release commit.
+  tag:
+    runs-on: ubuntu-latest
+    needs: publish
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Tag
+        run: git tag "v${{ inputs.version }}"

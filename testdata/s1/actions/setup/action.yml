@@ -1,0 +1,16 @@
+# @desc Installs the build toolchain used by the publish jobs.
+name: Setup Toolchain
+description: Installs the compilers and signing tools.
+
+inputs:
+  cache:
+    description: Whether to cache the toolchain
+    required: false
+    default: 'true'
+
+runs:
+  using: composite
+  steps:
+    - name: Install
+      run: ./scripts/install-toolchain.sh
+      shell: bash
