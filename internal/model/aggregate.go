@@ -95,12 +95,12 @@ func (sc *refScan) scan(s, site string) {
 	}
 }
 
-// scanCondition scans an `if:` value. A condition is itself a GitHub Actions expression,
-// so references are commonly written WITHOUT the ${{ }} delimiters (for example
-// `if: secrets.DEPLOY_TOKEN != ''`). Scan the whole string as an expression body; any
-// ${{ }} the author did include is a substring and is still matched. (This differs from
-// scan(), which is used for run:/with:/env: where a bare `secrets.X` is plain text, not
-// an expression, and must not be collected.)
+// scanCondition scans an if: value. A condition is itself a GitHub Actions expression, so
+// references are commonly written WITHOUT the ${{ }} delimiters (for example an if: that
+// compares secrets.DEPLOY_TOKEN to the empty string). Scan the whole string as an
+// expression body; any ${{ }} the author did include is a substring and is still matched.
+// This differs from scan(), used for run/with/env, where a bare secrets.X is plain text,
+// not an expression, and must not be collected.
 func (sc *refScan) scanCondition(s, site string) {
 	if s == "" {
 		return
