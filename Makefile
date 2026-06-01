@@ -45,3 +45,37 @@ golden:
 ## demo: Run actiondoc against the sample workflow
 demo:
 	go run . generate testdata/sample-workflow.yml
+
+DOGFOOD_DIR ?= dogfood/repos
+
+## dogfood-fetch: Shallow-clone the corpus from dogfood/manifest.txt at pinned SHAs
+dogfood-fetch:
+	@mkdir -p dogfood/repos
+	@grep -v '^#' dogfood/manifest.txt | while IFS="$$(printf '\t')" read -r name url sha; do \
+		[ -n "$$name" ] || continue; \
+		dir="dogfood/repos/$$name"; \
+		if [ -d "$$dir/.git" ]; then echo "have $$name"; continue; fi; \
+		echo "fetch $$name ($$sha)"; \
+		git init -q "$$dir" && git -C "$$dir" remote add origin "$$url" 2>/dev/null; \
+		if git -C "$$dir" fetch -q --depth 1 origin "$$sha" 2>/dev/null; then \
+			git -C "$$dir" checkout -q FETCH_HEAD; \
+		else \
+			git -C "$$dir" fetch -q --depth 1 origin HEAD && git -C "$$dir" checkout -q FETCH_HEAD; \
+			echo "  (pinned SHA unavailable, used HEAD)"; \
+		fi; \
+	done
+
+## dogfood: Run actiondoc against each corpus repo; fail if any repo errors
+dogfood: build
+	@ok=0; fail=0; failed=""; \
+	for d in $(DOGFOOD_DIR)/*/; do \
+		[ -d "$$d.github/workflows" ] || continue; \
+		name=$$(basename "$$d"); \
+		if ./actiondoc generate "$$d.github/workflows" >/dev/null 2>&1; then \
+			ok=$$((ok+1)); \
+		else \
+			fail=$$((fail+1)); failed="$$failed $$name"; \
+		fi; \
+	done; \
+	echo "dogfood: $$ok ok, $$fail failed"; \
+	if [ $$fail -gt 0 ]; then echo "failed:$$failed"; exit 1; fi
