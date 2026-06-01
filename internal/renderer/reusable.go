@@ -30,7 +30,9 @@ func renderCallerJob(b *strings.Builder, job *model.Job, g *callgraph.Graph, fro
 		fmt.Fprintf(b, "| Depends on | %s |\n", codelist(job.Needs))
 	}
 	if job.If != "" {
-		fmt.Fprintf(b, "| Condition | `%s` |\n", escapeCell(job.If))
+		// Trim first: literal-block conditions carry a trailing newline that would
+		// otherwise render as a dangling <br> (matches the normal job renderer).
+		fmt.Fprintf(b, "| Condition | `%s` |\n", escapeCell(strings.TrimSpace(job.If)))
 	}
 	b.WriteString("\n")
 

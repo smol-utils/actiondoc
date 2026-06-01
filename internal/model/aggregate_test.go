@@ -115,6 +115,56 @@ func TestScanReferencesEnv(t *testing.T) {
 	}
 }
 
+// TestScanReferencesBareCondition covers if: conditions that reference secrets/vars
+// WITHOUT ${{ }} delimiters -- valid because a condition is itself an expression. Both
+// job-level and step-level if: must be scanned this way.
+func TestScanReferencesBareCondition(t *testing.T) {
+	w := &Workflow{
+		Name: "CI",
+		Jobs: []Job{
+			{
+				ID: "deploy",
+				If: "secrets.DEPLOY_TOKEN != '' && vars.ENABLED",
+				Steps: []Step{
+					{Name: "gate", If: "secrets.STEP_GATE == 'yes'"},
+				},
+			},
+		},
+	}
+
+	refs := ScanReferences(w)
+	secrets := map[string]bool{}
+	for _, r := range refs.Secrets {
+		secrets[r.Name] = true
+	}
+	vars := map[string]bool{}
+	for _, r := range refs.Vars {
+		vars[r.Name] = true
+	}
+
+	for _, name := range []string{"DEPLOY_TOKEN", "STEP_GATE"} {
+		if !secrets[name] {
+			t.Errorf("bare-condition secret %q not collected", name)
+		}
+	}
+	if !vars["ENABLED"] {
+		t.Error("bare-condition var ENABLED not collected")
+	}
+}
+
+// TestScanReferencesRunIsNotExpression guards the inverse: a bare secrets.X mention in a
+// run: shell script is plain text, not an expression, and must NOT be collected.
+func TestScanReferencesRunIsNotExpression(t *testing.T) {
+	w := &Workflow{
+		Jobs: []Job{{ID: "x", Steps: []Step{
+			{Run: "echo do not collect secrets.NOT_A_REF here"},
+		}}},
+	}
+	if !ScanReferences(w).Empty() {
+		t.Error("collected a bare secrets. mention from a run: script (should be plain text)")
+	}
+}
+
 // TestContextRefs covers boundary handling in the expression-body scanner.
 func TestContextRefs(t *testing.T) {
 	tests := []struct {

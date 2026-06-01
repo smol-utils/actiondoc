@@ -36,7 +36,7 @@ func ScanReferences(w *Workflow) References {
 	for ji := range w.Jobs {
 		job := &w.Jobs[ji]
 		jobLabel := "job `" + job.ID + "`"
-		sc.scan(job.If, jobLabel+" (if)")
+		sc.scanCondition(job.If, jobLabel+" (if)")
 		for _, kv := range job.Env {
 			sc.scan(kv.Value, jobLabel+" env `"+kv.Key+"`")
 		}
@@ -49,7 +49,7 @@ func ScanReferences(w *Workflow) References {
 		for si := range job.Steps {
 			step := &job.Steps[si]
 			stepLabel := jobLabel + " step `" + stepRefLabel(step, si+1) + "`"
-			sc.scan(step.If, stepLabel+" (if)")
+			sc.scanCondition(step.If, stepLabel+" (if)")
 			sc.scan(step.Run, stepLabel+" (run)")
 			for _, kv := range step.With {
 				sc.scan(kv.Value, stepLabel+" with `"+kv.Key+"`")
@@ -91,12 +91,29 @@ func (sc *refScan) scan(s, site string) {
 		return
 	}
 	for _, body := range exprBodies(s) {
-		for _, name := range contextRefs(body, "secrets") {
-			sc.secrets.add(name, site)
-		}
-		for _, name := range contextRefs(body, "vars") {
-			sc.vars.add(name, site)
-		}
+		sc.collect(body, site)
+	}
+}
+
+// scanCondition scans an `if:` value. A condition is itself a GitHub Actions expression,
+// so references are commonly written WITHOUT the ${{ }} delimiters (for example
+// `if: secrets.DEPLOY_TOKEN != ''`). Scan the whole string as an expression body; any
+// ${{ }} the author did include is a substring and is still matched. (This differs from
+// scan(), which is used for run:/with:/env: where a bare `secrets.X` is plain text, not
+// an expression, and must not be collected.)
+func (sc *refScan) scanCondition(s, site string) {
+	if s == "" {
+		return
+	}
+	sc.collect(s, site)
+}
+
+func (sc *refScan) collect(body, site string) {
+	for _, name := range contextRefs(body, "secrets") {
+		sc.secrets.add(name, site)
+	}
+	for _, name := range contextRefs(body, "vars") {
+		sc.vars.add(name, site)
 	}
 }
 
