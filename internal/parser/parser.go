@@ -16,19 +16,42 @@ import (
 // when a file opens with a '#' comment block followed by a '---' document-start marker
 // (e.g. a license header). Taking Docs[0] unconditionally then fails with
 // "expected top-level mapping"; iterating skips the comment-only document.
-func firstMappingDoc(file *ast.File) (*ast.DocumentNode, *ast.MappingNode, bool) {
-	for _, doc := range file.Docs {
-		if doc == nil || doc.Body == nil {
+//
+// It also returns any documents skipped before the mapping. Their comments must still be
+// searched for the head comment -- otherwise a description or ActionDoc tags placed in a
+// comment block before `---` would be silently lost.
+func firstMappingDoc(file *ast.File) (doc *ast.DocumentNode, root *ast.MappingNode, skipped []*ast.DocumentNode, ok bool) {
+	for _, d := range file.Docs {
+		if d == nil || d.Body == nil {
+			skipped = append(skipped, d)
 			continue
 		}
-		switch body := doc.Body.(type) {
+		switch body := d.Body.(type) {
 		case *ast.MappingNode:
-			return doc, body, true
+			return d, body, skipped, true
 		case *ast.MappingValueNode:
-			return doc, &ast.MappingNode{Values: []*ast.MappingValueNode{body}}, true
+			return d, &ast.MappingNode{Values: []*ast.MappingValueNode{body}}, skipped, true
+		}
+		skipped = append(skipped, d)
+	}
+	return nil, nil, skipped, false
+}
+
+// headCommentNodes builds the node list to search for the head comment: the leading
+// comment-only documents skipped before the mapping (where a pre-`---` comment block
+// lands) first, then the mapping document, root, first entry, and its key.
+func headCommentNodes(doc *ast.DocumentNode, root *ast.MappingNode, skipped []*ast.DocumentNode) []ast.Node {
+	var nodes []ast.Node
+	for _, d := range skipped {
+		if d != nil {
+			nodes = append(nodes, d)
 		}
 	}
-	return nil, nil, false
+	nodes = append(nodes, doc, root)
+	if len(root.Values) > 0 {
+		nodes = append(nodes, root.Values[0], root.Values[0].Key)
+	}
+	return nodes
 }
 
 // ParseFile parses a single workflow YAML file into the IR.
@@ -46,7 +69,7 @@ func ParseFile(path string) (*model.Workflow, error) {
 	if len(file.Docs) == 0 {
 		return nil, fmt.Errorf("%s: no YAML documents found", path)
 	}
-	doc, root, ok := firstMappingDoc(file)
+	doc, root, skipped, ok := firstMappingDoc(file)
 	if !ok {
 		return nil, fmt.Errorf("%s: expected top-level mapping", path)
 	}
@@ -55,14 +78,10 @@ func ParseFile(path string) (*model.Workflow, error) {
 		File: filepath.Base(path),
 	}
 
-	// Workflow-level tags: the YAML library may attach the top-of-file comment
-	// to the document, root mapping, first MappingValueNode, or its key.
-	var firstMV, firstKey ast.Node
-	if len(root.Values) > 0 {
-		firstMV = root.Values[0]
-		firstKey = root.Values[0].Key
-	}
-	headComment := findComment(doc, root, firstMV, firstKey)
+	// Workflow-level tags: the YAML library may attach the top-of-file comment to a
+	// leading comment-only document (pre-`---` block), the mapping document, root
+	// mapping, first MappingValueNode, or its key.
+	headComment := findComment(headCommentNodes(doc, root, skipped)...)
 	w.Tags = ParseTags(headComment)
 	w.Description = w.Tags.Desc
 	if w.Description == "" {
@@ -106,11 +125,25 @@ func commentString(cg *ast.CommentGroupNode) string {
 	return cg.String()
 }
 
-// findComment returns the first non-empty comment string from the given nodes.
+// findComment returns the first non-empty comment string from the given nodes. A node
+// may carry its comment via GetComment(), or BE a comment group itself (goccy represents
+// a pre-`---` comment block as a document whose body is a *ast.CommentGroupNode).
 func findComment(nodes ...ast.Node) string {
 	for _, n := range nodes {
 		if n == nil {
 			continue
+		}
+		if cg, ok := n.(*ast.CommentGroupNode); ok {
+			if s := commentString(cg); s != "" {
+				return s
+			}
+		}
+		if doc, ok := n.(*ast.DocumentNode); ok {
+			if cg, ok := doc.Body.(*ast.CommentGroupNode); ok {
+				if s := commentString(cg); s != "" {
+					return s
+				}
+			}
 		}
 		if s := commentString(n.GetComment()); s != "" {
 			return s

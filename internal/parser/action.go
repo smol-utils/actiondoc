@@ -25,7 +25,7 @@ func ParseActionFile(path string) (*model.Action, error) {
 	if len(file.Docs) == 0 {
 		return nil, fmt.Errorf("%s: no YAML documents found", path)
 	}
-	doc, root, ok := firstMappingDoc(file)
+	doc, root, skipped, ok := firstMappingDoc(file)
 	if !ok {
 		return nil, fmt.Errorf("%s: expected top-level mapping", path)
 	}
@@ -34,13 +34,9 @@ func ParseActionFile(path string) (*model.Action, error) {
 		File: filepath.Base(path),
 	}
 
-	// Action-level tags from top-of-file comments.
-	var firstMV, firstKey ast.Node
-	if len(root.Values) > 0 {
-		firstMV = root.Values[0]
-		firstKey = root.Values[0].Key
-	}
-	a.Tags = ParseTags(findComment(doc, root, firstMV, firstKey))
+	// Action-level tags from top-of-file comments, including a pre-`---` comment block
+	// that goccy/go-yaml places in a leading comment-only document.
+	a.Tags = ParseTags(findComment(headCommentNodes(doc, root, skipped)...))
 
 	for _, mv := range root.Values {
 		keyStr := mapKeyString(mv.Key)

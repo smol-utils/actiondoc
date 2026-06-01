@@ -14,7 +14,7 @@ func parseTopMapping(t *testing.T, src string) *ast.MappingNode {
 	if err != nil {
 		t.Fatalf("parse: %v", err)
 	}
-	_, root, ok := firstMappingDoc(file)
+	_, root, _, ok := firstMappingDoc(file)
 	if !ok {
 		t.Fatalf("no mapping doc")
 	}
