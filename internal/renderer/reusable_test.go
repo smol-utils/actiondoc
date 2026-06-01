@@ -74,6 +74,32 @@ func TestRenderCallerJobForwarding(t *testing.T) {
 	}
 }
 
+// TestRenderCallerJobMultilineValue verifies a multi-line forwarded with:/secrets: value
+// is collapsed to one line, so it can't inject newlines that break the Markdown list.
+func TestRenderCallerJobMultilineValue(t *testing.T) {
+	caller := &model.Workflow{
+		File: "release.yml", Name: "Release", On: []string{"workflow_dispatch"},
+		Jobs: []model.Job{{
+			ID:   "publish",
+			Uses: "./.github/workflows/build.yml",
+			With: []model.KV{{Key: "config", Value: "line1\nline2\nline3"}},
+		}},
+	}
+	build := &model.Workflow{File: "build.yml", Name: "Build", On: []string{"workflow_call"}}
+	g := callgraph.Build([]callgraph.Source{
+		{Path: ".github/workflows/release.yml", Workflow: caller},
+		{Path: ".github/workflows/build.yml", Workflow: build},
+	})
+
+	md := RenderMarkdownGraph(caller, g, ".github/workflows/release.yml")
+	if strings.Contains(md, "line1\nline2") {
+		t.Errorf("multi-line forwarded value not collapsed (raw newline present):\n%s", md)
+	}
+	if !strings.Contains(md, "`config`: `line1 line2 line3`") {
+		t.Errorf("expected collapsed forwarded value, got:\n%s", md)
+	}
+}
+
 // TestRenderCallerJobTags verifies that ActionDoc tags declared on a reusable-workflow
 // caller job (@secret/@env/@output/@example/@see) are rendered, not dropped on the early
 // return.

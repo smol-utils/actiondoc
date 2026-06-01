@@ -155,11 +155,18 @@ func firstRunLine(run string) string {
 	return ""
 }
 
+// truncate shortens s to at most max characters (runes), appending "..." when it cuts.
+// It counts and slices by rune so a multi-byte UTF-8 character is never split, which
+// would otherwise emit invalid UTF-8 in the output. Behavior is identical for ASCII.
 func truncate(s string, max int) string {
-	if len(s) <= max {
+	r := []rune(s)
+	if len(r) <= max {
 		return s
 	}
-	return s[:max-3] + "..."
+	if max < 3 {
+		return string(r[:max])
+	}
+	return string(r[:max-3]) + "..."
 }
 
 // oneLine collapses newlines to spaces so a value renders safely inside an inline code span.

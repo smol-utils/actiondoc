@@ -3,6 +3,7 @@ package renderer
 import (
 	"strings"
 	"testing"
+	"unicode/utf8"
 
 	"github.com/smol-utils/actiondoc/internal/model"
 )
@@ -195,5 +196,25 @@ func TestRunsOnEscapedInTable(t *testing.T) {
 	md := RenderMarkdown(w)
 	if !strings.Contains(md, "| Runs on | `self-hosted, linux, x64` |") {
 		t.Errorf("runs-on row missing:\n%s", md)
+	}
+}
+
+// TestTruncateRuneSafe verifies truncate counts and slices by rune, never splitting a
+// multi-byte UTF-8 character (which would emit invalid UTF-8).
+func TestTruncateRuneSafe(t *testing.T) {
+	if got := truncate("hello", 10); got != "hello" {
+		t.Errorf("short ASCII: got %q", got)
+	}
+	if got := truncate("abcdefghij", 8); got != "abcde..." {
+		t.Errorf("ASCII cut: got %q, want %q", got, "abcde...")
+	}
+	// 10 multi-byte runes; truncating to 8 must yield 5 runes + "..." and stay valid UTF-8.
+	s := "日本語のテストです字" // 10 runes
+	got := truncate(s, 8)
+	if !utf8.ValidString(got) {
+		t.Errorf("truncate produced invalid UTF-8: %q", got)
+	}
+	if r := []rune(got); len(r) != 8 || string(r[5:]) != "..." {
+		t.Errorf("rune cut: got %q (%d runes), want 5 runes + ...", got, len(r))
 	}
 }
