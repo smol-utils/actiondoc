@@ -40,6 +40,11 @@ Secrets referenced (literal names): `BUILD_TOKEN`
 |----------|-------|
 | Uses workflow | [Reusable Build](#reusable-build) |
 
+**Permissions:**
+
+- `id-token`: `write` (OIDC)
+- `contents`: `read`
+
 #### Inputs forwarded
 
 - `target`: `linux`

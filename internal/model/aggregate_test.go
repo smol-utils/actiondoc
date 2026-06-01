@@ -82,6 +82,39 @@ func TestScanReferences(t *testing.T) {
 	}
 }
 
+// TestScanReferencesEnv covers references in workflow-level and job-level env: blocks,
+// a very common site for secret/var usage.
+func TestScanReferencesEnv(t *testing.T) {
+	w := &Workflow{
+		Name: "CI",
+		Env:  []KV{{Key: "GLOBAL_TOKEN", Value: "${{ secrets.NPM_TOKEN }}"}},
+		Jobs: []Job{
+			{
+				ID:  "build",
+				Env: []KV{{Key: "API_KEY", Value: "${{ secrets.SERVICE_KEY }}"}},
+			},
+		},
+	}
+
+	refs := ScanReferences(w)
+	got := map[string][]string{}
+	for _, r := range refs.Secrets {
+		got[r.Name] = r.Sites
+	}
+
+	if sites, ok := got["NPM_TOKEN"]; !ok {
+		t.Error("workflow-level env reference NPM_TOKEN was not collected")
+	} else if len(sites) != 1 || !strings.Contains(sites[0], "workflow env") {
+		t.Errorf("NPM_TOKEN sites = %v, want a workflow env site", sites)
+	}
+
+	if sites, ok := got["SERVICE_KEY"]; !ok {
+		t.Error("job-level env reference SERVICE_KEY was not collected")
+	} else if len(sites) != 1 || !strings.Contains(sites[0], "env `API_KEY`") {
+		t.Errorf("SERVICE_KEY sites = %v, want a job env site", sites)
+	}
+}
+
 // TestContextRefs covers boundary handling in the expression-body scanner.
 func TestContextRefs(t *testing.T) {
 	tests := []struct {

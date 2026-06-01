@@ -45,6 +45,7 @@ func TestGenerateDirectoryGolden(t *testing.T) {
 		"## Called by",                   // upstream caller chain on the reusable workflow
 		"## Referenced secrets and variables", // auto-collected references
 		"Uses workflow",                  // reusable-workflow caller job row
+		"id-token",                       // caller job's own permissions must still render
 		"- With:",                        // step with: block
 		"`[continue-on-error]`",          // continue-on-error badge
 	} {

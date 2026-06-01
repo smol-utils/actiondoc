@@ -34,6 +34,11 @@ func renderCallerJob(b *strings.Builder, job *model.Job, g *callgraph.Graph, fro
 	}
 	b.WriteString("\n")
 
+	// A caller job can still declare its own permissions, environment binding, env,
+	// concurrency, and defaults; render that declared surface (it would otherwise be
+	// dropped, since caller jobs skip the normal job body).
+	renderJobSurface(b, job)
+
 	if len(job.With) > 0 {
 		b.WriteString("#### Inputs forwarded\n\n")
 		for _, kv := range job.With {

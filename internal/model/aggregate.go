@@ -30,10 +30,16 @@ func (r References) Empty() bool {
 // every reachable workflow into a single transitive-requirements view.
 func ScanReferences(w *Workflow) References {
 	sc := newRefScan()
+	for _, kv := range w.Env {
+		sc.scan(kv.Value, "workflow env `"+kv.Key+"`")
+	}
 	for ji := range w.Jobs {
 		job := &w.Jobs[ji]
 		jobLabel := "job `" + job.ID + "`"
 		sc.scan(job.If, jobLabel+" (if)")
+		for _, kv := range job.Env {
+			sc.scan(kv.Value, jobLabel+" env `"+kv.Key+"`")
+		}
 		for _, kv := range job.With {
 			sc.scan(kv.Value, jobLabel+" with `"+kv.Key+"`")
 		}
