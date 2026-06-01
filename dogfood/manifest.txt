@@ -33,4 +33,3 @@ uds-core	https://github.com/defenseunicorns/uds-core	0aaf351602975c347d48ce80c63
 uv	https://github.com/astral-sh/uv	9bac000338ae0b8f4b67fd45211e9bb60b5196c8
 vault	https://github.com/hashicorp/vault	8e20a13896c6844decc5041cf975bd2117a1bc8a
 zarf	https://github.com/zarf-dev/zarf	ac6fb9f7e91dcb805f548e905512283c3134e936
-vets-website	https://github.com/department-of-veterans-affairs/vets-website	HEAD

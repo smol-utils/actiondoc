@@ -1,11 +1,23 @@
 package parser
 
 import (
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
 	"github.com/smol-utils/actiondoc/internal/model"
 )
+
+// parseString writes src to a temp .yml file and parses it as a workflow.
+func parseString(t *testing.T, src string) (*model.Workflow, error) {
+	t.Helper()
+	p := filepath.Join(t.TempDir(), "wf.yml")
+	if err := os.WriteFile(p, []byte(src), 0o644); err != nil {
+		t.Fatalf("write temp: %v", err)
+	}
+	return ParseFile(p)
+}
 
 // TestParseStepFields covers step `with:` blocks, `continue-on-error:`, and the trailing
 // version comment on SHA-pinned `uses:` refs.
@@ -108,6 +120,32 @@ func TestParseMatrix(t *testing.T) {
 	// deploy job has a multi-line if: -- make sure it survives parsing with its newline.
 	if !strings.Contains(deploy.If, "\n") {
 		t.Errorf("deploy If = %q, want multi-line", deploy.If)
+	}
+}
+
+// TestParseMatrixMixedDynamic verifies that a matrix mixing a static axis with a
+// dynamic (non-list) axis resolves to NO static axes: partially expanding only the
+// static axis would misrepresent the generated jobs, so the whole matrix is treated as
+// unresolvable and names render verbatim.
+func TestParseMatrixMixedDynamic(t *testing.T) {
+	src := `name: CI
+on: push
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        node: ${{ fromJSON(needs.detect.outputs.versions) }}
+    steps:
+      - run: build
+`
+	w, err := parseString(t, src)
+	if err != nil {
+		t.Fatalf("parse: %v", err)
+	}
+	if got := w.Jobs[0].Matrix; len(got) != 0 {
+		t.Errorf("matrix = %+v, want empty (a dynamic axis must disable static resolution for all axes)", got)
 	}
 }
 

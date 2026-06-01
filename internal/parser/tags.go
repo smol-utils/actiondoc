@@ -27,9 +27,11 @@ func ParseTags(comment string) model.Tags {
 			currentValue.WriteString(rest)
 		} else if strings.HasPrefix(line, "@") {
 			// An @-prefixed line that is not in the allowlist (e.g. another tool's
-			// markers like Lula's @lulaStart/@lulaEnd). Ignore it entirely -- do NOT
-			// treat it as a continuation, so it never leaks into a preceding tag value.
-			continue
+			// markers like Lula's @lulaStart/@lulaEnd) is a section boundary: flush the
+			// current tag and clear it, so neither this line nor the non-@ lines that
+			// follow it leak into a preceding tag's value.
+			flushTag(&tags, currentTag, &currentValue)
+			currentTag = ""
 		} else if currentTag != "" {
 			// Continuation line -- append to current tag.
 			if currentValue.Len() > 0 {

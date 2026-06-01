@@ -21,8 +21,16 @@ build:
 test:
 	go test ./... -count=1
 
-## lint: Run Go vet (static analysis)
-lint:
+## fmt-check: Fail if any file is not gofmt-clean (matches CI)
+fmt-check:
+	@unformatted="$$(gofmt -l .)"; \
+	if [ -n "$$unformatted" ]; then \
+		echo "These files are not gofmt-clean:"; echo "$$unformatted"; \
+		echo "Run: gofmt -w ."; exit 1; \
+	fi
+
+## lint: Check formatting (gofmt) and run Go vet (static analysis)
+lint: fmt-check
 	go vet ./...
 
 ## ci: Local CI check (vet + test)

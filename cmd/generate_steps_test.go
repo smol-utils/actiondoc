@@ -40,14 +40,14 @@ func TestGenerateDirectoryGolden(t *testing.T) {
 	// renderer). Each string belongs to a different session's feature.
 	g := string(got)
 	for _, must := range []string{
-		"# Contents",                     // table of contents
-		"## Call graph",                  // downstream call-graph tree
-		"## Called by",                   // upstream caller chain on the reusable workflow
+		"# Contents",                          // table of contents
+		"## Call graph",                       // downstream call-graph tree
+		"## Called by",                        // upstream caller chain on the reusable workflow
 		"## Referenced secrets and variables", // auto-collected references
-		"Uses workflow",                  // reusable-workflow caller job row
-		"id-token",                       // caller job's own permissions must still render
-		"- With:",                        // step with: block
-		"`[continue-on-error]`",          // continue-on-error badge
+		"Uses workflow",                       // reusable-workflow caller job row
+		"id-token",                            // caller job's own permissions must still render
+		"- With:",                             // step with: block
+		"`[continue-on-error]`",               // continue-on-error badge
 	} {
 		if !strings.Contains(g, must) {
 			t.Errorf("Generate() output is missing %q -- a render entry point dropped a section family", must)

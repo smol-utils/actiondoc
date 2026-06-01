@@ -82,7 +82,10 @@ func parseMatrix(node ast.Node) []model.MatrixAxis {
 		name := mapKeyString(mv.Key)
 		seq, ok := mv.Value.(*ast.SequenceNode)
 		if !ok {
-			continue // non-list axis is not statically resolvable
+			// A non-list/dynamic axis (e.g. fromJSON(...)) makes the whole matrix not
+			// statically resolvable. Bail entirely rather than partially expanding the
+			// other axes, which would misrepresent the generated jobs.
+			return nil
 		}
 		for _, item := range seq.Values {
 			if im := toMapping(item); im != nil {

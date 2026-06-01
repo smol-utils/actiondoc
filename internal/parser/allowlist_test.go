@@ -25,3 +25,19 @@ func TestParseTagsAllowlist(t *testing.T) {
 		t.Errorf("unknown @-tags leaked into Desc: %q", got)
 	}
 }
+
+// TestParseTagsUnknownTagBoundary covers the subtler leak: a plain (non-@) comment line
+// that FOLLOWS an unknown @-tag must not be appended as a continuation of the last
+// recognized tag. The unknown tag is a section boundary.
+func TestParseTagsUnknownTagBoundary(t *testing.T) {
+	comment := `@desc Real description
+@lulaStart policy-block
+this line belongs to the lula block, not to @desc
+more lula content`
+
+	tags := ParseTags(comment)
+
+	if tags.Desc != "Real description" {
+		t.Errorf("Desc = %q, want %q (lula-block lines leaked into @desc)", tags.Desc, "Real description")
+	}
+}

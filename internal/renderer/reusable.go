@@ -287,6 +287,14 @@ func collectSecretNames(n *callgraph.Node, set map[string]bool) {
 		for _, p := range n.Workflow.Tags.Secrets {
 			set[p.Name] = true
 		}
+		// A reusable workflow's declared workflow_call.secrets are part of its contract:
+		// callers using `secrets: inherit` (or not forwarding an explicit key) still
+		// require them, so they belong in the transitive requirements.
+		if t := n.Workflow.Triggers; t != nil && t.Call != nil {
+			for _, s := range t.Call.Secrets {
+				set[s.Name] = true
+			}
+		}
 		for _, job := range n.Workflow.Jobs {
 			for _, p := range job.Tags.Secrets {
 				set[p.Name] = true
