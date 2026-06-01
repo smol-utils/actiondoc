@@ -21,9 +21,9 @@ build:
 test:
 	go test ./... -count=1
 
-## fmt-check: Fail if any file is not gofmt-clean (matches CI)
+## fmt-check: Fail if any of this module's Go files is not gofmt-clean (matches CI)
 fmt-check:
-	@unformatted="$$(gofmt -l .)"; \
+	@unformatted="$$(git ls-files '*.go' | xargs gofmt -l)"; \
 	if [ -n "$$unformatted" ]; then \
 		echo "These files are not gofmt-clean:"; echo "$$unformatted"; \
 		echo "Run: gofmt -w ."; exit 1; \

@@ -78,12 +78,19 @@ func TestBuildCompositeResolution(t *testing.T) {
 
 	want := "/repo/.github/actions/build/action.yml"
 	var got string
+	var edge Edge
 	for _, e := range g.Calls("/repo/.github/workflows/ci.yml") {
 		if e.Kind == KindComposite {
 			got = e.ToID
+			edge = e
 		}
 	}
 	if got != want {
 		t.Errorf("composite ./.github/actions/build resolved to %q, want %q (must not match my-build)", got, want)
+	}
+	// The calling step is unnamed; it must still get a positional StepName so the call
+	// graph renders it as "job / step N (uses ...)" rather than collapsing to job level.
+	if edge.StepName != "step 1" {
+		t.Errorf("unnamed composite step: StepName = %q, want %q", edge.StepName, "step 1")
 	}
 }

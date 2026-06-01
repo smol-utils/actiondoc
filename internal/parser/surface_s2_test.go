@@ -252,10 +252,12 @@ func TestImplicitDescription(t *testing.T) {
 		t.Errorf("unknown @-marker block must not become a description, got %q", got)
 	}
 
-	// Prose mixed with an unknown marker keeps only the prose.
-	mixed := "# Deploys the service.\n# @lulaStart policy"
-	if got := implicitDescription(mixed, model.Tags{}); got != "Deploys the service." {
-		t.Errorf("mixed prose+marker: got %q, want prose only", got)
+	// A foreign tool's marker block carries its own prose between the markers; the whole
+	// block belongs to that tool, so ActionDoc derives no description from it (the prose
+	// must not leak in just because it isn't itself an @-line).
+	markerBlock := "# @lulaStart\n# This policy enforces FedRAMP controls.\n# @lulaEnd"
+	if got := implicitDescription(markerBlock, model.Tags{}); got != "" {
+		t.Errorf("prose inside a foreign marker block must not become a description, got %q", got)
 	}
 }
 

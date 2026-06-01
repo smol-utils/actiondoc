@@ -49,7 +49,7 @@ func Generate(args []string) error {
 	// `uses:` targets across files). Build the graph once, then link local composite
 	// actions into the steps that reference them so the renderer can pair `with:` keys
 	// with declared inputs. A source's path is its call-graph node id.
-	sources := parseSources(files)
+	sources, parseFailures := parseSources(files)
 	graph := callgraph.Build(sources)
 	linkCompositeActions(sources, graph)
 
@@ -92,18 +92,29 @@ func Generate(args []string) error {
 	} else {
 		fmt.Print(output)
 	}
+
+	// Output for the files that did parse is still written above, but a parse failure is a
+	// real error: return non-zero so callers (e.g. the dogfood smoke test) don't treat a
+	// partially-parsed run as success.
+	if parseFailures > 0 {
+		return fmt.Errorf("%d file(s) failed to parse", parseFailures)
+	}
 	return nil
 }
 
 // parseSources parses each file into a callgraph source, skipping (with a warning) files
 // that fail to parse. Source order follows file order so rendering stays deterministic.
-func parseSources(files []string) []callgraph.Source {
+// The returned count is the number of files that failed to parse, so the caller can exit
+// non-zero rather than silently reporting success on a partially-parsed scan.
+func parseSources(files []string) ([]callgraph.Source, int) {
 	var sources []callgraph.Source
+	failed := 0
 	for _, f := range files {
 		if isActionFile(f) {
 			a, err := parser.ParseActionFile(f)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "warning: %v\n", err)
+				failed++
 				continue
 			}
 			sources = append(sources, callgraph.Source{Path: f, Action: a})
@@ -111,12 +122,13 @@ func parseSources(files []string) []callgraph.Source {
 			w, err := parser.ParseFile(f)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "warning: %v\n", err)
+				failed++
 				continue
 			}
 			sources = append(sources, callgraph.Source{Path: f, Workflow: w})
 		}
 	}
-	return sources
+	return sources, failed
 }
 
 // linkCompositeActions attaches each parsed local composite action to the step whose

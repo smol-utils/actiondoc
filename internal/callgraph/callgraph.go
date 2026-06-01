@@ -8,6 +8,7 @@
 package callgraph
 
 import (
+	"fmt"
 	"path/filepath"
 	"strings"
 
@@ -126,10 +127,10 @@ func Build(sources []Source) *Graph {
 				to, kind, pin := resolve(job.Uses)
 				g.Edges = append(g.Edges, Edge{FromID: from, JobID: job.ID, ToID: to, Ref: job.Uses, Pin: pin, Kind: kind})
 			}
-			for _, st := range job.Steps { // step-level local composite call
+			for si, st := range job.Steps { // step-level local composite call
 				if isLocal(st.Uses) {
 					to, kind, pin := resolve(st.Uses)
-					g.Edges = append(g.Edges, Edge{FromID: from, JobID: job.ID, StepName: st.Name, ToID: to, Ref: st.Uses, Pin: pin, Kind: kind})
+					g.Edges = append(g.Edges, Edge{FromID: from, JobID: job.ID, StepName: stepLabel(st, si), ToID: to, Ref: st.Uses, Pin: pin, Kind: kind})
 				}
 			}
 		}
@@ -240,4 +241,18 @@ func displayName(name, path string) string {
 		return name
 	}
 	return filepath.Base(path)
+}
+
+// stepLabel identifies a step for the call-graph tree: its name, then id, then a
+// positional fallback. Unnamed steps must still get a non-empty label so the renderer
+// shows them in the "job / step" form rather than collapsing to the job-level form.
+func stepLabel(s model.Step, idx int) string {
+	switch {
+	case s.Name != "":
+		return s.Name
+	case s.ID != "":
+		return s.ID
+	default:
+		return fmt.Sprintf("step %d", idx+1)
+	}
 }

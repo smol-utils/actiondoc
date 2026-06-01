@@ -66,18 +66,17 @@ func implicitDescription(headComment string, tags model.Tags) string {
 	if !tagsEmpty(tags) {
 		return ""
 	}
-	// Drop any @-marker lines before forming the description. Allowlisted tags are already
-	// captured in `tags`; unknown markers (e.g. another tool's Lula blocks) must be ignored
-	// per the allowlist rule, not rendered as prose. If the block is nothing but markers,
-	// there is no implicit description.
-	var prose []string
+	// If the block contains ANY @-marker, it belongs to another tool (e.g. a Lula
+	// @lulaStart...@lulaEnd block); the marker's surrounding prose is that tool's content,
+	// not an ActionDoc description. Suppress the implicit description entirely rather than
+	// guess which interior lines are "ours" -- per the allowlist rule, unknown markers and
+	// their blocks are ignored, not rendered as prose.
 	for _, line := range strings.Split(headComment, "\n") {
 		if strings.HasPrefix(strings.TrimSpace(stripCommentPrefix(line)), "@") {
-			continue
+			return ""
 		}
-		prose = append(prose, line)
 	}
-	text := cleanCommentText(strings.Join(prose, "\n"))
+	text := cleanCommentText(headComment)
 	if text == "" || isLicenseHeader(text) {
 		return ""
 	}
