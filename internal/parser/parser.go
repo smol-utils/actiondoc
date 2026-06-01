@@ -303,7 +303,14 @@ func parseSteps(node ast.Node) []model.Step {
 			case "with":
 				step.With = parseKVMap(mv.Value)
 			case "continue-on-error":
-				step.ContinueOnError = strings.EqualFold(strings.TrimSpace(nodeString(mv.Value)), "true")
+				v := strings.TrimSpace(nodeString(mv.Value))
+				if strings.EqualFold(v, "true") {
+					step.ContinueOnError = true
+				} else if strings.Contains(v, "${{") {
+					// An expression-valued continue-on-error (e.g. matrix-driven) is still
+					// failure-tolerant; keep the raw expression so the renderer can show it.
+					step.ContinueOnErrorExpr = v
+				}
 			}
 		}
 		steps = append(steps, step)

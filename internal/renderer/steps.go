@@ -13,6 +13,8 @@ func renderStep(b *strings.Builder, step *model.Step, num int) {
 	fmt.Fprintf(b, "%d. **%s**", num, stepTitle(step, num))
 	if step.ContinueOnError {
 		b.WriteString(" `[continue-on-error]`")
+	} else if step.ContinueOnErrorExpr != "" {
+		fmt.Fprintf(b, " `[continue-on-error: %s]`", step.ContinueOnErrorExpr)
 	}
 	if step.Description != "" {
 		fmt.Fprintf(b, " - %s", step.Description)

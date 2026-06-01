@@ -66,6 +66,39 @@ func TestParseStepFields(t *testing.T) {
 	}
 }
 
+// TestParseContinueOnErrorExpression verifies that an expression-valued
+// continue-on-error (e.g. matrix-driven) is captured as an expression rather than
+// silently coerced to false, so the step is still flagged as failure-tolerant.
+func TestParseContinueOnErrorExpression(t *testing.T) {
+	src := `name: CI
+on: push
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: maybe-flaky
+        run: ./flaky.sh
+        continue-on-error: ${{ matrix.experimental }}
+      - name: hard-tolerant
+        run: ./x.sh
+        continue-on-error: true
+`
+	w, err := parseString(t, src)
+	if err != nil {
+		t.Fatalf("parse: %v", err)
+	}
+	steps := w.Jobs[0].Steps
+	if steps[0].ContinueOnError {
+		t.Error("expression continue-on-error must not be coerced to the literal-true bool")
+	}
+	if steps[0].ContinueOnErrorExpr != "${{ matrix.experimental }}" {
+		t.Errorf("ContinueOnErrorExpr = %q, want the raw expression", steps[0].ContinueOnErrorExpr)
+	}
+	if !steps[1].ContinueOnError || steps[1].ContinueOnErrorExpr != "" {
+		t.Errorf("literal true: ContinueOnError=%v Expr=%q, want true/empty", steps[1].ContinueOnError, steps[1].ContinueOnErrorExpr)
+	}
+}
+
 // TestParseRunsOnVariants covers scalar, list, and map (group/labels) runs-on forms.
 func TestParseRunsOnVariants(t *testing.T) {
 	w, err := ParseFile(testdataPath("s3/steps.yml"))

@@ -65,12 +65,8 @@ dogfood-fetch:
 		if [ -d "$$dir/.git" ]; then echo "have $$name"; continue; fi; \
 		echo "fetch $$name ($$sha)"; \
 		git init -q "$$dir" && git -C "$$dir" remote add origin "$$url" 2>/dev/null; \
-		if git -C "$$dir" fetch -q --depth 1 origin "$$sha" 2>/dev/null; then \
-			git -C "$$dir" checkout -q FETCH_HEAD; \
-		else \
-			git -C "$$dir" fetch -q --depth 1 origin HEAD && git -C "$$dir" checkout -q FETCH_HEAD; \
-			echo "  (pinned SHA unavailable, used HEAD)"; \
-		fi; \
+		git -C "$$dir" fetch -q --depth 1 origin "$$sha" && git -C "$$dir" checkout -q FETCH_HEAD || \
+			{ echo "  ERROR: could not fetch pinned SHA $$sha for $$name"; exit 1; }; \
 	done
 
 ## dogfood: Run actiondoc against each corpus repo; fail if any repo errors
