@@ -1,0 +1,24 @@
+# @desc Compiles the project for a set of architectures.
+# @secret SIGNING_KEY - Key used to sign the compiled artifacts
+name: Build
+
+on:
+  workflow_call:
+    inputs:
+      arch:
+        required: true
+        type: string
+
+jobs:
+  # @desc Compile and sign the artifacts.
+  compile:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Compile
+        run: make build ARCH=${{ inputs.arch }}
+
+      - name: Sign
+        run: make sign

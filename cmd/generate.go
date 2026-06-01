@@ -9,6 +9,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/smol-utils/actiondoc/internal/callgraph"
+	"github.com/smol-utils/actiondoc/internal/model"
 	"github.com/smol-utils/actiondoc/internal/parser"
 	"github.com/smol-utils/actiondoc/internal/renderer"
 )
@@ -43,10 +45,17 @@ func Generate(args []string) error {
 		return fmt.Errorf("no YAML files found in %s", path)
 	}
 
-	// Process each file, collecting results for JSON or rendering Markdown inline.
-	var jsonItems []any
-	var md strings.Builder
-
+	// First pass: parse every file. The call graph needs the whole scan set before any
+	// workflow can be rendered (reusable-workflow cross-links and the call-graph tree
+	// resolve `uses:` targets across files), so parse all, then build the graph, then
+	// render. A parsed file keeps its source path as its call-graph node id.
+	type parsed struct {
+		path     string
+		workflow *model.Workflow
+		action   *model.Action
+	}
+	var items []parsed
+	var sources []callgraph.Source
 	for _, f := range files {
 		if isActionFile(f) {
 			a, err := parser.ParseActionFile(f)
@@ -54,21 +63,36 @@ func Generate(args []string) error {
 				fmt.Fprintf(os.Stderr, "warning: %v\n", err)
 				continue
 			}
-			if *jsonFlag {
-				jsonItems = append(jsonItems, a)
-			} else {
-				md.WriteString(renderer.RenderActionMarkdown(a))
-			}
+			items = append(items, parsed{path: f, action: a})
+			sources = append(sources, callgraph.Source{Path: f, Action: a})
 		} else {
 			w, err := parser.ParseFile(f)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "warning: %v\n", err)
 				continue
 			}
+			items = append(items, parsed{path: f, workflow: w})
+			sources = append(sources, callgraph.Source{Path: f, Workflow: w})
+		}
+	}
+	graph := callgraph.Build(sources)
+
+	// Second pass: emit JSON or rendered Markdown, now with graph context available.
+	var jsonItems []any
+	var md strings.Builder
+	for _, it := range items {
+		switch {
+		case it.action != nil:
 			if *jsonFlag {
-				jsonItems = append(jsonItems, w)
+				jsonItems = append(jsonItems, it.action)
 			} else {
-				md.WriteString(renderer.RenderMarkdown(w))
+				md.WriteString(renderer.RenderActionMarkdown(it.action))
+			}
+		case it.workflow != nil:
+			if *jsonFlag {
+				jsonItems = append(jsonItems, it.workflow)
+			} else {
+				md.WriteString(renderer.RenderMarkdownGraph(it.workflow, graph, it.path))
 			}
 		}
 	}
