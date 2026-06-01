@@ -60,6 +60,10 @@ func renderCallerJob(b *strings.Builder, job *model.Job, g *callgraph.Graph, fro
 		}
 		b.WriteString("\n")
 	}
+
+	// A caller job may also carry ActionDoc tags (@secret/@env/@output/@example/@see);
+	// render them like any other job rather than dropping them on the early return.
+	renderJobTags(b, job)
 }
 
 // callerUsesCell renders the "Uses workflow" table cell: an anchor cross-link to the

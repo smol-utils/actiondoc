@@ -130,7 +130,21 @@ func renderJob(b *strings.Builder, job *model.Job, g *callgraph.Graph, fromID st
 	}
 
 	renderJobSurface(b, job)
+	renderJobTags(b, job)
 
+	// Steps
+	if len(job.Steps) > 0 {
+		b.WriteString("#### Steps\n\n")
+		for i, step := range job.Steps {
+			renderStep(b, &step, i+1)
+		}
+	}
+}
+
+// renderJobTags writes a job's ActionDoc tag sections (@secret/@env/@output/@example/
+// @see). Shared by the normal and reusable-workflow-caller job renderers so caller jobs
+// don't silently drop tags the spec allows on jobs.
+func renderJobTags(b *strings.Builder, job *model.Job) {
 	writeParamSections(b, styleBold,
 		paramSection{"Secrets", job.Tags.Secrets},
 		paramSection{"Environment Variables", job.Tags.Envs},
@@ -148,14 +162,6 @@ func renderJob(b *strings.Builder, job *model.Job, g *callgraph.Graph, fromID st
 		b.WriteString("**See also:** ")
 		b.WriteString(strings.Join(job.Tags.See, ", "))
 		b.WriteString("\n\n")
-	}
-
-	// Steps
-	if len(job.Steps) > 0 {
-		b.WriteString("#### Steps\n\n")
-		for i, step := range job.Steps {
-			renderStep(b, &step, i+1)
-		}
 	}
 }
 

@@ -82,4 +82,5 @@ dogfood: build
 		fi; \
 	done; \
 	echo "dogfood: $$ok ok, $$fail failed"; \
+	if [ $$((ok+fail)) -eq 0 ]; then echo "no corpus repos found in $(DOGFOOD_DIR); run 'make dogfood-fetch' first"; exit 1; fi; \
 	if [ $$fail -gt 0 ]; then echo "failed:$$failed"; exit 1; fi

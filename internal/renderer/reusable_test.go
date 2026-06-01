@@ -74,6 +74,42 @@ func TestRenderCallerJobForwarding(t *testing.T) {
 	}
 }
 
+// TestRenderCallerJobTags verifies that ActionDoc tags declared on a reusable-workflow
+// caller job (@secret/@env/@output/@example/@see) are rendered, not dropped on the early
+// return.
+func TestRenderCallerJobTags(t *testing.T) {
+	caller := &model.Workflow{
+		File: "release.yml", Name: "Release", On: []string{"workflow_dispatch"},
+		Jobs: []model.Job{{
+			ID:   "publish",
+			Uses: "./.github/workflows/build.yml",
+			Tags: model.Tags{
+				Secrets: []model.Param{{Name: "DEPLOY_KEY", Description: "deploy key"}},
+				Envs:    []model.Param{{Name: "REGION"}},
+				Example: "gh workflow run release.yml",
+				See:     []string{"https://example.com/runbook"},
+			},
+		}},
+	}
+	build := &model.Workflow{File: "build.yml", Name: "Build", On: []string{"workflow_call"}}
+	g := callgraph.Build([]callgraph.Source{
+		{Path: ".github/workflows/release.yml", Workflow: caller},
+		{Path: ".github/workflows/build.yml", Workflow: build},
+	})
+
+	md := RenderMarkdownGraph(caller, g, ".github/workflows/release.yml")
+	for _, want := range []string{
+		"**Secrets:**", "`DEPLOY_KEY`",
+		"**Environment Variables:**", "`REGION`",
+		"**Example:**", "gh workflow run release.yml",
+		"**See also:**", "https://example.com/runbook",
+	} {
+		if !strings.Contains(md, want) {
+			t.Errorf("caller-job tags missing %q\n\nFull output:\n%s", want, md)
+		}
+	}
+}
+
 func TestRenderCallerJobSecretsInherit(t *testing.T) {
 	w := &model.Workflow{
 		File: "caller.yml", Name: "Caller", On: []string{"push"},
