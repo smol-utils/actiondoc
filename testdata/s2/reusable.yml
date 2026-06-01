@@ -1,0 +1,29 @@
+name: Reusable Build
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        type: string
+        required: true
+        description: Semantic version to build.
+      publish:
+        type: boolean
+        default: false
+        description: Whether to publish artifacts.
+    outputs:
+      artifact-url:
+        description: URL of the produced artifact.
+        value: ${{ jobs.build.outputs.url }}
+    secrets:
+      CONSUMER-KEY:
+        required: true
+        description: SDKMAN consumer key for publishing.
+      CONSUMER-TOKEN:
+        required: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo build

@@ -65,6 +65,9 @@ func ParseFile(path string) (*model.Workflow, error) {
 	headComment := findComment(doc, root, firstMV, firstKey)
 	w.Tags = ParseTags(headComment)
 	w.Description = w.Tags.Desc
+	if w.Description == "" {
+		w.Description = implicitDescription(headComment, w.Tags)
+	}
 
 	// Walk top-level keys.
 	for _, mv := range root.Values {
@@ -74,8 +77,17 @@ func ParseFile(path string) (*model.Workflow, error) {
 			w.Name = nodeString(mv.Value)
 		case "on", "true":
 			w.On = parseTriggers(mv.Value)
+			w.Triggers = parseTriggerSurface(mv.Value)
 		case "jobs":
 			w.Jobs = parseJobs(mv.Value)
+		case "permissions":
+			w.Permissions = parsePermissions(mv.Value)
+		case "env":
+			w.Env = parseKVMap(mv.Value)
+		case "concurrency":
+			w.Concurrency = parseConcurrency(mv.Value)
+		case "defaults":
+			w.Defaults = parseDefaults(mv.Value)
 		}
 	}
 
@@ -222,6 +234,16 @@ func parseJobFields(job *model.Job, mapping *ast.MappingNode) {
 			} else {
 				job.Secrets = parseKVMap(mv.Value)
 			}
+		case "permissions":
+			job.Permissions = parsePermissions(mv.Value)
+		case "env":
+			job.Env = parseKVMap(mv.Value)
+		case "concurrency":
+			job.Concurrency = parseConcurrency(mv.Value)
+		case "defaults":
+			job.Defaults = parseDefaults(mv.Value)
+		case "environment":
+			job.Environment = parseEnvironment(mv.Value)
 		}
 	}
 }

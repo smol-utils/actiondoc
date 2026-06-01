@@ -8,6 +8,13 @@ type Workflow struct {
 	On          []string `json:"on"`
 	Jobs        []Job    `json:"jobs"`
 	Tags        Tags     `json:"tags,omitempty"`
+
+	// Declared surface beyond the flat On list (see triggers.go, security.go, metadata.go).
+	Triggers    *Triggers    `json:"triggers,omitempty"`
+	Permissions *Permissions `json:"permissions,omitempty"`
+	Env         []KV         `json:"env,omitempty"`
+	Concurrency *Concurrency `json:"concurrency,omitempty"`
+	Defaults    *Defaults    `json:"defaults,omitempty"`
 }
 
 // Job represents a single job in the workflow.
@@ -27,6 +34,13 @@ type Job struct {
 	With           []KV   `json:"with,omitempty"`            // forwarded inputs (with:)
 	Secrets        []KV   `json:"secrets,omitempty"`         // forwarded secrets (explicit mapping)
 	SecretsInherit bool   `json:"secrets_inherit,omitempty"` // `secrets: inherit`
+
+	// Declared job-level surface (see security.go, metadata.go).
+	Permissions *Permissions `json:"permissions,omitempty"`
+	Env         []KV         `json:"env,omitempty"`
+	Concurrency *Concurrency `json:"concurrency,omitempty"`
+	Defaults    *Defaults    `json:"defaults,omitempty"`
+	Environment *Environment `json:"environment,omitempty"`
 }
 
 // Step represents a single step within a job.

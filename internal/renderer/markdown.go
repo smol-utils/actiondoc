@@ -43,6 +43,8 @@ func RenderMarkdown(w *model.Workflow) string {
 		b.WriteString("\n\n")
 	}
 
+	renderWorkflowSurface(&b, w)
+
 	writeParamSections(&b, styleHeading,
 		paramSection{"Secrets", w.Tags.Secrets},
 		paramSection{"Inputs", w.Tags.Inputs},
@@ -95,6 +97,8 @@ func renderJob(b *strings.Builder, job *model.Job) {
 		}
 		b.WriteString("\n")
 	}
+
+	renderJobSurface(b, job)
 
 	writeParamSections(b, styleBold,
 		paramSection{"Secrets", job.Tags.Secrets},
