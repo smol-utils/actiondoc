@@ -244,6 +244,19 @@ func TestImplicitDescription(t *testing.T) {
 	if got := implicitDescription(tagged, model.Tags{Secrets: []model.Param{{Name: "TOKEN"}}}); got != "" {
 		t.Errorf("tagged comment must not become a description, got %q", got)
 	}
+
+	// A block of only unknown @-markers (another tool's, e.g. Lula) must be ignored, not
+	// rendered as prose -- tags is empty here because none are ActionDoc tags.
+	markers := "# @lulaStart policy-block\n# @lulaEnd"
+	if got := implicitDescription(markers, model.Tags{}); got != "" {
+		t.Errorf("unknown @-marker block must not become a description, got %q", got)
+	}
+
+	// Prose mixed with an unknown marker keeps only the prose.
+	mixed := "# Deploys the service.\n# @lulaStart policy"
+	if got := implicitDescription(mixed, model.Tags{}); got != "Deploys the service." {
+		t.Errorf("mixed prose+marker: got %q, want prose only", got)
+	}
 }
 
 // TestParseFileS2Surface checks the end-to-end IR for the session fixture: implicit
