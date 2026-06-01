@@ -10,7 +10,6 @@ import (
 	"strings"
 
 	"github.com/smol-utils/actiondoc/internal/callgraph"
-	"github.com/smol-utils/actiondoc/internal/model"
 	"github.com/smol-utils/actiondoc/internal/parser"
 	"github.com/smol-utils/actiondoc/internal/renderer"
 )
@@ -45,67 +44,45 @@ func Generate(args []string) error {
 		return fmt.Errorf("no YAML files found in %s", path)
 	}
 
-	// First pass: parse every file. The call graph needs the whole scan set before any
-	// workflow can be rendered (reusable-workflow cross-links and the call-graph tree
-	// resolve `uses:` targets across files), so parse all, then build the graph, then
-	// render. A parsed file keeps its source path as its call-graph node id.
-	type parsed struct {
-		path     string
-		workflow *model.Workflow
-		action   *model.Action
-	}
-	var items []parsed
-	var sources []callgraph.Source
-	for _, f := range files {
-		if isActionFile(f) {
-			a, err := parser.ParseActionFile(f)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "warning: %v\n", err)
-				continue
-			}
-			items = append(items, parsed{path: f, action: a})
-			sources = append(sources, callgraph.Source{Path: f, Action: a})
-		} else {
-			w, err := parser.ParseFile(f)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "warning: %v\n", err)
-				continue
-			}
-			items = append(items, parsed{path: f, workflow: w})
-			sources = append(sources, callgraph.Source{Path: f, Workflow: w})
-		}
-	}
+	// Parse the whole scan set first: the call graph needs every file before any workflow
+	// can be rendered (reusable-workflow cross-links and the call-graph tree resolve
+	// `uses:` targets across files). Build the graph once, then link local composite
+	// actions into the steps that reference them so the renderer can pair `with:` keys
+	// with declared inputs. A source's path is its call-graph node id.
+	sources := parseSources(files)
 	graph := callgraph.Build(sources)
-
-	// Second pass: emit JSON or rendered Markdown, now with graph context available.
-	var jsonItems []any
-	var md strings.Builder
-	for _, it := range items {
-		switch {
-		case it.action != nil:
-			if *jsonFlag {
-				jsonItems = append(jsonItems, it.action)
-			} else {
-				md.WriteString(renderer.RenderActionMarkdown(it.action))
-			}
-		case it.workflow != nil:
-			if *jsonFlag {
-				jsonItems = append(jsonItems, it.workflow)
-			} else {
-				md.WriteString(renderer.RenderMarkdownGraph(it.workflow, graph, it.path))
-			}
-		}
-	}
+	linkCompositeActions(sources, graph)
 
 	var output string
 	if *jsonFlag {
+		var jsonItems []any
+		for _, s := range sources {
+			if s.Workflow != nil {
+				jsonItems = append(jsonItems, s.Workflow)
+			} else {
+				jsonItems = append(jsonItems, s.Action)
+			}
+		}
 		data, err := json.MarshalIndent(jsonItems, "", "  ")
 		if err != nil {
 			return fmt.Errorf("marshaling JSON: %w", err)
 		}
 		output = string(data) + "\n"
 	} else {
-		output = md.String()
+		// Render each document as a section, with a table of contents linking them.
+		// Workflows render with graph context so cross-links and call-graph sections
+		// appear; actions render standalone.
+		var sections, titles []string
+		for _, s := range sources {
+			if s.Workflow != nil {
+				sections = append(sections, renderer.RenderMarkdownGraph(s.Workflow, graph, s.Path))
+				titles = append(titles, s.Workflow.Name)
+			} else {
+				sections = append(sections, renderer.RenderActionMarkdown(s.Action))
+				titles = append(titles, s.Action.Name)
+			}
+		}
+		output = renderer.RenderTOC(titles) + strings.Join(sections, "")
 	}
 
 	if *outFlag != "" {
@@ -116,6 +93,58 @@ func Generate(args []string) error {
 		fmt.Print(output)
 	}
 	return nil
+}
+
+// parseSources parses each file into a callgraph source, skipping (with a warning) files
+// that fail to parse. Source order follows file order so rendering stays deterministic.
+func parseSources(files []string) []callgraph.Source {
+	var sources []callgraph.Source
+	for _, f := range files {
+		if isActionFile(f) {
+			a, err := parser.ParseActionFile(f)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "warning: %v\n", err)
+				continue
+			}
+			sources = append(sources, callgraph.Source{Path: f, Action: a})
+		} else {
+			w, err := parser.ParseFile(f)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "warning: %v\n", err)
+				continue
+			}
+			sources = append(sources, callgraph.Source{Path: f, Workflow: w})
+		}
+	}
+	return sources
+}
+
+// linkCompositeActions attaches each parsed local composite action to the step whose
+// `uses:` references it, using the prebuilt call graph, so the renderer can pair `with:`
+// keys with the action's declared input descriptions.
+func linkCompositeActions(sources []callgraph.Source, g *callgraph.Graph) {
+	for _, e := range g.Edges {
+		if e.Kind != callgraph.KindComposite {
+			continue
+		}
+		target := g.Nodes[e.ToID]
+		caller := g.Nodes[e.FromID]
+		if target == nil || target.Action == nil || caller == nil || caller.Workflow == nil {
+			continue
+		}
+		for ji := range caller.Workflow.Jobs {
+			job := &caller.Workflow.Jobs[ji]
+			if job.ID != e.JobID {
+				continue
+			}
+			// Match on the raw uses: ref -- the exact string the edge was built from.
+			for si := range job.Steps {
+				if job.Steps[si].Uses == e.Ref {
+					job.Steps[si].UsesAction = target.Action
+				}
+			}
+		}
+	}
 }
 
 // isActionFile returns true if the file is a GitHub Action metadata file.

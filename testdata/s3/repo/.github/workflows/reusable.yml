@@ -1,0 +1,19 @@
+name: Reusable Build
+
+on:
+  workflow_call:
+    inputs:
+      target:
+        description: Build target
+        required: true
+        type: string
+    secrets:
+      BUILD_TOKEN:
+        required: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build
+        run: make build TARGET=${{ inputs.target }}

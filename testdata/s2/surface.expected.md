@@ -72,7 +72,7 @@ No permissions granted (`permissions: {}` -- default-deny).
 1. **actions/checkout@v4**
    - Uses: `actions/checkout@v4`
 
-2. **Step 2**
+2. **make build**
 
 ### Deploy (`deploy`)
 
@@ -96,5 +96,5 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 #### Steps
 
-1. **Step 1**
+1. **./publish.sh**
 

@@ -215,11 +215,13 @@ func parseJobFields(job *model.Job, mapping *ast.MappingNode) {
 		case "name":
 			job.Name = nodeString(mv.Value)
 		case "runs-on":
-			job.RunsOn = nodeString(mv.Value)
+			job.RunsOn = parseRunsOn(mv.Value)
 		case "needs":
 			job.Needs = parseStringOrSequence(mv.Value)
 		case "if":
 			job.If = nodeString(mv.Value)
+		case "strategy":
+			job.Matrix = parseMatrix(mv.Value)
 		case "steps":
 			job.Steps = parseSteps(mv.Value)
 		// Reusable-workflow caller jobs use uses:/with:/secrets: instead of steps.
@@ -293,10 +295,15 @@ func parseSteps(node ast.Node) []model.Step {
 				step.ID = nodeString(mv.Value)
 			case "uses":
 				step.Uses = nodeString(mv.Value)
+				step.UsesVersion = versionComment(TrailingComment(mv))
 			case "run":
 				step.Run = nodeString(mv.Value)
 			case "if":
 				step.If = nodeString(mv.Value)
+			case "with":
+				step.With = parseKVMap(mv.Value)
+			case "continue-on-error":
+				step.ContinueOnError = strings.EqualFold(strings.TrimSpace(nodeString(mv.Value)), "true")
 			}
 		}
 		steps = append(steps, step)

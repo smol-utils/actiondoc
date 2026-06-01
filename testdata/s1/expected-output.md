@@ -31,6 +31,14 @@ Secrets referenced (literal names): `GPG_KEY`, `SIGNING_KEY`
 
 External workflows referenced: `external-org/notifications/.github/workflows/notify.yml@v2`
 
+## Referenced secrets and variables
+
+**Secrets:**
+
+| Name | Used by |
+|------|---------|
+| `RELEASE_GPG_KEY` | job `publish` secrets `GPG_KEY` |
+
 ## Jobs
 
 ### `publish`

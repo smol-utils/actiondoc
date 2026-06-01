@@ -39,5 +39,5 @@ This workflow is reusable via `workflow_call`.
 
 #### Steps
 
-1. **Step 1**
+1. **echo build**
 

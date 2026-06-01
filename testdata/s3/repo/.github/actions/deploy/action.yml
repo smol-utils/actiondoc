@@ -1,0 +1,16 @@
+name: Deploy
+description: Deploys the application to an environment.
+
+inputs:
+  environment:
+    description: Target environment name
+    required: true
+  token:
+    description: Deployment token
+    required: false
+
+runs:
+  using: composite
+  steps:
+    - run: ./deploy.sh
+      shell: bash

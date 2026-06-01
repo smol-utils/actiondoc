@@ -70,6 +70,9 @@ func RenderMarkdownGraph(w *model.Workflow, g *callgraph.Graph, id string) strin
 		paramSection{"Outputs", w.Tags.Outputs},
 	)
 
+	// Auto-collected secret and variable references found in expressions.
+	renderReferences(&b, model.ScanReferences(w))
+
 	// Jobs
 	if len(w.Jobs) > 0 {
 		b.WriteString("## Jobs\n\n")
@@ -82,9 +85,10 @@ func RenderMarkdownGraph(w *model.Workflow, g *callgraph.Graph, id string) strin
 }
 
 func renderJob(b *strings.Builder, job *model.Job, g *callgraph.Graph, fromID string) {
-	// Job heading
-	if job.Name != job.ID {
-		fmt.Fprintf(b, "### %s (`%s`)\n\n", job.Name, job.ID)
+	// Job heading. The name may embed ${{ matrix.X }} references, expanded to value lists.
+	name := resolveJobName(job)
+	if name != job.ID {
+		fmt.Fprintf(b, "### %s (`%s`)\n\n", name, job.ID)
 	} else {
 		fmt.Fprintf(b, "### `%s`\n\n", job.ID)
 	}
@@ -112,13 +116,15 @@ func renderJob(b *strings.Builder, job *model.Job, g *callgraph.Graph, fromID st
 		b.WriteString("| Property | Value |\n")
 		b.WriteString("|----------|-------|\n")
 		if job.RunsOn != "" {
-			fmt.Fprintf(b, "| Runs on | `%s` |\n", job.RunsOn)
+			fmt.Fprintf(b, "| Runs on | `%s` |\n", escapeCell(job.RunsOn))
 		}
 		if len(job.Needs) > 0 {
 			fmt.Fprintf(b, "| Depends on | %s |\n", codelist(job.Needs))
 		}
 		if job.If != "" {
-			fmt.Fprintf(b, "| Condition | `%s` |\n", job.If)
+			// Trim first: literal-block conditions carry a trailing newline that would
+			// otherwise render as a dangling <br>.
+			fmt.Fprintf(b, "| Condition | `%s` |\n", escapeCell(strings.TrimSpace(job.If)))
 		}
 		b.WriteString("\n")
 	}
@@ -153,57 +159,7 @@ func renderJob(b *strings.Builder, job *model.Job, g *callgraph.Graph, fromID st
 	}
 }
 
-func renderStep(b *strings.Builder, step *model.Step, num int) {
-	name := step.Name
-	if name == "" {
-		name = step.ID
-	}
-	if name == "" && step.Uses != "" {
-		name = step.Uses
-	}
-	if name == "" {
-		name = fmt.Sprintf("Step %d", num)
-	}
-
-	fmt.Fprintf(b, "%d. **%s**", num, name)
-
-	if step.Description != "" {
-		fmt.Fprintf(b, " - %s", step.Description)
-	}
-	b.WriteString("\n")
-
-	if step.ID != "" {
-		fmt.Fprintf(b, "   - ID: `%s`\n", step.ID)
-	}
-	if step.Uses != "" {
-		fmt.Fprintf(b, "   - Uses: `%s`\n", step.Uses)
-	}
-	if step.If != "" {
-		fmt.Fprintf(b, "   - Condition: `%s`\n", step.If)
-	}
-
-	// Step-level tags
-	writeStepParams(b, "Output", step.Tags.Outputs)
-	writeStepParams(b, "Secret", step.Tags.Secrets)
-	writeStepParams(b, "Env", step.Tags.Envs)
-
-	b.WriteString("\n")
-}
-
-// writeStepParams writes inline bullet points for step-level params.
-func writeStepParams(b *strings.Builder, label string, params []model.Param) {
-	for _, p := range params {
-		typ := ""
-		if p.Type != "" {
-			typ = " {" + p.Type + "}"
-		}
-		desc := ""
-		if p.Description != "" {
-			desc = " - " + p.Description
-		}
-		fmt.Fprintf(b, "   - %s: `%s`%s%s\n", label, p.Name, typ, desc)
-	}
-}
+// renderStep and writeStepParams live in steps.go.
 
 // writeParamTable writes a Markdown table for a slice of Params.
 func writeParamTable(b *strings.Builder, params []model.Param) {
