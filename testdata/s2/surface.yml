@@ -1,0 +1,83 @@
+# Release pipeline: builds artifacts and deploys to the production environment.
+# Triggered manually, on a weekly schedule, and on tagged pushes.
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      distribution:
+        type: choice
+        required: true
+        description: Which build to release.
+        options:
+          - mandrel
+          - graalvm-community
+          - graalvm
+          - liberica
+      dry-run:
+        type: boolean
+        default: false
+        description: Skip the publish step.
+      retries:
+        type: number
+        default: 3
+  push:
+    branches: [main, 'release/*']
+    paths:
+      - 'src/**'
+      - '!docs/**'
+  pull_request:
+    types: [opened, labeled, synchronize]
+  repository_dispatch:
+    types: [deploy-request]
+  schedule:
+    - cron: '0 16 * * THU'  # weekly security scan
+    - cron: '30 2 * * *'
+
+permissions:
+  contents: read  # for actions/checkout to fetch code
+  id-token: write  # OIDC token for keyless signing
+  packages: write
+
+env:
+  LANG: en_US.UTF-8
+  GRADLE_OPTS: -Dorg.gradle.daemon=false
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+    working-directory: ./app
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    permissions: {}
+    env:
+      BUILD_MODE: release
+    steps:
+      - uses: actions/checkout@v4
+      - run: make build
+
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    needs: [build]
+    environment:
+      name: production
+      url: https://app.example.com
+    permissions:
+      contents: read
+      id-token: write
+    concurrency:
+      group: deploy-prod
+      cancel-in-progress: false
+    defaults:
+      run:
+        working-directory: ./deploy
+    steps:
+      - run: ./publish.sh

@@ -10,6 +10,13 @@ Main CI pipeline for building and testing the application.
 
 **See also:** https://docs.example.com/ci
 
+## Event filters
+
+- **push**
+  - branches: `main`
+- **pull_request**
+  - branches: `main`
+
 ## Secrets
 
 | Name | Type | Description |
