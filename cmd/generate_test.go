@@ -3,6 +3,7 @@ package cmd
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -55,5 +56,33 @@ func TestResolveFilesCompositeDiscovery(t *testing.T) {
 	}
 	if len(got) != len(want) {
 		t.Errorf("got %d files, want %d: %v", len(got), len(want), got)
+	}
+}
+
+// TestGenerateNoWorkflowName verifies that a workflow without a `name:` still renders a
+// non-empty title and TOC entry (the parser backfills the file name), so directory-mode
+// output never produces an empty heading or anchor.
+func TestGenerateNoWorkflowName(t *testing.T) {
+	root := t.TempDir()
+	wf := filepath.Join(root, ".github", "workflows")
+	if err := os.MkdirAll(wf, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	// two unnamed workflows -> distinct file-name titles, no empty/duplicate anchors
+	for _, name := range []string{"ci.yml", "release.yml"} {
+		if err := os.WriteFile(filepath.Join(wf, name), []byte("on: push\njobs:\n  x:\n    runs-on: ubuntu-latest\n    steps:\n      - run: echo hi\n"), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	out := filepath.Join(t.TempDir(), "out.md")
+	if err := Generate([]string{"-o", out, wf}); err != nil {
+		t.Fatalf("Generate: %v", err)
+	}
+	b, _ := os.ReadFile(out)
+	md := string(b)
+	for _, want := range []string{"# ci.yml", "# release.yml", "[ci.yml](#ciyml)", "[release.yml](#releaseyml)"} {
+		if !strings.Contains(md, want) {
+			t.Errorf("output missing %q (empty name not backfilled?)\n%s", want, md)
+		}
 	}
 }

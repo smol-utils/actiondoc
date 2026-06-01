@@ -94,3 +94,35 @@ func TestBuildCompositeResolution(t *testing.T) {
 		t.Errorf("unnamed composite step: StepName = %q, want %q", edge.StepName, "step 1")
 	}
 }
+
+// TestResolveUnresolvedLocalKind checks that an unresolved local `uses:` is classified by
+// its shape: a composite-action-looking path stays KindComposite (not KindReusable), and
+// a workflow-looking path stays KindReusable.
+func TestResolveUnresolvedLocalKind(t *testing.T) {
+	caller := &model.Workflow{
+		File: "ci.yml", Name: "CI", On: []string{"push"},
+		Jobs: []model.Job{
+			// references a local composite action that is NOT in the scan set
+			{ID: "a", RunsOn: "ubuntu-latest", Steps: []model.Step{{Uses: "./.github/actions/missing"}}},
+			// references a local reusable workflow that is NOT in the scan set
+			{ID: "b", Uses: "./.github/workflows/missing.yml"},
+		},
+	}
+	g := Build([]Source{{Path: "/r/.github/workflows/ci.yml", Workflow: caller}})
+
+	var compKind, reusableKind EdgeKind
+	for _, e := range g.Calls("/r/.github/workflows/ci.yml") {
+		switch e.Ref {
+		case "./.github/actions/missing":
+			compKind = e.Kind
+		case "./.github/workflows/missing.yml":
+			reusableKind = e.Kind
+		}
+	}
+	if compKind != KindComposite {
+		t.Errorf("unresolved ./.github/actions/missing kind = %q, want %q", compKind, KindComposite)
+	}
+	if reusableKind != KindReusable {
+		t.Errorf("unresolved ./.github/workflows/missing.yml kind = %q, want %q", reusableKind, KindReusable)
+	}
+}

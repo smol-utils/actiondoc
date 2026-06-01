@@ -83,7 +83,10 @@ func Build(sources []Source) *Graph {
 		ref, pin := splitPin(raw)
 		if isLocal(ref) {
 			clean := strings.TrimPrefix(strings.TrimPrefix(ref, "./"), "../")
-			if strings.Contains(clean, ".github/workflows/") || strings.HasSuffix(clean, ".yml") || strings.HasSuffix(clean, ".yaml") {
+			// A path into .github/workflows or a bare .yml/.yaml file is a reusable-workflow
+			// call; anything else (e.g. ./.github/actions/x) is a composite action.
+			looksWorkflow := strings.Contains(clean, ".github/workflows/") || strings.HasSuffix(clean, ".yml") || strings.HasSuffix(clean, ".yaml")
+			if looksWorkflow {
 				if id, ok := workflowByBase[filepath.Base(clean)]; ok {
 					return id, KindReusable, pin
 				}
@@ -103,7 +106,11 @@ func Build(sources []Source) *Graph {
 			if bestID != "" {
 				return bestID, KindComposite, pin
 			}
-			return "", KindReusable, pin // local but unresolved
+			// Local but unresolved: classify by what the ref looked like.
+			if looksWorkflow {
+				return "", KindReusable, pin
+			}
+			return "", KindComposite, pin
 		}
 		// cross-repo external reference: record as an external node (keyed without the
 		// @pin so different pins of the same target collapse), do not fetch.

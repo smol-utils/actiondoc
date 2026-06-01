@@ -206,13 +206,21 @@ func resolveFiles(path string) ([]string, error) {
 }
 
 // discoverActionFiles walks dir (if present) for composite action metadata files named
-// action.yml/action.yaml, at any depth. A missing dir is not an error.
+// action.yml/action.yaml, at any depth. A missing dir is not an error; other stat errors
+// (permissions, I/O) are surfaced rather than silently swallowed.
 func discoverActionFiles(dir string) ([]string, error) {
-	if info, err := os.Stat(dir); err != nil || !info.IsDir() {
+	info, err := os.Stat(dir)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	if !info.IsDir() {
 		return nil, nil
 	}
 	var out []string
-	err := filepath.WalkDir(dir, func(p string, d fs.DirEntry, err error) error {
+	err = filepath.WalkDir(dir, func(p string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
