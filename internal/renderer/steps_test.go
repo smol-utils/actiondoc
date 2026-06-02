@@ -134,6 +134,10 @@ func TestRenderStepDetails(t *testing.T) {
 			{Key: "token", Value: "${{ secrets.DEPLOY_TOKEN }}"},
 			{Key: "undeclared", Value: "x"},
 		},
+		Env: []model.KV{
+			{Key: "DEPLOY_REGION", Value: "us-east-1"},
+			{Key: "API_KEY", Value: "${{ secrets.DEPLOY_API_KEY }}"},
+		},
 		UsesAction: action,
 	}
 
@@ -146,6 +150,9 @@ func TestRenderStepDetails(t *testing.T) {
 		"- `environment`: `staging` - Target environment name (required)",
 		"- `token`: `${{ secrets.DEPLOY_TOKEN }}` - Deployment token",
 		"- `undeclared`: `x`", // no doc suffix for keys the action does not declare
+		"   - Env:",
+		"- `DEPLOY_REGION`: `us-east-1`",
+		"- `API_KEY`: `${{ secrets.DEPLOY_API_KEY }}`",
 	}
 	for _, want := range checks {
 		if !strings.Contains(got, want) {

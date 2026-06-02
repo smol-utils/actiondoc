@@ -197,6 +197,14 @@
 
 - `contents`: `read`
 
+## Referenced secrets and variables
+
+**Secrets:**
+
+| Name | Used by |
+|------|---------|
+| `GITHUB_TOKEN` | job `assign_reviewers` step `Run assignment script` env `GITHUB_TOKEN` |
+
 ## Jobs
 
 ### `assign_reviewers`
@@ -224,6 +232,8 @@
 3. **Install dependencies**
 
 4. **Run assignment script**
+   - Env:
+     - `GITHUB_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
 
 # Self-hosted runner (benchmark)
 
@@ -253,6 +263,15 @@
 
 **Concurrency:** group `${{ github.workflow }}-${{ github.head_ref || github.run_id }}`, cancel-in-progress: `true`
 
+## Referenced secrets and variables
+
+**Secrets:**
+
+| Name | Used by |
+|------|---------|
+| `HF_HUB_READ_TOKEN` | job `benchmark` step `Run benchmark` env `HF_TOKEN` |
+| `PUSH_TO_HUB_TOKEN` | job `benchmark` step `Run benchmark` env `PUSH_TO_HUB_TOKEN` |
+
 ## Jobs
 
 ### Benchmark (`benchmark`)
@@ -275,6 +294,10 @@
 3. **Reinstall transformers in edit mode (remove the one installed during docker image build)**
 
 4. **Run benchmark**
+   - Env:
+     - `HF_TOKEN`: `${{ secrets.HF_HUB_READ_TOKEN }}`
+     - `PUSH_TO_HUB_TOKEN`: `${{ secrets.PUSH_TO_HUB_TOKEN }}`
+     - `BRANCH_NAME`: `${{ github.head_ref || github.ref_name }}`
 
 # Benchmark v2 Framework
 
@@ -322,7 +345,8 @@ benchmark_v2.yml
 
 | Name | Used by |
 |------|---------|
-| `HF_HUB_READ_TOKEN` | workflow env `HF_TOKEN` |
+| `HF_HUB_READ_TOKEN` | workflow env `HF_TOKEN`; job `benchmark-v2` step `Run benchmark v2` env `HF_TOKEN` |
+| `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN` | job `benchmark-v2` step `Run benchmark v2` env `UPLOAD_TOKEN` |
 
 ## Jobs
 
@@ -348,6 +372,12 @@ benchmark_v2.yml
 4. **Show installed libraries and their versions**
 
 5. **Run benchmark v2**
+   - Env:
+     - `HF_TOKEN`: `${{ secrets.HF_HUB_READ_TOKEN }}`
+     - `COMMIT_ID`: `${{ inputs.commit_sha || github.sha }}`
+     - `RUN_ID`: `${{ inputs.run_id }}`
+     - `BENCHMARK_REPO_ID`: `${{ inputs.benchmark_repo_id }}`
+     - `UPLOAD_TOKEN`: `${{ secrets.TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN }}`
 
 # Benchmark v2 Scheduled Runner - A10 Single-GPU
 
@@ -481,6 +511,8 @@ This workflow is reusable via `workflow_call`.
 #### Steps
 
 1. **Set tag**
+   - Env:
+     - `COMMIT_MESSAGE`: `${{ github.event.head_commit.message }}`
 
 2. **Set up Docker Buildx**
    - Uses: `docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f` (v3.12.0)
@@ -1012,6 +1044,8 @@ build-nightly-ci-docker-images.yml
 
 3. **Get Base Image**
    - ID: `get-base-image`
+   - Env:
+     - `framework_version`: `${{ matrix.version }}`
 
 4. **Print Base Image**
 
@@ -1047,6 +1081,8 @@ build-nightly-ci-docker-images.yml
 
 3. **Get Base Image**
    - ID: `get-base-image`
+   - Env:
+     - `framework_version`: `${{ matrix.version }}`
 
 4. **Print Base Image**
 
@@ -1345,6 +1381,9 @@ check_failed_tests.yml
 |------|---------|
 | `HF_HUB_READ_TOKEN` | workflow env `HF_TOKEN` |
 | `GITHUB_TOKEN` | job `check_new_failures` step `actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c` with `github-token`; job `process_new_failures_with_commit_info` step `actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c` with `github-token` |
+| `ACCESS_REPO_INFO_TOKEN` | job `check_new_failures` step `Get `END_SHA` from previous CI runs of the same workflow` env `ACCESS_TOKEN`; job `process_new_failures_with_commit_info` step `Process report` env `ACCESS_REPO_INFO_TOKEN` |
+| `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN` | job `process_new_failures_with_commit_info` step `Process report` env `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN` |
+| `SLACK_CIFEEDBACK_BOT_TOKEN` | job `process_new_failures_with_commit_info` step `Send processed report` env `SLACK_BOT_TOKEN` |
 
 ## Jobs
 
@@ -1364,6 +1403,9 @@ check_failed_tests.yml
 
 2. **Set matrix**
    - ID: `set-matrix`
+   - Env:
+     - `job`: `${{ inputs.job }}`
+     - `max_num_runners`: `${{ inputs.max_num_runners }}`
 
 ### Find commits for new failing tests (`check_new_failures`)
 
@@ -1388,12 +1430,18 @@ check_failed_tests.yml
      - `path`: `setup_values`
      - `merge-multiple`: `true`
      - `github-token`: `${{ secrets.GITHUB_TOKEN }}`
+   - Env:
+     - `ACTIONS_ARTIFACT_MAX_ARTIFACT_COUNT`: `2000`
 
 3. **Prepare some setup values**
 
 4. **Update clone**
+   - Env:
+     - `commit_sha`: `${{ inputs.commit_sha || github.sha }}`
 
 5. **Get `START_SHA`**
+   - Env:
+     - `commit_sha`: `${{ inputs.commit_sha || github.sha }}`
 
 6. **Extract the base commit on `main` (of the merge commit created by Github) if it is a PR**
    - ID: `pr_info`
@@ -1401,12 +1449,19 @@ check_failed_tests.yml
    - Condition: `${{ inputs.pr_number != '' }}`
    - With:
      - `script`: `const pull_number = parseInt(process.env.PR_NUMBER, 10); const commit_sha = process.env.COMMIT_SHA;  const { data: pr } = await github.rest.pulls.get({   owner: context.repo.owner,   repo: context.repo.repo,   pull_number, });  const { data: merge_commit } = await github.rest.repos.getCommit({   owner: pr.base.repo.owner.login,   repo: pr.base.repo.name,   ref: commit_sha, });  core.setOutput('merge_commit_base_sha', merge_commit.parents[0].sha);`
+   - Env:
+     - `PR_NUMBER`: `${{ inputs.pr_number }}`
+     - `COMMIT_SHA`: `${{ inputs.commit_sha }}`
 
 7. **Get `END_SHA` from previous CI runs of the same workflow**
    - Condition: `${{ inputs.pr_number == '' }}`
+   - Env:
+     - `ACCESS_TOKEN`: `${{ secrets.ACCESS_REPO_INFO_TOKEN }}`
 
 8. **Set `END_SHA`**
    - Condition: `${{ inputs.pr_number != '' }}`
+   - Env:
+     - `merge_commit_base_sha`: `${{ steps.pr_info.outputs.merge_commit_base_sha }}`
 
 9. **Reinstall transformers in edit mode (remove the one installed during docker image build)**
 
@@ -1419,8 +1474,16 @@ check_failed_tests.yml
 13. **Show installed libraries and their versions**
 
 14. **Check failed tests**
+   - Env:
+     - `job`: `${{ inputs.job }}`
+     - `n_runners`: `${{ needs.setup_check_new_failures.outputs.n_runners }}`
+     - `run_idx`: `${{ matrix.run_idx }}`
+     - `pr_number`: `${{ inputs.pr_number }}`
 
 15. **Show results**
+   - Env:
+     - `job`: `${{ inputs.job }}`
+     - `run_idx`: `${{ matrix.run_idx }}`
 
 16. **Upload artifacts**
    - Uses: `actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02` (v4.6.2)
@@ -1451,14 +1514,27 @@ check_failed_tests.yml
      - `path`: `/transformers/new_failures_with_bad_commit_${{ inputs.job }}`
      - `merge-multiple`: `true`
      - `github-token`: `${{ secrets.GITHUB_TOKEN }}`
+   - Env:
+     - `ACTIONS_ARTIFACT_MAX_ARTIFACT_COUNT`: `2000`
 
 3. **Check files**
+   - Env:
+     - `job`: `${{ inputs.job }}`
 
 4. **Merge files**
+   - Env:
+     - `job`: `${{ inputs.job }}`
 
 5. **Update clone**
+   - Env:
+     - `commit_sha`: `${{ inputs.commit_sha || github.sha }}`
 
 6. **Process report**
+   - Env:
+     - `ACCESS_REPO_INFO_TOKEN`: `${{ secrets.ACCESS_REPO_INFO_TOKEN }}`
+     - `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN`: `${{ secrets.TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN }}`
+     - `JOB_NAME`: `${{ inputs.job }}`
+     - `REPORT_REPO_ID`: `${{ inputs.report_repo_id }}`
 
 7. **Show results**
 
@@ -1469,6 +1545,9 @@ check_failed_tests.yml
      - `path`: `/transformers/new_failures_with_bad_commit.json /transformers/new_failures_with_bad_commit_url.txt`
 
 9. **Prepare Slack report title**
+   - Env:
+     - `ci_event`: `${{ inputs.ci_event }}`
+     - `job`: `${{ inputs.job }}`
 
 10. **Send processed report**
    - Uses: `slackapi/slack-github-action@6c661ce58804a1a20f6dc5fbee7f0381b469e001`
@@ -1476,6 +1555,8 @@ check_failed_tests.yml
    - With:
      - `channel-id`: `#${{ inputs.slack_report_channel }}`
      - `payload`: `{   "blocks": [     {       "type": "header",       "text": {         "type": "plain_text",         "text": "${{ env.title }}"       }     },     {       "type": "section",       "text": {         "type": "mrkdwn",         "text": "${{ env.REPORT_TEXT }}"       }     }   ] }`
+   - Env:
+     - `SLACK_BOT_TOKEN`: `${{ secrets.SLACK_CIFEEDBACK_BOT_TOKEN }}`
 
 # Check Tiny Models
 
@@ -1567,6 +1648,15 @@ check_failed_tests.yml
 
 - `contents`: `read`
 
+## Referenced secrets and variables
+
+**Secrets:**
+
+| Name | Used by |
+|------|---------|
+| `GITHUB_TOKEN` | job `comment` step `Wait for CircleCI check suite completion` env `GH_TOKEN`; job `comment` step `Get CircleCI run's artifacts and upload them to Hub` env `GITHUB_TOKEN`; job `comment` step `Post comment with helper link` env `GH_TOKEN` |
+| `HF_CI_WRITE_TOKEN` | job `comment` step `Upload summaries to Hub` env `HF_TOKEN` |
+
 ## Jobs
 
 ### `comment`
@@ -1594,21 +1684,41 @@ check_failed_tests.yml
 3. **Install dependencies**
 
 4. **Wait for CircleCI check suite completion**
+   - Env:
+     - `GH_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
+     - `COMMIT_SHA`: `${{ github.event.pull_request.head.sha }}`
+     - `GITHUB_REPOSITORY`: `${{ github.repository }}`
 
 5. **Get CircleCI run's artifacts and upload them to Hub**
    - ID: `circleci`
+   - Env:
+     - `COMMIT_SHA`: `${{ github.event.pull_request.head.sha }}`
+     - `REPO`: `${{ github.repository }}`
+     - `GITHUB_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
 
 6. **Upload summaries to Hub**
    - Condition: `steps.circleci.outputs.artifact_found == 'true'`
+   - Env:
+     - `HF_TOKEN`: `${{ secrets.HF_CI_WRITE_TOKEN }}`
+     - `CIRCLECI_RESULTS_DATASET_ID`: `transformers-community/circleci-test-results`
+     - `PR_NUMBER`: `${{ github.event.pull_request.number }}`
+     - `COMMIT_SHA`: `${{ github.event.pull_request.head.sha }}`
 
 7. **Delete existing CircleCI summary comments**
    - Uses: `actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b` (v7.1.0)
    - Condition: `steps.circleci.outputs.artifact_found == 'true'`
    - With:
      - `script`: `const PR_NUMBER = parseInt(process.env.PR_NUMBER, 10);  // Get all comments on the PR const { data: comments } = await github.rest.issues.listComments({   owner: context.repo.owner,   repo: context.repo.repo,   issue_number: PR_NUMBER });  // Find existing bot comments that start with "View the CircleCI Test Summary for this PR:" const existingComments = comments.filter(comment =>    comment.user.login === 'github-actions[bot]' &&    comment.body.startsWith('View the CircleCI Test Summary for this PR:') );  // Delete all matching comments for (const comment of existingComments) {   console.log(`Deleting comment #${comment.id}`);   await github.rest.issues.deleteComment({     owner: context.repo.owner,     repo: context.repo.repo,     comment_id: comment.id   }); }  console.log(`Deleted ${existingComments.length} old CircleCI summary comment(s)`);`
+   - Env:
+     - `PR_NUMBER`: `${{ github.event.pull_request.number }}`
 
 8. **Post comment with helper link**
    - Condition: `steps.circleci.outputs.artifact_found == 'true'`
+   - Env:
+     - `GH_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
+     - `GITHUB_REPOSITORY`: `${{ github.repository }}`
+     - `PR_NUMBER`: `${{ github.event.pull_request.number }}`
+     - `PR_SHA`: `${{ github.event.pull_request.head.sha }}`
 
 # CodeQL Security Analysis
 
@@ -1682,6 +1792,15 @@ This workflow is reusable via `workflow_call`.
 
 - `contents`: `read`
 
+## Referenced secrets and variables
+
+**Secrets:**
+
+| Name | Used by |
+|------|---------|
+| `ACCESS_REPO_INFO_TOKEN` | job `collated_reports` step `Collated reports` env `ACCESS_REPO_INFO_TOKEN` |
+| `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN` | job `collated_reports` step `Collated reports` env `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN` |
+
 ## Jobs
 
 ### Collated reports (`collated_reports`)
@@ -1702,6 +1821,14 @@ This workflow is reusable via `workflow_call`.
    - Uses: `actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093` (v4.3.0)
 
 3. **Collated reports**
+   - Env:
+     - `ACCESS_REPO_INFO_TOKEN`: `${{ secrets.ACCESS_REPO_INFO_TOKEN }}`
+     - `CI_SHA`: `${{ github.sha }}`
+     - `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN`: `${{ secrets.TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN }}`
+     - `MACHINE_TYPE`: `${{ inputs.machine_type }}`
+     - `JOB`: `${{ inputs.job }}`
+     - `REPORT_REPO_ID`: `${{ inputs.report_repo_id }}`
+     - `GPU_NAME`: `${{ inputs.gpu_name }}`
 
 # Doctest job
 
@@ -1764,6 +1891,8 @@ doctest_job.yml
 5. **Get doctest files**
 
 6. **Set `split_keys`**
+   - Env:
+     - `MATRIX_SPLIT_KEYS`: `${{ matrix.split_keys }}`
 
 7. **Run doctests**
 
@@ -1809,6 +1938,16 @@ doctest_job.yml
 doctests.yml [push, repository_dispatch, schedule]
 +-- call_doctest_job (uses doctest_job.yml)
 ```
+
+## Referenced secrets and variables
+
+**Secrets:**
+
+| Name | Used by |
+|------|---------|
+| `CI_SLACK_BOT_TOKEN` | job `send_results` step `Send message to Slack` env `CI_SLACK_BOT_TOKEN` |
+| `ACCESS_REPO_INFO_TOKEN` | job `send_results` step `Send message to Slack` env `ACCESS_REPO_INFO_TOKEN` |
+| `CI_SLACK_CHANNEL_ID_DAILY_DOCS` | job `send_results` step `Send message to Slack` env `SLACK_REPORT_CHANNEL` |
 
 ## Jobs
 
@@ -1866,6 +2005,10 @@ doctests.yml [push, repository_dispatch, schedule]
    - Uses: `actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093` (v4.3.0)
 
 3. **Send message to Slack**
+   - Env:
+     - `CI_SLACK_BOT_TOKEN`: `${{ secrets.CI_SLACK_BOT_TOKEN }}`
+     - `ACCESS_REPO_INFO_TOKEN`: `${{ secrets.ACCESS_REPO_INFO_TOKEN }}`
+     - `SLACK_REPORT_CHANNEL`: `${{ secrets.CI_SLACK_CHANNEL_ID_DAILY_DOCS }}`
 
 4. **Upload results**
    - Uses: `actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02` (v4.6.2)
@@ -1894,6 +2037,14 @@ doctests.yml [push, repository_dispatch, schedule]
 | Variable | Value |
 |----------|-------|
 | `SLACK_CHANNEL_ID` | `#transformers-gh-ci-central` |
+
+## Referenced secrets and variables
+
+**Secrets:**
+
+| Name | Used by |
+|------|---------|
+| `SLACK_CIFEEDBACK_BOT_TOKEN` | job `precheck-slack` step `chk` env `SLACK_BOT_TOKEN`; job `notify-failures` step `Send Slack notification` env `SLACK_BOT_TOKEN` |
 
 ## Jobs
 
@@ -1939,11 +2090,15 @@ doctests.yml [push, repository_dispatch, schedule]
 
 4. **Extract extras for this Python version**
    - ID: `get-extras`
+   - Env:
+     - `MATRIX_PYTHON_VERSION`: `${{ matrix.python-version }}`
 
 5. **Install base package**
 
 6. **Test all extras**
    - ID: `test-extras`
+   - Env:
+     - `MATRIX_PYTHON_VERSION`: `${{ matrix.python-version }}`
 
 7. **Verify installation**
 
@@ -1966,6 +2121,8 @@ doctests.yml [push, repository_dispatch, schedule]
 
 1. **chk**
    - ID: `chk`
+   - Env:
+     - `SLACK_BOT_TOKEN`: `${{ secrets.SLACK_CIFEEDBACK_BOT_TOKEN }}`
 
 ### Notify failures to Slack (`notify-failures`)
 
@@ -1997,6 +2154,9 @@ doctests.yml [push, repository_dispatch, schedule]
 4. **Aggregate failures**
 
 5. **Format Slack message**
+   - Env:
+     - `FAILURES_FILE`: `all_failures.json`
+     - `WORKFLOW_URL`: `${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}`
 
 6. **Send Slack notification**
    - Uses: `slackapi/slack-github-action@6c661ce58804a1a20f6dc5fbee7f0381b469e001`
@@ -2004,6 +2164,8 @@ doctests.yml [push, repository_dispatch, schedule]
    - With:
      - `channel-id`: `${{ env.SLACK_CHANNEL_ID }}`
      - `payload`: `{   "blocks": [     {       "type": "header",       "text": {         "type": "plain_text",         "text": "${{ env.SLACK_TITLE }}"       }     },     {       "type": "section",       "text": {         "type": "mrkdwn",         "text": "${{ env.SLACK_MESSAGE }}"       }     },     {       "type": "divider"     },     {       "type": "section",       "text": {         "type": "mrkdwn",         "text": "<${{ env.SLACK_WORKFLOW_URL }}|View workflow run>"       }     }   ] }`
+   - Env:
+     - `SLACK_BOT_TOKEN`: `${{ secrets.SLACK_CIFEEDBACK_BOT_TOKEN }}`
 
 # Get PR commit SHA
 
@@ -2075,9 +2237,14 @@ get-pr-info.yml
    - Uses: `actions/github-script@d7906e4ad0b1822421a7e6a35d5ca353c962f410` (v6.4.1)
    - With:
      - `script`: `const pull_number = parseInt(process.env.PR_NUMBER, 10);  const { data: pr } = await github.rest.pulls.get({   owner: context.repo.owner,   repo: context.repo.repo,   pull_number, });  const { data: head_commit } = await github.rest.repos.getCommit({   owner: pr.head.repo.owner.login,   repo: pr.head.repo.name,   ref: pr.head.ref });  const { data: merge_commit } = await github.rest.repos.getCommit({   owner: pr.base.repo.owner.login,   repo: pr.base.repo.name,   ref: pr.merge_commit_sha, });  const { data: files } = await github.rest.pulls.listFiles({   owner: context.repo.owner,   repo: context.repo.repo,   pull_number, });  core.setOutput('head_repo_full_name', pr.head.repo.full_name); core.setOutput('base_repo_full_name', pr.base.repo.full_name); core.setOutput('head_repo_owner', pr.head.repo.owner.login); core.setOutput('base_repo_owner', pr.base.repo.owner.login); core.setOutput('head_repo_name', pr.head.repo.name); core.setOutput('base_repo_name', pr.base.repo.name); core.setOutput('head_ref', pr.head.ref); core.setOutput('base_ref', pr.base.ref); core.setOutput('head_sha', pr.head.sha); core.setOutput('base_sha', pr.base.sha); core.setOutput('merge_commit_base_sha', merge_commit.parents[0].sha); core.setOutput('merge_commit_sha', pr.merge_commit_sha); core.setOutput('pr', pr);  core.setOutput('head_commit_date', head_commit.commit.committer.date); core.setOutput('merge_commit_date', merge_commit.commit.committer.date);  core.setOutput('files', files);              console.log('PR head commit:', {   head_commit: head_commit,   commit: head_commit.commit,   date: head_commit.commit.committer.date });  console.log('PR merge commit:', {   merge_commit: merge_commit,   commit: merge_commit.commit,   date: merge_commit.commit.committer.date });  console.log('PR Info:', {   pr_info: pr });`
+   - Env:
+     - `PR_NUMBER`: `${{ inputs.pr_number }}`
 
 2. **Convert dates to timestamps**
    - ID: `get_timestamps`
+   - Env:
+     - `head_commit_date`: `${{ steps.pr_info.outputs.head_commit_date }}`
+     - `merge_commit_date`: `${{ steps.pr_info.outputs.merge_commit_date }}`
 
 # Get PR number
 
@@ -2121,6 +2288,12 @@ get-pr-number.yml
 #### Steps
 
 1. **Get PR number**
+   - Env:
+     - `issue_number`: `${{ github.event.issue.number }}`
+     - `is_pull_request_issue`: `${{ github.event.issue.pull_request != null }}`
+     - `pr_number`: `${{ github.event.pull_request.number }}`
+     - `is_pull_request`: `${{ github.event.pull_request != null }}`
+     - `event_number`: `${{ github.event.number }}`
 
 2. **Check PR number**
 
@@ -2252,10 +2425,18 @@ model_jobs.yml
 #### Steps
 
 1. **Echo input and matrix info**
+   - Env:
+     - `folder_slices`: `${{ inputs.folder_slices }}`
+     - `matrix_folders`: `${{ matrix.folders }}`
+     - `slice_data`: `${{ toJson(fromJson(inputs.folder_slices)[inputs.slice_id]) }}`
 
 2. **Echo folder ${{ matrix.folders }}**
+   - Env:
+     - `matrix_folders_raw`: `${{ matrix.folders }}`
 
 3. **Update clone**
+   - Env:
+     - `commit_sha`: `${{ inputs.commit_sha || github.sha }}`
 
 4. **Reinstall transformers in edit mode (remove the one installed during docker image build)**
 
@@ -2273,19 +2454,33 @@ model_jobs.yml
 
 10. **Set `machine_type` for report and artifact names**
    - ID: `set_machine_type`
+   - Env:
+     - `input_machine_type`: `${{ inputs.machine_type }}`
 
 11. **Create report directory if it doesn't exist**
+   - Env:
+     - `report_name_prefix`: `${{ inputs.report_name_prefix }}`
 
 12. **Run all tests on GPU**
+   - Env:
+     - `report_name_prefix`: `${{ inputs.report_name_prefix }}`
+     - `pytest_marker`: `${{ inputs.pytest_marker }}`
+     - `model`: `${{ matrix.folders }}`
 
 13. **Failure short reports** `[continue-on-error]`
    - Condition: `${{ failure() }}`
+   - Env:
+     - `report_name_prefix`: `${{ inputs.report_name_prefix }}`
 
 14. **Captured information** `[continue-on-error]`
    - Condition: `${{ failure() }}`
+   - Env:
+     - `report_name_prefix`: `${{ inputs.report_name_prefix }}`
 
 15. **Copy test_outputs.txt** `[continue-on-error]`
    - Condition: `${{ always() }}`
+   - Env:
+     - `report_name_prefix`: `${{ inputs.report_name_prefix }}`
 
 16. **Test suite reports artifacts: ${{ env.machine_type }}_${{ inputs.report_name_prefix }}_${{ env.matrix_folders }}_test_reports**
    - Uses: `actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02` (v4.6.2)
@@ -2386,8 +2581,14 @@ model_jobs_intel_gaudi.yml
 #### Steps
 
 1. **Echo input and matrix info**
+   - Env:
+     - `FOLDER_SLICES`: `${{ inputs.folder_slices }}`
+     - `MATRIX_FOLDERS`: `${{ matrix.folders }}`
+     - `SLICE`: `${{ toJson(fromJson(inputs.folder_slices)[inputs.slice_id]) }}`
 
 2. **Echo folder ${{ matrix.folders }}**
+   - Env:
+     - `MATRIX_FOLDERS`: `${{ matrix.folders }}`
 
 3. **Checkout**
    - Uses: `actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5` (v4.3.1)
@@ -2404,13 +2605,24 @@ model_jobs_intel_gaudi.yml
 7. **Show installed libraries and their versions**
 
 8. **Set `machine_type` for report and artifact names**
+   - Env:
+     - `MACHINE_TYPE`: `${{ inputs.machine_type }}`
 
 9. **Run all tests on Gaudi**
+   - Env:
+     - `REPORT_NAME_PREFIX`: `${{ inputs.report_name_prefix }}`
+     - `MATRIX_FOLDERS`: `${{ matrix.folders }}`
 
 10. **Failure short reports** `[continue-on-error]`
    - Condition: `${{ failure() }}`
+   - Env:
+     - `REPORT_NAME_PREFIX`: `${{ inputs.report_name_prefix }}`
+     - `MATRIX_FOLDERS`: `${{ matrix.folders }}`
 
 11. **Run test**
+   - Env:
+     - `REPORT_NAME_PREFIX`: `${{ inputs.report_name_prefix }}`
+     - `MATRIX_FOLDERS`: `${{ matrix.folders }}`
 
 12. **Test suite reports artifacts: ${{ env.machine_type }}_${{ inputs.report_name_prefix }}_${{ env.matrix_folders }}_test_reports**
    - Uses: `actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02` (v4.6.2)
@@ -2437,6 +2649,14 @@ Used to notify core maintainers about new model PR being merged
 ## Permissions
 
 - `contents`: `read`
+
+## Referenced secrets and variables
+
+**Secrets:**
+
+| Name | Used by |
+|------|---------|
+| `SLACK_CIFEEDBACK_BOT_TOKEN` | job `notify_new_model` step `Notify` env `SLACK_BOT_TOKEN` |
 
 ## Jobs
 
@@ -2468,6 +2688,8 @@ Used to notify core maintainers about new model PR being merged
    - With:
      - `channel-id`: `transformers-new-model-notification`
      - `payload`: `{   "blocks": [     {       "type": "header",       "text": {         "type": "plain_text",         "text": "New model!",         "emoji": true       }     },     {       "type": "section",       "text": {         "type": "mrkdwn",         "text": "<https://github.com/huggingface/transformers/commit/${{ env.COMMIT_SHA }}|New model: ${{ env.NEW_MODEL }}> GH_ArthurZucker, GH_lysandrejik, GH_ydshieh\ncommit SHA: ${{ env.COMMIT_SHA }}"       }     }   ] }`
+   - Env:
+     - `SLACK_BOT_TOKEN`: `${{ secrets.SLACK_CIFEEDBACK_BOT_TOKEN }}`
 
 # PR CI
 
@@ -2545,6 +2767,14 @@ pr-repo-consistency-bot.yml [issue_comment]
 +-- get-pr-info (uses get-pr-info.yml)
 ```
 
+## Referenced secrets and variables
+
+**Secrets:**
+
+| Name | Used by |
+|------|---------|
+| `HF_STYLE_BOT_ACTION` | job `commit-and-comment` step `Push changes to fork using git` env `GITHUB_TOKEN` |
+
 ## Jobs
 
 ### Get PR number (`get-pr-number`)
@@ -2576,6 +2806,9 @@ pr-repo-consistency-bot.yml [issue_comment]
 #### Steps
 
 1. **Verify `merge_commit` timestamp is older than the issue comment timestamp**
+   - Env:
+     - `COMMENT_DATE`: `${{ github.event.comment.created_at }}`
+     - `PR_MERGE_COMMIT_TIMESTAMP`: `${{ needs.get-pr-info.outputs.PR_MERGE_COMMIT_TIMESTAMP }}`
 
 ### Init Comment on PR (`init_comment_with_url`)
 
@@ -2594,12 +2827,17 @@ pr-repo-consistency-bot.yml [issue_comment]
    - Uses: `actions/github-script@d7906e4ad0b1822421a7e6a35d5ca353c962f410` (v6.4.1)
    - With:
      - `script`: `const PR_NUMBER = parseInt(process.env.PR_NUMBER, 10);  // Get all comments on the PR const { data: comments } = await github.rest.issues.listComments({   owner: context.repo.owner,   repo: context.repo.repo,   issue_number: PR_NUMBER });  // Find existing bot comments that start with "Repo. Consistency" or "Style fix" const existingComments = comments.filter(comment =>    comment.user.login === 'github-actions[bot]' &&    (comment.body.startsWith('Repo. Consistency') || comment.body.startsWith('Style fix')) );  if (existingComments.length > 0) {   // Get the most recent comment   const mostRecentComment = existingComments     .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0];      console.log(`Deleting most recent comment #${mostRecentComment.id}`);   await github.rest.issues.deleteComment({     owner: context.repo.owner,     repo: context.repo.repo,     comment_id: mostRecentComment.id   }); }`
+   - Env:
+     - `PR_NUMBER`: `${{ needs.get-pr-number.outputs.PR_NUMBER }}`
 
 2. **Comment on PR with workflow run link**
    - ID: `init_comment`
    - Uses: `actions/github-script@d7906e4ad0b1822421a7e6a35d5ca353c962f410` (v6.4.1)
    - With:
      - `script`: `const PR_NUMBER = parseInt(process.env.PR_NUMBER, 10); const COMMENT_BODY = process.env.COMMENT_BODY; const runUrl = `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`  // Determine which command was used const isStyleFix = COMMENT_BODY.startsWith('@bot /style'); const messagePrefix = isStyleFix ? 'Style fix' : 'Repo. Consistency fix';  const { data: botComment } = await github.rest.issues.createComment({   owner: context.repo.owner,   repo: context.repo.repo,   issue_number: PR_NUMBER,   body: `${messagePrefix} is beginning .... [View the workflow run here](${runUrl}).` }); core.setOutput('comment_id', botComment.id);`
+   - Env:
+     - `PR_NUMBER`: `${{ needs.get-pr-number.outputs.PR_NUMBER }}`
+     - `COMMENT_BODY`: `${{ github.event.comment.body }}`
 
 ### `run-repo-consistency-checks`
 
@@ -2624,6 +2862,10 @@ pr-repo-consistency-bot.yml [issue_comment]
 3. **Install dependencies from trusted main branch**
 
 4. **Fetch and checkout PR code manually**
+   - Env:
+     - `PR_HEAD_REPO_FULL_NAME`: `${{ needs.get-pr-info.outputs.PR_HEAD_REPO_FULL_NAME }}`
+     - `PR_HEAD_REF`: `${{ needs.get-pr-info.outputs.PR_HEAD_REF }}`
+     - `PR_HEAD_SHA`: `${{ needs.check-timestamps.outputs.VERIFIED_PR_HEAD_SHA }}`
 
 5. **Copy trusted scripts from main branch**
 
@@ -2670,16 +2912,28 @@ pr-repo-consistency-bot.yml [issue_comment]
 
 2. **Push changes to fork using git**
    - Condition: `needs.run-repo-consistency-checks.outputs.changes_detected == 'true'`
+   - Env:
+     - `PR_HEAD_REF`: `${{ needs.get-pr-info.outputs.PR_HEAD_REF }}`
+     - `PR_HEAD_SHA`: `${{ needs.check-timestamps.outputs.VERIFIED_PR_HEAD_SHA }}`
+     - `PR_HEAD_REPO_FULL_NAME`: `${{ needs.get-pr-info.outputs.PR_HEAD_REPO_FULL_NAME }}`
+     - `GITHUB_TOKEN`: `${{ secrets.HF_STYLE_BOT_ACTION }}`
 
 3. **Prepare final comment message**
    - ID: `prepare_final_comment`
    - Condition: `needs.init_comment_with_url.result == 'success'`
+   - Env:
+     - `CHANGES_DETECTED`: `${{ needs.run-repo-consistency-checks.outputs.changes_detected }}`
+     - `COMMENT_BODY`: `${{ github.event.comment.body }}`
 
 4. **Comment on PR**
    - Uses: `actions/github-script@d7906e4ad0b1822421a7e6a35d5ca353c962f410` (v6.4.1)
    - Condition: `needs.init_comment_with_url.result == 'success'`
    - With:
      - `script`: `const pr_number = parseInt(process.env.PR_NUMBER, 10); const comment_id = parseInt(process.env.COMMENT_ID, 10); const body = process.env.FINAL_COMMENT; await github.rest.issues.updateComment({   owner: context.repo.owner,   repo: context.repo.repo,   comment_id,   body, });`
+   - Env:
+     - `PR_NUMBER`: `${{ needs.get-pr-number.outputs.PR_NUMBER }}`
+     - `COMMENT_ID`: `${{ needs.init_comment_with_url.outputs.comment_id }}`
+     - `FINAL_COMMENT`: `${{ steps.prepare_final_comment.outputs.final_comment }}`
 
 # PR - build doc via comment
 
@@ -2719,7 +2973,7 @@ External workflows referenced: `huggingface/doc-builder/.github/workflows/build_
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | job `update_run_status` env `GH_TOKEN` |
+| `GITHUB_TOKEN` | job `create_run` step `Create Run` env `GH_TOKEN`; job `reply_to_comment` step `Reply to the comment` env `GH_TOKEN`; job `update_run_status` env `GH_TOKEN` |
 
 ## Jobs
 
@@ -2778,6 +3032,10 @@ External workflows referenced: `huggingface/doc-builder/.github/workflows/build_
 
 1. **Create Run**
    - ID: `create_run`
+   - Env:
+     - `GH_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
+     - `GITHUB_RUN_URL`: `https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}`
+     - `NEEDS_GET_PR_INFO_OUTPUTS_PR_HEAD_SHA`: `${{ needs.get-pr-info.outputs.PR_HEAD_SHA }}`
 
 ### Reply to the comment (`reply_to_comment`)
 
@@ -2794,6 +3052,10 @@ External workflows referenced: `huggingface/doc-builder/.github/workflows/build_
 #### Steps
 
 1. **Reply to the comment**
+   - Env:
+     - `GH_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
+     - `GITHUB_RUN_URL`: `https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}`
+     - `NEEDS_GET_PR_NUMBER_OUTPUTS_PR_NUMBER`: `${{ needs.get-pr-number.outputs.PR_NUMBER }}`
 
 ### Build doc (`build-doc`)
 
@@ -2835,6 +3097,8 @@ External workflows referenced: `huggingface/doc-builder/.github/workflows/build_
 1. **Get `build-doc` job status**
 
 2. **Update PR commit statuses**
+   - Env:
+     - `NEEDS_GET_PR_INFO_OUTPUTS_PR_HEAD_SHA`: `${{ needs.get-pr-info.outputs.PR_HEAD_SHA }}`
 
 # PR slow CI - Suggestion
 
@@ -2899,12 +3163,18 @@ pr_slow_ci_suggestion.yml [pull_request_target]
    - Uses: `actions/github-script@d7906e4ad0b1822421a7e6a35d5ca353c962f410` (v6.4.1)
    - With:
      - `script`: `const fs = require('node:fs'); const files = await github.paginate(github.rest.pulls.listFiles, {   owner: context.repo.owner,   repo: context.repo.repo,   pull_number: parseInt(process.env.PR_NUMBER, 10), }); fs.writeFileSync('pr_files.txt', JSON.stringify(files));`
+   - Env:
+     - `PR_NUMBER`: `${{ needs.get-pr-number.outputs.PR_NUMBER }}`
 
 3. **Get repository content**
    - ID: `repo_content`
    - Uses: `actions/github-script@d7906e4ad0b1822421a7e6a35d5ca353c962f410` (v6.4.1)
    - With:
      - `script`: `const fs = require('node:fs'); const { PR_HEAD_REPO_OWNER, PR_HEAD_REPO_NAME, PR_HEAD_SHA } = process.env;  const { data: tests_dir } = await github.rest.repos.getContent({   owner: PR_HEAD_REPO_OWNER,   repo: PR_HEAD_REPO_NAME,   path: 'tests',   ref: PR_HEAD_SHA, });  const { data: tests_models_dir } = await github.rest.repos.getContent({   owner: PR_HEAD_REPO_OWNER,   repo: PR_HEAD_REPO_NAME,   path: 'tests/models',   ref: PR_HEAD_SHA, });  const { data: tests_quantization_dir } = await github.rest.repos.getContent({   owner: PR_HEAD_REPO_OWNER,   repo: PR_HEAD_REPO_NAME,   path: 'tests/quantization',   ref: PR_HEAD_SHA, });  // Write to files instead of outputs fs.writeFileSync('tests_dir.txt', JSON.stringify(tests_dir, null, 2)); fs.writeFileSync('tests_models_dir.txt', JSON.stringify(tests_models_dir, null, 2)); fs.writeFileSync('tests_quantization_dir.txt', JSON.stringify(tests_quantization_dir, null, 2));`
+   - Env:
+     - `PR_HEAD_REPO_OWNER`: `${{ needs.get-pr-info.outputs.PR_HEAD_REPO_OWNER }}`
+     - `PR_HEAD_REPO_NAME`: `${{ needs.get-pr-info.outputs.PR_HEAD_REPO_NAME }}`
+     - `PR_HEAD_SHA`: `${{ needs.get-pr-info.outputs.PR_HEAD_SHA }}`
 
 4. **Run script to get jobs to run**
    - ID: `get_jobs`
@@ -2927,6 +3197,9 @@ pr_slow_ci_suggestion.yml [pull_request_target]
    - Uses: `actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b` (v7.1.0)
    - With:
      - `script`: `const prNumber = parseInt(process.env.PR_NUMBER, 10); const commentPrefix = "**[For maintainers]** Suggested jobs to run (before merge)"; const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000); // 30 minutes ago const newBody = `${commentPrefix}${process.env.BODY}`;  // Get all comments on the PR const { data: comments } = await github.rest.issues.listComments({   owner: context.repo.owner,   repo: context.repo.repo,   issue_number: prNumber });  // Find existing comments that start with our prefix const existingComments = comments.filter(comment =>   comment.user.login === 'github-actions[bot]' &&   comment.body.startsWith(commentPrefix) );  let shouldCreateNewComment = true; let commentsToDelete = [];  if (existingComments.length > 0) {   // Get the most recent comment   const mostRecentComment = existingComments     .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0];    const commentDate = new Date(mostRecentComment.created_at);   const isOld = commentDate < thirtyMinutesAgo;   const isDifferentContent = mostRecentComment.body !== newBody;    console.log(`Most recent comment created: ${mostRecentComment.created_at}`);   console.log(`Is older than 30 minutes: ${isOld}`);   console.log(`Has different content: ${isDifferentContent}`);    if (isOld || isDifferentContent) {     // Delete all existing comments and create new one     commentsToDelete = existingComments;     console.log(`Will delete ${commentsToDelete.length} existing comment(s) and create new one`);   } else {     // Content is same and comment is recent, skip     shouldCreateNewComment = false;     console.log('Comment is recent and content unchanged, skipping update');   } } else {   console.log('No existing comments found, will create new one'); }  // Delete old comments if needed for (const comment of commentsToDelete) {   console.log(`Deleting comment #${comment.id} (created: ${comment.created_at})`);   await github.rest.issues.deleteComment({     owner: context.repo.owner,     repo: context.repo.repo,     comment_id: comment.id   }); }  // Create new comment if needed if (shouldCreateNewComment) {   await github.rest.issues.createComment({     owner: context.repo.owner,     repo: context.repo.repo,     issue_number: prNumber,     body: newBody   });   console.log('✅ New comment created'); } else {   console.log('ℹ️ No comment update needed'); }`
+   - Env:
+     - `BODY`: `run-slow: ${{ needs.get-jobs.outputs.jobs }}`
+     - `PR_NUMBER`: `${{ needs.get-pr-number.outputs.PR_NUMBER }}`
 
 # Slow tests on important models (on Push - A10)
 
@@ -2985,6 +3258,8 @@ External workflows referenced: `huggingface/transformers/.github/workflows/colla
 3. **Parse changed files with Python**
    - ID: `set-matrix`
    - Condition: `steps.get-changed-files.outputs.any_changed == 'true'`
+   - Env:
+     - `CHANGED_FILES`: `${{ steps.get-changed-files.outputs.changed_files }}`
 
 ### Model CI (`model-ci`)
 
@@ -3235,6 +3510,7 @@ External workflows referenced: `huggingface/transformers/.github/workflows/colla
 | Name | Used by |
 |------|---------|
 | `HF_HUB_READ_TOKEN` | workflow env `HF_TOKEN` |
+| `GITHUB_TOKEN` | job `report_error_earlier` step `Reply to the comment` env `GH_TOKEN`; job `reply_to_comment` step `Reply to the comment` env `GH_TOKEN`; job `create_run` step `Create Run` env `GH_TOKEN`; job `report` step `Post results as PR comment` env `GH_TOKEN`; job `report` step `Update PR commit statuses` env `GH_TOKEN` |
 
 ## Jobs
 
@@ -3267,6 +3543,9 @@ External workflows referenced: `huggingface/transformers/.github/workflows/colla
 #### Steps
 
 1. **Verify `merge_commit` timestamp is older than the issue comment timestamp**
+   - Env:
+     - `COMMENT_DATE`: `${{ github.event.comment.created_at }}`
+     - `PR_MERGE_COMMIT_TIMESTAMP`: `${{ needs.get-pr-info.outputs.PR_MERGE_COMMIT_TIMESTAMP }}`
 
 ### `get-tests`
 
@@ -3285,8 +3564,12 @@ External workflows referenced: `huggingface/transformers/.github/workflows/colla
      - `persist-credentials`: `false`
 
 2. **Verify merge commit SHA**
+   - Env:
+     - `VERIFIED_PR_MERGE_SHA`: `${{ needs.check-timestamps.outputs.PR_MERGE_SHA }}`
 
 3. **Get models to test**
+   - Env:
+     - `PR_COMMENT`: `${{ github.event.comment.body }}`
 
 4. **Show models to test**
    - ID: `models_to_run`
@@ -3306,6 +3589,12 @@ External workflows referenced: `huggingface/transformers/.github/workflows/colla
 #### Steps
 
 1. **Reply to the comment**
+   - Env:
+     - `GH_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
+     - `GITHUB_RUN_URL`: `https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}`
+     - `PREFIX`: `[Workflow Run ⚙️](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})\n\n`
+     - `github_repository`: `${{ github.repository }}`
+     - `pr_number`: `${{ needs.get-pr-number.outputs.PR_NUMBER }}`
 
 ### Reply to the comment (`reply_to_comment`)
 
@@ -3322,6 +3611,13 @@ External workflows referenced: `huggingface/transformers/.github/workflows/colla
 #### Steps
 
 1. **Reply to the comment**
+   - Env:
+     - `GH_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
+     - `PREFIX`: `[Workflow Run ⚙️](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})`
+     - `INFO`: `\n\nThis comment contains `run-slow`, running the specified jobs`
+     - `BODY`: `\n\nmodels: ${{ needs.get-tests.outputs.models }}\nquantizations: ${{ needs.get-tests.outputs.quantizations }}`
+     - `github_repository`: `${{ github.repository }}`
+     - `pr_number`: `${{ needs.get-pr-number.outputs.PR_NUMBER }}`
 
 ### Create run (`create_run`)
 
@@ -3338,6 +3634,11 @@ External workflows referenced: `huggingface/transformers/.github/workflows/colla
 
 1. **Create Run**
    - ID: `create_run`
+   - Env:
+     - `GH_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
+     - `GITHUB_RUN_URL`: `https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}`
+     - `github_repository`: `${{ github.repository }}`
+     - `pr_head_sha`: `${{ needs.check-timestamps.outputs.PR_HEAD_SHA }}`
 
 ### Model CI (`model-ci`)
 
@@ -3414,8 +3715,26 @@ External workflows referenced: `huggingface/transformers/.github/workflows/colla
 4. **Process and filter reports**
 
 5. **Post results as PR comment**
+   - Env:
+     - `GH_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
+     - `GITHUB_RUN_URL`: `https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}`
+     - `github_repository`: `${{ github.repository }}`
+     - `pr_number`: `${{ needs.get-pr-number.outputs.PR_NUMBER }}`
+     - `pr_head_repo`: `${{ needs.get-pr-info.outputs.PR_HEAD_REPO_FULL_NAME }}`
+     - `run_commit`: `${{ needs.get-pr-info.outputs.PR_MERGE_COMMIT_SHA }}`
+     - `pr_commit`: `${{ needs.get-pr-info.outputs.PR_HEAD_SHA }}`
+     - `main_commit`: `${{ needs.get-pr-info.outputs.PR_MERGE_COMMIT_BASE_SHA }}`
+     - `model_ci_result`: `${{ needs.model-ci.result }}`
+     - `quantization_ci_result`: `${{ needs.quantization-ci.result }}`
+     - `model_infrastructure_ok`: `${{ needs.model-ci.outputs.is_infrastructure_ok }}`
+     - `quant_infrastructure_ok`: `${{ needs.quantization-ci.outputs.is_infrastructure_ok }}`
 
 6. **Update PR commit statuses**
+   - Env:
+     - `GH_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
+     - `GITHUB_RUN_URL`: `https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}`
+     - `github_repository`: `${{ github.repository }}`
+     - `pr_head_sha`: `${{ needs.check-timestamps.outputs.PR_HEAD_SHA }}`
 
 # Nvidia CI with nightly torch
 
@@ -3487,6 +3806,9 @@ External workflows referenced: `huggingface/transformers/.github/workflows/colla
 #### Steps
 
 1. **Setup**
+   - Env:
+     - `PREV_WORKFLOW_RUN_ID`: `${{ inputs.prev_workflow_run_id || env.prev_workflow_run_id }}`
+     - `OTHER_WORKFLOW_RUN_ID`: `${{ inputs.other_workflow_run_id || env.other_workflow_run_id }}`
 
 2. **Upload artifacts**
    - Uses: `actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02` (v4.6.2)
@@ -4337,6 +4659,9 @@ External workflows referenced: `huggingface/transformers/.github/workflows/colla
 #### Steps
 
 1. **Setup**
+   - Env:
+     - `prev_workflow_run_id`: `${{ inputs.prev_workflow_run_id || env.prev_workflow_run_id }}`
+     - `other_workflow_run_id`: `${{ inputs.other_workflow_run_id || env.other_workflow_run_id }}`
 
 2. **Upload artifacts**
    - Uses: `actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02` (v4.6.2)
@@ -4544,6 +4869,9 @@ External workflows referenced: `huggingface/transformers/.github/workflows/colla
 #### Steps
 
 1. **Setup**
+   - Env:
+     - `PREV_WORKFLOW_RUN_ID`: `${{ inputs.prev_workflow_run_id || env.prev_workflow_run_id }}`
+     - `OTHER_WORKFLOW_RUN_ID`: `${{ inputs.other_workflow_run_id || env.other_workflow_run_id }}`
 
 2. **Upload artifacts**
    - Uses: `actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02` (v4.6.2)
@@ -4653,6 +4981,8 @@ self-scheduled-intel-gaudi.yml
 3. **Identify models to test**
    - ID: `set-matrix`
    - Condition: `contains(fromJSON('["run_models_gpu", "run_trainer_and_fsdp_gpu"]'), inputs.job)`
+   - Env:
+     - `JOB`: `${{ inputs.job }}`
 
 4. **Identify quantization method to test**
    - ID: `set-matrix-quantization`
@@ -5055,6 +5385,7 @@ self-scheduled.yml
 |------|---------|
 | `HF_HUB_READ_TOKEN` | workflow env `HF_TOKEN` |
 | `GITHUB_TOKEN` | job `run_extract_warnings` step `actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c` with `github-token` |
+| `ACCESS_REPO_INFO_TOKEN` | job `run_extract_warnings` step `Extract warnings in CI artifacts` env `access_token` |
 
 ## Jobs
 
@@ -5068,6 +5399,8 @@ self-scheduled.yml
 #### Steps
 
 1. **Update clone**
+   - Env:
+     - `commit_sha`: `${{ inputs.commit_sha || github.sha }}`
 
 2. **Cleanup**
 
@@ -5076,10 +5409,16 @@ self-scheduled.yml
 4. **Identify models to test**
    - ID: `set-matrix`
    - Condition: `contains(fromJSON('["run_models_gpu", "run_trainer_and_fsdp_gpu"]'), inputs.job)`
+   - Env:
+     - `job`: `${{ inputs.job }}`
+     - `subdirs`: `${{ inputs.subdirs }}`
+     - `NUM_SLICES`: `2`
 
 5. **Identify quantization method to test**
    - ID: `set-matrix-quantization`
    - Condition: `${{ inputs.job == 'run_quantization_torch_gpu' }}`
+   - Env:
+     - `subdirs`: `${{ inputs.subdirs || 'None' }}`
 
 6. **NVIDIA-SMI**
 
@@ -5139,6 +5478,8 @@ self-scheduled.yml
 #### Steps
 
 1. **Update clone**
+   - Env:
+     - `commit_sha`: `${{ inputs.commit_sha || github.sha }}`
 
 2. **Reinstall transformers in edit mode (remove the one installed during docker image build)**
 
@@ -5149,6 +5490,8 @@ self-scheduled.yml
 5. **Show installed libraries and their versions**
 
 6. **Set `machine_type` for report and artifact names**
+   - Env:
+     - `matrix_machine_type`: `${{ matrix.machine_type }}`
 
 7. **Run all pipeline tests on GPU**
 
@@ -5172,6 +5515,8 @@ self-scheduled.yml
 #### Steps
 
 1. **Update clone**
+   - Env:
+     - `commit_sha`: `${{ inputs.commit_sha || github.sha }}`
 
 2. **Reinstall transformers in edit mode (remove the one installed during docker image build)**
 
@@ -5182,6 +5527,8 @@ self-scheduled.yml
 5. **Show installed libraries and their versions**
 
 6. **Set `machine_type` for report and artifact names**
+   - Env:
+     - `matrix_machine_type`: `${{ matrix.machine_type }}`
 
 7. **Run examples tests on GPU**
 
@@ -5205,6 +5552,8 @@ self-scheduled.yml
 #### Steps
 
 1. **Update clone**
+   - Env:
+     - `commit_sha`: `${{ inputs.commit_sha || github.sha }}`
 
 2. **Reinstall transformers in edit mode (remove the one installed during docker image build)**
 
@@ -5226,11 +5575,15 @@ self-scheduled.yml
 9. **Show installed libraries and their versions**
 
 10. **Set `machine_type` for report and artifact names**
+   - Env:
+     - `matrix_machine_type`: `${{ matrix.machine_type }}`
 
 11. **Run all tests on GPU**
 
 12. **Failure short reports** `[continue-on-error]`
    - Condition: `${{ failure() }}`
+   - Env:
+     - `working_directory_prefix`: `${{ inputs.working-directory-prefix }}`
 
 13. **Test suite reports artifacts: ${{ env.machine_type }}_run_torch_cuda_extensions_gpu_test_reports**
    - Uses: `actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02` (v4.6.2)
@@ -5250,8 +5603,12 @@ self-scheduled.yml
 #### Steps
 
 1. **Echo folder ${{ matrix.folders }}**
+   - Env:
+     - `matrix_folders_raw`: `${{ matrix.folders }}`
 
 2. **Update clone**
+   - Env:
+     - `commit_sha`: `${{ inputs.commit_sha || github.sha }}`
 
 3. **Reinstall transformers in edit mode (remove the one installed during docker image build)**
 
@@ -5262,8 +5619,12 @@ self-scheduled.yml
 6. **Show installed libraries and their versions**
 
 7. **Set `machine_type` for report and artifact names**
+   - Env:
+     - `matrix_machine_type`: `${{ matrix.machine_type }}`
 
 8. **Run quantization tests on GPU**
+   - Env:
+     - `folders`: `${{ matrix.folders }}`
 
 9. **Failure short reports** `[continue-on-error]`
    - Condition: `${{ failure() }}`
@@ -5285,6 +5646,8 @@ self-scheduled.yml
 #### Steps
 
 1. **Update clone**
+   - Env:
+     - `commit_sha`: `${{ inputs.commit_sha || github.sha }}`
 
 2. **Reinstall transformers in edit mode**
 
@@ -5297,6 +5660,8 @@ self-scheduled.yml
 6. **Show installed libraries and their versions**
 
 7. **Set `machine_type` for report and artifact names**
+   - Env:
+     - `matrix_machine_type`: `${{ matrix.machine_type }}`
 
 8. **Run kernel tests on GPU**
 
@@ -5336,10 +5701,15 @@ self-scheduled.yml
    - With:
      - `path`: `warnings_in_ci`
      - `github-token`: `${{ secrets.GITHUB_TOKEN }}`
+   - Env:
+     - `ACTIONS_ARTIFACT_MAX_ARTIFACT_COUNT`: `2000`
 
 6. **Show artifacts**
 
 7. **Extract warnings in CI artifacts**
+   - Env:
+     - `github_run_id`: `${{ github.run_id }}`
+     - `access_token`: `${{ secrets.ACCESS_REPO_INFO_TOKEN }}`
 
 8. **Upload artifact**
    - Uses: `actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02` (v4.6.2)
@@ -5482,6 +5852,11 @@ slack-report.yml
 |------|---------|
 | `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN` | workflow env `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN` |
 | `GITHUB_TOKEN` | job `send_results` step `actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c` with `github-token` |
+| `CI_SLACK_BOT_TOKEN` | job `send_results` step `Send message to Slack` env `CI_SLACK_BOT_TOKEN` |
+| `CI_SLACK_CHANNEL_ID` | job `send_results` step `Send message to Slack` env `CI_SLACK_CHANNEL_ID` |
+| `CI_SLACK_CHANNEL_ID_DAILY` | job `send_results` step `Send message to Slack` env `CI_SLACK_CHANNEL_ID_DAILY` |
+| `CI_SLACK_CHANNEL_DUMMY_TESTS` | job `send_results` step `Send message to Slack` env `CI_SLACK_CHANNEL_DUMMY_TESTS` |
+| `ACCESS_REPO_INFO_TOKEN` | job `send_results` step `Send message to Slack` env `ACCESS_REPO_INFO_TOKEN` |
 
 ## Jobs
 
@@ -5495,6 +5870,8 @@ slack-report.yml
 #### Steps
 
 1. **Preliminary job status**
+   - Env:
+     - `setup_status`: `${{ inputs.setup_status }}`
 
 2. **actions/checkout@v4.3.1**
    - Uses: `actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5` (v4.3.1)
@@ -5507,10 +5884,27 @@ slack-report.yml
    - Uses: `actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c` (v8.0.1)
    - With:
      - `github-token`: `${{ secrets.GITHUB_TOKEN }}`
+   - Env:
+     - `ACTIONS_ARTIFACT_MAX_ARTIFACT_COUNT`: `2000`
 
 4. **Prepare some setup values**
 
 5. **Send message to Slack**
+   - Env:
+     - `CI_SLACK_BOT_TOKEN`: `${{ secrets.CI_SLACK_BOT_TOKEN }}`
+     - `CI_SLACK_CHANNEL_ID`: `${{ secrets.CI_SLACK_CHANNEL_ID }}`
+     - `CI_SLACK_CHANNEL_ID_DAILY`: `${{ secrets.CI_SLACK_CHANNEL_ID_DAILY }}`
+     - `CI_SLACK_CHANNEL_DUMMY_TESTS`: `${{ secrets.CI_SLACK_CHANNEL_DUMMY_TESTS }}`
+     - `SLACK_REPORT_CHANNEL`: `${{ inputs.slack_report_channel }}`
+     - `ACCESS_REPO_INFO_TOKEN`: `${{ secrets.ACCESS_REPO_INFO_TOKEN }}`
+     - `CI_EVENT`: `${{ inputs.ci_event }}`
+     - `CI_TITLE`: `${{ github.event.head_commit.message }}`
+     - `CI_SHA`: `${{ inputs.commit_sha || github.sha }}`
+     - `CI_TEST_JOB`: `${{ inputs.job }}`
+     - `SETUP_STATUS`: `${{ inputs.setup_status }}`
+     - `REPORT_REPO_ID`: `${{ inputs.report_repo_id }}`
+     - `quantization_matrix`: `${{ inputs.quantization_matrix }}`
+     - `folder_slices`: `${{ inputs.folder_slices }}`
 
 6. **Failure table artifacts**
    - Uses: `actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02` (v4.6.2)
@@ -5559,6 +5953,7 @@ Inputs for the `workflow_dispatch` event.
 | Name | Used by |
 |------|---------|
 | `HF_HUB_READ_TOKEN` | workflow env `HF_TOKEN` |
+| `SLACK_CIFEEDBACK_CHANNEL` | job `ssh_runner` step `Store Slack infos` env `default_slack_channel` |
 | `TAILSCALE_SSH_AUTHKEY` | job `ssh_runner` step `Tailscale` with `authkey` |
 | `SLACK_CIFEEDBACK_BOT_TOKEN` | job `ssh_runner` step `Tailscale` with `slackToken` |
 
@@ -5573,6 +5968,9 @@ Inputs for the `workflow_dispatch` event.
 #### Steps
 
 1. **Get runner to use**
+   - Env:
+     - `NUM_GPUS`: `${{ github.event.inputs.num_gpus }}`
+     - `RUNNER_TYPE`: `${{ github.event.inputs.runner_type }}`
 
 2. **Set runner to use**
    - ID: `set_runner`
@@ -5587,6 +5985,8 @@ Inputs for the `workflow_dispatch` event.
 #### Steps
 
 1. **Update clone**
+   - Env:
+     - `commit_sha`: `${{ github.sha }}`
 
 2. **Cleanup**
 
@@ -5605,10 +6005,15 @@ Inputs for the `workflow_dispatch` event.
 9. **Install utilities**
 
 10. **Store Slack infos**
+   - Env:
+     - `GITHUB_ACTOR`: `${{ github.actor }}`
 
 11. **Setup automatic environment for SSH login**
 
 12. **Store Slack infos**
+   - Env:
+     - `user_slack_id`: `${{ secrets[format('{0}_{1}', env.github_actor, 'SLACK_ID')] }}`
+     - `default_slack_channel`: `${{ secrets.SLACK_CIFEEDBACK_CHANNEL }}`
 
 13. **Tailscale**
    - Uses: `huggingface/tailscale-action@7d53c9737e53934c30290b5524d1c9b4a7c98c8a`
@@ -5697,6 +6102,14 @@ This workflow allows trusted contributors to trigger TRL CI runs against specifi
 - `pull-requests`: `read`
 - `issues`: `read`
 
+## Referenced secrets and variables
+
+**Secrets:**
+
+| Name | Used by |
+|------|---------|
+| `TRL_CI_DISPATCH_TOKEN` | job `dispatch` step `Dispatch TRL workflow` env `GH_TOKEN`; job `dispatch` step `Find TRL workflow run URL` env `GH_TOKEN` |
+
 ## Jobs
 
 ### `dispatch`
@@ -5717,17 +6130,29 @@ This workflow allows trusted contributors to trigger TRL CI runs against specifi
 3. **Fetch PR head SHA + number**
    - ID: `pr`
    - Condition: `steps.trust.outputs.trusted == 'true'`
+   - Env:
+     - `GH_TOKEN`: `${{ github.token }}`
+     - `PR_URL`: `${{ github.event.issue.pull_request.url }}`
 
 4. **Dispatch TRL workflow**
    - ID: `dispatch`
    - Condition: `steps.trust.outputs.trusted == 'true'`
+   - Env:
+     - `GH_TOKEN`: `${{ secrets.TRL_CI_DISPATCH_TOKEN }}`
+     - `STEPS_PR_OUTPUTS_SHA`: `${{ steps.pr.outputs.sha }}`
 
 5. **Find TRL workflow run URL**
    - ID: `find_run`
    - Condition: `steps.trust.outputs.trusted == 'true'`
+   - Env:
+     - `GH_TOKEN`: `${{ secrets.TRL_CI_DISPATCH_TOKEN }}`
 
 6. **Comment back on PR with link**
    - Condition: `steps.trust.outputs.trusted == 'true'`
+   - Env:
+     - `GH_TOKEN`: `${{ github.token }}`
+     - `STEPS_PR_OUTPUTS_SHA`: `${{ steps.pr.outputs.sha }}`
+     - `STEPS_FIND_RUN_OUTPUTS_URL`: `${{ steps.find_run.outputs.url }}`
 
 # Secret Leaks
 
@@ -5777,6 +6202,14 @@ This workflow allows trusted contributors to trigger TRL CI runs against specifi
 
 - `contents`: `read`
 
+## Referenced secrets and variables
+
+**Secrets:**
+
+| Name | Used by |
+|------|---------|
+| `LYSANDRE_HF_TOKEN` | job `build_and_package` step `Update metadata` env `HF_TOKEN` |
+
 ## Jobs
 
 ### `build_and_package`
@@ -5797,6 +6230,8 @@ This workflow allows trusted contributors to trigger TRL CI runs against specifi
 2. **Setup environment**
 
 3. **Update metadata**
+   - Env:
+     - `HF_TOKEN`: `${{ secrets.LYSANDRE_HF_TOKEN }}`
 
 # Upload PR Documentation
 

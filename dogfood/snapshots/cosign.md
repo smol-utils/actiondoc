@@ -42,6 +42,7 @@ No permissions granted (`permissions: {}` -- default-deny).
 | Name | Used by |
 |------|---------|
 | `GITHUB_TOKEN` | job `build` step `Login to GitHub Container Registry` with `password` |
+| `COSIGN_PASSWORD` | job `build` step `containers-cosign` env `COSIGN_PASSWORD` |
 
 ## Jobs
 
@@ -96,6 +97,9 @@ No permissions granted (`permissions: {}` -- default-deny).
      - `password`: `${{ secrets.GITHUB_TOKEN }}`
 
 9. **containers-cosign**
+   - Env:
+     - `KO_PREFIX`: `ghcr.io/sigstore/cosign/cosign/ci`
+     - `COSIGN_PASSWORD`: `${{secrets.COSIGN_PASSWORD}}`
 
 # CodeQL
 
@@ -555,16 +559,36 @@ No permissions granted (`permissions: {}` -- default-deny).
      - `version`: `${{ env.SCAFFOLDING_RELEASE_VERSION }}`
 
 6. **Setup local insecure registry**
+   - Env:
+     - `INSECURE_REGISTRY_NAME`: `insecure-registry.notlocal`
+     - `INSECURE_REGISTRY_PORT`: `5001`
 
 7. **Run Insecure Registry Tests**
+   - Env:
+     - `COSIGN_TEST_REPO`: `insecure-registry.notlocal:5001`
+     - `TUF_ROOT_JSON`: `${{ github.workspace }}/root.json`
 
 8. **Setup local insecure OCI 1.1 registry**
+   - Env:
+     - `ZOT_VERSION`: `v2.0.0-rc6`
+     - `INSECURE_OCI_REGISTRY_NAME`: `insecure-oci-registry.notlocal`
+     - `INSECURE_OCI_REGISTRY_PORT`: `5002`
 
 9. **Run Insecure OCI 1.1 Registry Tests**
+   - Env:
+     - `OCI11`: `yes`
+     - `COSIGN_TEST_REPO`: `insecure-oci-registry.notlocal:5002`
+     - `TUF_ROOT_JSON`: `${{ github.workspace }}/root.json`
 
 10. **Set up local HTTP registry**
+   - Env:
+     - `HTTP_REGISTRY_NAME`: `http-registry.notlocal`
+     - `HTTP_REGISTRY_PORT`: `5003`
 
 11. **Run HTTP registry tests**
+   - Env:
+     - `COSIGN_TEST_REPO`: `http-registry.notlocal:5003`
+     - `TUF_ROOT_JSON`: `${{ github.workspace }}/root.json`
 
 12. **Collect diagnostics**
    - Uses: `chainguard-dev/actions/kind-diag@c69a264ec2a5934c3186c618f368fc1c86f16cff` (v1.6.19)
@@ -1164,6 +1188,8 @@ No permissions granted (`permissions: {}` -- default-deny).
 #### Steps
 
 1. **Check Signature**
+   - Env:
+     - `TUF_ROOT`: `/tmp`
 
 ### `validate-release-job`
 
@@ -1190,6 +1216,9 @@ No permissions granted (`permissions: {}` -- default-deny).
 4. **check disk space**
 
 5. **goreleaser snapshot**
+   - Env:
+     - `PROJECT_ID`: `honk-fake-project`
+     - `RUNTIME_IMAGE`: `gcr.io/distroless/static-debian13:nonroot`
 
 6. **check binaries**
 

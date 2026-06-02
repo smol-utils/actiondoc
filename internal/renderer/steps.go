@@ -8,7 +8,7 @@ import (
 )
 
 // renderStep writes one step as a numbered list item with its metadata (id, uses, condition,
-// with: inputs) and a continue-on-error badge when set.
+// with: inputs, env: variables) and a continue-on-error badge when set.
 func renderStep(b *strings.Builder, step *model.Step, num int) {
 	fmt.Fprintf(b, "%d. **%s**", num, stepTitle(step, num))
 	if step.ContinueOnError {
@@ -34,6 +34,12 @@ func renderStep(b *strings.Builder, step *model.Step, num int) {
 		b.WriteString("   - With:\n")
 		for _, kv := range step.With {
 			fmt.Fprintf(b, "     - `%s`: `%s`%s\n", kv.Key, oneLine(kv.Value), withDoc(step, kv.Key))
+		}
+	}
+	if len(step.Env) > 0 {
+		b.WriteString("   - Env:\n")
+		for _, kv := range step.Env {
+			fmt.Fprintf(b, "     - `%s`: `%s`\n", kv.Key, oneLine(kv.Value))
 		}
 	}
 

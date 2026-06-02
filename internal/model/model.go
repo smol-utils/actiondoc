@@ -58,12 +58,14 @@ type Step struct {
 	If          string `json:"if,omitempty"`
 	Tags        Tags   `json:"tags,omitempty"`
 
-	// With holds the step's `with:` inputs in source order. ContinueOnError records a
-	// literal `continue-on-error: true`; ContinueOnErrorExpr holds the raw value instead
-	// when it is an expression (e.g. `continue-on-error: ${{ matrix.experimental }}`), so
-	// the step is still flagged as failure-tolerant. UsesVersion is the trailing version
-	// comment on a SHA-pinned `uses:` ref (e.g. the "v4" in `uses: actions/checkout@<sha> # v4`).
+	// With holds the step's `with:` inputs and Env its `env:` variables, both in source
+	// order. ContinueOnError records a literal `continue-on-error: true`;
+	// ContinueOnErrorExpr holds the raw value instead when it is an expression (e.g.
+	// `continue-on-error: ${{ matrix.experimental }}`), so the step is still flagged as
+	// failure-tolerant. UsesVersion is the trailing version comment on a SHA-pinned
+	// `uses:` ref (e.g. the "v4" in `uses: actions/checkout@<sha> # v4`).
 	With                []KV   `json:"with,omitempty"`
+	Env                 []KV   `json:"env,omitempty"`
 	ContinueOnError     bool   `json:"continue_on_error,omitempty"`
 	ContinueOnErrorExpr string `json:"continue_on_error_expr,omitempty"`
 	UsesVersion         string `json:"uses_version,omitempty"`

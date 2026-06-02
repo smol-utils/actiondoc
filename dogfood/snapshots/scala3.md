@@ -325,6 +325,7 @@ ci.yaml [push, pull_request, merge_group, workflow_dispatch]
 | `PGP_SECRET` | job `publish_release` env `PGP_SECRET` |
 | `SONATYPE_PW_ORGSCALALANG` | job `publish_release` env `SONATYPE_PW` |
 | `SONATYPE_USER_ORGSCALALANG` | job `publish_release` env `SONATYPE_USER` |
+| `GITHUB_TOKEN` | job `publish_release` step `Create GitHub Release` env `GITHUB_TOKEN` |
 
 ## Jobs
 
@@ -413,6 +414,8 @@ ci.yaml [push, pull_request, merge_group, workflow_dispatch]
      - `gh-cli-version`: `2.59.0`
 
 13. **Create GitHub Release**
+   - Env:
+     - `GITHUB_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
 
 14. **Publish Release (org.scala-lang)**
 
@@ -682,6 +685,8 @@ ci.yaml [push, pull_request, merge_group, workflow_dispatch]
    - Uses: `VirtusLab/scala-cli-setup@v1.14`
 
 5. **scala-cli ./project/scripts/addToBackportingProject.scala...**
+   - Env:
+     - `GRAPHQL_API_TOKEN`: `${{ steps.app-token.outputs.token }}`
 
 # Publish Scala to Chocolatey
 
@@ -715,6 +720,14 @@ publish-chocolatey.yml
 +-- releases.yml (job: publish-chocolatey)  <- entry point
 ```
 
+## Referenced secrets and variables
+
+**Secrets:**
+
+| Name | Used by |
+|------|---------|
+| `API-KEY` | job `publish` step `Publish the package to Chocolatey` env `KEY` |
+
 ## Jobs
 
 ### `publish`
@@ -731,6 +744,9 @@ publish-chocolatey.yml
      - `name`: `scala.nupkg`
 
 2. **Publish the package to Chocolatey**
+   - Env:
+     - `VERSION`: `${{ inputs.version }}`
+     - `KEY`: `${{ secrets.API-KEY }}`
 
 # Publish Scala to SDKMAN!
 
@@ -909,6 +925,10 @@ release-maven-artifacts.yml
 |------|---------|
 | `SCALA_PGP_KEY` | job `release-maven-artifacts` step `Import Scala PGP Key` with `gpg_private_key` |
 | `SCALA_PGP_PASSPHRASE` | job `release-maven-artifacts` step `Import Scala PGP Key` with `passphrase` |
+| `MAVEN_REPOSITORY_USER` | job `release-maven-artifacts` step `Publish Artifacts to the Maven Repository` env `MAVEN_REPOSITORY_USER`; job `release-maven-lts-artifacts` step `Publish Artifacts to the Maven Repository` env `SONATYPE_USER` |
+| `MAVEN_REPOSITORY_TOKEN` | job `release-maven-artifacts` step `Publish Artifacts to the Maven Repository` env `MAVEN_REPOSITORY_TOKEN`; job `release-maven-lts-artifacts` step `Publish Artifacts to the Maven Repository` env `SONATYPE_PW` |
+| `PGP_SECRET` | job `release-maven-lts-artifacts` step `Setup PGP Key` env `PGP_SECRET`; job `release-maven-lts-artifacts` step `Setup SBT PGP` env `PGP_SECRET`; job `release-maven-lts-artifacts` step `Publish Artifacts to the Maven Repository` env `PGP_SECRET` |
+| `PGP_PW` | job `release-maven-lts-artifacts` step `Publish Artifacts to the Maven Repository` env `PGP_PW` |
 
 **Variables:**
 
@@ -972,6 +992,9 @@ release-maven-artifacts.yml
 
 7. **Publish Artifacts to the Maven Repository**
    - Condition: `steps.not_yet_published.outcome == 'success'`
+   - Env:
+     - `MAVEN_REPOSITORY_USER`: `${{ secrets.MAVEN_REPOSITORY_USER }}`
+     - `MAVEN_REPOSITORY_TOKEN`: `${{ secrets.MAVEN_REPOSITORY_TOKEN }}`
 
 ### `release-maven-lts-artifacts`
 
@@ -1012,10 +1035,14 @@ release-maven-artifacts.yml
    - Uses: `sbt/setup-sbt@v1`
 
 4. **Setup PGP Key**
+   - Env:
+     - `PGP_SECRET`: `${{ secrets.PGP_SECRET }}`
 
 5. **Setup SBT PGP directory**
 
 6. **Setup SBT PGP**
+   - Env:
+     - `PGP_SECRET`: `${{ secrets.PGP_SECRET }}`
 
 7. **Get version string for this build**
 
@@ -1024,6 +1051,11 @@ release-maven-artifacts.yml
 
 9. **Publish Artifacts to the Maven Repository**
    - Condition: `steps.not_yet_published.outcome == 'success'`
+   - Env:
+     - `SONATYPE_USER`: `${{ secrets.MAVEN_REPOSITORY_USER }}`
+     - `SONATYPE_PW`: `${{ secrets.MAVEN_REPOSITORY_TOKEN }}`
+     - `PGP_PW`: `${{ secrets.PGP_PW }}`
+     - `PGP_SECRET`: `${{ secrets.PGP_SECRET }}`
 
 # Nightly Release of Scala 3
 
@@ -1222,6 +1254,8 @@ Secrets referenced (literal names): `API-KEY`, `CONSUMER-KEY`, `CONSUMER-TOKEN`,
 
 1. **Compute the SHA256 of scala3-${{ inputs.version }}-x86_64-pc-win32.zip in GitHub Release**
    - ID: `digest`
+   - Env:
+     - `VERSION`: `${{ inputs.version }}`
 
 ### `build-chocolatey`
 
@@ -1450,7 +1484,7 @@ Secrets referenced (literal names): `API-KEY`, `CONSUMER-KEY`, `CONSUMER-TOKEN`,
 |------|---------|
 | `SPEC_DEPLOY_PATH` | job `specification` step `Deployment` with `remote_path` |
 | `SPEC_DEPLOY_HOST` | job `specification` step `Deployment` with `remote_host` |
-| `SPEC_DEPLOY_USER` | job `specification` step `Deployment` with `remote_user` |
+| `SPEC_DEPLOY_USER` | job `specification` step `Deployment` with `remote_user`; job `specification` step `Deployment` env `USER_FOR_TEST` |
 | `SPEC_DEPLOY_KEY` | job `specification` step `Deployment` with `remote_key` |
 | `SPEC_DEPLOY_PASS` | job `specification` step `Deployment` with `remote_key_pass` |
 
@@ -1490,6 +1524,8 @@ Secrets referenced (literal names): `API-KEY`, `CONSUMER-KEY`, `CONSUMER-TOKEN`,
      - `remote_user`: `${{ secrets.SPEC_DEPLOY_USER }}`
      - `remote_key`: `${{ secrets.SPEC_DEPLOY_KEY }}`
      - `remote_key_pass`: `${{ secrets.SPEC_DEPLOY_PASS }}`
+   - Env:
+     - `USER_FOR_TEST`: `${{ secrets.SPEC_DEPLOY_USER }}`
 
 # Compile Full Standard Library
 
@@ -2208,6 +2244,8 @@ test-chocolatey.yml
    - Uses: `sbt/setup-sbt@v1`
 
 4. **Build and test launcher command**
+   - Env:
+     - `LAUNCHER_EXPECTED_PROJECT`: `dist-linux-x86_64`
 
 ### Deploy and Test on Linux ARM64 architecture (`linux-aarch64`)
 
@@ -2231,6 +2269,8 @@ test-chocolatey.yml
    - Uses: `sbt/setup-sbt@v1`
 
 4. **Build and test launcher command**
+   - Env:
+     - `LAUNCHER_EXPECTED_PROJECT`: `dist-linux-aarch64`
 
 ### Deploy and Test on Mac x64 architecture (`mac-x86_64`)
 
@@ -2255,6 +2295,8 @@ test-chocolatey.yml
    - Uses: `sbt/setup-sbt@v1`
 
 4. **Build and test launcher command**
+   - Env:
+     - `LAUNCHER_EXPECTED_PROJECT`: `dist-mac-x86_64`
 
 ### Deploy and Test on Mac ARM64 architecture (`mac-aarch64`)
 
@@ -2279,6 +2321,8 @@ test-chocolatey.yml
    - Uses: `sbt/setup-sbt@v1`
 
 4. **Build and test launcher command**
+   - Env:
+     - `LAUNCHER_EXPECTED_PROJECT`: `dist-mac-aarch64`
 
 ### Deploy and Test on Windows x64 architecture (`win-x86_64`)
 

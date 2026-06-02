@@ -33,6 +33,15 @@ func TestScanReferences(t *testing.T) {
 						},
 					},
 					{
+						// A secret referenced ONLY in a step env: block must still be
+						// inventoried (the most common omission in real workflows).
+						Name: "Sign image",
+						Env: []KV{
+							{Key: "BUILDKIT", Value: "1"},
+							{Key: "COSIGN_PASSWORD", Value: "${{ secrets.COSIGN_PASSWORD }}"},
+						},
+					},
+					{
 						Run: "echo plain secrets.NOT_AN_EXPRESSION", // outside ${{ }} -> ignored
 					},
 				},
@@ -49,7 +58,7 @@ func TestScanReferences(t *testing.T) {
 		secretOrder = append(secretOrder, r.Name)
 	}
 
-	wantOrder := []string{"SDKMAN_KEY", "GPG_KEY", "GPG_PASSPHRASE", "PROD_TOKEN", "DEV_TOKEN"}
+	wantOrder := []string{"SDKMAN_KEY", "GPG_KEY", "GPG_PASSPHRASE", "PROD_TOKEN", "DEV_TOKEN", "COSIGN_PASSWORD"}
 	if strings.Join(secretOrder, ",") != strings.Join(wantOrder, ",") {
 		t.Errorf("secret order = %v, want %v", secretOrder, wantOrder)
 	}
@@ -61,6 +70,10 @@ func TestScanReferences(t *testing.T) {
 	// Forwarded secret site labels the forwarding key.
 	if sites := gotSecrets["SDKMAN_KEY"]; len(sites) != 1 || !strings.Contains(sites[0], "CONSUMER-KEY") {
 		t.Errorf("SDKMAN_KEY sites = %v, want forwarding-key site", sites)
+	}
+	// Step-env-only secret is collected and its site labels the env key.
+	if sites := gotSecrets["COSIGN_PASSWORD"]; len(sites) != 1 || !strings.Contains(sites[0], "env `COSIGN_PASSWORD`") {
+		t.Errorf("COSIGN_PASSWORD sites = %v, want a step env site", sites)
 	}
 
 	var varNames []string

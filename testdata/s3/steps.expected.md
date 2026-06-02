@@ -20,6 +20,7 @@ Exercises step rendering, matrix job names, runs-on normalization, and secret ag
 |------|---------|
 | `CHECKOUT_TOKEN` | job `build` step `Checkout` with `token` |
 | `REGISTRY_PASSWORD` | job `deploy` step `Push image` (run) |
+| `IMAGE_SIGNING_KEY` | job `deploy` step `Push image` env `IMAGE_SIGNING_KEY` |
 | `SLACK_WEBHOOK` | job `deploy` step `Notify` (if); job `deploy` step `Notify` (run) |
 
 **Variables:**
@@ -74,6 +75,9 @@ Exercises step rendering, matrix job names, runs-on normalization, and secret ag
 #### Steps
 
 1. **Push image**
+   - Env:
+     - `DOCKER_BUILDKIT`: `1`
+     - `IMAGE_SIGNING_KEY`: `${{ secrets.IMAGE_SIGNING_KEY }}`
 
 2. **Notify** `[continue-on-error]`
    - Condition: `${{ vars.NOTIFY_CHANNEL && secrets.SLACK_WEBHOOK }}`

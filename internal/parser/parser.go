@@ -335,6 +335,8 @@ func parseSteps(node ast.Node) []model.Step {
 				step.If = nodeString(mv.Value)
 			case "with":
 				step.With = parseKVMap(mv.Value)
+			case "env":
+				step.Env = parseKVMap(mv.Value)
 			case "continue-on-error":
 				v := strings.TrimSpace(nodeString(mv.Value))
 				if strings.EqualFold(v, "true") {

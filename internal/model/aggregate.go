@@ -25,9 +25,9 @@ func (r References) Empty() bool {
 }
 
 // ScanReferences collects every ${{ secrets.X }} and ${{ vars.Y }} reference in a workflow
-// across job/step `if:`, `run:`, `with:`, and forwarded `secrets:` values, recording the
-// site of each use. It is exported so call-graph consumers can union the references of
-// every reachable workflow into a single transitive-requirements view.
+// across job/step `if:`, `run:`, `with:`, `env:`, and forwarded `secrets:` values,
+// recording the site of each use. It is exported so call-graph consumers can union the
+// references of every reachable workflow into a single transitive-requirements view.
 func ScanReferences(w *Workflow) References {
 	sc := newRefScan()
 	for _, kv := range w.Env {
@@ -53,6 +53,9 @@ func ScanReferences(w *Workflow) References {
 			sc.scan(step.Run, stepLabel+" (run)")
 			for _, kv := range step.With {
 				sc.scan(kv.Value, stepLabel+" with `"+kv.Key+"`")
+			}
+			for _, kv := range step.Env {
+				sc.scan(kv.Value, stepLabel+" env `"+kv.Key+"`")
 			}
 		}
 	}

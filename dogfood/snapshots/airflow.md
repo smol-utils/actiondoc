@@ -295,6 +295,10 @@ additional-prod-image-tests.yml
      - `make-mnt-writeable-and-cleanup`: `true` - Whether to cleanup /mnt (required)
 
 4. **Test examples of PROD image building**
+   - Env:
+     - `GITHUB_REPOSITORY`: `${{ github.repository }}`
+     - `DEFAULT_BRANCH`: `${{ inputs.default-branch }}`
+     - `DEFAULT_PYTHON_VERSION`: `${{ inputs.default-python-version }}`
 
 ### Docker Compose quick start with PROD image verifying (`test-docker-compose-quick-start`)
 
@@ -648,12 +652,18 @@ airflow-distributions-tests.yml
 
 6. **Prepare Airflow ${{inputs.distribution-name}}: wheel**
    - Condition: `${{ matrix.python-version == inputs.default-python-version }}`
+   - Env:
+     - `DISTRIBUTION_TYPE`: `${{ inputs.distribution-cmd-format }}`
+     - `USE_LOCAL_HATCH`: `${{ inputs.use-local-venv }}`
 
 7. **Verify wheel packages with twine**
    - Condition: `${{ matrix.python-version == inputs.default-python-version }}`
 
 8. **Run unit tests for Airflow ${{inputs.distribution-name}}:Python ${{ matrix.python-version }}
 **
+   - Env:
+     - `PYTHON_VERSION`: `${{ matrix.python-version }}`
+     - `TEST_TYPE`: `${{ inputs.test-type }}`
 
 # Airflow E2E Tests
 
@@ -774,6 +784,9 @@ airflow-e2e-tests.yml
      - `make-mnt-writeable-and-cleanup`: `true` - Whether to cleanup /mnt (required)
 
 4. **Test e2e integration tests**
+   - Env:
+     - `DOCKER_IMAGE`: `${{ inputs.docker-image-tag }}`
+     - `E2E_TEST_MODE`: `${{ inputs.e2e_test_mode }}`
 
 5. **Zip logs**
    - Condition: `always()`
@@ -847,6 +860,14 @@ automatic-backport.yml [push]
 +-- trigger-backport (uses backport-cli.yml)
 ```
 
+## Referenced secrets and variables
+
+**Secrets:**
+
+| Name | Used by |
+|------|---------|
+| `GITHUB_TOKEN` | job `get-pr-info` step `Find PR information` env `GITHUB_TOKEN` |
+
 ## Jobs
 
 ### Get PR information (`get-pr-info`)
@@ -867,6 +888,8 @@ automatic-backport.yml [push]
    - Uses: `actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3` (v9.0.0)
    - With:
      - `script`: `const { data: pullRequest } = await github.rest.repos.listPullRequestsAssociatedWithCommit({     owner: context.repo.owner,     repo: context.repo.repo,     commit_sha: process.env.GITHUB_SHA }); if (pullRequest.length > 0) {     const pr = pullRequest[0];     const backportBranches = pr.labels           .filter(label => label.name.startsWith('backport-to-'))           .map(label => label.name.replace('backport-to-', ''));      console.log(`Commit ${process.env.GITHUB_SHA} is associated with PR ${pr.number}`);     console.log(`Backport branches: ${backportBranches}`);     core.setOutput('branches', JSON.stringify(backportBranches)); } else {     console.log('⚠️ No pull request found for this commit.');     core.setOutput('branches', '[]'); }`
+   - Env:
+     - `GITHUB_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
 
 ### Trigger Backport (`trigger-backport`)
 
@@ -925,6 +948,14 @@ backport-cli.yml
 +-- automatic-backport.yml (job: trigger-backport)  <- entry point
 ```
 
+## Referenced secrets and variables
+
+**Secrets:**
+
+| Name | Used by |
+|------|---------|
+| `GITHUB_TOKEN` | job `backport` step `Run backport script` env `GH_AUTH` |
+
 ## Jobs
 
 ### `backport`
@@ -946,12 +977,25 @@ backport-cli.yml
 
 3. **Run backport script** `[continue-on-error]`
    - ID: `execute-backport`
+   - Env:
+     - `GH_AUTH`: `${{ secrets.GITHUB_TOKEN }}`
+     - `TARGET_BRANCH`: `${{ inputs.target-branch }}`
+     - `COMMIT_SHA`: `${{ inputs.commit-sha }}`
 
 4. **Parse backport output** `[continue-on-error]`
    - ID: `parse-backport-output`
+   - Env:
+     - `CHERRY_PICKER_OUTPUT`: `${{ steps.execute-backport.outputs.cherry_picker_output }}`
 
 5. **Update Status**
    - ID: `backport-status`
+   - Env:
+     - `GH_TOKEN`: `${{ github.token }}`
+     - `REPOSITORY`: `${{ github.repository }}`
+     - `RUN_ID`: `${{ github.run_id }}`
+     - `COMMIT_SHA`: `${{ inputs.commit-sha }}`
+     - `TARGET_BRANCH`: `${{ inputs.target-branch }}`
+     - `BACKPORT_URL`: `${{ steps.parse-backport-output.outputs.backport-url }}`
 
 # Basic tests
 
@@ -1001,7 +1045,7 @@ basic-tests.yml
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | job `test-airflow-release-commands` env `GITHUB_TOKEN` |
+| `GITHUB_TOKEN` | job `test-airflow-release-commands` env `GITHUB_TOKEN`; job `test-airflow-release-commands` step `Test providers metadata generation` env `GITHUB_TOKEN` |
 
 ## Jobs
 
@@ -1134,6 +1178,8 @@ basic-tests.yml
 6. **cd airflow-core/src/airflow/ui && pnpm install --frozen-l...**
 
 7. **cd airflow-core/src/airflow/ui && pnpm test**
+   - Env:
+     - `FORCE_COLOR`: `2`
 
 8. **Save eslint cache (ui)**
    - Uses: `apache/infrastructure-actions/stash/save@49df447b39b18354895520e0a63731b7cad7cbec`
@@ -1154,6 +1200,8 @@ basic-tests.yml
 10. **cd airflow-core/src/airflow/api_fastapi/auth/managers/sim...**
 
 11. **cd airflow-core/src/airflow/api_fastapi/auth/managers/sim...**
+   - Env:
+     - `FORCE_COLOR`: `2`
 
 12. **Save eslint cache (ui)**
    - Uses: `apache/infrastructure-actions/stash/save@49df447b39b18354895520e0a63731b7cad7cbec`
@@ -1218,6 +1266,11 @@ basic-tests.yml
      - `persist-credentials`: `false`
 
 6. **Static checks: basic checks only**
+   - Env:
+     - `VERBOSE`: `false`
+     - `SKIP_BREEZE_PREK_HOOKS`: `true`
+     - `SKIP`: `${{ inputs.skip-prek-hooks }}`
+     - `COLUMNS`: `202`
 
 ### Test git clone on Windows (`test-git-clone-on-windows`)
 
@@ -1275,6 +1328,8 @@ basic-tests.yml
 9. **Check Airflow release process command**
 
 10. **Test providers metadata generation**
+   - Env:
+     - `GITHUB_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
 
 11. **Fetch all git tags for origin**
 
@@ -1340,6 +1395,9 @@ basic-tests.yml
 #### Steps
 
 1. **Check newsfragment PR number**
+   - Env:
+     - `GH_TOKEN`: `${{ github.token }}`
+     - `PR_NUMBER`: `${{ github.event.pull_request.number }}`
 
 # Tests (AMD)
 
@@ -1618,7 +1676,7 @@ Secrets referenced (literal names): `DOCS_AWS_ACCESS_KEY_ID`, `DOCS_AWS_SECRET_A
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | workflow env `GITHUB_TOKEN`; job `mypy-providers` env `GITHUB_TOKEN`; job `migration-round-trip` env `GITHUB_TOKEN`; job `tests-go-sdk` env `GITHUB_TOKEN` |
+| `GITHUB_TOKEN` | workflow env `GITHUB_TOKEN`; job `mypy-providers` env `GITHUB_TOKEN`; job `migration-round-trip` env `GITHUB_TOKEN`; job `tests-go-sdk` env `GITHUB_TOKEN`; job `notify-slack` step `Get failing jobs` env `GITHUB_TOKEN`; job `notify-slack` step `Determine notification action` env `GITHUB_TOKEN` |
 | `SLACK_BOT_TOKEN` | workflow env `SLACK_BOT_TOKEN`; job `ci-image-checks` secrets `SLACK_BOT_TOKEN` |
 | `DOCS_AWS_ACCESS_KEY_ID` | job `ci-image-checks` secrets `DOCS_AWS_ACCESS_KEY_ID` |
 | `DOCS_AWS_SECRET_ACCESS_KEY` | job `ci-image-checks` secrets `DOCS_AWS_SECRET_ACCESS_KEY` |
@@ -1655,11 +1713,21 @@ Secrets referenced (literal names): `DOCS_AWS_ACCESS_KEY_ID`, `DOCS_AWS_SECRET_A
 
 6. **Get information about the Workflow**
    - ID: `source-run-info`
+   - Env:
+     - `SKIP_BREEZE_SELF_UPGRADE_CHECK`: `true`
+     - `GITHUB_CONTEXT_INPUT`: `${{ runner.temp }}/github_context.json`
 
 7. **Selective checks**
    - ID: `selective-checks`
+   - Env:
+     - `PR_LABELS`: `${{ steps.source-run-info.outputs.pr-labels }}`
+     - `COMMIT_REF`: `${{ github.sha }}`
+     - `VERBOSE`: `false`
+     - `GITHUB_CONTEXT_INPUT`: `${{ runner.temp }}/github_context.json`
 
 8. **env**
+   - Env:
+     - `PR_LABELS`: `${{ steps.source-run-info.outputs.pr-labels }}`
 
 ### Platform: AMD (`print-platform`)
 
@@ -1858,6 +1926,13 @@ Secrets referenced (literal names): `DOCS_AWS_ACCESS_KEY_ID`, `DOCS_AWS_SECRET_A
      - `save-cache`: `false` - Whether to save prek cache (required)
 
 5. **MyPy checks for providers**
+   - Env:
+     - `VERBOSE`: `false`
+     - `COLUMNS`: `202`
+     - `SKIP_GROUP_OUTPUT`: `true`
+     - `DEFAULT_BRANCH`: `${{ needs.build-info.outputs.default-branch }}`
+     - `RUFF_FORMAT`: `github`
+     - `INCLUDE_MYPY_VOLUME`: `false`
 
 ### Migration round-trip check (`migration-round-trip`)
 
@@ -1901,6 +1976,11 @@ Secrets referenced (literal names): `DOCS_AWS_ACCESS_KEY_ID`, `DOCS_AWS_SECRET_A
      - `save-cache`: `false` - Whether to save prek cache (required)
 
 5. **Migration round-trip check**
+   - Env:
+     - `VERBOSE`: `false`
+     - `COLUMNS`: `202`
+     - `SKIP_GROUP_OUTPUT`: `true`
+     - `DEFAULT_BRANCH`: `${{ needs.build-info.outputs.default-branch }}`
 
 ### provider distributions tests (`providers`)
 
@@ -2578,9 +2658,15 @@ Secrets referenced (literal names): `DOCS_AWS_ACCESS_KEY_ID`, `DOCS_AWS_SECRET_A
 
 2. **Get failing jobs**
    - ID: `get-failures`
+   - Env:
+     - `GITHUB_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
 
 3. **Determine notification action**
    - ID: `notification`
+   - Env:
+     - `ARTIFACT_NAME`: `slack-state-tests-${{ github.ref_name }}-amd`
+     - `CURRENT_FAILURES`: `${{ steps.get-failures.outputs.failed-jobs }}`
+     - `GITHUB_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
 
 4. **Upload notification state**
    - Uses: `actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a` (v7.0.1)
@@ -2929,7 +3015,7 @@ Secrets referenced (literal names): `DOCS_AWS_ACCESS_KEY_ID`, `DOCS_AWS_SECRET_A
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | workflow env `GITHUB_TOKEN`; job `mypy-providers` env `GITHUB_TOKEN`; job `migration-round-trip` env `GITHUB_TOKEN`; job `tests-go-sdk` env `GITHUB_TOKEN` |
+| `GITHUB_TOKEN` | workflow env `GITHUB_TOKEN`; job `mypy-providers` env `GITHUB_TOKEN`; job `migration-round-trip` env `GITHUB_TOKEN`; job `tests-go-sdk` env `GITHUB_TOKEN`; job `notify-slack` step `Get failing jobs` env `GITHUB_TOKEN`; job `notify-slack` step `Determine notification action` env `GITHUB_TOKEN` |
 | `SLACK_BOT_TOKEN` | workflow env `SLACK_BOT_TOKEN`; job `ci-image-checks` secrets `SLACK_BOT_TOKEN` |
 | `DOCS_AWS_ACCESS_KEY_ID` | job `ci-image-checks` secrets `DOCS_AWS_ACCESS_KEY_ID` |
 | `DOCS_AWS_SECRET_ACCESS_KEY` | job `ci-image-checks` secrets `DOCS_AWS_SECRET_ACCESS_KEY` |
@@ -2966,11 +3052,21 @@ Secrets referenced (literal names): `DOCS_AWS_ACCESS_KEY_ID`, `DOCS_AWS_SECRET_A
 
 6. **Get information about the Workflow**
    - ID: `source-run-info`
+   - Env:
+     - `SKIP_BREEZE_SELF_UPGRADE_CHECK`: `true`
+     - `GITHUB_CONTEXT_INPUT`: `${{ runner.temp }}/github_context.json`
 
 7. **Selective checks**
    - ID: `selective-checks`
+   - Env:
+     - `PR_LABELS`: `${{ steps.source-run-info.outputs.pr-labels }}`
+     - `COMMIT_REF`: `${{ github.sha }}`
+     - `VERBOSE`: `false`
+     - `GITHUB_CONTEXT_INPUT`: `${{ runner.temp }}/github_context.json`
 
 8. **env**
+   - Env:
+     - `PR_LABELS`: `${{ steps.source-run-info.outputs.pr-labels }}`
 
 ### Platform: ARM (`print-platform`)
 
@@ -3169,6 +3265,13 @@ Secrets referenced (literal names): `DOCS_AWS_ACCESS_KEY_ID`, `DOCS_AWS_SECRET_A
      - `save-cache`: `false` - Whether to save prek cache (required)
 
 5. **MyPy checks for providers**
+   - Env:
+     - `VERBOSE`: `false`
+     - `COLUMNS`: `202`
+     - `SKIP_GROUP_OUTPUT`: `true`
+     - `DEFAULT_BRANCH`: `${{ needs.build-info.outputs.default-branch }}`
+     - `RUFF_FORMAT`: `github`
+     - `INCLUDE_MYPY_VOLUME`: `false`
 
 ### Migration round-trip check (`migration-round-trip`)
 
@@ -3212,6 +3315,11 @@ Secrets referenced (literal names): `DOCS_AWS_ACCESS_KEY_ID`, `DOCS_AWS_SECRET_A
      - `save-cache`: `false` - Whether to save prek cache (required)
 
 5. **Migration round-trip check**
+   - Env:
+     - `VERBOSE`: `false`
+     - `COLUMNS`: `202`
+     - `SKIP_GROUP_OUTPUT`: `true`
+     - `DEFAULT_BRANCH`: `${{ needs.build-info.outputs.default-branch }}`
 
 ### provider distributions tests (`providers`)
 
@@ -3889,9 +3997,15 @@ Secrets referenced (literal names): `DOCS_AWS_ACCESS_KEY_ID`, `DOCS_AWS_SECRET_A
 
 2. **Get failing jobs**
    - ID: `get-failures`
+   - Env:
+     - `GITHUB_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
 
 3. **Determine notification action**
    - ID: `notification`
+   - Env:
+     - `ARTIFACT_NAME`: `slack-state-tests-${{ github.ref_name }}-arm`
+     - `CURRENT_FAILURES`: `${{ steps.get-failures.outputs.failed-jobs }}`
+     - `GITHUB_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
 
 4. **Upload notification state**
    - Uses: `actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a` (v7.0.1)
@@ -4022,7 +4136,8 @@ ci-image-build.yml
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | job `build-ci-images` env `GITHUB_TOKEN` |
+| `GITHUB_TOKEN` | job `build-ci-images` env `GITHUB_TOKEN`; job `build-ci-images` step `Login to ghcr.io` env `GITHUB_TOKEN`; job `build-ci-images` step `Build ${{ inputs.push-image == 'true' && ' & push ' \|\| '' }} ${{ inputs.platform }}:${{ env.PYTHON_MAJOR_MINOR_VERSION }} image<br>` env `GITHUB_TOKEN` |
+| `CONSTRAINTS_GITHUB_REPOSITORY` | job `build-ci-images` step `Build ${{ inputs.push-image == 'true' && ' & push ' \|\| '' }} ${{ inputs.platform }}:${{ env.PYTHON_MAJOR_MINOR_VERSION }} image<br>` env `CONSTRAINTS_GITHUB_REPOSITORY` |
 
 ## Jobs
 
@@ -4072,17 +4187,38 @@ ci-image-build.yml
 
 8. **Verify ci-cache file exists**
    - Condition: `steps.restore-cache-mount.outputs.stash-hit == 'true'`
+   - Env:
+     - `CACHE_FILE`: `/tmp/ci-cache-mount-save-v3-${{ env.PYTHON_MAJOR_MINOR_VERSION }}.tar.gz`
 
 9. **Import mount-cache ${{ inputs.platform }}:${{ env.PYTHON_MAJOR_MINOR_VERSION }}**
    - Condition: `steps.restore-cache-mount.outputs.stash-hit == 'true'`
+   - Env:
+     - `PYTHON_MAJOR_MINOR_VERSION`: `${{ env.PYTHON_MAJOR_MINOR_VERSION }}`
 
 10. **Login to ghcr.io**
+   - Env:
+     - `GITHUB_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
+     - `ACTOR`: `${{ github.actor }}`
 
 11. **Build ${{ inputs.push-image == 'true' && ' & push ' || '' }} ${{ inputs.platform }}:${{ env.PYTHON_MAJOR_MINOR_VERSION }} image
 **
+   - Env:
+     - `DOCKER_CACHE`: `${{ inputs.docker-cache }}`
+     - `DISABLE_AIRFLOW_REPO_CACHE`: `${{ inputs.disable-airflow-repo-cache }}`
+     - `INSTALL_MYSQL_CLIENT_TYPE`: `${{ inputs.install-mysql-client-type }}`
+     - `UPGRADE_TO_NEWER_DEPENDENCIES`: `${{ inputs.upgrade-to-newer-dependencies }}`
+     - `CONSTRAINTS_GITHUB_REPOSITORY`: `${{ secrets.CONSTRAINTS_GITHUB_REPOSITORY != '' && secrets.CONSTRAINTS_GITHUB_REPOSITORY || 'apache/airflow' }}`
+     - `GITHUB_REPOSITORY`: `${{ github.repository }}`
+     - `GITHUB_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
+     - `GITHUB_USERNAME`: `${{ github.actor }}`
+     - `PUSH`: `${{ inputs.push-image }}`
+     - `VERBOSE`: `true`
+     - `PLATFORM`: `${{ inputs.platform }}`
 
 12. **Export CI docker image ${{ env.PYTHON_MAJOR_MINOR_VERSION }}**
    - Condition: `inputs.upload-image-artifact == 'true'`
+   - Env:
+     - `PLATFORM`: `${{ inputs.platform }}`
 
 13. **Stash CI docker image ${{ env.PYTHON_MAJOR_MINOR_VERSION }}**
    - Uses: `apache/infrastructure-actions/stash/save@49df447b39b18354895520e0a63731b7cad7cbec`
@@ -4095,6 +4231,8 @@ ci-image-build.yml
 
 14. **Export mount cache ${{ inputs.platform }}:${{ env.PYTHON_MAJOR_MINOR_VERSION }}**
    - Condition: `inputs.upload-mount-cache-artifact == 'true'`
+   - Env:
+     - `PYTHON_MAJOR_MINOR_VERSION`: `${{ env.PYTHON_MAJOR_MINOR_VERSION }}`
 
 15. **Stash cache mount ${{ inputs.platform }}:${{ env.PYTHON_MAJOR_MINOR_VERSION }}**
    - Uses: `apache/infrastructure-actions/stash/save@49df447b39b18354895520e0a63731b7cad7cbec`
@@ -4170,7 +4308,8 @@ ci-image-checks.yml
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | job `static-checks` env `GITHUB_TOKEN`; job `build-docs` env `GITHUB_TOKEN`; job `publish-docs` env `GITHUB_TOKEN`; job `test-python-api-client` env `GITHUB_TOKEN` |
+| `GITHUB_TOKEN` | job `static-checks` env `GITHUB_TOKEN`; job `build-docs` env `GITHUB_TOKEN`; job `build-docs` step `Get docs build job URL` env `GITHUB_TOKEN`; job `build-docs` step `Determine inventory notification action` env `GITHUB_TOKEN`; job `publish-docs` env `GITHUB_TOKEN`; job `publish-docs` step `Prepare SBOMs` env `GITHUB_TOKEN`; job `test-python-api-client` env `GITHUB_TOKEN` |
+| `SLACK_BOT_TOKEN` | job `build-docs` step `Notify Slack about missing inventories (new/changed)` env `SLACK_BOT_TOKEN`; job `build-docs` step `Notify Slack about missing inventories (still not fixed)` env `SLACK_BOT_TOKEN`; job `build-docs` step `Notify Slack about inventory recovery` env `SLACK_BOT_TOKEN` |
 | `DOCS_AWS_ACCESS_KEY_ID` | job `publish-docs` step `Configure AWS credentials` with `aws-access-key-id` |
 | `DOCS_AWS_SECRET_ACCESS_KEY` | job `publish-docs` step `Configure AWS credentials` with `aws-secret-access-key` |
 
@@ -4218,6 +4357,13 @@ ci-image-checks.yml
      - `save-cache`: `true` - Whether to save prek cache (required)
 
 5. **Static checks**
+   - Env:
+     - `VERBOSE`: `true`
+     - `SKIP`: `${{ inputs.skip-prek-hooks }}`
+     - `COLUMNS`: `202`
+     - `SKIP_GROUP_OUTPUT`: `true`
+     - `DEFAULT_BRANCH`: `${{ inputs.branch }}`
+     - `RUFF_FORMAT`: `github`
 
 6. **Show prek log on failure**
    - Condition: `failure()`
@@ -4266,6 +4412,8 @@ ci-image-checks.yml
      - `key`: `cache-docs-inventory-v1`
 
 5. **Building docs with ${{ matrix.flag }} flag**
+   - Env:
+     - `DOCS_LIST_AS_STRING`: `${{ inputs.docs-list-as-string }}`
 
 6. **Check for missing third-party inventories**
    - ID: `check-missing-inventories`
@@ -4274,10 +4422,16 @@ ci-image-checks.yml
 7. **Get docs build job URL**
    - ID: `get-job-url`
    - Condition: `always() && inputs.canary-run == 'true' && matrix.flag == '--docs-only'`
+   - Env:
+     - `GITHUB_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
 
 8. **Determine inventory notification action**
    - ID: `inventory-notification`
    - Condition: `always() && inputs.canary-run == 'true' && matrix.flag == '--docs-only'`
+   - Env:
+     - `ARTIFACT_NAME`: `slack-state-inventory-${{ inputs.branch }}-${{ contains(inputs.platform, 'arm') && 'arm' || 'amd' }}`
+     - `CURRENT_FAILURES`: `${{ steps.check-missing-inventories.outputs.packages }}`
+     - `GITHUB_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
 
 9. **Upload inventory notification state**
    - Uses: `actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a` (v7.0.1)
@@ -4295,6 +4449,8 @@ ci-image-checks.yml
      - `method`: `chat.postMessage`
      - `token`: `${{ env.SLACK_BOT_TOKEN }}`
      - `payload`: `channel: "internal-airflow-ci-cd" text: "⚠️ Missing 3rd-party doc inventories in canary build on *${{ github.ref_name }}*: ${{ steps.check-missing-inventories.outputs.packages }}\n\n<${{ steps.get-job-url.outputs.url }}|View job log>"`
+   - Env:
+     - `SLACK_BOT_TOKEN`: `${{ secrets.SLACK_BOT_TOKEN }}`
 
 11. **Notify Slack about missing inventories (still not fixed)**
    - Uses: `slackapi/slack-github-action@45a88b9581bfab2566dc881e2cd66d334e621e2c` (v3.0.3)
@@ -4303,6 +4459,8 @@ ci-image-checks.yml
      - `method`: `chat.postMessage`
      - `token`: `${{ env.SLACK_BOT_TOKEN }}`
      - `payload`: `channel: "internal-airflow-ci-cd" text: "⚠️🔁 Still not fixed: Missing 3rd-party doc inventories in canary build on *${{ github.ref_name }}*: ${{ steps.check-missing-inventories.outputs.packages }}\n\n<${{ steps.get-job-url.outputs.url }}|View job log>"`
+   - Env:
+     - `SLACK_BOT_TOKEN`: `${{ secrets.SLACK_BOT_TOKEN }}`
 
 12. **Notify Slack about inventory recovery**
    - Uses: `slackapi/slack-github-action@45a88b9581bfab2566dc881e2cd66d334e621e2c` (v3.0.3)
@@ -4311,6 +4469,8 @@ ci-image-checks.yml
      - `method`: `chat.postMessage`
      - `token`: `${{ env.SLACK_BOT_TOKEN }}`
      - `payload`: `channel: "internal-airflow-ci-cd" text: "✅ All 3rd-party doc inventories are now available in canary build on *${{ github.ref_name }}*\n\n<${{ steps.get-job-url.outputs.url }}|View job log>"`
+   - Env:
+     - `SLACK_BOT_TOKEN`: `${{ secrets.SLACK_BOT_TOKEN }}`
 
 13. **Save docs inventory cache**
    - Uses: `apache/infrastructure-actions/stash/save@49df447b39b18354895520e0a63731b7cad7cbec`
@@ -4387,6 +4547,8 @@ ci-image-checks.yml
 
 7. **Prepare SBOMs**
    - Condition: `inputs.canary-run == 'true' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')`
+   - Env:
+     - `GITHUB_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
 
 8. **Generated SBOM files**
    - Condition: `inputs.canary-run == 'true' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')`
@@ -4398,6 +4560,8 @@ ci-image-checks.yml
 11. **Clone airflow-site**
 
 12. **Publish docs**
+   - Env:
+     - `DOCS_LIST_AS_STRING`: `${{ inputs.docs-list-as-string }}`
 
 13. **Check disk space available**
 
@@ -4413,6 +4577,8 @@ ci-image-checks.yml
 
 19. **Validate published doc versions**
    - ID: `validate-docs-versions`
+   - Env:
+     - `AIRFLOW_SITE_DIRECTORY`: `/mnt/airflow-site/airflow-site`
 
 20. **Install AWS CLI v2**
    - Condition: `inputs.canary-run == 'true' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')`
@@ -4513,7 +4679,7 @@ ci-image-checks.yml
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | workflow env `GITHUB_TOKEN` |
+| `GITHUB_TOKEN` | workflow env `GITHUB_TOKEN`; job `workflow-status` step `Find workflow run status` env `GITHUB_TOKEN`; job `workflow-status` step `Determine notification action` env `GITHUB_TOKEN` |
 | `SLACK_BOT_TOKEN` | workflow env `SLACK_BOT_TOKEN` |
 
 ## Jobs
@@ -4533,9 +4699,17 @@ ci-image-checks.yml
 
 2. **Find workflow run status**
    - ID: `find-workflow-run-status`
+   - Env:
+     - `GITHUB_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
+     - `workflow_branch`: `${{ matrix.branch }}`
+     - `workflow_id`: `${{ matrix.workflow-id }}`
 
 3. **Determine notification action**
    - ID: `notification`
+   - Env:
+     - `ARTIFACT_NAME`: `slack-state-ci-${{ matrix.branch }}-${{ matrix.workflow-id }}`
+     - `CURRENT_FAILURES`: `${{ steps.find-workflow-run-status.outputs.failed-jobs }}`
+     - `GITHUB_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
 
 4. **Upload notification state**
    - Uses: `actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a` (v7.0.1)
@@ -4552,6 +4726,10 @@ ci-image-checks.yml
      - `method`: `chat.postMessage`
      - `token`: `${{ env.SLACK_BOT_TOKEN }}`
      - `payload`: `channel: "internal-airflow-ci-cd" text: "🚨 Failure Alert: ${{ env.workflow_id }} on branch *${{ env.branch }}*\n\nFailing jobs:\n${{ steps.find-workflow-run-status.outputs.failed-jobs }}\n\n*Details:* <${{ env.run_url }}|View the failure log>" blocks:   - type: "section"     text:       type: "mrkdwn"       text: "🚨 Failure Alert: ${{ env.workflow_id }} on *${{ env.branch }}*\n\nFailing jobs:\n${{ steps.find-workflow-run-status.outputs.failed-jobs }}\n\n*Details:* <${{ env.run_url }}|View the failure log>"`
+   - Env:
+     - `run_url`: `${{ steps.find-workflow-run-status.outputs.run-url }}`
+     - `branch`: `${{ matrix.branch }}`
+     - `workflow_id`: `${{ matrix.workflow-id }}`
 
 6. **Send Slack notification (still not fixed)**
    - Uses: `slackapi/slack-github-action@45a88b9581bfab2566dc881e2cd66d334e621e2c` (v3.0.3)
@@ -4560,6 +4738,10 @@ ci-image-checks.yml
      - `method`: `chat.postMessage`
      - `token`: `${{ env.SLACK_BOT_TOKEN }}`
      - `payload`: `channel: "internal-airflow-ci-cd" text: "🚨🔁 Still not fixed: ${{ env.workflow_id }} on branch *${{ env.branch }}*\n\nFailing jobs:\n${{ steps.find-workflow-run-status.outputs.failed-jobs }}\n\n*Details:* <${{ env.run_url }}|View the failure log>" blocks:   - type: "section"     text:       type: "mrkdwn"       text: "🚨🔁 Still not fixed: ${{ env.workflow_id }} on *${{ env.branch }}*\n\nFailing jobs:\n${{ steps.find-workflow-run-status.outputs.failed-jobs }}\n\n*Details:* <${{ env.run_url }}|View the failure log>"`
+   - Env:
+     - `run_url`: `${{ steps.find-workflow-run-status.outputs.run-url }}`
+     - `branch`: `${{ matrix.branch }}`
+     - `workflow_id`: `${{ matrix.workflow-id }}`
 
 7. **Send Slack notification (all passing)**
    - Uses: `slackapi/slack-github-action@45a88b9581bfab2566dc881e2cd66d334e621e2c` (v3.0.3)
@@ -4568,6 +4750,10 @@ ci-image-checks.yml
      - `method`: `chat.postMessage`
      - `token`: `${{ env.SLACK_BOT_TOKEN }}`
      - `payload`: `channel: "internal-airflow-ci-cd" text: "✅ All passing: ${{ env.workflow_id }} on branch *${{ env.branch }}*\n\n*Details:* <${{ env.run_url }}|View the run log>" blocks:   - type: "section"     text:       type: "mrkdwn"       text: "✅ All passing: ${{ env.workflow_id }} on *${{ env.branch }}*\n\n*Details:* <${{ env.run_url }}|View the run log>"`
+   - Env:
+     - `run_url`: `${{ steps.find-workflow-run-status.outputs.run-url }}`
+     - `branch`: `${{ matrix.branch }}`
+     - `workflow_id`: `${{ matrix.workflow-id }}`
 
 # CodeQL
 
@@ -4658,7 +4844,7 @@ ci-image-checks.yml
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | workflow env `GITHUB_TOKEN` |
+| `GITHUB_TOKEN` | workflow env `GITHUB_TOKEN`; job `analyze-flaky-tests` step `Analyze E2E test results` env `GITHUB_TOKEN` |
 | `SLACK_BOT_TOKEN` | workflow env `SLACK_BOT_TOKEN` |
 
 ## Jobs
@@ -4678,6 +4864,12 @@ ci-image-checks.yml
 
 2. **Analyze E2E test results**
    - ID: `analyze`
+   - Env:
+     - `GITHUB_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
+     - `MAX_RUNS`: `10`
+     - `WORKFLOW_NAME`: `ci-amd.yml`
+     - `BRANCH`: `main`
+     - `OUTPUT_FILE`: `slack-message.json`
 
 3. **Post report to Slack**
    - Uses: `slackapi/slack-github-action@45a88b9581bfab2566dc881e2cd66d334e621e2c` (v3.0.3)
@@ -4830,6 +5022,10 @@ finalize-tests.yml
      - `make-mnt-writeable-and-cleanup`: `true` - Whether to cleanup /mnt (required)
 
 4. **Deps: ${{ matrix.python-version }}:${{ matrix.constraints-mode }}**
+   - Env:
+     - `MATRIX_PYTHON_VERSION`: `${{ matrix.python-version }}`
+     - `MATRIX_CONSTRAINTS_MODE`: `${{ matrix.constraints-mode }}`
+     - `VERBOSE`: `false`
 
 ### Push Regular Image Cache ${{ inputs.platform }} (`push-buildx-cache-to-github-registry`)
 
@@ -4976,6 +5172,8 @@ generate-constraints.yml
      - `if-no-files-found`: `error`
 
 12. **Dependency upgrade summary**
+   - Env:
+     - `PYTHON_VERSION`: `${{ matrix.python-version }}`
 
 # Helm tests
 
@@ -5060,6 +5258,9 @@ helm-tests.yml
      - `make-mnt-writeable-and-cleanup`: `true` - Whether to cleanup /mnt (required)
 
 4. **Helm Unit Tests: ${{ matrix.helm-test-package }} (K8S ${{ matrix.kubernetes-version }})**
+   - Env:
+     - `HELM_TEST_PACKAGE`: `${{ matrix.helm-test-package }}`
+     - `HELM_TEST_KUBERNETES_VERSION`: `${{ matrix.kubernetes-version }}`
 
 ### Release Helm (`tests-helm-release`)
 
@@ -5103,6 +5304,8 @@ helm-tests.yml
 11. **Verify packaged chart contents and lint**
 
 12. **Sign artifacts for ASF distribution**
+   - Env:
+     - `SIGN_WITH`: `dev@airflow.apache.org`
 
 13. **Fetch Git Tags**
 
@@ -5208,6 +5411,8 @@ integration-system-tests.yml
      - `make-mnt-writeable-and-cleanup`: `true` - Whether to cleanup /mnt (required)
 
 4. **Integration: core ${{ matrix.integration }}**
+   - Env:
+     - `INTEGRATION`: `${{ matrix.integration }}`
 
 5. **Post Tests success**
    - Uses: `./.github/actions/post_tests_success`
@@ -5260,6 +5465,8 @@ integration-system-tests.yml
      - `make-mnt-writeable-and-cleanup`: `true` - Whether to cleanup /mnt (required)
 
 4. **Integration: providers ${{ matrix.integration }}**
+   - Env:
+     - `INTEGRATION`: `${{ matrix.integration }}`
 
 5. **Post Tests success**
    - Uses: `./.github/actions/post_tests_success`
@@ -5391,6 +5598,8 @@ k8s-tests.yml
 
 2. **Prepare PYTHON_MAJOR_MINOR_VERSION and KUBERNETES_VERSION**
    - ID: `prepare-versions`
+   - Env:
+     - `KUBERNETES_COMBO`: `${{ matrix.kubernetes-combo }}`
 
 3. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
    - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
@@ -5408,6 +5617,10 @@ k8s-tests.yml
      - `make-mnt-writeable-and-cleanup`: `true` - Whether to cleanup /mnt (required)
 
 5. **Run complete K8S tests ${{ matrix.executor }}-${{ env.PYTHON_MAJOR_MINOR_VERSION }}-${{env.KUBERNETES_VERSION}}-${{ matrix.use-standard-naming }}**
+   - Env:
+     - `EXECUTOR`: `${{ matrix.executor }}`
+     - `USE_STANDARD_NAMING`: `${{ matrix.use-standard-naming }}`
+     - `VERBOSE`: `false`
 
 6. **Print logs ${{ matrix.executor }}-${{ matrix.kubernetes-combo }}-${{ matrix.use-standard-naming }}**
    - Condition: `failure() || cancelled() || inputs.include-success-outputs == 'true'`
@@ -5447,6 +5660,14 @@ milestone-tag-assistant.yml [push]
 +-- set-milestone / Install Breeze (uses ./.github/actions/breeze)
 ```
 
+## Referenced secrets and variables
+
+**Secrets:**
+
+| Name | Used by |
+|------|---------|
+| `GITHUB_TOKEN` | job `get-pr-info` step `Find PR information` env `GITHUB_TOKEN` |
+
 ## Jobs
 
 ### Get PR information (`get-pr-info`)
@@ -5464,6 +5685,8 @@ milestone-tag-assistant.yml [push]
    - Uses: `actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3` (v9.0.0)
    - With:
      - `script`: `const { data: pullRequests } = await github.rest.repos.listPullRequestsAssociatedWithCommit({     owner: context.repo.owner,     repo: context.repo.repo,     commit_sha: process.env.GITHUB_SHA });  if (pullRequests.length === 0) {     console.log('⚠️ No pull request found for this commit.');     core.setOutput('should-run', 'false');     return; }  const pr = pullRequests[0];  // Skip if PR already has a milestone if (pr.milestone !== null) {     console.log(`PR #${pr.number} already has milestone: ${pr.milestone.title}`);     core.setOutput('should-run', 'false');     return; }  const labels = pr.labels.map(label => label.name);  console.log(`Commit ${process.env.GITHUB_SHA} is associated with PR #${pr.number}`); console.log(`Title: ${pr.title}`); console.log(`Labels: ${JSON.stringify(labels)}`); console.log(`Base branch: ${pr.base.ref}`); console.log(`Merged by: ${pr.merged_by?.login || 'unknown'}`);  core.setOutput('should-run', 'true'); core.setOutput('pr-number', pr.number.toString()); core.setOutput('pr-title', pr.title); core.setOutput('pr-labels', JSON.stringify(labels)); core.setOutput('base-branch', pr.base.ref); core.setOutput('merged-by', pr.merged_by?.login || 'unknown');`
+   - Env:
+     - `GITHUB_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
 
 ### Set milestone on merged PR (`set-milestone`)
 
@@ -5486,6 +5709,14 @@ milestone-tag-assistant.yml [push]
    - Uses: `./.github/actions/breeze`
 
 3. **Check criteria and set milestone**
+   - Env:
+     - `GH_TOKEN`: `${{ github.token }}`
+     - `GITHUB_REPOSITORY`: `${{ github.repository }}`
+     - `PR_NUMBER`: `${{ needs.get-pr-info.outputs.pr-number }}`
+     - `PR_TITLE`: `${{ needs.get-pr-info.outputs.pr-title }}`
+     - `PR_LABELS`: `${{ needs.get-pr-info.outputs.pr-labels }}`
+     - `BASE_BRANCH`: `${{ needs.get-pr-info.outputs.base-branch }}`
+     - `MERGED_BY`: `${{ needs.get-pr-info.outputs.merged-by }}`
 
 # Notify uv.lock conflicts
 
@@ -5505,6 +5736,14 @@ milestone-tag-assistant.yml [push]
 - `contents`: `read`
 - `pull-requests`: `write`
 
+## Referenced secrets and variables
+
+**Secrets:**
+
+| Name | Used by |
+|------|---------|
+| `GITHUB_TOKEN` | job `notify` step `Notify open PRs` env `GITHUB_TOKEN` |
+
 ## Jobs
 
 ### Notify open PRs that conflict on uv.lock (`notify`)
@@ -5523,6 +5762,10 @@ milestone-tag-assistant.yml [push]
 2. **Install uv**
 
 3. **Notify open PRs**
+   - Env:
+     - `GITHUB_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
+     - `GITHUB_REPOSITORY`: `${{ github.repository }}`
+     - `GITHUB_SHA`: `${{ github.sha }}`
 
 # Build PROD images
 
@@ -5586,7 +5829,7 @@ prod-image-build.yml
 | Name | Used by |
 |------|---------|
 | `CONSTRAINTS_GITHUB_REPOSITORY` | job `build-prod-images` env `CONSTRAINTS_GITHUB_REPOSITORY` |
-| `GITHUB_TOKEN` | job `build-prod-images` env `GITHUB_TOKEN` |
+| `GITHUB_TOKEN` | job `build-prod-images` env `GITHUB_TOKEN`; job `build-prod-images` step `Login to ghcr.io` env `GITHUB_TOKEN` |
 
 ## Jobs
 
@@ -5714,13 +5957,27 @@ prod-image-build.yml
 9. **Show constraints**
 
 10. **Login to ghcr.io**
+   - Env:
+     - `GITHUB_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
+     - `ACTOR`: `${{ github.actor }}`
 
 11. **Build PROD images w/ source providers ${{ env.PYTHON_MAJOR_MINOR_VERSION }}**
+   - Env:
+     - `PUSH`: `${{ inputs.push-image }}`
+     - `DOCKER_CACHE`: `${{ inputs.docker-cache }}`
+     - `DISABLE_AIRFLOW_REPO_CACHE`: `${{ inputs.disable-airflow-repo-cache }}`
+     - `DEBIAN_VERSION`: `${{ inputs.debian-version }}`
+     - `INSTALL_MYSQL_CLIENT_TYPE`: `${{ inputs.install-mysql-client-type }}`
+     - `UPGRADE_TO_NEWER_DEPENDENCIES`: `${{ inputs.upgrade-to-newer-dependencies }}`
+     - `INCLUDE_NOT_READY_PROVIDERS`: `true`
+     - `USE_UV`: `${{ inputs.use-uv }}`
 
 12. **Verify PROD image ${{ env.PYTHON_MAJOR_MINOR_VERSION }}**
 
 13. **Export PROD docker image ${{ env.PYTHON_MAJOR_MINOR_VERSION }}**
    - Condition: `inputs.upload-image-artifact == 'true'`
+   - Env:
+     - `PLATFORM`: `${{ inputs.platform }}`
 
 14. **Stash PROD docker image ${{ env.PYTHON_MAJOR_MINOR_VERSION }}**
    - Uses: `apache/infrastructure-actions/stash/save@49df447b39b18354895520e0a63731b7cad7cbec`
@@ -5849,7 +6106,7 @@ Secrets referenced (literal names): `DOCS_AWS_ACCESS_KEY_ID`, `DOCS_AWS_SECRET_A
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | job `build-docs` env `GITHUB_TOKEN`; job `publish-docs-to-s3` env `GITHUB_TOKEN` |
+| `GITHUB_TOKEN` | job `build-docs` env `GITHUB_TOKEN`; job `build-docs` step `Login to ghcr.io` env `GITHUB_TOKEN`; job `publish-docs-to-s3` env `GITHUB_TOKEN`; job `publish-docs-to-s3` step `Prepare SBOMs` env `GITHUB_TOKEN` |
 | `DOCS_AWS_ACCESS_KEY_ID` | job `publish-docs-to-s3` step `Configure AWS credentials` with `aws-access-key-id`; job `update-registry` secrets `DOCS_AWS_ACCESS_KEY_ID` |
 | `DOCS_AWS_SECRET_ACCESS_KEY` | job `publish-docs-to-s3` step `Configure AWS credentials` with `aws-secret-access-key`; job `update-registry` secrets `DOCS_AWS_SECRET_ACCESS_KEY` |
 
@@ -5889,6 +6146,9 @@ Secrets referenced (literal names): `DOCS_AWS_ACCESS_KEY_ID`, `DOCS_AWS_SECRET_A
 
 2. **Derive registry trigger inputs**
    - ID: `derive_registry_inputs`
+   - Env:
+     - `INCLUDE_DOCS`: `${{ inputs.include-docs }}`
+     - `REF`: `${{ inputs.ref }}`
 
 3. **Input parameters summary**
    - ID: `parameters`
@@ -5953,8 +6213,14 @@ Secrets referenced (literal names): `DOCS_AWS_ACCESS_KEY_ID`, `DOCS_AWS_SECRET_A
      - `python-version`: `${{ needs.build-info.outputs.default-python-version }}` - Python version to use
 
 10. **Login to ghcr.io**
+   - Env:
+     - `GITHUB_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
+     - `ACTOR`: `${{ github.actor }}`
 
 11. **Building image from the ${{ inputs.ref }} reference**
+   - Env:
+     - `INCLUDE_DOCS`: `${{ needs.build-info.outputs.include-docs }}`
+     - `INCLUDE_COMMITS`: `${{ startsWith(inputs.ref, 'providers') && 'true' || 'false' }}`
 
 12. **Restore docs inventory cache**
    - ID: `restore-docs-inventory-cache`
@@ -5964,6 +6230,10 @@ Secrets referenced (literal names): `DOCS_AWS_ACCESS_KEY_ID`, `DOCS_AWS_SECRET_A
      - `key`: `cache-docs-inventory-v1`
 
 13. **Building docs with --docs-only flag using ${{ inputs.ref }} reference breeze**
+   - Env:
+     - `INCLUDE_DOCS`: `${{ needs.build-info.outputs.include-docs }}`
+     - `INCLUDE_COMMITS`: `${{ startsWith(inputs.ref, 'providers') && 'true' || 'false' }}`
+     - `FAIL_ON_INVENTORIES`: `${{ inputs.ignore-missing-inventories != true && '--fail-on-missing-third-party-inventories' || '' }}`
 
 14. **Save docs inventory cache**
    - Uses: `apache/infrastructure-actions/stash/save@49df447b39b18354895520e0a63731b7cad7cbec`
@@ -6039,6 +6309,11 @@ Secrets referenced (literal names): `DOCS_AWS_ACCESS_KEY_ID`, `DOCS_AWS_SECRET_A
 
 8. **Prepare SBOMs**
    - Condition: `inputs.build-sboms`
+   - Env:
+     - `AIRFLOW_VERSION`: `${{ needs.build-info.outputs.airflow-version }}`
+     - `GITHUB_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
+     - `PYTHON_VERSION`: `${{ needs.build-info.outputs.default-python-version }}`
+     - `FORCE`: `true`
 
 9. **Generated SBOM files**
    - Condition: `inputs.build-sboms`
@@ -6048,11 +6323,15 @@ Secrets referenced (literal names): `DOCS_AWS_ACCESS_KEY_ID`, `DOCS_AWS_SECRET_A
 11. **Create /mnt/airflow-site directory**
 
 12. **Publish docs to /mnt/airflow-site directory using ${{ inputs.ref }} reference breeze**
+   - Env:
+     - `INCLUDE_DOCS`: `${{ needs.build-info.outputs.include-docs }}`
 
 13. **Check disk space available**
 
 14. **Update watermarks**
    - Condition: `needs.build-info.outputs.destination == 'staging'`
+   - Env:
+     - `SOURCE_DIR_PATH`: `/mnt/airflow-site/docs-archive/`
 
 15. **Install AWS CLI v2**
 
@@ -6064,6 +6343,11 @@ Secrets referenced (literal names): `DOCS_AWS_ACCESS_KEY_ID`, `DOCS_AWS_SECRET_A
      - `aws-region`: `us-east-2`
 
 17. **Syncing docs to S3**
+   - Env:
+     - `DESTINATION_LOCATION`: `${{ needs.build-info.outputs.destination-location }}`
+     - `SOURCE_DIR_PATH`: `/mnt/airflow-site/docs-archive/`
+     - `EXCLUDE_DOCS`: `${{ inputs.exclude-docs }}`
+     - `SKIP_WRITE_TO_STABLE_FOLDER`: `${{ needs.build-info.outputs.skip-write-to-stable-folder }}`
 
 ### Update Provider Registry (`update-registry`)
 
@@ -6137,7 +6421,7 @@ push-image-cache.yml
 | Name | Used by |
 |------|---------|
 | `CONSTRAINTS_GITHUB_REPOSITORY` | job `push-ci-image-cache` env `CONSTRAINTS_GITHUB_REPOSITORY`; job `push-prod-image-cache` env `CONSTRAINTS_GITHUB_REPOSITORY` |
-| `GITHUB_TOKEN` | job `push-ci-image-cache` env `GITHUB_TOKEN`; job `push-prod-image-cache` env `GITHUB_TOKEN` |
+| `GITHUB_TOKEN` | job `push-ci-image-cache` env `GITHUB_TOKEN`; job `push-ci-image-cache` step `Login to ghcr.io` env `GITHUB_TOKEN`; job `push-prod-image-cache` env `GITHUB_TOKEN`; job `push-prod-image-cache` step `Login to ghcr.io` env `GITHUB_TOKEN` |
 
 ## Jobs
 
@@ -6187,11 +6471,18 @@ push-image-cache.yml
    - Uses: `./.github/actions/breeze`
 
 5. **Login to ghcr.io**
+   - Env:
+     - `GITHUB_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
+     - `ACTOR`: `${{ github.actor }}`
 
 6. **Push CI latest images: ${{ env.PYTHON_MAJOR_MINOR_VERSION }} (linux/amd64 only)**
    - Condition: `inputs.push-latest-images == 'true' && inputs.platform == 'linux/amd64'`
+   - Env:
+     - `PLATFORM`: `${{ inputs.platform }}`
 
 7. **Push CI ${{ inputs.cache-type }} cache:${{ env.PYTHON_MAJOR_MINOR_VERSION }}:${{ inputs.platform }}**
+   - Env:
+     - `PLATFORM`: `${{ inputs.platform }}`
 
 ### Push PROD ${{ inputs.cache-type }}:${{ matrix.python }} image cache (`push-prod-image-cache`)
 
@@ -6247,11 +6538,18 @@ push-image-cache.yml
      - `path`: `./docker-context-files`
 
 7. **Login to ghcr.io**
+   - Env:
+     - `GITHUB_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
+     - `ACTOR`: `${{ github.actor }}`
 
 8. **Push PROD latest image: ${{ env.PYTHON_MAJOR_MINOR_VERSION }} (linux/amd64 ONLY)**
    - Condition: `inputs.push-latest-images == 'true' && inputs.platform == 'linux/amd64'`
+   - Env:
+     - `PLATFORM`: `${{ inputs.platform }}`
 
 9. **Push PROD ${{ inputs.cache-type }} cache: ${{ env.PYTHON_MAJOR_MINOR_VERSION }} ${{ inputs.platform }}**
+   - Env:
+     - `PLATFORM`: `${{ inputs.platform }}`
 
 # Recheck old bug reports
 
@@ -6373,9 +6671,13 @@ registry-backfill.yml [workflow_dispatch]
 
 1. **Build provider matrix**
    - ID: `matrix`
+   - Env:
+     - `PROVIDER_VERSIONS`: `${{ inputs.provider-versions }}`
 
 2. **Determine S3 destination**
    - ID: `destination`
+   - Env:
+     - `DESTINATION`: `${{ inputs.destination }}`
 
 ### Backfill ${{ matrix.provider }} (${{ matrix.versions }}) (`backfill`)
 
@@ -6398,6 +6700,9 @@ registry-backfill.yml [workflow_dispatch]
      - `fetch-depth`: `0`
 
 2. **Fetch provider tags**
+   - Env:
+     - `VERSIONS`: `${{ matrix.versions }}`
+     - `PROVIDER`: `${{ matrix.provider }}`
 
 3. **Prepare breeze & CI image**
    - Uses: `./.github/actions/prepare_breeze_and_image`
@@ -6417,12 +6722,22 @@ registry-backfill.yml [workflow_dispatch]
      - `aws-region`: `us-east-2`
 
 6. **Download existing providers.json**
+   - Env:
+     - `S3_BUCKET`: `${{ needs.prepare.outputs.bucket }}`
 
 7. **Run breeze registry backfill**
+   - Env:
+     - `VERSIONS`: `${{ matrix.versions }}`
+     - `PROVIDER`: `${{ matrix.provider }}`
 
 8. **Download data files from S3 for build**
+   - Env:
+     - `S3_BUCKET`: `${{ needs.prepare.outputs.bucket }}`
 
 9. **Patch providers.json with backfill version(s)**
+   - Env:
+     - `VERSIONS`: `${{ matrix.versions }}`
+     - `PROVIDER`: `${{ matrix.provider }}`
 
 10. **Setup pnpm**
    - Uses: `pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093` (v6.0.8)
@@ -6439,8 +6754,15 @@ registry-backfill.yml [workflow_dispatch]
 12. **Install Node.js dependencies**
 
 13. **Build registry site**
+   - Env:
+     - `REGISTRY_PATH_PREFIX`: `/registry/`
 
 14. **Sync backfilled version pages to S3**
+   - Env:
+     - `S3_BUCKET`: `${{ needs.prepare.outputs.bucket }}`
+     - `CACHE_CONTROL`: `public, max-age=300`
+     - `VERSIONS`: `${{ matrix.versions }}`
+     - `PROVIDER`: `${{ matrix.provider }}`
 
 ### Publish versions.json (`publish-versions`)
 
@@ -6471,8 +6793,12 @@ registry-backfill.yml [workflow_dispatch]
      - `aws-region`: `us-east-2`
 
 5. **Download providers.json from S3**
+   - Env:
+     - `S3_BUCKET`: `${{ needs.prepare.outputs.bucket }}`
 
 6. **Publish version metadata**
+   - Env:
+     - `S3_BUCKET`: `${{ needs.prepare.outputs.bucket }}`
 
 # Build & Publish Registry
 
@@ -6624,12 +6950,19 @@ registry-build.yml
 
 5. **Determine S3 destination**
    - ID: `destination`
+   - Env:
+     - `DESTINATION`: `${{ inputs.destination || 'staging' }}`
 
 6. **Download existing registry data from S3**
    - ID: `download-existing`
    - Condition: `inputs.provider != ''`
+   - Env:
+     - `S3_BUCKET`: `${{ steps.destination.outputs.bucket }}`
 
 7. **Extract registry data (breeze)**
+   - Env:
+     - `PROVIDER`: `${{ inputs.provider }}`
+     - `DESTINATION`: `${{ inputs.destination }}`
 
 8. **Merge with existing registry data**
    - Condition: `inputs.provider != '' && steps.download-existing.outputs.found == 'true'`
@@ -6651,6 +6984,8 @@ registry-build.yml
 12. **Install Node.js dependencies**
 
 13. **Build registry site**
+   - Env:
+     - `REGISTRY_PATH_PREFIX`: `/registry/`
 
 14. **Upload registry artifact**
    - Uses: `actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a` (v7.0.1)
@@ -6661,10 +6996,17 @@ registry-build.yml
      - `if-no-files-found`: `error`
 
 15. **Verify build emitted expected content**
+   - Env:
+     - `PROVIDER`: `${{ inputs.provider }}`
 
 16. **Sync registry to S3**
+   - Env:
+     - `S3_BUCKET`: `${{ steps.destination.outputs.bucket }}`
+     - `PROVIDER`: `${{ inputs.provider }}`
 
 17. **Publish version metadata**
+   - Env:
+     - `S3_BUCKET`: `${{ steps.destination.outputs.bucket }}`
 
 # Registry Tests
 
@@ -6801,6 +7143,9 @@ Secrets referenced (literal names): `DOCKERHUB_TOKEN`, `DOCKERHUB_USER`
 
 6. **Selective checks**
    - ID: `selective-checks`
+   - Env:
+     - `VERBOSE`: `false`
+     - `GITHUB_CONTEXT_INPUT`: `${{ runner.temp }}/github_context.json`
 
 7. **Check airflow version**
    - ID: `check-airflow-version`
@@ -6810,6 +7155,8 @@ Secrets referenced (literal names): `DOCKERHUB_TOKEN`, `DOCKERHUB_USER`
 
 9. **Determine python versions**
    - ID: `determine-python-versions`
+   - Env:
+     - `ALL_PYTHON_VERSIONS`: `${{ steps.selective-checks.outputs.all-python-versions }}`
 
 ### Release images (`release-images`)
 
@@ -6889,7 +7236,7 @@ release_single_dockerhub_image.yml
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | workflow env `GITHUB_TOKEN` |
+| `GITHUB_TOKEN` | workflow env `GITHUB_TOKEN`; job `build-images` step `Login to ghcr.io` env `GITHUB_TOKEN`; job `merge-images` step `Login to ghcr.io` env `GITHUB_TOKEN` |
 | `DOCKERHUB_TOKEN` | job `build-images` step `Login to hub.docker.com` (run); job `merge-images` step `Login to hub.docker.com` (run) |
 | `DOCKERHUB_USER` | job `build-images` step `Login to hub.docker.com` (run); job `merge-images` step `Login to hub.docker.com` (run) |
 
@@ -6933,6 +7280,9 @@ release_single_dockerhub_image.yml
 7. **Get env vars for metadata**
 
 8. **Login to ghcr.io**
+   - Env:
+     - `GITHUB_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
+     - `ACTOR`: `${{ github.actor }}`
 
 9. **Install buildx plugin**
 
@@ -6999,6 +7349,9 @@ release_single_dockerhub_image.yml
 6. **Login to hub.docker.com**
 
 7. **Login to ghcr.io**
+   - Env:
+     - `GITHUB_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
+     - `ACTOR`: `${{ github.actor }}`
 
 8. **Download metadata artifacts**
    - Uses: `actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c` (v8.0.1)
@@ -7200,6 +7553,9 @@ run-unit-tests.yml
 
 7. **${{ inputs.test-group }}:${{ inputs.test-scope }} Tests ${{ inputs.test-name }} ${{ matrix.backend-version }} Py${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }}
 **
+   - Env:
+     - `TEST_GROUP`: `${{ inputs.test-group }}`
+     - `TEST_SCOPE`: `${{ inputs.test-scope }}`
 
 8. **Post Tests success**
    - Uses: `./.github/actions/post_tests_success`
@@ -7928,9 +8284,14 @@ test-providers.yml
 
 15. **Install and verify wheel provider distributions**
    - Condition: `matrix.package-format == 'wheel'`
+   - Env:
+     - `DISTRIBUTION_FORMAT`: `${{ matrix.package-format }}`
+     - `INSTALL_AIRFLOW_WITH_CONSTRAINTS`: `${{ inputs.upgrade-to-newer-dependencies == 'true' && 'false' || 'true' }}`
 
 16. **Install all sdist provider distributions and airflow**
    - Condition: `matrix.package-format == 'sdist'`
+   - Env:
+     - `DISTRIBUTION_FORMAT`: `${{ matrix.package-format }}`
 
 ### Compat ${{ matrix.compat.airflow-version }}:P${{ matrix.compat.python-version }}:${{ matrix.compat.test-types.description }} (`providers-compatibility-tests-matrix`)
 
@@ -7982,18 +8343,26 @@ test-providers.yml
 
 7. **Remove incompatible Airflow ${{ matrix.compat.airflow-version }}:Python ${{ matrix.compat.python-version }} provider distributions**
    - Condition: `matrix.compat.remove-providers != ''`
+   - Env:
+     - `REMOVE_PROVIDERS`: `${{ matrix.compat.remove-providers }}`
 
 8. **Download airflow package: wheel**
 
 9. **Install and verify all provider distributions and airflow on Airflow ${{ matrix.compat.airflow-version }}:Python ${{ matrix.compat.python-version }}
 **
    - Condition: `matrix.compat.run-unit-tests != 'true'`
+   - Env:
+     - `AIRFLOW_VERSION`: `${{ matrix.compat.airflow-version }}`
 
 10. **Check amount of disk space available**
 
 11. **Run provider unit tests on Airflow ${{ matrix.compat.airflow-version }}:Python ${{ matrix.compat.python-version }}:${{ matrix.test-types.description }}
 **
    - Condition: `matrix.compat.run-unit-tests == 'true'`
+   - Env:
+     - `PROVIDERS_TEST_TYPES`: `${{ matrix.test-types.test_types }}`
+     - `AIRFLOW_VERSION`: `${{ matrix.compat.airflow-version }}`
+     - `REMOVE_PROVIDERS`: `${{ matrix.compat.remove-providers }}`
 
 # UI End-to-End Tests
 
@@ -8130,6 +8499,8 @@ ui-e2e-tests.yml
 8. **Install Playwright browsers and dependencies**
 
 9. **Test UI e2e tests**
+   - Env:
+     - `DOCKER_IMAGE`: `${{ inputs.docker-image-tag || '' }}`
 
 10. **Upload test results**
    - Uses: `actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a` (v7.0.1)
@@ -8142,6 +8513,12 @@ ui-e2e-tests.yml
 
 11. **Extract E2E test failures and fixme tests**
    - Condition: `always()`
+   - Env:
+     - `RESULTS_JSON`: `airflow-core/src/airflow/ui/test-results/results.json`
+     - `OUTPUT_DIR`: `e2e-test-report`
+     - `BROWSER`: `${{ env.BROWSER }}`
+     - `RUN_ID`: `${{ github.run_id }}`
+     - `RUN_ATTEMPT`: `${{ github.run_attempt }}`
 
 12. **Upload E2E test report**
    - Uses: `actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a` (v7.0.1)
@@ -8232,6 +8609,11 @@ update-constraints-on-push-stable.yml [push]
 
 6. **Selective checks**
    - ID: `selective-checks`
+   - Env:
+     - `PR_LABELS`: `[]`
+     - `COMMIT_REF`: `${{ github.sha }}`
+     - `VERBOSE`: `false`
+     - `GITHUB_CONTEXT_INPUT`: `${{ runner.temp }}/github_context.json`
 
 ### Build CI images (`build-ci-images`)
 
@@ -8432,6 +8814,11 @@ update-constraints-on-push.yml [push]
 
 6. **Selective checks**
    - ID: `selective-checks`
+   - Env:
+     - `PR_LABELS`: `[]`
+     - `COMMIT_REF`: `${{ github.sha }}`
+     - `VERBOSE`: `false`
+     - `GITHUB_CONTEXT_INPUT`: `${{ runner.temp }}/github_context.json`
 
 ### Build CI images (`build-ci-images`)
 

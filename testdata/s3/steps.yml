@@ -55,6 +55,9 @@ jobs:
         run: |
           echo "${{ secrets.REGISTRY_PASSWORD }}" | docker login -u "${{ vars.REGISTRY_USER }}" --password-stdin
           docker push example/app
+        env:
+          DOCKER_BUILDKIT: "1"
+          IMAGE_SIGNING_KEY: ${{ secrets.IMAGE_SIGNING_KEY }}
       - name: Notify
         if: ${{ vars.NOTIFY_CHANNEL && secrets.SLACK_WEBHOOK }}
         run: curl -X POST "${{ secrets.SLACK_WEBHOOK }}"

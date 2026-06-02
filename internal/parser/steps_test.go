@@ -64,6 +64,22 @@ func TestParseStepFields(t *testing.T) {
 	if build.Steps[0].ContinueOnError {
 		t.Error("unexpected ContinueOnError on checkout step")
 	}
+
+	// Deploy job step 1: env: block parsed in source order.
+	deploy := w.Jobs[1]
+	wantEnv := []model.KV{
+		{Key: "DOCKER_BUILDKIT", Value: "1"},
+		{Key: "IMAGE_SIGNING_KEY", Value: "${{ secrets.IMAGE_SIGNING_KEY }}"},
+	}
+	push := deploy.Steps[0]
+	if len(push.Env) != len(wantEnv) {
+		t.Fatalf("Env = %+v, want %+v", push.Env, wantEnv)
+	}
+	for i, kv := range wantEnv {
+		if push.Env[i] != kv {
+			t.Errorf("Env[%d] = %+v, want %+v", i, push.Env[i], kv)
+		}
+	}
 }
 
 // TestParseContinueOnErrorExpression verifies that an expression-valued

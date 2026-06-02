@@ -213,9 +213,12 @@ External workflows referenced: `jreleaser/jreleaser/.github/workflows/step-jlink
 | Name | Used by |
 |------|---------|
 | `GITHUB_TOKEN` | job `precheck` secrets `github-token` |
-| `GPG_PASSPHRASE` | job `jlink` secrets `gpg-passphrase` |
+| `GPG_PASSPHRASE` | job `jlink` secrets `gpg-passphrase`; job `release` step `Release` env `JRELEASER_GPG_PASSPHRASE` |
 | `JRELEASER_OCI_COMPARTMENTID` | job `jlink` secrets `oci-compartment-id` |
-| `GIT_ACCESS_TOKEN` | job `native-image` secrets `gh-access-token`; job `update-wiki` secrets `gh-access-token` |
+| `GIT_ACCESS_TOKEN` | job `native-image` secrets `gh-access-token`; job `release` step `Release` env `JRELEASER_GITHUB_TOKEN`; job `update-wiki` secrets `gh-access-token` |
+| `GPG_PUBLIC_KEY` | job `release` step `Release` env `JRELEASER_GPG_PUBLIC_KEY` |
+| `GPG_SECRET_KEY` | job `release` step `Release` env `JRELEASER_GPG_SECRET_KEY` |
+| `JRELEASER_DOCKER_PASSWORD` | job `release` step `Release` env `JRELEASER_DOCKER_DEFAULT_PASSWORD` |
 
 **Variables:**
 
@@ -337,6 +340,13 @@ External workflows referenced: `jreleaser/jreleaser/.github/workflows/step-jlink
    - With:
      - `version`: `early-access`
      - `arguments`: `full-release`
+   - Env:
+     - `JRELEASER_PROJECT_VERSION`: `${{ needs.precheck.outputs.version }}`
+     - `JRELEASER_GITHUB_TOKEN`: `${{ secrets.GIT_ACCESS_TOKEN }}`
+     - `JRELEASER_GPG_PASSPHRASE`: `${{ secrets.GPG_PASSPHRASE }}`
+     - `JRELEASER_GPG_PUBLIC_KEY`: `${{ secrets.GPG_PUBLIC_KEY }}`
+     - `JRELEASER_GPG_SECRET_KEY`: `${{ secrets.GPG_SECRET_KEY }}`
+     - `JRELEASER_DOCKER_DEFAULT_PASSWORD`: `${{ secrets.JRELEASER_DOCKER_PASSWORD }}`
 
 8. **JReleaser release output**
    - Uses: `actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f` (v7.0.0)
@@ -545,9 +555,24 @@ External workflows referenced: `jreleaser/jreleaser/.github/workflows/step-jlink
 | Name | Used by |
 |------|---------|
 | `COMMIT_EMAIL` | job `precheck` step `Commit version` (run); job `release` step `Bump version` (run) |
-| `GPG_PASSPHRASE` | job `jlink` secrets `gpg-passphrase` |
+| `GPG_PASSPHRASE` | job `jlink` secrets `gpg-passphrase`; job `release` step `Release` env `JRELEASER_GPG_PASSPHRASE` |
 | `JRELEASER_OCI_COMPARTMENTID` | job `jlink` secrets `oci-compartment-id` |
-| `GIT_ACCESS_TOKEN` | job `native-image` secrets `gh-access-token`; job `update-wiki` secrets `gh-access-token`; job `update-website` step `Checkout` with `token` |
+| `GIT_ACCESS_TOKEN` | job `native-image` secrets `gh-access-token`; job `release` step `Release` env `JRELEASER_GITHUB_TOKEN`; job `update-wiki` secrets `gh-access-token`; job `update-website` step `Checkout` with `token` |
+| `GRADLE_PUBLISH_KEY` | job `release` step `Deploy` env `GRADLE_PUBLISH_KEY` |
+| `GRADLE_PUBLISH_SECRET` | job `release` step `Deploy` env `GRADLE_PUBLISH_SECRET` |
+| `GPG_PUBLIC_KEY` | job `release` step `Release` env `JRELEASER_GPG_PUBLIC_KEY` |
+| `GPG_SECRET_KEY` | job `release` step `Release` env `JRELEASER_GPG_SECRET_KEY` |
+| `JRELEASER_DOCKER_PASSWORD` | job `release` step `Release` env `JRELEASER_DOCKER_DEFAULT_PASSWORD` |
+| `SDKMAN_CONSUMER_KEY` | job `release` step `Release` env `JRELEASER_SDKMAN_CONSUMER_KEY` |
+| `SDKMAN_CONSUMER_TOKEN` | job `release` step `Release` env `JRELEASER_SDKMAN_CONSUMER_TOKEN` |
+| `MASTODON_ACCESS_TOKEN` | job `release` step `Release` env `JRELEASER_MASTODON_ACCESS_TOKEN` |
+| `SONATYPE_USERNAME` | job `release` step `Release` env `JRELEASER_MAVENCENTRAL_USERNAME` |
+| `SONATYPE_PASSWORD` | job `release` step `Release` env `JRELEASER_MAVENCENTRAL_PASSWORD` |
+| `NOTICEABLE_APIKEY` | job `release` step `Release` env `JRELEASER_HTTP_NOTICEABLE_PASSWORD` |
+| `OPENCOLLECTIVE_TOKEN` | job `release` step `Release` env `JRELEASER_OPENCOLLECTIVE_TOKEN` |
+| `BLUESKY_HOST` | job `release` step `Release` env `JRELEASER_BLUESKY_HOST` |
+| `BLUESKY_HANDLE` | job `release` step `Release` env `JRELEASER_BLUESKY_HANDLE` |
+| `BLUESKY_PASSWORD` | job `release` step `Release` env `JRELEASER_BLUESKY_PASSWORD` |
 
 **Variables:**
 
@@ -556,6 +581,7 @@ External workflows referenced: `jreleaser/jreleaser/.github/workflows/step-jlink
 | `JAVA_VERSION` | job `release` step `Setup Java` with `java-version`; job `update-website` step `Setup Java` with `java-version` |
 | `JAVA_DISTRO` | job `release` step `Setup Java` with `distribution`; job `update-website` step `Setup Java` with `distribution` |
 | `GH_BOT_EMAIL` | job `update-wiki` with `commit-email` |
+| `COMMIT_EMAIL` | job `update-website` step `Commit` env `COMMIT_EMAIL` |
 
 ## Jobs
 
@@ -676,6 +702,9 @@ External workflows referenced: `jreleaser/jreleaser/.github/workflows/step-jlink
      - `cache`: `gradle`
 
 8. **Deploy**
+   - Env:
+     - `GRADLE_PUBLISH_KEY`: `${{ secrets.GRADLE_PUBLISH_KEY }}`
+     - `GRADLE_PUBLISH_SECRET`: `${{ secrets.GRADLE_PUBLISH_SECRET }}`
 
 9. **Upload deploy artifacts**
    - Uses: `actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f` (v7.0.0)
@@ -689,6 +718,23 @@ External workflows referenced: `jreleaser/jreleaser/.github/workflows/step-jlink
    - With:
      - `version`: `early-access`
      - `arguments`: `full-release`
+   - Env:
+     - `JRELEASER_PROJECT_VERSION`: `${{ needs.precheck.outputs.release-version }}`
+     - `JRELEASER_GITHUB_TOKEN`: `${{ secrets.GIT_ACCESS_TOKEN }}`
+     - `JRELEASER_GPG_PASSPHRASE`: `${{ secrets.GPG_PASSPHRASE }}`
+     - `JRELEASER_GPG_PUBLIC_KEY`: `${{ secrets.GPG_PUBLIC_KEY }}`
+     - `JRELEASER_GPG_SECRET_KEY`: `${{ secrets.GPG_SECRET_KEY }}`
+     - `JRELEASER_DOCKER_DEFAULT_PASSWORD`: `${{ secrets.JRELEASER_DOCKER_PASSWORD }}`
+     - `JRELEASER_SDKMAN_CONSUMER_KEY`: `${{ secrets.SDKMAN_CONSUMER_KEY }}`
+     - `JRELEASER_SDKMAN_CONSUMER_TOKEN`: `${{ secrets.SDKMAN_CONSUMER_TOKEN }}`
+     - `JRELEASER_MASTODON_ACCESS_TOKEN`: `${{ secrets.MASTODON_ACCESS_TOKEN }}`
+     - `JRELEASER_MAVENCENTRAL_USERNAME`: `${{ secrets.SONATYPE_USERNAME }}`
+     - `JRELEASER_MAVENCENTRAL_PASSWORD`: `${{ secrets.SONATYPE_PASSWORD }}`
+     - `JRELEASER_HTTP_NOTICEABLE_PASSWORD`: `${{ secrets.NOTICEABLE_APIKEY }}`
+     - `JRELEASER_OPENCOLLECTIVE_TOKEN`: `${{ secrets.OPENCOLLECTIVE_TOKEN }}`
+     - `JRELEASER_BLUESKY_HOST`: `${{ secrets.BLUESKY_HOST }}`
+     - `JRELEASER_BLUESKY_HANDLE`: `${{ secrets.BLUESKY_HANDLE }}`
+     - `JRELEASER_BLUESKY_PASSWORD`: `${{ secrets.BLUESKY_PASSWORD }}`
 
 11. **JReleaser release output**
    - Uses: `actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f` (v7.0.0)
@@ -759,8 +805,16 @@ External workflows referenced: `jreleaser/jreleaser/.github/workflows/step-jlink
      - `distribution`: `${{ vars.JAVA_DISTRO }}`
 
 3. **Download assets**
+   - Env:
+     - `TAG`: `${{ needs.release.outputs.tagname }}`
+     - `RELEASE_VERSION`: `${{ needs.precheck.outputs.release-version }}`
 
 4. **Commit**
+   - Env:
+     - `TAG`: `${{ needs.release.outputs.tagname }}`
+     - `RELEASE_VERSION`: `${{ needs.precheck.outputs.release-version }}`
+     - `NEXT_VERSION`: `${{ needs.precheck.outputs.next-version }}`
+     - `COMMIT_EMAIL`: `${{ vars.COMMIT_EMAIL }}`
 
 # SmokeTests
 
@@ -801,10 +855,14 @@ External workflows referenced: `jreleaser/jreleaser/.github/workflows/step-prech
 
 | Name | Used by |
 |------|---------|
-| `GPG_PASSPHRASE` | workflow env `GPG_PASSPHRASE` |
+| `GPG_PASSPHRASE` | workflow env `GPG_PASSPHRASE`; job `build-cli` step `JReleaser` env `JRELEASER_GPG_PASSPHRASE`; job `build-tool` step `JReleaser` env `JRELEASER_GPG_PASSPHRASE`; job `build-ant` step `JReleaser` env `JRELEASER_GPG_PASSPHRASE`; job `build-gradle` step `JReleaser` env `JRELEASER_GPG_PASSPHRASE`; job `build-gradle` step `Clean` env `JRELEASER_GPG_PASSPHRASE`; job `build-maven` step `JReleaser` env `JRELEASER_GPG_PASSPHRASE` |
 | `JRELEASER_OCI_COMPARTMENTID` | workflow env `JRELEASER_OCI_COMPARTMENTID` |
 | `GITHUB_TOKEN` | job `precheck` secrets `github-token` |
 | `GIT_ACCESS_TOKEN` | job `build-cli` step `Setup Graal` with `github-token`; job `build-cli` step `Checkout smoketests repository` with `token`; job `build-tool` step `Setup Graal` with `github-token`; job `build-tool` step `Checkout smoketests repository` with `token`; job `build-ant` step `Setup Graal` with `github-token`; job `build-ant` step `Checkout smoketests repository` with `token`; job `build-gradle` step `Setup Graal` with `github-token`; job `build-gradle` step `Checkout smoketests repository` with `token`; job `build-maven` step `Setup Graal` with `github-token`; job `build-maven` step `Checkout smoketests repository` with `token` |
+| `GIT_PAT_TOKEN` | job `build-cli` step `JReleaser` env `JRELEASER_GITHUB_TOKEN`; job `build-tool` step `JReleaser` env `JRELEASER_GITHUB_TOKEN`; job `build-ant` step `JReleaser` env `JRELEASER_GITHUB_TOKEN`; job `build-gradle` step `JReleaser` env `JRELEASER_GITHUB_TOKEN`; job `build-gradle` step `Clean` env `JRELEASER_GITHUB_TOKEN`; job `build-maven` step `JReleaser` env `JRELEASER_GITHUB_TOKEN` |
+| `GPG_PUBLIC_KEY` | job `build-cli` step `JReleaser` env `JRELEASER_GPG_PUBLIC_KEY`; job `build-tool` step `JReleaser` env `JRELEASER_GPG_PUBLIC_KEY`; job `build-ant` step `JReleaser` env `JRELEASER_GPG_PUBLIC_KEY`; job `build-gradle` step `JReleaser` env `JRELEASER_GPG_PUBLIC_KEY`; job `build-gradle` step `Clean` env `JRELEASER_GPG_PUBLIC_KEY`; job `build-maven` step `JReleaser` env `JRELEASER_GPG_PUBLIC_KEY` |
+| `GPG_SECRET_KEY` | job `build-cli` step `JReleaser` env `JRELEASER_GPG_SECRET_KEY`; job `build-tool` step `JReleaser` env `JRELEASER_GPG_SECRET_KEY`; job `build-ant` step `JReleaser` env `JRELEASER_GPG_SECRET_KEY`; job `build-gradle` step `JReleaser` env `JRELEASER_GPG_SECRET_KEY`; job `build-gradle` step `Clean` env `JRELEASER_GPG_SECRET_KEY`; job `build-maven` step `JReleaser` env `JRELEASER_GPG_SECRET_KEY` |
+| `COVERALLS_TOKEN` | job `coveralls` step `Upload coverage to Coveralls` env `COVERALLS_REPO_TOKEN` |
 | `CODECOV_TOKEN` | job `codecov` step `Upload coverage to Codecov` with `token` |
 | `SONARCLOUD_TOKEN` | job `sonar` step `Sonar` (run) |
 
@@ -881,6 +939,15 @@ External workflows referenced: `jreleaser/jreleaser/.github/workflows/step-prech
 8. **Prepare**
 
 9. **JReleaser**
+   - Env:
+     - `JRELEASER_OUTPUT_DIRECTORY`: `out`
+     - `JRELEASER_USER_HOME`: `${{ github.workspace }}/smoketests-jreleaser/.jreleaser`
+     - `JRELEASER_PROJECT_VERSION`: `1.0.0`
+     - `JRELEASER_GITHUB_TOKEN`: `${{ secrets.GIT_PAT_TOKEN }}`
+     - `JRELEASER_GPG_PASSPHRASE`: `${{ secrets.GPG_PASSPHRASE }}`
+     - `JRELEASER_GPG_PUBLIC_KEY`: `${{ secrets.GPG_PUBLIC_KEY }}`
+     - `JRELEASER_GPG_SECRET_KEY`: `${{ secrets.GPG_SECRET_KEY }}`
+     - `JAVA_OPTS`: `-javaagent:jacoco/jacocoagent.jar=includes=*jreleaser*,destfile=jreleaser-cli-${{ runner.os }}.exec`
 
 10. **JReleaser output**
    - Uses: `actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f` (v7.0.0)
@@ -954,6 +1021,15 @@ External workflows referenced: `jreleaser/jreleaser/.github/workflows/step-prech
 8. **Prepare**
 
 9. **JReleaser**
+   - Env:
+     - `JRELEASER_OUTPUT_DIRECTORY`: `out`
+     - `JRELEASER_USER_HOME`: `${{ github.workspace }}/smoketests-jreleaser/.jreleaser`
+     - `JRELEASER_PROJECT_VERSION`: `1.0.0`
+     - `JRELEASER_GITHUB_TOKEN`: `${{ secrets.GIT_PAT_TOKEN }}`
+     - `JRELEASER_GPG_PASSPHRASE`: `${{ secrets.GPG_PASSPHRASE }}`
+     - `JRELEASER_GPG_PUBLIC_KEY`: `${{ secrets.GPG_PUBLIC_KEY }}`
+     - `JRELEASER_GPG_SECRET_KEY`: `${{ secrets.GPG_SECRET_KEY }}`
+     - `JAVA_OPTS`: `-javaagent:jacoco/jacocoagent.jar=includes=*jreleaser*,destfile=jreleaser-tool-${{ runner.os }}.exec`
 
 10. **JReleaser output**
    - Uses: `actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f` (v7.0.0)
@@ -1027,6 +1103,15 @@ External workflows referenced: `jreleaser/jreleaser/.github/workflows/step-prech
 8. **Prepare**
 
 9. **JReleaser**
+   - Env:
+     - `JRELEASER_OUTPUT_DIRECTORY`: `out`
+     - `JRELEASER_USER_HOME`: `${{ github.workspace }}/smoketests-jreleaser/.jreleaser`
+     - `JRELEASER_PROJECT_VERSION`: `1.0.0`
+     - `JRELEASER_GITHUB_TOKEN`: `${{ secrets.GIT_PAT_TOKEN }}`
+     - `JRELEASER_GPG_PASSPHRASE`: `${{ secrets.GPG_PASSPHRASE }}`
+     - `JRELEASER_GPG_PUBLIC_KEY`: `${{ secrets.GPG_PUBLIC_KEY }}`
+     - `JRELEASER_GPG_SECRET_KEY`: `${{ secrets.GPG_SECRET_KEY }}`
+     - `ANT_OPTS`: `-javaagent:jacoco/jacocoagent.jar=includes=*jreleaser*,destfile=jreleaser-ant-${{ runner.os }}.exec`
 
 10. **JReleaser output**
    - Uses: `actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f` (v7.0.0)
@@ -1100,6 +1185,15 @@ External workflows referenced: `jreleaser/jreleaser/.github/workflows/step-prech
 8. **Prepare**
 
 9. **JReleaser**
+   - Env:
+     - `JRELEASER_OUTPUT_DIRECTORY`: `out`
+     - `JRELEASER_USER_HOME`: `${{ github.workspace }}/smoketests-jreleaser/.jreleaser`
+     - `JRELEASER_PROJECT_VERSION`: `1.0.0`
+     - `JRELEASER_GITHUB_TOKEN`: `${{ secrets.GIT_PAT_TOKEN }}`
+     - `JRELEASER_GPG_PASSPHRASE`: `${{ secrets.GPG_PASSPHRASE }}`
+     - `JRELEASER_GPG_PUBLIC_KEY`: `${{ secrets.GPG_PUBLIC_KEY }}`
+     - `JRELEASER_GPG_SECRET_KEY`: `${{ secrets.GPG_SECRET_KEY }}`
+     - `JAVA_OPTS`: `-javaagent:jacoco/jacocoagent.jar=includes=*jreleaser*,destfile=jreleaser-gradle-${{ runner.os }}.exec`
 
 10. **JReleaser output**
    - Uses: `actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f` (v7.0.0)
@@ -1118,6 +1212,13 @@ External workflows referenced: `jreleaser/jreleaser/.github/workflows/step-prech
      - `path`: `smoketests-jreleaser/*.exec`
 
 12. **Clean**
+   - Env:
+     - `JRELEASER_USER_HOME`: `${{ github.workspace }}/smoketests-jreleaser/.jreleaser`
+     - `JRELEASER_PROJECT_VERSION`: `1.0.0`
+     - `JRELEASER_GITHUB_TOKEN`: `${{ secrets.GIT_PAT_TOKEN }}`
+     - `JRELEASER_GPG_PASSPHRASE`: `${{ secrets.GPG_PASSPHRASE }}`
+     - `JRELEASER_GPG_PUBLIC_KEY`: `${{ secrets.GPG_PUBLIC_KEY }}`
+     - `JRELEASER_GPG_SECRET_KEY`: `${{ secrets.GPG_SECRET_KEY }}`
 
 13. **Cleanup**
    - Condition: `always()`
@@ -1175,6 +1276,15 @@ External workflows referenced: `jreleaser/jreleaser/.github/workflows/step-prech
 8. **Prepare**
 
 9. **JReleaser**
+   - Env:
+     - `JRELEASER_OUTPUT_DIRECTORY`: `out`
+     - `JRELEASER_USER_HOME`: `${{ github.workspace }}/smoketests-jreleaser/.jreleaser`
+     - `JRELEASER_PROJECT_VERSION`: `1.0.0`
+     - `JRELEASER_GITHUB_TOKEN`: `${{ secrets.GIT_PAT_TOKEN }}`
+     - `JRELEASER_GPG_PASSPHRASE`: `${{ secrets.GPG_PASSPHRASE }}`
+     - `JRELEASER_GPG_PUBLIC_KEY`: `${{ secrets.GPG_PUBLIC_KEY }}`
+     - `JRELEASER_GPG_SECRET_KEY`: `${{ secrets.GPG_SECRET_KEY }}`
+     - `MAVEN_OPTS`: `-javaagent:jacoco/jacocoagent.jar=includes=*jreleaser*,destfile=jreleaser-maven-${{ runner.os }}.exec`
 
 10. **JReleaser output**
    - Uses: `actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f` (v7.0.0)
@@ -1273,6 +1383,8 @@ External workflows referenced: `jreleaser/jreleaser/.github/workflows/step-prech
 7. **JaCoCo report**
 
 8. **Upload coverage to Coveralls**
+   - Env:
+     - `COVERALLS_REPO_TOKEN`: `${{ secrets.COVERALLS_TOKEN }}`
 
 9. **Cleanup**
    - Condition: `always()`
@@ -1401,6 +1513,13 @@ This workflow is reusable via `workflow_call`.
 
 ## Referenced secrets and variables
 
+**Secrets:**
+
+| Name | Used by |
+|------|---------|
+| `gpg-passphrase` | job `jlink` step `Decrypt secrets` env `GPG_PASSPHRASE` |
+| `oci-compartment-id` | job `jlink` step `Build` env `JRELEASER_OCI_COMPARTMENTID` |
+
 **Variables:**
 
 | Name | Used by |
@@ -1431,6 +1550,8 @@ This workflow is reusable via `workflow_call`.
      - `ref`: `main`
 
 2. **Decrypt secrets**
+   - Env:
+     - `GPG_PASSPHRASE`: `${{ secrets.gpg-passphrase }}`
 
 3. **Setup Java**
    - Uses: `actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654` (v5.2.0)
@@ -1441,8 +1562,12 @@ This workflow is reusable via `workflow_call`.
 
 4. **Version**
    - Condition: `${{ endsWith(inputs.project-version, '-SNAPSHOT') != true }}`
+   - Env:
+     - `PROJECT_VERSION`: `${{ inputs.project-version }}`
 
 5. **Build**
+   - Env:
+     - `JRELEASER_OCI_COMPARTMENTID`: `${{ secrets.oci-compartment-id }}`
 
 6. **Clear space**
 
@@ -1452,6 +1577,8 @@ This workflow is reusable via `workflow_call`.
      - `version`: `early-access`
      - `arguments`: `assemble --assembler java-archive`
      - `setup-java`: `false`
+   - Env:
+     - `JRELEASER_PROJECT_VERSION`: `${{ inputs.project-version }}`
 
 8. **Jlink**
    - Uses: `jreleaser/release-action@90ac653bb9c79d11179e65d81499f3f34527dcd5` (v2.5.0)
@@ -1459,6 +1586,8 @@ This workflow is reusable via `workflow_call`.
      - `version`: `early-access`
      - `arguments`: `assemble --assembler jlink`
      - `setup-java`: `false`
+   - Env:
+     - `JRELEASER_PROJECT_VERSION`: `${{ inputs.project-version }}`
 
 9. **JReleaser output**
    - Uses: `actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f` (v7.0.0)
@@ -1554,6 +1683,8 @@ This workflow is reusable via `workflow_call`.
      - `path`: `out/jreleaser/assemble/jreleaser-standalone/jlink`
 
 4. **Expand jlink**
+   - Env:
+     - `PROJECT_EFFECTIVE_VERSION`: `${{ inputs.project-effective-version }}`
 
 5. **Setup Java**
    - Uses: `actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654` (v5.2.0)
@@ -1564,6 +1695,8 @@ This workflow is reusable via `workflow_call`.
 
 6. **Version**
    - Condition: `${{ endsWith(inputs.project-version, '-SNAPSHOT') != true }}`
+   - Env:
+     - `PROJECT_VERSION`: `${{ inputs.project-version }}`
 
 7. **Jdks**
 
@@ -1577,6 +1710,8 @@ This workflow is reusable via `workflow_call`.
      - `version`: `early-access`
      - `arguments`: `assemble --assembler jpackage --select-current-platform`
      - `setup-java`: `false`
+   - Env:
+     - `JRELEASER_PROJECT_VERSION`: `${{ inputs.project-version }}`
 
 10. **JReleaser output**
    - Uses: `actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f` (v7.0.0)
@@ -1675,6 +1810,8 @@ This workflow is reusable via `workflow_call`.
 
 5. **Version**
    - Condition: `${{ endsWith(inputs.project-version, '-SNAPSHOT') != true }}`
+   - Env:
+     - `PROJECT_VERSION`: `${{ inputs.project-version }}`
 
 6. **Jdks**
 
@@ -1684,6 +1821,8 @@ This workflow is reusable via `workflow_call`.
      - `version`: `early-access`
      - `arguments`: `assemble --assembler native-image --select-current-platform`
      - `setup-java`: `false`
+   - Env:
+     - `JRELEASER_PROJECT_VERSION`: `${{ inputs.project-version }}`
 
 8. **JReleaser output**
    - Uses: `actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f` (v7.0.0)
@@ -1798,6 +1937,12 @@ This workflow is reusable via `workflow_call`.
 |------|---------|
 | `gh-access-token` | job `update-bach-info` step `Checkout` with `token` |
 
+**Variables:**
+
+| Name | Used by |
+|------|---------|
+| `COMMIT_EMAIL` | job `update-bach-info` step `Commit` env `COMMIT_EMAIL` |
+
 ## Jobs
 
 ### Update bach-info (`update-bach-info`)
@@ -1820,6 +1965,10 @@ This workflow is reusable via `workflow_call`.
 2. **Download script**
 
 3. **Commit**
+   - Env:
+     - `TAG`: `${{ inputs.project-tag }}`
+     - `VERSION`: `${{ inputs.project-version }}`
+     - `COMMIT_EMAIL`: `${{ vars.COMMIT_EMAIL }}`
 
 # X-UpdateWiki
 
@@ -1859,7 +2008,7 @@ This workflow is reusable via `workflow_call`.
 
 | Name | Used by |
 |------|---------|
-| `gh-access-token` | job `update-wiki` step `Checkout wiki` with `token` |
+| `gh-access-token` | job `update-wiki` step `Checkout wiki` with `token`; job `update-wiki` step `Generate wiki page` env `JRELEASER_GITHUB_TOKEN` |
 
 ## Jobs
 
@@ -1886,14 +2035,24 @@ This workflow is reusable via `workflow_call`.
      - `token`: `${{ secrets.gh-access-token }}`
 
 3. **Download checksums**
+   - Env:
+     - `JRELEASER_PROJECT_TAG`: `${{ inputs.project-tag }}`
 
 4. **Generate wiki page**
    - Uses: `jreleaser/release-action@90ac653bb9c79d11179e65d81499f3f34527dcd5` (v2.5.0)
    - With:
      - `version`: `early-access`
      - `arguments`: `template eval --changelog --input-file src/jreleaser/templates/wiki-release-page.md.tpl --target-directory wiki/Releases ${TEMPLATE_PARAMS}`
+   - Env:
+     - `JRELEASER_GITHUB_TOKEN`: `${{ secrets.gh-access-token }}`
+     - `JRELEASER_PROJECT_VERSION`: `${{ inputs.project-version }}`
+     - `TEMPLATE_PARAMS`: `${{ inputs.template-params }}`
 
 5. **Commit**
+   - Env:
+     - `TAG`: `${{ inputs.project-tag }}`
+     - `VERSION`: `${{ inputs.project-version }}`
+     - `COMMIT_EMAIL`: `${{ inputs.commit-email }}`
 
 # Trigger Early Access
 

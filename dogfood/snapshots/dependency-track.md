@@ -132,6 +132,10 @@ _meta-build.yaml
 
 6. **Set Container Tags**
    - ID: `tags`
+   - Env:
+     - `REF_NAME`: `${{ inputs.ref-name }}`
+     - `APP_VERSION`: `${{ inputs.app-version }}`
+     - `DISTRIBUTION`: `${{ matrix.distribution }}`
 
 7. **Build multi-arch Container Image**
    - Uses: `docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f`
@@ -243,6 +247,10 @@ No permissions granted (`permissions: {}` -- default-deny).
 #### Steps
 
 1. **Validate PR body**
+   - Env:
+     - `PR_BODY`: `${{ github.event.pull_request.body }}`
+     - `PR_AUTHOR_TYPE`: `${{ github.event.pull_request.user.type }}`
+     - `PR_AUTHOR_LOGIN`: `${{ github.event.pull_request.user.login }}`
 
 # Publish CI
 
@@ -281,6 +289,7 @@ Secrets referenced (literal names): `registry-0-psw`, `registry-0-usr`
 |------|---------|
 | `HUB_USERNAME` | job `call-build` secrets `registry-0-usr` |
 | `HUB_ACCESSS_TOKEN` | job `call-build` secrets `registry-0-psw` |
+| `GITHUB_TOKEN` | job `update-github-release` step `Update Release` env `GITHUB_TOKEN`; job `update-github-release` step `Publish Release` env `GITHUB_TOKEN` |
 
 ## Jobs
 
@@ -351,8 +360,14 @@ Secrets referenced (literal names): `registry-0-psw`, `registry-0-usr`
 3. **Create Checksums and SBOM**
 
 4. **Update Release**
+   - Env:
+     - `GITHUB_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
+     - `VERSION`: `${{ needs.read-version.outputs.version }}`
 
 5. **Publish Release**
+   - Env:
+     - `GITHUB_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
+     - `VERSION`: `${{ needs.read-version.outputs.version }}`
 
 # Release CI
 
@@ -379,7 +394,7 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 | Name | Used by |
 |------|---------|
-| `BOT_RELEASE_GITHUB_TOKEN` | job `create-release` step `Checkout Repository` with `token` |
+| `BOT_RELEASE_GITHUB_TOKEN` | job `create-release` step `Checkout Repository` with `token`; job `create-release` step `Create GitHub Release` env `GITHUB_TOKEN` |
 
 ## Jobs
 
@@ -398,6 +413,8 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 2. **Setup Environment**
    - ID: `variables`
+   - Env:
+     - `VERSION_OVERWRITE`: `${{ github.event.inputs.version-overwrite }}`
 
 ### `create-release`
 
@@ -430,6 +447,10 @@ No permissions granted (`permissions: {}` -- default-deny).
 3. **Set Version and Commit**
 
 4. **Create GitHub Release**
+   - Env:
+     - `GITHUB_TOKEN`: `${{ secrets.BOT_RELEASE_GITHUB_TOKEN }}`
+     - `RELEASE_VERSION`: `${{ needs.prepare-release.outputs.version }}`
+     - `RELEASE_BRANCH`: `${{ needs.prepare-release.outputs.release-branch }}`
 
 ### `post-release`
 
@@ -489,6 +510,7 @@ No permissions granted (`permissions: {}` -- default-deny).
 | Name | Used by |
 |------|---------|
 | `GITHUB_TOKEN` | job `publish` step `Download PR test coverage report` with `github-token` |
+| `CODACY_PROJECT_TOKEN` | job `publish` step `Report Coverage to Codacy` env `CODACY_PROJECT_TOKEN` |
 
 ## Jobs
 
@@ -509,6 +531,9 @@ No permissions granted (`permissions: {}` -- default-deny).
      - `run-id`: `${{ github.event.workflow_run.id }}`
 
 2. **Report Coverage to Codacy**
+   - Env:
+     - `CODACY_PROJECT_TOKEN`: `${{ secrets.CODACY_PROJECT_TOKEN }}`
+     - `HEAD_SHA`: `${{ github.event.workflow_run.head_sha }}`
 
 # Tests CI
 

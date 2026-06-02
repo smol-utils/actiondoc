@@ -100,7 +100,14 @@ External workflows referenced: `anchore/workflows/.github/workflows/check-gate.y
 |------|---------|
 | `ANCHOREOSSWRITE_DH_USERNAME` | job `release` step `Login to Docker Hub` with `username` |
 | `ANCHOREOSSWRITE_DH_PAT` | job `release` step `Login to Docker Hub` with `password` |
-| `GITHUB_TOKEN` | job `release` step `Login to GitHub Container Registry` with `password` |
+| `GITHUB_TOKEN` | job `release` step `Login to GitHub Container Registry` with `password`; job `release` step `Build & publish release artifacts` env `GITHUB_TOKEN` |
+| `DEPLOY_KEY` | job `release` step `Build & publish release artifacts` env `DEPLOY_KEY` |
+| `ANCHORE_APPLE_DEVELOPER_ID_CERT_CHAIN` | job `release` step `Build & publish release artifacts` env `QUILL_SIGN_P12` |
+| `ANCHORE_APPLE_DEVELOPER_ID_CERT_PASS` | job `release` step `Build & publish release artifacts` env `QUILL_SIGN_PASSWORD` |
+| `APPLE_NOTARY_ISSUER` | job `release` step `Build & publish release artifacts` env `QUILL_NOTARY_ISSUER` |
+| `APPLE_NOTARY_KEY_ID` | job `release` step `Build & publish release artifacts` env `QUILL_NOTARY_KEY_ID` |
+| `APPLE_NOTARY_KEY` | job `release` step `Build & publish release artifacts` env `QUILL_NOTARY_KEY` |
+| `ANCHOREOPS_GITHUB_OSS_WRITE_TOKEN` | job `release` step `Build & publish release artifacts` env `GITHUB_BREW_TOKEN` |
 | `OSS_R2_INSTALL_ACCESS_KEY_ID` | job `release-install-script` secrets `R2_INSTALL_ACCESS_KEY_ID` |
 | `OSS_R2_INSTALL_SECRET_ACCESS_KEY` | job `release-install-script` secrets `R2_INSTALL_SECRET_ACCESS_KEY` |
 | `TOOLBOX_CLOUDFLARE_R2_ENDPOINT` | job `release-install-script` secrets `R2_ENDPOINT` |
@@ -182,6 +189,16 @@ External workflows referenced: `anchore/workflows/.github/workflows/check-gate.y
      - `password`: `${{ secrets.GITHUB_TOKEN }}`
 
 5. **Build & publish release artifacts**
+   - Env:
+     - `DEPLOY_KEY`: `${{ secrets.DEPLOY_KEY }}`
+     - `RELEASE_VERSION`: `${{ github.event.inputs.version }}`
+     - `QUILL_SIGN_P12`: `${{ secrets.ANCHORE_APPLE_DEVELOPER_ID_CERT_CHAIN }}`
+     - `QUILL_SIGN_PASSWORD`: `${{ secrets.ANCHORE_APPLE_DEVELOPER_ID_CERT_PASS }}`
+     - `QUILL_NOTARY_ISSUER`: `${{ secrets.APPLE_NOTARY_ISSUER }}`
+     - `QUILL_NOTARY_KEY_ID`: `${{ secrets.APPLE_NOTARY_KEY_ID }}`
+     - `QUILL_NOTARY_KEY`: `${{ secrets.APPLE_NOTARY_KEY }}`
+     - `GITHUB_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
+     - `GITHUB_BREW_TOKEN`: `${{ secrets.ANCHOREOPS_GITHUB_OSS_WRITE_TOKEN }}`
 
 6. **anchore/sbom-action@v0.24.0** `[continue-on-error]`
    - Uses: `anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610` (v0.24.0)

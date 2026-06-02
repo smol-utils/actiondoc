@@ -67,6 +67,7 @@ Secrets referenced (literal names): `commercial-repository-password`, `commercia
 | `GPG_PASSPHRASE` | job `build-and-deploy-snapshot` step `Deploy` with `signing-passphrase` |
 | `ARTIFACTORY_USERNAME` | job `build-and-deploy-snapshot` step `Deploy` with `username`; job `verify` secrets `opensource-repository-username` |
 | `GOOGLE_CHAT_WEBHOOK_URL` | job `build-and-deploy-snapshot` step `Send Notification` with `webhook-url`; job `verify` secrets `google-chat-webhook-url` |
+| `GITHUB_TOKEN` | job `trigger-docs-build` step `Run Deploy Docs Workflow` env `GH_TOKEN` |
 | `GH_ACTIONS_REPO_TOKEN` | job `verify` secrets `token` |
 
 **Variables:**
@@ -141,6 +142,8 @@ Secrets referenced (literal names): `commercial-repository-password`, `commercia
 #### Steps
 
 1. **Run Deploy Docs Workflow**
+   - Env:
+     - `GH_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
 
 ### Verify (`verify`)
 
@@ -399,9 +402,10 @@ Secrets referenced (literal names): `commercial-repository-password`, `commercia
 | `GH_ACTIONS_REPO_TOKEN` | job `verify` secrets `token`; job `create-github-release` step `Create GitHub Release` with `token` |
 | `CENTRAL_TOKEN_PASSWORD` | job `sync-to-maven-central` step `Sync to Maven Central` with `central-token-password` |
 | `CENTRAL_TOKEN_USERNAME` | job `sync-to-maven-central` step `Sync to Maven Central` with `central-token-username` |
-| `JF_ARTIFACTORY_SPRING` | job `sync-to-maven-central` step `Sync to Maven Central` with `jfrog-cli-config-token`; job `publish-gradle-plugin` step `Publish` with `jfrog-cli-config-token` |
+| `JF_ARTIFACTORY_SPRING` | job `sync-to-maven-central` step `Sync to Maven Central` with `jfrog-cli-config-token`; job `promote-release` step `Set up JFrog CLI` env `JF_ENV_SPRING`; job `publish-gradle-plugin` step `Publish` with `jfrog-cli-config-token` |
 | `GRADLE_PLUGIN_PUBLISH_KEY` | job `publish-gradle-plugin` step `Publish` with `gradle-plugin-publish-key` |
 | `GRADLE_PLUGIN_PUBLISH_SECRET` | job `publish-gradle-plugin` step `Publish` with `gradle-plugin-publish-secret` |
+| `GITHUB_TOKEN` | job `trigger-docs-build` step `Run Deploy Docs Workflow` env `GH_TOKEN` |
 
 **Variables:**
 
@@ -497,6 +501,8 @@ Secrets referenced (literal names): `commercial-repository-password`, `commercia
 
 1. **Set up JFrog CLI**
    - Uses: `jfrog/setup-jfrog-cli@1641575d87647fb969c0545f0b6a76873e328b7c` (v5.0.0)
+   - Env:
+     - `JF_ENV_SPRING`: `${{ secrets.JF_ARTIFACTORY_SPRING }}`
 
 2. **Promote build**
 
@@ -535,6 +541,8 @@ Secrets referenced (literal names): `commercial-repository-password`, `commercia
 #### Steps
 
 1. **Run Deploy Docs Workflow**
+   - Env:
+     - `GH_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
 
 ### Create GitHub Release (`create-github-release`)
 
@@ -610,11 +618,13 @@ Secrets referenced (literal names): `commercial-repository-password`, `commercia
 | `GH_ACTIONS_REPO_TOKEN` | job `verify` secrets `token`; job `update-homebrew-tap` step `Update Homebrew Tap` with `token`; job `create-github-release` step `Create GitHub Release` with `token` |
 | `CENTRAL_TOKEN_PASSWORD` | job `sync-to-maven-central` step `Sync to Maven Central` with `central-token-password` |
 | `CENTRAL_TOKEN_USERNAME` | job `sync-to-maven-central` step `Sync to Maven Central` with `central-token-username` |
-| `JF_ARTIFACTORY_SPRING` | job `sync-to-maven-central` step `Sync to Maven Central` with `jfrog-cli-config-token`; job `publish-gradle-plugin` step `Publish` with `jfrog-cli-config-token` |
+| `JF_ARTIFACTORY_SPRING` | job `sync-to-maven-central` step `Sync to Maven Central` with `jfrog-cli-config-token`; job `promote-release` step `Set up JFrog CLI` env `JF_ENV_SPRING`; job `publish-gradle-plugin` step `Publish` with `jfrog-cli-config-token` |
+| `COMMERCIAL_JF_ARTIFACTORY_SPRING` | job `promote-release` step `Set up JFrog CLI` env `JF_ENV_SPRING` |
 | `GRADLE_PLUGIN_PUBLISH_KEY` | job `publish-gradle-plugin` step `Publish` with `gradle-plugin-publish-key` |
 | `GRADLE_PLUGIN_PUBLISH_SECRET` | job `publish-gradle-plugin` step `Publish` with `gradle-plugin-publish-secret` |
 | `SDKMAN_CONSUMER_KEY` | job `publish-to-sdkman` step `Publish to SDKMAN!` with `sdkman-consumer-key` |
 | `SDKMAN_CONSUMER_TOKEN` | job `publish-to-sdkman` step `Publish to SDKMAN!` with `sdkman-consumer-token` |
+| `GITHUB_TOKEN` | job `trigger-docs-build` step `Run Deploy Docs Workflow` env `GH_TOKEN` |
 
 **Variables:**
 
@@ -622,7 +632,7 @@ Secrets referenced (literal names): `commercial-repository-password`, `commercia
 |------|---------|
 | `COMMERCIAL_RELEASE_REPO_URL` | job `build-and-stage-release` step `Build and Publish` with `commercial-release-repository-url` |
 | `COMMERCIAL_SNAPSHOT_REPO_URL` | job `build-and-stage-release` step `Build and Publish` with `commercial-snapshot-repository-url` |
-| `COMMERCIAL` | job `build-and-stage-release` step `Stage Release` with `build-name`; job `build-and-stage-release` step `Stage Release` with `password`; job `build-and-stage-release` step `Stage Release` with `project`; job `build-and-stage-release` step `Stage Release` with `repository`; job `build-and-stage-release` step `Stage Release` with `username`; job `sync-to-maven-central` (if); job `promote-release` step `Promote open source build` (if); job `promote-release` step `Promote commercial build` (if); job `publish-gradle-plugin` (if); job `publish-to-sdkman` (if); job `create-github-release` step `Create GitHub Release` with `commercial` |
+| `COMMERCIAL` | job `build-and-stage-release` step `Stage Release` with `build-name`; job `build-and-stage-release` step `Stage Release` with `password`; job `build-and-stage-release` step `Stage Release` with `project`; job `build-and-stage-release` step `Stage Release` with `repository`; job `build-and-stage-release` step `Stage Release` with `username`; job `sync-to-maven-central` (if); job `promote-release` step `Set up JFrog CLI` env `JF_ENV_SPRING`; job `promote-release` step `Promote open source build` (if); job `promote-release` step `Promote commercial build` (if); job `publish-gradle-plugin` (if); job `publish-to-sdkman` (if); job `create-github-release` step `Create GitHub Release` with `commercial` |
 | `COMMERCIAL_DEPLOY_REPO_URL` | job `build-and-stage-release` step `Stage Release` with `uri` |
 
 ## Jobs
@@ -726,6 +736,8 @@ Secrets referenced (literal names): `commercial-repository-password`, `commercia
 
 1. **Set up JFrog CLI**
    - Uses: `jfrog/setup-jfrog-cli@1641575d87647fb969c0545f0b6a76873e328b7c` (v5.0.0)
+   - Env:
+     - `JF_ENV_SPRING`: `${{ vars.COMMERCIAL && secrets.COMMERCIAL_JF_ARTIFACTORY_SPRING || secrets.JF_ARTIFACTORY_SPRING }}`
 
 2. **Promote open source build**
    - Condition: `${{ !vars.COMMERCIAL }}`
@@ -807,6 +819,8 @@ Secrets referenced (literal names): `commercial-repository-password`, `commercia
 #### Steps
 
 1. **Run Deploy Docs Workflow**
+   - Env:
+     - `GH_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
 
 ### Create GitHub Release (`create-github-release`)
 
@@ -964,6 +978,14 @@ Inputs for the `workflow_dispatch` event.
 
 - `contents`: `read`
 
+## Referenced secrets and variables
+
+**Secrets:**
+
+| Name | Used by |
+|------|---------|
+| `GITHUB_TOKEN` | job `trigger-docs-build` step `Trigger Workflow` env `GH_TOKEN` |
+
 ## Jobs
 
 ### Trigger Docs Build (`trigger-docs-build`)
@@ -985,6 +1007,8 @@ Inputs for the `workflow_dispatch` event.
      - `ref`: `docs-build`
 
 2. **Trigger Workflow**
+   - Env:
+     - `GH_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
 
 # Verify
 
@@ -1035,13 +1059,17 @@ verify.yml
 | Name | Used by |
 |------|---------|
 | `token` | job `verify` step `Check Out Release Verification Tests` with `token` |
+| `commercial-repository-password` | job `verify` step `Run Release Verification Tests` env `RVT_COMMERCIAL_REPOSITORY_PASSWORD` |
+| `commercial-repository-username` | job `verify` step `Run Release Verification Tests` env `RVT_COMMERCIAL_REPOSITORY_USERNAME` |
+| `opensource-repository-password` | job `verify` step `Run Release Verification Tests` env `RVT_OSS_REPOSITORY_PASSWORD` |
+| `opensource-repository-username` | job `verify` step `Run Release Verification Tests` env `RVT_OSS_REPOSITORY_USERNAME` |
 | `google-chat-webhook-url` | job `verify` step `Send Notification` with `webhook-url` |
 
 **Variables:**
 
 | Name | Used by |
 |------|---------|
-| `COMMERCIAL` | job `verify` step `Set Up Homebrew` (if) |
+| `COMMERCIAL` | job `verify` step `Set Up Homebrew` (if); job `verify` step `Run Release Verification Tests` env `RVT_RELEASE_TYPE` |
 
 ## Jobs
 
@@ -1086,6 +1114,14 @@ verify.yml
 6. **Configure Gradle Properties**
 
 7. **Run Release Verification Tests**
+   - Env:
+     - `RVT_COMMERCIAL_REPOSITORY_PASSWORD`: `${{ secrets.commercial-repository-password }}`
+     - `RVT_COMMERCIAL_REPOSITORY_USERNAME`: `${{ secrets.commercial-repository-username }}`
+     - `RVT_OSS_REPOSITORY_PASSWORD`: `${{ secrets.opensource-repository-password }}`
+     - `RVT_OSS_REPOSITORY_USERNAME`: `${{ secrets.opensource-repository-username }}`
+     - `RVT_RELEASE_TYPE`: `${{ vars.COMMERCIAL && 'commercial' || 'oss' }}`
+     - `RVT_STAGING`: `${{ inputs.staging }}`
+     - `RVT_VERSION`: `${{ inputs.version }}`
 
 8. **Upload Build Reports on Failure**
    - Uses: `actions/upload-artifact@v7`

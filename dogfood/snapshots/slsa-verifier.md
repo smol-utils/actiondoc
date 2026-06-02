@@ -228,9 +228,14 @@ e2e.schedule.installer.yml [schedule, workflow_dispatch]
 4. **Generate pre-release list**
    - ID: `generate-prerelease`
    - Condition: `inputs.version != ''`
+   - Env:
+     - `PRE_RELEASE_VERSION`: `${{ inputs.version }}`
 
 5. **Generate pre-release list**
    - ID: `generate-versions`
+   - Env:
+     - `PRE_RELEASE_VERSION`: `${{ steps.generate-prerelease.outputs.version }}`
+     - `LIST_VERSION`: `${{ steps.generate-list.outputs.version }}`
 
 ### `verifier-run`
 
@@ -242,6 +247,8 @@ e2e.schedule.installer.yml [schedule, workflow_dispatch]
 #### Steps
 
 1. **Debug**
+   - Env:
+     - `VERSION`: `${{ matrix.version }}`
 
 2. **Checkout this repository**
    - Uses: `actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683` (v4.2.2)
@@ -252,9 +259,13 @@ e2e.schedule.installer.yml [schedule, workflow_dispatch]
 3. **Run the Action at tag**
    - Uses: `./actions/installer`
    - Condition: `${{ inputs.version != '' || ! contains(matrix.version, '-rc' ) }}`
+   - Env:
+     - `SLSA_VERIFIER_CI_ACTION_REF`: `${{ matrix.version }}`
 
 4. **Verify the version**
    - Condition: `${{ inputs.version != '' || ! contains(matrix.version, '-rc' ) }}`
+   - Env:
+     - `VERSION`: `${{ matrix.version }}`
 
 5. **Delete the binary**
    - Condition: `${{ inputs.version != '' || ! contains(matrix.version, '-rc' ) }}`
@@ -262,13 +273,19 @@ e2e.schedule.installer.yml [schedule, workflow_dispatch]
 6. **Get sha1**
    - ID: `commit`
    - Condition: `${{ inputs.version != '' || ! contains(matrix.version, '-rc' ) }}`
+   - Env:
+     - `VERSION`: `${{ matrix.version }}`
 
 7. **Run the Action at commit**
    - Uses: `./actions/installer`
    - Condition: `${{ inputs.version != '' || ! contains(matrix.version, '-rc' ) }}`
+   - Env:
+     - `SLSA_VERIFIER_CI_ACTION_REF`: `${{ steps.commit.outputs.commit_sha }}`
 
 8. **Verify the version**
    - Condition: `${{ inputs.version != '' || ! contains(matrix.version, '-rc' ) }}`
+   - Env:
+     - `VERSION`: `${{ matrix.version }}`
 
 9. **Delete the binary**
    - Condition: `${{ inputs.version != '' || ! contains(matrix.version, '-rc' ) }}`
@@ -277,22 +294,34 @@ e2e.schedule.installer.yml [schedule, workflow_dispatch]
    - ID: `invalid-commit`
    - Uses: `./actions/installer`
    - Condition: `${{ inputs.version != '' || ! contains(matrix.version, '-rc' ) }}`
+   - Env:
+     - `SLSA_VERIFIER_CI_ACTION_REF`: `55ca6286e3e4f4fba5d0448333fa99fc5a404a73`
 
 11. **[ "$SUCCESS" == "true" ]**
+   - Env:
+     - `SUCCESS`: `${{ steps.invalid-commit.outcome == 'failure' }}`
 
 12. **Install non-existent tag** `[continue-on-error]`
    - ID: `nonexistent-tag`
    - Uses: `./actions/installer`
    - Condition: `${{ inputs.version != '' || ! contains(matrix.version, '-rc' ) }}`
+   - Env:
+     - `SLSA_VERIFIER_CI_ACTION_REF`: `v100.3.5`
 
 13. **[ "$SUCCESS" == "true" ]**
+   - Env:
+     - `SUCCESS`: `${{ steps.nonexistent-tag.outcome == 'failure' }}`
 
 14. **Install empty tag** `[continue-on-error]`
    - ID: `empty-tag`
    - Uses: `./actions/installer`
    - Condition: `${{ inputs.version != '' || ! contains(matrix.version, '-rc' ) }}`
+   - Env:
+     - `SLSA_VERIFIER_CI_ACTION_REF`: ``
 
 15. **[ "$SUCCESS" == "true" ]**
+   - Env:
+     - `SUCCESS`: `${{ steps.empty-tag.outcome == 'failure' }}`
 
 ### `if-succeed`
 
@@ -466,6 +495,8 @@ All scopes: `read-all`.
      - `cache`: `false`
 
 3. **Save event name**
+   - Env:
+     - `EVENT_NAME`: `${{ github.event_name }}`
 
 4. **actions/upload-artifact@v4.6.0**
    - Uses: `actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08` (v4.6.0)
@@ -490,6 +521,14 @@ All scopes: `read-all`.
 ## Permissions
 
 All scopes: `read-all`.
+
+## Referenced secrets and variables
+
+**Secrets:**
+
+| Name | Used by |
+|------|---------|
+| `GITHUB_TOKEN` | job `pre-submit` step `Run verification script with testdata and slsa-verifier HEAD` env `GH_TOKEN` |
 
 ## Jobs
 
@@ -521,6 +560,9 @@ All scopes: `read-all`.
      - `repository`: `slsa-framework/example-package`
 
 5. **Run verification script with testdata and slsa-verifier HEAD**
+   - Env:
+     - `SLSA_VERIFIER_TESTING`: `true`
+     - `GH_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
 
 # LFS Warning
 
@@ -734,7 +776,7 @@ External workflows referenced: `slsa-framework/slsa-github-generator/.github/wor
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | workflow env `GH_TOKEN` |
+| `GITHUB_TOKEN` | workflow env `GH_TOKEN`; job `verification` step `Download assets` env `GH_TOKEN` |
 
 ## Jobs
 
@@ -793,8 +835,15 @@ All scopes: `read-all`.
    - Uses: `slsa-framework/slsa-verifier/actions/installer@3714a2a4684014deb874a0e737dffa0ee02dd647` (v2.6.0)
 
 2. **Download assets**
+   - Env:
+     - `GH_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
+     - `ATT_FILE_NAME`: `${{ needs.builder.outputs.go-binary-name }}.intoto.jsonl`
+     - `ARTIFACT`: `${{ needs.builder.outputs.go-binary-name }}`
 
 3. **Verify assets**
+   - Env:
+     - `ARTIFACT`: `${{ needs.builder.outputs.go-binary-name }}`
+     - `ATT_FILE_NAME`: `${{ needs.builder.outputs.go-binary-name }}.intoto.jsonl`
 
 ### `if-succeed`
 
@@ -945,6 +994,9 @@ No permissions granted (`permissions: {}` -- default-deny).
      - `persist-credentials`: `false`
 
 2. **checkout-pr**
+   - Env:
+     - `GH_TOKEN`: `${{ github.token }}`
+     - `PR_NUMBER`: `${{ inputs.pr_number }}`
 
 3. **run-command**
 
@@ -976,6 +1028,9 @@ No permissions granted (`permissions: {}` -- default-deny).
    - Uses: `actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683` (v4.2.2)
 
 2. **checkout-pr**
+   - Env:
+     - `GH_TOKEN`: `${{ github.token }}`
+     - `PR_NUMBER`: `${{ inputs.pr_number }}`
 
 3. **download-patch**
    - Uses: `actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16` (v4.1.8)
