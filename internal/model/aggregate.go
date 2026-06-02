@@ -168,8 +168,11 @@ func exprBodies(s string) []string {
 }
 
 // contextRefs finds every `<ctx>.IDENT` reference in an expression body, e.g.
-// contextRefs("vars.X && secrets.A || secrets.B", "secrets") -> ["A", "B"]. The leading
-// boundary check avoids matching a longer identifier that merely ends in ctx.
+// contextRefs("vars.X && secrets.A || secrets.B", "secrets") -> ["A", "B"]. Names may
+// contain hyphens (workflow_call secret/input keys frequently do). The leading boundary
+// check avoids matching a longer identifier that merely ends in ctx (mysecrets.X,
+// vault-secrets.X) and property access on some other value (steps.secrets.outputs.X,
+// where a step happens to have the id "secrets").
 func contextRefs(body, ctx string) []string {
 	var out []string
 	needle := ctx + "."
@@ -178,7 +181,7 @@ func contextRefs(body, ctx string) []string {
 		if i < 0 {
 			break
 		}
-		if i > 0 && isIdentChar(body[i-1]) {
+		if i > 0 && (isIdentChar(body[i-1]) || body[i-1] == '.') {
 			body = body[i+len(needle):]
 			continue
 		}
@@ -196,5 +199,5 @@ func contextRefs(body, ctx string) []string {
 }
 
 func isIdentChar(c byte) bool {
-	return c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9' || c == '_'
+	return c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9' || c == '_' || c == '-'
 }

@@ -174,7 +174,11 @@ func TestContextRefs(t *testing.T) {
 		{"secrets.A || secrets.B", "secrets", []string{"A", "B"}},
 		{"mysecrets.X", "secrets", nil}, // boundary: not a secrets. ref
 		{"vars.X && secrets.TOKEN", "vars", []string{"X"}},
-		{"toJSON(secrets)", "secrets", nil}, // bare context, no member access
+		{"toJSON(secrets)", "secrets", nil},                                                                       // bare context, no member access
+		{"secrets.registry-0-usr", "secrets", []string{"registry-0-usr"}},                                         // hyphenated name captured whole
+		{"steps.vault-secrets.outputs.TOKEN", "secrets", nil},                                                     // hyphen boundary: step output, not the secrets context
+		{"steps.secrets.outputs.github-token", "secrets", nil},                                                    // dot boundary: step with id "secrets", not the secrets context
+		{"x != 'a' && secrets.GH_TOKEN || steps.vault-secrets.outputs.GH_TOKEN", "secrets", []string{"GH_TOKEN"}}, // real ref kept, phantom rejected
 	}
 	for _, tt := range tests {
 		got := contextRefs(tt.body, tt.ctx)
