@@ -241,11 +241,12 @@ func calledByLabel(g *callgraph.Graph, e callgraph.Edge) string {
 }
 
 // renderTransitiveRequirements aggregates, across the entry point and everything
-// reachable from it, the literal secret names and external workflows the pipeline pulls
-// in (item 14). It answers "what does this whole chain need?" without walking every hop.
-// Scope note: this reports the names already modeled (ActionDoc `@secret` tags, forwarded
-// `secrets:` keys, and cross-repo references); deeper expression scanning and permissions
-// are aggregated once their parsers exist.
+// reachable from it, what the whole pipeline needs: secret and variable names (declared,
+// forwarded, and referenced in expressions), the union of declared permission grants, and
+// the external workflows it pulls in. It answers "what does this whole chain need?"
+// without walking every hop.
+// Scope note: names are reported as written at each hop; values are not traced through
+// per-hop `secrets:` renames.
 func renderTransitiveRequirements(b *strings.Builder, g *callgraph.Graph, id string) {
 	if g == nil || !g.IsEntryPoint(id) {
 		return
@@ -256,6 +257,8 @@ func renderTransitiveRequirements(b *strings.Builder, g *callgraph.Graph, id str
 	}
 
 	secrets := map[string]bool{}
+	vars := map[string]bool{}
+	perms := map[string]bool{}
 	externals := map[string]bool{}
 	for _, nid := range append([]string{id}, reach...) {
 		n := g.Nodes[nid]
@@ -263,6 +266,8 @@ func renderTransitiveRequirements(b *strings.Builder, g *callgraph.Graph, id str
 			continue
 		}
 		collectSecretNames(n, secrets)
+		collectScannedRefs(n, secrets, vars)
+		collectPermissions(n, perms)
 		// External references are collected from this node's outgoing edges (not from the
 		// external nodes themselves) so the `@ref` pin each call site uses is preserved.
 		for _, e := range g.Calls(nid) {
@@ -271,7 +276,7 @@ func renderTransitiveRequirements(b *strings.Builder, g *callgraph.Graph, id str
 			}
 		}
 	}
-	if len(secrets) == 0 && len(externals) == 0 {
+	if len(secrets) == 0 && len(vars) == 0 && len(perms) == 0 && len(externals) == 0 {
 		return
 	}
 
@@ -279,8 +284,60 @@ func renderTransitiveRequirements(b *strings.Builder, g *callgraph.Graph, id str
 	if len(secrets) > 0 {
 		fmt.Fprintf(b, "Secrets referenced (literal names): %s\n\n", codelist(sortedKeys(secrets)))
 	}
+	if len(vars) > 0 {
+		fmt.Fprintf(b, "Variables referenced: %s\n\n", codelist(sortedKeys(vars)))
+	}
+	if len(perms) > 0 {
+		fmt.Fprintf(b, "Permissions declared across the chain: %s\n\n", codelist(sortedKeys(perms)))
+	}
 	if len(externals) > 0 {
 		fmt.Fprintf(b, "External workflows referenced: %s\n\n", codelist(sortedKeys(externals)))
+	}
+}
+
+// collectScannedRefs unions the secret/variable names referenced in a workflow node's
+// expressions (run:, with:, env:, if:, forwarded secrets: values) into the given sets. It
+// reuses the scanner that builds each workflow's own reference inventory, so the
+// transitive view can never disagree with the per-workflow sections.
+func collectScannedRefs(n *callgraph.Node, secrets, vars map[string]bool) {
+	if n.Workflow == nil {
+		return
+	}
+	refs := model.ScanReferences(n.Workflow)
+	for _, r := range refs.Secrets {
+		secrets[r.Name] = true
+	}
+	for _, r := range refs.Vars {
+		vars[r.Name] = true
+	}
+}
+
+// collectPermissions unions a workflow node's declared permission grants -- workflow-level
+// and job-level -- as "scope: level" strings, with the (OIDC) marker on id-token: write.
+// The scalar forms (read-all / write-all) are included as-is; an explicit default-deny
+// (permissions: {}) grants nothing and contributes nothing.
+func collectPermissions(n *callgraph.Node, set map[string]bool) {
+	if n.Workflow == nil {
+		return
+	}
+	add := func(p *model.Permissions) {
+		if p == nil {
+			return
+		}
+		if p.All != "" {
+			set[p.All] = true
+		}
+		for _, s := range p.Scopes {
+			grant := s.Scope + ": " + s.Level
+			if s.OIDC {
+				grant += " (OIDC)"
+			}
+			set[grant] = true
+		}
+	}
+	add(n.Workflow.Permissions)
+	for i := range n.Workflow.Jobs {
+		add(n.Workflow.Jobs[i].Permissions)
 	}
 }
 

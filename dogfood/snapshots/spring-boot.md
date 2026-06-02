@@ -51,7 +51,11 @@ build-and-deploy-snapshot.yml [workflow_dispatch, push]
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `commercial-repository-password`, `commercial-repository-username`, `google-chat-webhook-url`, `opensource-repository-password`, `opensource-repository-username`, `token`
+Secrets referenced (literal names): `ARTIFACTORY_PASSWORD`, `ARTIFACTORY_USERNAME`, `COMMERCIAL_ARTIFACTORY_PASSWORD`, `COMMERCIAL_ARTIFACTORY_USERNAME`, `DEVELOCITY_ACCESS_KEY`, `GH_ACTIONS_REPO_TOKEN`, `GITHUB_TOKEN`, `GOOGLE_CHAT_WEBHOOK_URL`, `GPG_PASSPHRASE`, `GPG_PRIVATE_KEY`, `commercial-repository-password`, `commercial-repository-username`, `google-chat-webhook-url`, `opensource-repository-password`, `opensource-repository-username`, `token`
+
+Variables referenced: `COMMERCIAL`, `COMMERCIAL_DEPLOY_REPO_URL`, `COMMERCIAL_RELEASE_REPO_URL`, `COMMERCIAL_SNAPSHOT_REPO_URL`
+
+Permissions declared across the chain: `actions: write`, `contents: read`
 
 ## Referenced secrets and variables
 
@@ -184,6 +188,10 @@ build-pull-request.yml [pull_request]
 +-- build / Print JVM Thread Dumps When Cancelled (uses ./.github/actions/print-jvm-thread-dumps)
 ```
 
+## Transitive requirements (from full call graph)
+
+Permissions declared across the chain: `contents: read`
+
 ## Jobs
 
 ### Build Pull Request (`build`)
@@ -236,6 +244,14 @@ ci.yml [push]
 +-- ci / Build (uses ./.github/actions/build)
 +-- ci / Send Notification (uses ./.github/actions/send-notification)
 ```
+
+## Transitive requirements (from full call graph)
+
+Secrets referenced (literal names): `COMMERCIAL_ARTIFACTORY_PASSWORD`, `COMMERCIAL_ARTIFACTORY_USERNAME`, `DEVELOCITY_ACCESS_KEY`, `GOOGLE_CHAT_WEBHOOK_URL`
+
+Variables referenced: `COMMERCIAL_RELEASE_REPO_URL`, `COMMERCIAL_SNAPSHOT_REPO_URL`
+
+Permissions declared across the chain: `contents: read`
 
 ## Referenced secrets and variables
 
@@ -383,7 +399,11 @@ release-milestone.yml [push]
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `commercial-repository-password`, `commercial-repository-username`, `google-chat-webhook-url`, `opensource-repository-password`, `opensource-repository-username`, `token`
+Secrets referenced (literal names): `ARTIFACTORY_PASSWORD`, `ARTIFACTORY_USERNAME`, `CENTRAL_TOKEN_PASSWORD`, `CENTRAL_TOKEN_USERNAME`, `COMMERCIAL_ARTIFACTORY_RO_PASSWORD`, `COMMERCIAL_ARTIFACTORY_RO_USERNAME`, `DEVELOCITY_ACCESS_KEY`, `GH_ACTIONS_REPO_TOKEN`, `GITHUB_TOKEN`, `GOOGLE_CHAT_WEBHOOK_URL`, `GPG_PASSPHRASE`, `GPG_PRIVATE_KEY`, `GRADLE_PLUGIN_PUBLISH_KEY`, `GRADLE_PLUGIN_PUBLISH_SECRET`, `JF_ARTIFACTORY_SPRING`, `commercial-repository-password`, `commercial-repository-username`, `google-chat-webhook-url`, `opensource-repository-password`, `opensource-repository-username`, `token`
+
+Variables referenced: `COMMERCIAL`
+
+Permissions declared across the chain: `actions: write`, `contents: read`
 
 ## Referenced secrets and variables
 
@@ -599,7 +619,11 @@ release.yml [push]
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `commercial-repository-password`, `commercial-repository-username`, `google-chat-webhook-url`, `opensource-repository-password`, `opensource-repository-username`, `token`
+Secrets referenced (literal names): `ARTIFACTORY_PASSWORD`, `ARTIFACTORY_USERNAME`, `CENTRAL_TOKEN_PASSWORD`, `CENTRAL_TOKEN_USERNAME`, `COMMERCIAL_ARTIFACTORY_PASSWORD`, `COMMERCIAL_ARTIFACTORY_USERNAME`, `COMMERCIAL_JF_ARTIFACTORY_SPRING`, `DEVELOCITY_ACCESS_KEY`, `GH_ACTIONS_REPO_TOKEN`, `GITHUB_TOKEN`, `GOOGLE_CHAT_WEBHOOK_URL`, `GPG_PASSPHRASE`, `GPG_PRIVATE_KEY`, `GRADLE_PLUGIN_PUBLISH_KEY`, `GRADLE_PLUGIN_PUBLISH_SECRET`, `JF_ARTIFACTORY_SPRING`, `SDKMAN_CONSUMER_KEY`, `SDKMAN_CONSUMER_TOKEN`, `commercial-repository-password`, `commercial-repository-username`, `google-chat-webhook-url`, `opensource-repository-password`, `opensource-repository-username`, `token`
+
+Variables referenced: `COMMERCIAL`, `COMMERCIAL_DEPLOY_REPO_URL`, `COMMERCIAL_RELEASE_REPO_URL`, `COMMERCIAL_SNAPSHOT_REPO_URL`
+
+Permissions declared across the chain: `actions: write`, `contents: read`
 
 ## Referenced secrets and variables
 
@@ -861,6 +885,8 @@ run-codeql-analysis.yml [push, pull_request, workflow_dispatch]
 
 ## Transitive requirements (from full call graph)
 
+Permissions declared across the chain: `actions: read`, `contents: read`, `read-all`, `security-events: write`
+
 External workflows referenced: `spring-io/github-actions/.github/workflows/codeql-analysis.yml@7dc305df87410aa851b873d2f1fd33ccbb7d0aa8`
 
 ## Jobs
@@ -900,6 +926,12 @@ run-system-tests.yml [push]
 +-- run-system-tests / Prepare Gradle Build (uses ./.github/actions/prepare-gradle-build)
 +-- run-system-tests / Send Notification (uses ./.github/actions/send-notification)
 ```
+
+## Transitive requirements (from full call graph)
+
+Secrets referenced (literal names): `DEVELOCITY_ACCESS_KEY`, `GOOGLE_CHAT_WEBHOOK_URL`
+
+Permissions declared across the chain: `contents: read`
 
 ## Referenced secrets and variables
 

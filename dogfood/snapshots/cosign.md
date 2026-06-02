@@ -313,6 +313,8 @@ cut-release.yml [workflow_dispatch]
 
 ## Transitive requirements (from full call graph)
 
+Permissions declared across the chain: `contents: read`, `id-token: write (OIDC)`
+
 External workflows referenced: `sigstore/community/.github/workflows/reusable-release.yml@main`
 
 ## Jobs
@@ -356,6 +358,8 @@ depsreview.yml [pull_request]
 ```
 
 ## Transitive requirements (from full call graph)
+
+Permissions declared across the chain: `contents: read`
 
 External workflows referenced: `sigstore/community/.github/workflows/reusable-dependency-review.yml@main`
 

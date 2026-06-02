@@ -768,6 +768,10 @@ release.yml [workflow_dispatch, push, schedule]
 
 ## Transitive requirements (from full call graph)
 
+Secrets referenced (literal names): `GITHUB_TOKEN`
+
+Permissions declared across the chain: `actions: read`, `contents: read`, `contents: write`, `id-token: write (OIDC)`, `issues: write`, `read-all`
+
 External workflows referenced: `slsa-framework/slsa-github-generator/.github/workflows/builder_go_slsa3.yml@v2.0.0`
 
 ## Referenced secrets and variables

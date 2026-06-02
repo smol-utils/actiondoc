@@ -21,7 +21,9 @@ ci.yml [push]
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `BUILD_TOKEN`
+Secrets referenced (literal names): `BUILD_TOKEN`, `CI_BUILD_TOKEN`, `DEPLOY_TOKEN`
+
+Permissions declared across the chain: `contents: read`, `id-token: write (OIDC)`
 
 ## Referenced secrets and variables
 

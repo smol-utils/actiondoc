@@ -27,7 +27,7 @@ release.yml [workflow_dispatch]
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `GPG_KEY`, `SIGNING_KEY`
+Secrets referenced (literal names): `GPG_KEY`, `RELEASE_GPG_KEY`, `SIGNING_KEY`
 
 External workflows referenced: `external-org/notifications/.github/workflows/notify.yml@v2`
 

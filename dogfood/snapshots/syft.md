@@ -37,6 +37,8 @@ codeql.yaml [push, pull_request, schedule]
 
 ## Transitive requirements (from full call graph)
 
+Permissions declared across the chain: `actions: read`, `contents: read`, `packages: read`, `security-events: write`
+
 External workflows referenced: `anchore/workflows/.github/workflows/codeql.yaml@15122524ced7906bfa9685eeae12e22647773ea6`
 
 ## Jobs
@@ -88,7 +90,9 @@ release.yaml [workflow_dispatch]
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `R2_ENDPOINT`, `R2_INSTALL_ACCESS_KEY_ID`, `R2_INSTALL_SECRET_ACCESS_KEY`, `S3_INSTALL_AWS_ACCESS_KEY_ID`, `S3_INSTALL_AWS_SECRET_ACCESS_KEY`
+Secrets referenced (literal names): `ANCHOREOPS_GITHUB_OSS_WRITE_TOKEN`, `ANCHOREOSSWRITE_DH_PAT`, `ANCHOREOSSWRITE_DH_USERNAME`, `ANCHORE_APPLE_DEVELOPER_ID_CERT_CHAIN`, `ANCHORE_APPLE_DEVELOPER_ID_CERT_PASS`, `APPLE_NOTARY_ISSUER`, `APPLE_NOTARY_KEY`, `APPLE_NOTARY_KEY_ID`, `DEPLOY_KEY`, `GITHUB_TOKEN`, `OSS_R2_INSTALL_ACCESS_KEY_ID`, `OSS_R2_INSTALL_SECRET_ACCESS_KEY`, `R2_ENDPOINT`, `R2_INSTALL_ACCESS_KEY_ID`, `R2_INSTALL_SECRET_ACCESS_KEY`, `S3_INSTALL_AWS_ACCESS_KEY_ID`, `S3_INSTALL_AWS_SECRET_ACCESS_KEY`, `TOOLBOX_AWS_ACCESS_KEY_ID`, `TOOLBOX_AWS_SECRET_ACCESS_KEY`, `TOOLBOX_CLOUDFLARE_R2_ENDPOINT`
+
+Permissions declared across the chain: `checks: read`, `contents: read`, `contents: write`, `id-token: write (OIDC)`, `packages: write`
 
 External workflows referenced: `anchore/workflows/.github/workflows/check-gate.yaml@15122524ced7906bfa9685eeae12e22647773ea6`, `anchore/workflows/.github/workflows/check-version-available.yaml@15122524ced7906bfa9685eeae12e22647773ea6`, `anchore/workflows/.github/workflows/release-install-script.yaml@15122524ced7906bfa9685eeae12e22647773ea6`
 
@@ -303,6 +307,10 @@ validations.yaml [workflow_dispatch, pull_request, push]
 +-- Acceptance-Mac / Bootstrap environment (uses ./.github/actions/bootstrap)
 +-- Cli-Linux / Bootstrap environment (uses ./.github/actions/bootstrap)
 ```
+
+## Transitive requirements (from full call graph)
+
+Permissions declared across the chain: `contents: read`
 
 ## Jobs
 

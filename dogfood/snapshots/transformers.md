@@ -397,6 +397,12 @@ benchmark_v2_a10_caller.yml [workflow_dispatch]
 +-- benchmark-v2-default (uses benchmark_v2.yml)
 ```
 
+## Transitive requirements (from full call graph)
+
+Secrets referenced (literal names): `HF_HUB_READ_TOKEN`, `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN`
+
+Permissions declared across the chain: `contents: read`
+
 ## Jobs
 
 ### Benchmark v2 - Default Models (`benchmark-v2-default`)
@@ -435,6 +441,12 @@ benchmark_v2_a10_caller.yml [workflow_dispatch]
 benchmark_v2_mi325_caller.yml [workflow_dispatch]
 +-- benchmark-v2-default (uses benchmark_v2.yml)
 ```
+
+## Transitive requirements (from full call graph)
+
+Secrets referenced (literal names): `HF_HUB_READ_TOKEN`, `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN`
+
+Permissions declared across the chain: `contents: read`
 
 ## Jobs
 
@@ -1126,7 +1138,9 @@ build_documentation.yml [workflow_dispatch, push]
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `hf_token`, `token`
+Secrets referenced (literal names): `HF_DOC_BUILD_PUSH`, `HUGGINGFACE_PUSH`, `hf_token`, `token`
+
+Permissions declared across the chain: `contents: read`
 
 External workflows referenced: `huggingface/doc-builder/.github/workflows/build_main_documentation.yml@2430c1ec91d04667414e2fa31ecfc36c153ea391`
 
@@ -1201,6 +1215,8 @@ build_pr_documentation.yml [pull_request, merge_group]
 
 ## Transitive requirements (from full call graph)
 
+Permissions declared across the chain: `contents: read`
+
 External workflows referenced: `huggingface/doc-builder/.github/workflows/build_pr_documentation.yml@90b4ee2c10b81b5c1a6367c4e6fc9e2fb510a7e3`
 
 ## Jobs
@@ -1270,6 +1286,8 @@ check-workflow-permissions.yml [workflow_dispatch]
 ```
 
 ## Transitive requirements (from full call graph)
+
+Permissions declared across the chain: `actions: read`, `contents: read`
 
 External workflows referenced: `huggingface/security-workflows/.github/workflows/permissions-advisor-reusable.yml@1b6a139c28db347498b30338da6a602e0a06f56c`
 
@@ -1745,6 +1763,8 @@ codeql.yml [push, workflow_dispatch]
 
 ## Transitive requirements (from full call graph)
 
+Permissions declared across the chain: `actions: read`, `contents: read`, `packages: read`, `security-events: write`
+
 External workflows referenced: `huggingface/security-workflows/.github/workflows/codeql-reusable.yml@1b6a139c28db347498b30338da6a602e0a06f56c`
 
 ## Jobs
@@ -1938,6 +1958,12 @@ doctest_job.yml
 doctests.yml [push, repository_dispatch, schedule]
 +-- call_doctest_job (uses doctest_job.yml)
 ```
+
+## Transitive requirements (from full call graph)
+
+Secrets referenced (literal names): `ACCESS_REPO_INFO_TOKEN`, `CI_SLACK_BOT_TOKEN`, `CI_SLACK_CHANNEL_ID_DAILY_DOCS`
+
+Permissions declared across the chain: `contents: read`
 
 ## Referenced secrets and variables
 
@@ -2715,6 +2741,8 @@ pr-ci-caller.yml [pull_request]
 
 Secrets referenced (literal names): `OTEL_EXPORTER_OTLP_ENDPOINT`, `OTEL_TOKEN`
 
+Permissions declared across the chain: `contents: read`
+
 External workflows referenced: `huggingface/transformers-test-ci/.github/workflows/pr-ci_dynamic_caller_example.yml@91d590c4f744e4564a8ae0d3810068c8a35b939e`
 
 ## Referenced secrets and variables
@@ -2766,6 +2794,12 @@ pr-repo-consistency-bot.yml [issue_comment]
 +-- get-pr-number (uses get-pr-number.yml)
 +-- get-pr-info (uses get-pr-info.yml)
 ```
+
+## Transitive requirements (from full call graph)
+
+Secrets referenced (literal names): `HF_STYLE_BOT_ACTION`
+
+Permissions declared across the chain: `contents: read`, `contents: write`, `pull-requests: write`
 
 ## Referenced secrets and variables
 
@@ -2965,6 +2999,10 @@ pr_build_doc_with_comment.yml [issue_comment]
 
 ## Transitive requirements (from full call graph)
 
+Secrets referenced (literal names): `GITHUB_TOKEN`
+
+Permissions declared across the chain: `contents: read`, `pull-requests: write`, `statuses: write`
+
 External workflows referenced: `huggingface/doc-builder/.github/workflows/build_pr_documentation.yml@093eb65f2e8745457987df060dc392e6bcf1347a`
 
 ## Referenced secrets and variables
@@ -3124,6 +3162,10 @@ pr_slow_ci_suggestion.yml [pull_request_target]
 +-- get-pr-info (uses get-pr-info.yml)
 ```
 
+## Transitive requirements (from full call graph)
+
+Permissions declared across the chain: `contents: read`, `pull-requests: write`
+
 ## Jobs
 
 ### Get PR number (`get-pr-number`)
@@ -3231,6 +3273,10 @@ push-important-models.yml [push]
 ```
 
 ## Transitive requirements (from full call graph)
+
+Secrets referenced (literal names): `ACCESS_REPO_INFO_TOKEN`, `CI_SLACK_BOT_TOKEN`, `CI_SLACK_CHANNEL_DUMMY_TESTS`, `CI_SLACK_CHANNEL_ID`, `CI_SLACK_CHANNEL_ID_DAILY`, `GITHUB_TOKEN`, `HF_HUB_READ_TOKEN`, `SLACK_CIFEEDBACK_BOT_TOKEN`, `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN`
+
+Permissions declared across the chain: `contents: read`
 
 External workflows referenced: `huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a`
 
@@ -3500,6 +3546,10 @@ self-comment-ci.yml [issue_comment]
 ```
 
 ## Transitive requirements (from full call graph)
+
+Secrets referenced (literal names): `ACCESS_REPO_INFO_TOKEN`, `CI_SLACK_BOT_TOKEN`, `CI_SLACK_CHANNEL_DUMMY_TESTS`, `CI_SLACK_CHANNEL_ID`, `CI_SLACK_CHANNEL_ID_DAILY`, `GITHUB_TOKEN`, `HF_HUB_READ_TOKEN`, `SLACK_CIFEEDBACK_BOT_TOKEN`, `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN`
+
+Permissions declared across the chain: `contents: read`, `pull-requests: write`, `statuses: write`
 
 External workflows referenced: `huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a`
 
@@ -3779,6 +3829,10 @@ self-nightly-caller.yml [repository_dispatch, workflow_run, push]
 
 ## Transitive requirements (from full call graph)
 
+Secrets referenced (literal names): `ACCESS_REPO_INFO_TOKEN`, `CI_SLACK_BOT_TOKEN`, `CI_SLACK_CHANNEL_DUMMY_TESTS`, `CI_SLACK_CHANNEL_ID`, `CI_SLACK_CHANNEL_ID_DAILY`, `DOCKERHUB_PASSWORD`, `DOCKERHUB_USERNAME`, `GITHUB_TOKEN`, `HF_HUB_READ_TOKEN`, `SLACK_CIFEEDBACK_BOT_TOKEN`, `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN`
+
+Permissions declared across the chain: `contents: read`
+
 External workflows referenced: `huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a`
 
 ## Jobs
@@ -3969,6 +4023,10 @@ self-nightly-past-ci-caller.yml [schedule, push]
 ```
 
 ## Transitive requirements (from full call graph)
+
+Secrets referenced (literal names): `ACCESS_REPO_INFO_TOKEN`, `CI_SLACK_BOT_TOKEN`, `CI_SLACK_CHANNEL_DUMMY_TESTS`, `CI_SLACK_CHANNEL_ID`, `CI_SLACK_CHANNEL_ID_DAILY`, `GITHUB_TOKEN`, `HF_HUB_READ_TOKEN`, `SLACK_CIFEEDBACK_BOT_TOKEN`, `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN`
+
+Permissions declared across the chain: `contents: read`
 
 External workflows referenced: `huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a`
 
@@ -4245,6 +4303,8 @@ self-scheduled-amd-mi250-caller.yml [workflow_run, push]
 
 ## Transitive requirements (from full call graph)
 
+Permissions declared across the chain: `contents: read`
+
 External workflows referenced: `huggingface/hf-workflows/.github/workflows/transformers_amd_ci_scheduled.yaml@63657f571a92cc9759159442936061c51d6d9ae4`
 
 ## Jobs
@@ -4356,6 +4416,8 @@ self-scheduled-amd-mi325-caller.yml [workflow_run, push]
 ```
 
 ## Transitive requirements (from full call graph)
+
+Permissions declared across the chain: `contents: read`
 
 External workflows referenced: `huggingface/hf-workflows/.github/workflows/transformers_amd_ci_scheduled_arc_scale_set.yaml@63657f571a92cc9759159442936061c51d6d9ae4`
 
@@ -4472,6 +4534,8 @@ self-scheduled-amd-mi355-caller.yml [workflow_run, push]
 ```
 
 ## Transitive requirements (from full call graph)
+
+Permissions declared across the chain: `contents: read`
 
 External workflows referenced: `huggingface/hf-workflows/.github/workflows/transformers_amd_ci_scheduled_arc_scale_set.yaml@63657f571a92cc9759159442936061c51d6d9ae4`
 
@@ -4645,6 +4709,10 @@ self-scheduled-caller.yml [repository_dispatch, schedule, push, workflow_dispatc
 ```
 
 ## Transitive requirements (from full call graph)
+
+Secrets referenced (literal names): `ACCESS_REPO_INFO_TOKEN`, `CI_SLACK_BOT_TOKEN`, `CI_SLACK_CHANNEL_DUMMY_TESTS`, `CI_SLACK_CHANNEL_ID`, `CI_SLACK_CHANNEL_ID_DAILY`, `GITHUB_TOKEN`, `HF_HUB_READ_TOKEN`, `SLACK_CIFEEDBACK_BOT_TOKEN`, `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN`
+
+Permissions declared across the chain: `contents: read`
 
 External workflows referenced: `huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a`
 
@@ -4855,6 +4923,10 @@ self-scheduled-flash-attn-caller.yml [repository_dispatch, schedule, push, workf
 ```
 
 ## Transitive requirements (from full call graph)
+
+Secrets referenced (literal names): `ACCESS_REPO_INFO_TOKEN`, `CI_SLACK_BOT_TOKEN`, `CI_SLACK_CHANNEL_DUMMY_TESTS`, `CI_SLACK_CHANNEL_ID`, `CI_SLACK_CHANNEL_ID_DAILY`, `GITHUB_TOKEN`, `HF_HUB_READ_TOKEN`, `SLACK_CIFEEDBACK_BOT_TOKEN`, `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN`
+
+Permissions declared across the chain: `contents: read`
 
 External workflows referenced: `huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a`
 
@@ -5200,6 +5272,12 @@ self-scheduled-intel-gaudi3-caller.yml [repository_dispatch, workflow_dispatch, 
     +-- run_trainer_and_fsdp_gpu (uses model_jobs_intel_gaudi.yml)
     +-- send_results (uses slack-report.yml)
 ```
+
+## Transitive requirements (from full call graph)
+
+Secrets referenced (literal names): `ACCESS_REPO_INFO_TOKEN`, `CI_SLACK_BOT_TOKEN`, `CI_SLACK_CHANNEL_DUMMY_TESTS`, `CI_SLACK_CHANNEL_ID`, `CI_SLACK_CHANNEL_ID_DAILY`, `GITHUB_TOKEN`, `HF_HUB_READ_TOKEN`, `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN`
+
+Permissions declared across the chain: `contents: read`
 
 ## Jobs
 
@@ -6259,7 +6337,9 @@ upload_pr_documentation.yml [workflow_run]
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `comment_bot_token`, `hf_token`
+Secrets referenced (literal names): `COMMENT_BOT_TOKEN`, `HF_DOC_BUILD_PUSH`, `comment_bot_token`, `hf_token`
+
+Permissions declared across the chain: `contents: read`
 
 External workflows referenced: `huggingface/doc-builder/.github/workflows/upload_pr_documentation.yml@9ad2de8582b56c017cb530c1165116d40433f1c6`
 

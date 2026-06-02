@@ -36,7 +36,17 @@ func chainGraph() (*callgraph.Graph, map[string]*model.Workflow) {
 	leaf := &model.Workflow{
 		File: "leaf.yml", Name: "Leaf", On: []string{"workflow_call"},
 		Tags: model.Tags{Secrets: []model.Param{{Name: "SIGNING_KEY"}}},
-		Jobs: []model.Job{{ID: "compile", RunsOn: "ubuntu-latest"}},
+		Jobs: []model.Job{{
+			ID: "compile", RunsOn: "ubuntu-latest",
+			Permissions: &model.Permissions{Scopes: []model.Permission{
+				{Scope: "contents", Level: "read"},
+				{Scope: "id-token", Level: "write", OIDC: true},
+			}},
+			Steps: []model.Step{{
+				Name: "Publish",
+				Run:  `./publish.sh --region "${{ vars.DEPLOY_REGION }}" --token "${{ secrets.LEAF_TOKEN }}"`,
+			}},
+		}},
 	}
 	workflows := map[string]*model.Workflow{
 		".github/workflows/release.yml": release,
@@ -294,9 +304,19 @@ func TestTransitiveRequirements(t *testing.T) {
 		t.Fatalf("missing transitive requirements section:\n%s", md)
 	}
 	// GPG_KEY comes from the entry point's forwarded secrets: mapping; SIGNING_KEY from
-	// the leaf's @secret tag two hops down. Names are sorted alphabetically.
-	if !strings.Contains(md, "Secrets referenced (literal names): `GPG_KEY`, `SIGNING_KEY`") {
+	// the leaf's @secret tag two hops down; LEAF_TOKEN from scanning the leaf's run:
+	// expression; RELEASE_GPG_KEY from scanning the entry point's forwarded secret value.
+	// Names are sorted alphabetically.
+	if !strings.Contains(md, "Secrets referenced (literal names): `GPG_KEY`, `LEAF_TOKEN`, `RELEASE_GPG_KEY`, `SIGNING_KEY`") {
 		t.Errorf("secrets not aggregated across the chain:\n%s", md)
+	}
+	// DEPLOY_REGION comes from scanning the leaf's run: expression two hops down.
+	if !strings.Contains(md, "Variables referenced: `DEPLOY_REGION`") {
+		t.Errorf("variables not aggregated across the chain:\n%s", md)
+	}
+	// The leaf job's permission grants surface on the entry point, with the OIDC marker.
+	if !strings.Contains(md, "Permissions declared across the chain: `contents: read`, `id-token: write (OIDC)`") {
+		t.Errorf("permissions not aggregated across the chain:\n%s", md)
 	}
 }
 

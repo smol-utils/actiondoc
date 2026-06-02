@@ -315,6 +315,12 @@ ci.yaml [push, pull_request, merge_group, workflow_dispatch]
 +-- test-chocolatey-package (uses test-chocolatey.yml)
 ```
 
+## Transitive requirements (from full call graph)
+
+Secrets referenced (literal names): `GITHUB_TOKEN`, `PGP_PW`, `PGP_SECRET`, `SONATYPE_PW_ORGSCALALANG`, `SONATYPE_USER_ORGSCALALANG`
+
+Permissions declared across the chain: `contents: read`, `contents: write`
+
 ## Referenced secrets and variables
 
 **Secrets:**
@@ -1076,6 +1082,14 @@ release-nightly.yml [workflow_dispatch, schedule]
 +-- release-maven-artifacts (uses release-maven-artifacts.yml)
 ```
 
+## Transitive requirements (from full call graph)
+
+Secrets referenced (literal names): `MAVEN_REPOSITORY_TOKEN`, `MAVEN_REPOSITORY_USER`, `PGP_PW`, `PGP_SECRET`, `SCALA_APP_ID`, `SCALA_APP_PRIVATE_KEY`, `SCALA_PGP_KEY`, `SCALA_PGP_PASSPHRASE`
+
+Variables referenced: `MAVEN_REPOSITORY_HOST`, `MAVEN_REPOSITORY_REALM`, `MAVEN_REPOSITORY_URL`, `NEWNIGHTLY`, `NIGHTLYBUILD`, `SCALA_PGP_FINGERPRINT`
+
+Permissions declared across the chain: `contents: read`
+
 ## Referenced secrets and variables
 
 **Secrets:**
@@ -1199,7 +1213,7 @@ releases.yml [workflow_dispatch]
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `API-KEY`, `CONSUMER-KEY`, `CONSUMER-TOKEN`, `DOTTYBOT-TOKEN`
+Secrets referenced (literal names): `API-KEY`, `CHOCOLATEY_KEY`, `CONSUMER-KEY`, `CONSUMER-TOKEN`, `DOTTYBOT-TOKEN`, `DOTTYBOT_WINGET_TOKEN`, `GITHUB_TOKEN`, `SDKMAN_KEY`, `SDKMAN_TOKEN`
 
 ## Referenced secrets and variables
 

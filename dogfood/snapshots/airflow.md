@@ -713,6 +713,12 @@ airflow-e2e-tests.yml [workflow_dispatch, workflow_call]
 +-- test-e2e-integration-tests / Prepare breeze & PROD image: ${{ env.PYTHON_MAJOR_MINOR_VERSION }} (uses ./.github/actions/prepare_breeze_and_image)
 ```
 
+## Transitive requirements (from full call graph)
+
+Secrets referenced (literal names): `GITHUB_TOKEN`
+
+Permissions declared across the chain: `contents: read`
+
 ## Called by
 
 ```
@@ -859,6 +865,12 @@ airflow-e2e-tests.yml
 automatic-backport.yml [push]
 +-- trigger-backport (uses backport-cli.yml)
 ```
+
+## Transitive requirements (from full call graph)
+
+Secrets referenced (literal names): `GITHUB_TOKEN`
+
+Permissions declared across the chain: `contents: read`, `contents: write`, `pull-requests: write`
 
 ## Referenced secrets and variables
 
@@ -1668,7 +1680,9 @@ ci-amd.yml [schedule, pull_request, push, workflow_dispatch]
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `DOCS_AWS_ACCESS_KEY_ID`, `DOCS_AWS_SECRET_ACCESS_KEY`, `SLACK_BOT_TOKEN`
+Secrets referenced (literal names): `CODECOV_TOKEN`, `CONSTRAINTS_GITHUB_REPOSITORY`, `DOCS_AWS_ACCESS_KEY_ID`, `DOCS_AWS_SECRET_ACCESS_KEY`, `GITHUB_TOKEN`, `SLACK_BOT_TOKEN`
+
+Permissions declared across the chain: `contents: read`, `contents: write`, `id-token: write (OIDC)`, `packages: read`, `packages: write`
 
 ## Referenced secrets and variables
 
@@ -3007,7 +3021,9 @@ ci-arm.yml [schedule, push, workflow_dispatch]
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `DOCS_AWS_ACCESS_KEY_ID`, `DOCS_AWS_SECRET_ACCESS_KEY`, `SLACK_BOT_TOKEN`
+Secrets referenced (literal names): `CODECOV_TOKEN`, `CONSTRAINTS_GITHUB_REPOSITORY`, `DOCS_AWS_ACCESS_KEY_ID`, `DOCS_AWS_SECRET_ACCESS_KEY`, `GITHUB_TOKEN`, `SLACK_BOT_TOKEN`
+
+Permissions declared across the chain: `contents: read`, `contents: write`, `id-token: write (OIDC)`, `packages: read`, `packages: write`
 
 ## Referenced secrets and variables
 
@@ -5660,6 +5676,12 @@ milestone-tag-assistant.yml [push]
 +-- set-milestone / Install Breeze (uses ./.github/actions/breeze)
 ```
 
+## Transitive requirements (from full call graph)
+
+Secrets referenced (literal names): `GITHUB_TOKEN`
+
+Permissions declared across the chain: `contents: write`, `pull-requests: write`
+
 ## Referenced secrets and variables
 
 **Secrets:**
@@ -6098,7 +6120,9 @@ publish-docs-to-s3.yml [workflow_dispatch]
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `DOCS_AWS_ACCESS_KEY_ID`, `DOCS_AWS_SECRET_ACCESS_KEY`
+Secrets referenced (literal names): `CONSTRAINTS_GITHUB_REPOSITORY`, `DOCS_AWS_ACCESS_KEY_ID`, `DOCS_AWS_SECRET_ACCESS_KEY`, `GITHUB_TOKEN`
+
+Permissions declared across the chain: `contents: read`, `id-token: write (OIDC)`, `packages: read`, `packages: write`
 
 ## Referenced secrets and variables
 
@@ -6623,6 +6647,12 @@ registry-backfill.yml [workflow_dispatch]
 +-- publish-versions / Install Breeze (uses ./.github/actions/breeze)
 ```
 
+## Transitive requirements (from full call graph)
+
+Secrets referenced (literal names): `CONSTRAINTS_GITHUB_REPOSITORY`, `DOCS_AWS_ACCESS_KEY_ID`, `DOCS_AWS_SECRET_ACCESS_KEY`, `GITHUB_TOKEN`
+
+Permissions declared across the chain: `contents: read`, `packages: read`, `packages: write`
+
 ## Referenced secrets and variables
 
 **Secrets:**
@@ -6850,7 +6880,9 @@ registry-build.yml [workflow_dispatch, workflow_call]
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `DOCS_AWS_ACCESS_KEY_ID`, `DOCS_AWS_SECRET_ACCESS_KEY`
+Secrets referenced (literal names): `CONSTRAINTS_GITHUB_REPOSITORY`, `DOCS_AWS_ACCESS_KEY_ID`, `DOCS_AWS_SECRET_ACCESS_KEY`, `GITHUB_TOKEN`
+
+Permissions declared across the chain: `contents: read`, `packages: read`, `packages: write`
 
 ## Called by
 
@@ -7095,7 +7127,9 @@ release_dockerhub_image.yml [workflow_dispatch]
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `DOCKERHUB_TOKEN`, `DOCKERHUB_USER`
+Secrets referenced (literal names): `DOCKERHUB_TOKEN`, `DOCKERHUB_USER`, `GITHUB_TOKEN`
+
+Permissions declared across the chain: `contents: read`, `packages: read`
 
 ## Referenced secrets and variables
 
@@ -7595,7 +7629,9 @@ scheduled-upgrade-check-main.yml [schedule, workflow_dispatch]
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `SLACK_BOT_TOKEN`
+Secrets referenced (literal names): `GITHUB_TOKEN`, `SLACK_BOT_TOKEN`
+
+Permissions declared across the chain: `contents: write`, `pull-requests: write`
 
 ## Referenced secrets and variables
 
@@ -7648,7 +7684,9 @@ scheduled-upgrade-check-v3-2-test.yml [schedule, workflow_dispatch]
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `SLACK_BOT_TOKEN`
+Secrets referenced (literal names): `GITHUB_TOKEN`, `SLACK_BOT_TOKEN`
+
+Permissions declared across the chain: `contents: write`, `pull-requests: write`
 
 ## Referenced secrets and variables
 
@@ -8413,6 +8451,12 @@ ui-e2e-tests.yml [workflow_dispatch, workflow_call]
 +-- test-ui-e2e-tests / Install Breeze (manual trigger) (uses ./.github/actions/breeze)
 ```
 
+## Transitive requirements (from full call graph)
+
+Secrets referenced (literal names): `GITHUB_TOKEN`
+
+Permissions declared across the chain: `contents: read`
+
 ## Called by
 
 ```
@@ -8567,6 +8611,12 @@ update-constraints-on-push-stable.yml [push]
     +-- generate-constraints-matrix / Install prek (uses ./.github/actions/install-prek)
     +-- generate-constraints-matrix / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
 ```
+
+## Transitive requirements (from full call graph)
+
+Secrets referenced (literal names): `CONSTRAINTS_GITHUB_REPOSITORY`, `GITHUB_TOKEN`, `SLACK_BOT_TOKEN`
+
+Permissions declared across the chain: `contents: read`, `contents: write`, `packages: read`, `packages: write`
 
 ## Referenced secrets and variables
 
@@ -8772,6 +8822,12 @@ update-constraints-on-push.yml [push]
     +-- generate-constraints-matrix / Install prek (uses ./.github/actions/install-prek)
     +-- generate-constraints-matrix / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
 ```
+
+## Transitive requirements (from full call graph)
+
+Secrets referenced (literal names): `CONSTRAINTS_GITHUB_REPOSITORY`, `GITHUB_TOKEN`, `SLACK_BOT_TOKEN`
+
+Permissions declared across the chain: `contents: read`, `contents: write`, `packages: read`, `packages: write`
 
 ## Referenced secrets and variables
 

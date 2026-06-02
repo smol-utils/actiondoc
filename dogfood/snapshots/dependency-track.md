@@ -186,7 +186,9 @@ ci-build.yaml [push, pull_request, workflow_dispatch]
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `registry-0-psw`, `registry-0-usr`
+Secrets referenced (literal names): `HUB_ACCESSS_TOKEN`, `HUB_USERNAME`, `registry-0-psw`, `registry-0-usr`
+
+Permissions declared across the chain: `security-events: write`
 
 ## Referenced secrets and variables
 
@@ -279,7 +281,9 @@ ci-publish.yaml [push, workflow_dispatch]
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `registry-0-psw`, `registry-0-usr`
+Secrets referenced (literal names): `GITHUB_TOKEN`, `HUB_ACCESSS_TOKEN`, `HUB_USERNAME`, `registry-0-psw`, `registry-0-usr`
+
+Permissions declared across the chain: `contents: write`, `security-events: write`
 
 ## Referenced secrets and variables
 
