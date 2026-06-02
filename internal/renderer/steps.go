@@ -28,18 +28,18 @@ func renderStep(b *strings.Builder, step *model.Step, num int) {
 		fmt.Fprintf(b, "   - Uses: `%s`%s\n", step.Uses, usesSuffix(step.Uses, step.UsesVersion))
 	}
 	if step.If != "" {
-		fmt.Fprintf(b, "   - Condition: `%s`\n", oneLine(step.If))
+		fmt.Fprintf(b, "   - Condition: %s\n", codeSpan(oneLine(step.If)))
 	}
 	if len(step.With) > 0 {
 		b.WriteString("   - With:\n")
 		for _, kv := range step.With {
-			fmt.Fprintf(b, "     - `%s`: `%s`%s\n", kv.Key, oneLine(kv.Value), withDoc(step, kv.Key))
+			fmt.Fprintf(b, "     - `%s`: %s%s\n", kv.Key, codeSpan(oneLine(kv.Value)), withDoc(step, kv.Key))
 		}
 	}
 	if len(step.Env) > 0 {
 		b.WriteString("   - Env:\n")
 		for _, kv := range step.Env {
-			fmt.Fprintf(b, "     - `%s`: `%s`\n", kv.Key, oneLine(kv.Value))
+			fmt.Fprintf(b, "     - `%s`: %s\n", kv.Key, codeSpan(oneLine(kv.Value)))
 		}
 	}
 
@@ -173,13 +173,6 @@ func truncate(s string, max int) string {
 		return string(r[:max])
 	}
 	return string(r[:max-3]) + "..."
-}
-
-// oneLine collapses newlines to spaces so a value renders safely inside an inline code span.
-func oneLine(s string) string {
-	s = strings.ReplaceAll(s, "\r\n", "\n")
-	s = strings.ReplaceAll(s, "\n", " ")
-	return strings.TrimSpace(s)
 }
 
 // resolveJobName expands ${{ matrix.X }} references in a job name to their static value

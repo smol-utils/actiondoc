@@ -66,6 +66,13 @@ jobs:
           Report deploy status:
           ${{ matrix.target.env }}
         run: ./scripts/report.sh
+      - name: Comment on PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const env = `${{ matrix.target.env }}`;
+            github.rest.issues.createComment({ body: `Deployed to ${env}` });
+          result-encoding: ""
 
   verify:
     name: Verify ${{ matrix.case }}

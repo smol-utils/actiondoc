@@ -225,16 +225,6 @@ func codelist(items []string) string {
 	return strings.Join(parts, ", ")
 }
 
-// escapeCell escapes characters that break Markdown table cells. Newlines become
-// <br> (not a space) so multi-line values like multi-line `if:` conditions keep their
-// visual line breaks instead of collapsing or, worse, being parsed as a new table row.
-func escapeCell(s string) string {
-	s = strings.ReplaceAll(s, "\r\n", "\n")
-	s = strings.ReplaceAll(s, "|", "\\|")
-	s = strings.ReplaceAll(s, "\n", "<br>")
-	return s
-}
-
 // RenderActionMarkdown converts an Action data model into a Markdown document.
 func RenderActionMarkdown(a *model.Action) string {
 	var b strings.Builder

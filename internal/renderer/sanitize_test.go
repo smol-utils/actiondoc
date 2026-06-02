@@ -17,6 +17,37 @@ func TestEscapeCell(t *testing.T) {
 	}
 }
 
+func TestCodeSpan(t *testing.T) {
+	cases := []struct{ in, want string }{
+		{"plain", "`plain`"},
+		{"", "-"},
+		{"a `quoted` word", "`` a `quoted` word ``"},
+		{"console.log(`hi ${x}`)", "`` console.log(`hi ${x}`) ``"},
+		{"``double run``", "``` ``double run`` ```"},
+		{"`leading backtick", "`` `leading backtick ``"},
+		{"trailing backtick`", "`` trailing backtick` ``"},
+	}
+	for _, c := range cases {
+		if got := codeSpan(c.in); got != c.want {
+			t.Errorf("codeSpan(%q) = %q, want %q", c.in, got, c.want)
+		}
+	}
+}
+
+func TestCodeCellOrDash(t *testing.T) {
+	cases := []struct{ in, want string }{
+		{"", "-"},
+		{"value", "`value`"},
+		{"with `tick`", "`` with `tick` ``"},
+		{"a|b", "`a\\|b`"},
+	}
+	for _, c := range cases {
+		if got := codeCellOrDash(c.in); got != c.want {
+			t.Errorf("codeCellOrDash(%q) = %q, want %q", c.in, got, c.want)
+		}
+	}
+}
+
 func TestAnchor(t *testing.T) {
 	cases := []struct{ in, want string }{
 		{"build", "build"},

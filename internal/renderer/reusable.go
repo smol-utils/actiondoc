@@ -44,7 +44,7 @@ func renderCallerJob(b *strings.Builder, job *model.Job, g *callgraph.Graph, fro
 	if len(job.With) > 0 {
 		b.WriteString("#### Inputs forwarded\n\n")
 		for _, kv := range job.With {
-			fmt.Fprintf(b, "- `%s`: `%s`\n", kv.Key, oneLine(kv.Value))
+			fmt.Fprintf(b, "- `%s`: %s\n", kv.Key, codeSpan(oneLine(kv.Value)))
 		}
 		b.WriteString("\n")
 	}
@@ -56,7 +56,7 @@ func renderCallerJob(b *strings.Builder, job *model.Job, g *callgraph.Graph, fro
 	case len(job.Secrets) > 0:
 		b.WriteString("#### Secrets forwarded\n\n")
 		for _, kv := range job.Secrets {
-			fmt.Fprintf(b, "- `%s`: `%s`\n", kv.Key, oneLine(kv.Value))
+			fmt.Fprintf(b, "- `%s`: %s\n", kv.Key, codeSpan(oneLine(kv.Value)))
 		}
 		b.WriteString("\n")
 	}

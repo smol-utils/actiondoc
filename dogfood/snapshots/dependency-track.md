@@ -676,16 +676,16 @@ No permissions granted (`permissions: {}` -- default-deny).
    - With:
      - `github-token`: `${{ github.token }}`
      - `issue-inactive-days`: `30`
-     - `exclude-issue-created-before`: ``
-     - `exclude-any-issue-labels`: ``
-     - `add-issue-labels`: ``
+     - `exclude-issue-created-before`: -
+     - `exclude-any-issue-labels`: -
+     - `add-issue-labels`: -
      - `issue-comment`: `This thread has been automatically locked since there has not been any recent activity after it was closed. Please open a new issue for related bugs.`
      - `issue-lock-reason`: `resolved`
      - `pr-inactive-days`: `30`
-     - `exclude-pr-created-before`: ``
-     - `exclude-any-pr-labels`: ``
-     - `add-pr-labels`: ``
-     - `pr-comment`: ``
+     - `exclude-pr-created-before`: -
+     - `exclude-any-pr-labels`: -
+     - `add-pr-labels`: -
+     - `pr-comment`: -
      - `pr-lock-reason`: `resolved`
-     - `process-only`: ``
+     - `process-only`: -
 

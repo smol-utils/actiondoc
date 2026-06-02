@@ -410,7 +410,7 @@ Permissions declared across the chain: `contents: read`
 2. **Bootstrap environment**
    - Uses: `./.github/actions/bootstrap`
    - With:
-     - `bootstrap-apt-packages`: `` - Space delimited list of tools to install via apt
+     - `bootstrap-apt-packages`: - - Space delimited list of tools to install via apt
 
 3. **Build snapshot artifacts**
 
@@ -488,7 +488,7 @@ Permissions declared across the chain: `contents: read`
 3. **Bootstrap environment**
    - Uses: `./.github/actions/bootstrap`
    - With:
-     - `bootstrap-apt-packages`: `` - Space delimited list of tools to install via apt
+     - `bootstrap-apt-packages`: - - Space delimited list of tools to install via apt
      - `go-dependencies`: `false`
      - `download-test-fixture-cache`: `true` - Download test fixture cache from OCI and github actions (required)
 

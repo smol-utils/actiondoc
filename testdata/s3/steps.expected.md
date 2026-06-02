@@ -84,6 +84,12 @@ Exercises step rendering, matrix job names, runs-on normalization, and secret ag
 
 3. **Report deploy status: ${{ matrix.target.env }}**
 
+4. **Comment on PR**
+   - Uses: `actions/github-script@v7`
+   - With:
+     - `script`: `` const env = `${{ matrix.target.env }}`; github.rest.issues.createComment({ body: `Deployed to ${env}` }); ``
+     - `result-encoding`: -
+
 ### Verify ${{ matrix.case }} (`verify`)
 
 | Property | Value |

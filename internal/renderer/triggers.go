@@ -103,20 +103,3 @@ func yesNo(v bool) string {
 	}
 	return "No"
 }
-
-// cellOrDash escapes a value for a table cell, substituting "-" when empty.
-func cellOrDash(s string) string {
-	if s == "" {
-		return "-"
-	}
-	return escapeCell(s)
-}
-
-// codeCellOrDash escapes a value and wraps it in code formatting, substituting "-" when
-// empty.
-func codeCellOrDash(s string) string {
-	if s == "" {
-		return "-"
-	}
-	return "`" + escapeCell(s) + "`"
-}

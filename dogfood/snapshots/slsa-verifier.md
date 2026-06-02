@@ -317,7 +317,7 @@ e2e.schedule.installer.yml [schedule, workflow_dispatch]
    - Uses: `./actions/installer`
    - Condition: `${{ inputs.version != '' || ! contains(matrix.version, '-rc' ) }}`
    - Env:
-     - `SLSA_VERIFIER_CI_ACTION_REF`: ``
+     - `SLSA_VERIFIER_CI_ACTION_REF`: -
 
 15. **[ "$SUCCESS" == "true" ]**
    - Env:

@@ -898,7 +898,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pul
    - ID: `pr-info`
    - Uses: `actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3` (v9.0.0)
    - With:
-     - `script`: `const { data: pullRequest } = await github.rest.repos.listPullRequestsAssociatedWithCommit({     owner: context.repo.owner,     repo: context.repo.repo,     commit_sha: process.env.GITHUB_SHA }); if (pullRequest.length > 0) {     const pr = pullRequest[0];     const backportBranches = pr.labels           .filter(label => label.name.startsWith('backport-to-'))           .map(label => label.name.replace('backport-to-', ''));      console.log(`Commit ${process.env.GITHUB_SHA} is associated with PR ${pr.number}`);     console.log(`Backport branches: ${backportBranches}`);     core.setOutput('branches', JSON.stringify(backportBranches)); } else {     console.log('⚠️ No pull request found for this commit.');     core.setOutput('branches', '[]'); }`
+     - `script`: `` const { data: pullRequest } = await github.rest.repos.listPullRequestsAssociatedWithCommit({     owner: context.repo.owner,     repo: context.repo.repo,     commit_sha: process.env.GITHUB_SHA }); if (pullRequest.length > 0) {     const pr = pullRequest[0];     const backportBranches = pr.labels           .filter(label => label.name.startsWith('backport-to-'))           .map(label => label.name.replace('backport-to-', ''));      console.log(`Commit ${process.env.GITHUB_SHA} is associated with PR ${pr.number}`);     console.log(`Backport branches: ${backportBranches}`);     core.setOutput('branches', JSON.stringify(backportBranches)); } else {     console.log('⚠️ No pull request found for this commit.');     core.setOutput('branches', '[]'); } ``
    - Env:
      - `GITHUB_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
 
@@ -2178,7 +2178,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
 - `platform`: `${{ needs.build-info.outputs.platform }}`
 - `backend`: `sqlite`
 - `test-name`: `Sqlite`
-- `test-name-separator`: ``
+- `test-name-separator`: -
 - `test-scope`: `DB`
 - `test-group`: `core`
 - `python-versions`: `${{ needs.build-info.outputs.python-versions }}`
@@ -2213,7 +2213,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
 - `platform`: `${{ needs.build-info.outputs.platform }}`
 - `backend`: `sqlite`
 - `test-name`: `Sqlite`
-- `test-name-separator`: ``
+- `test-name-separator`: -
 - `test-scope`: `DB`
 - `test-group`: `providers`
 - `python-versions`: `${{ needs.build-info.outputs.python-versions }}`
@@ -2247,8 +2247,8 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
 - `runners`: `${{ needs.build-info.outputs.runner-type }}`
 - `platform`: `${{ needs.build-info.outputs.platform }}`
 - `backend`: `sqlite`
-- `test-name`: ``
-- `test-name-separator`: ``
+- `test-name`: -
+- `test-name-separator`: -
 - `test-scope`: `Non-DB`
 - `test-group`: `core`
 - `python-versions`: `${{ needs.build-info.outputs.python-versions }}`
@@ -2281,8 +2281,8 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
 - `runners`: `${{ needs.build-info.outputs.runner-type }}`
 - `platform`: `${{ needs.build-info.outputs.platform }}`
 - `backend`: `sqlite`
-- `test-name`: ``
-- `test-name-separator`: ``
+- `test-name`: -
+- `test-name-separator`: -
 - `test-scope`: `Non-DB`
 - `test-group`: `providers`
 - `python-versions`: `${{ needs.build-info.outputs.python-versions }}`
@@ -2381,7 +2381,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
 - `backend`: `sqlite`
 - `python-versions`: `${{ needs.build-info.outputs.python-versions }}`
 - `backend-versions`: `['${{ needs.build-info.outputs.default-postgres-version }}']`
-- `excluded-providers-as-string`: ``
+- `excluded-providers-as-string`: -
 - `excludes`: `[]`
 - `test-types-as-strings-in-json`: `${{ needs.build-info.outputs.core-test-types-list-as-strings-in-json }}`
 - `include-success-outputs`: `${{ needs.build-info.outputs.include-success-outputs }}`
@@ -3498,7 +3498,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
 - `platform`: `${{ needs.build-info.outputs.platform }}`
 - `backend`: `sqlite`
 - `test-name`: `Sqlite`
-- `test-name-separator`: ``
+- `test-name-separator`: -
 - `test-scope`: `DB`
 - `test-group`: `core`
 - `python-versions`: `${{ needs.build-info.outputs.python-versions }}`
@@ -3533,7 +3533,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
 - `platform`: `${{ needs.build-info.outputs.platform }}`
 - `backend`: `sqlite`
 - `test-name`: `Sqlite`
-- `test-name-separator`: ``
+- `test-name-separator`: -
 - `test-scope`: `DB`
 - `test-group`: `providers`
 - `python-versions`: `${{ needs.build-info.outputs.python-versions }}`
@@ -3567,8 +3567,8 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
 - `runners`: `${{ needs.build-info.outputs.runner-type }}`
 - `platform`: `${{ needs.build-info.outputs.platform }}`
 - `backend`: `sqlite`
-- `test-name`: ``
-- `test-name-separator`: ``
+- `test-name`: -
+- `test-name-separator`: -
 - `test-scope`: `Non-DB`
 - `test-group`: `core`
 - `python-versions`: `${{ needs.build-info.outputs.python-versions }}`
@@ -3601,8 +3601,8 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
 - `runners`: `${{ needs.build-info.outputs.runner-type }}`
 - `platform`: `${{ needs.build-info.outputs.platform }}`
 - `backend`: `sqlite`
-- `test-name`: ``
-- `test-name-separator`: ``
+- `test-name`: -
+- `test-name-separator`: -
 - `test-scope`: `Non-DB`
 - `test-group`: `providers`
 - `python-versions`: `${{ needs.build-info.outputs.python-versions }}`
@@ -3701,7 +3701,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
 - `backend`: `sqlite`
 - `python-versions`: `${{ needs.build-info.outputs.python-versions }}`
 - `backend-versions`: `['${{ needs.build-info.outputs.default-postgres-version }}']`
-- `excluded-providers-as-string`: ``
+- `excluded-providers-as-string`: -
 - `excludes`: `[]`
 - `test-types-as-strings-in-json`: `${{ needs.build-info.outputs.core-test-types-list-as-strings-in-json }}`
 - `include-success-outputs`: `${{ needs.build-info.outputs.include-success-outputs }}`
@@ -5662,7 +5662,7 @@ Permissions declared across the chain: `contents: write`, `pull-requests: write`
    - ID: `pr-info`
    - Uses: `actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3` (v9.0.0)
    - With:
-     - `script`: `const { data: pullRequests } = await github.rest.repos.listPullRequestsAssociatedWithCommit({     owner: context.repo.owner,     repo: context.repo.repo,     commit_sha: process.env.GITHUB_SHA });  if (pullRequests.length === 0) {     console.log('⚠️ No pull request found for this commit.');     core.setOutput('should-run', 'false');     return; }  const pr = pullRequests[0];  // Skip if PR already has a milestone if (pr.milestone !== null) {     console.log(`PR #${pr.number} already has milestone: ${pr.milestone.title}`);     core.setOutput('should-run', 'false');     return; }  const labels = pr.labels.map(label => label.name);  console.log(`Commit ${process.env.GITHUB_SHA} is associated with PR #${pr.number}`); console.log(`Title: ${pr.title}`); console.log(`Labels: ${JSON.stringify(labels)}`); console.log(`Base branch: ${pr.base.ref}`); console.log(`Merged by: ${pr.merged_by?.login || 'unknown'}`);  core.setOutput('should-run', 'true'); core.setOutput('pr-number', pr.number.toString()); core.setOutput('pr-title', pr.title); core.setOutput('pr-labels', JSON.stringify(labels)); core.setOutput('base-branch', pr.base.ref); core.setOutput('merged-by', pr.merged_by?.login || 'unknown');`
+     - `script`: `` const { data: pullRequests } = await github.rest.repos.listPullRequestsAssociatedWithCommit({     owner: context.repo.owner,     repo: context.repo.repo,     commit_sha: process.env.GITHUB_SHA });  if (pullRequests.length === 0) {     console.log('⚠️ No pull request found for this commit.');     core.setOutput('should-run', 'false');     return; }  const pr = pullRequests[0];  // Skip if PR already has a milestone if (pr.milestone !== null) {     console.log(`PR #${pr.number} already has milestone: ${pr.milestone.title}`);     core.setOutput('should-run', 'false');     return; }  const labels = pr.labels.map(label => label.name);  console.log(`Commit ${process.env.GITHUB_SHA} is associated with PR #${pr.number}`); console.log(`Title: ${pr.title}`); console.log(`Labels: ${JSON.stringify(labels)}`); console.log(`Base branch: ${pr.base.ref}`); console.log(`Merged by: ${pr.merged_by?.login || 'unknown'}`);  core.setOutput('should-run', 'true'); core.setOutput('pr-number', pr.number.toString()); core.setOutput('pr-title', pr.title); core.setOutput('pr-labels', JSON.stringify(labels)); core.setOutput('base-branch', pr.base.ref); core.setOutput('merged-by', pr.merged_by?.login || 'unknown'); ``
    - Env:
      - `GITHUB_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
 
@@ -7710,7 +7710,7 @@ Permissions declared across the chain: `contents: write`, `pull-requests: write`
    - With:
      - `method`: `chat.postMessage`
      - `token`: `${{ secrets.SLACK_BOT_TOKEN }}`
-     - `payload`: `channel: "release-management" text: >-   :warning: Release calendar verification failed.   See:   ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} blocks:   - type: section     text:       type: mrkdwn       text: >-         :warning: *Release calendar verification failed*          The scheduled `verify_release_calendar.py` check         failed. Please review and fix the mismatch between         the Confluence release wiki and the Google         Calendar entries.          • <https://cwiki.apache.org/confluence/display/AIRFLOW/Release+Plan|Release Plan wiki>          • <https://calendar.google.com/calendar/u/0?cid=Y19kZTIxNGU5MmRmM2I3NTk3NzljYjY1ZjNlNDllNTYyNzk2YzYxMjZlNzUwMGNmYTdlNTI0YmY3ODE4NmQ4YjVlQGdyb3VwLmNhbGVuZGFyLmdvb2dsZS5jb20|Release Calendar>          • <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View failed run>`
+     - `payload`: `` channel: "release-management" text: >-   :warning: Release calendar verification failed.   See:   ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} blocks:   - type: section     text:       type: mrkdwn       text: >-         :warning: *Release calendar verification failed*          The scheduled `verify_release_calendar.py` check         failed. Please review and fix the mismatch between         the Confluence release wiki and the Google         Calendar entries.          • <https://cwiki.apache.org/confluence/display/AIRFLOW/Release+Plan|Release Plan wiki>          • <https://calendar.google.com/calendar/u/0?cid=Y19kZTIxNGU5MmRmM2I3NTk3NzljYjY1ZjNlNDllNTYyNzk2YzYxMjZlNzUwMGNmYTdlNTI0YmY3ODE4NmQ4YjVlQGdyb3VwLmNhbGVuZGFyLmdvb2dsZS5jb20|Release Calendar>          • <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View failed run> ``
 
 # Special tests
 
@@ -9039,7 +9039,7 @@ upgrade-check.yml
    - With:
      - `method`: `chat.postMessage`
      - `token`: `${{ env.SLACK_BOT_TOKEN }}`
-     - `payload`: `channel: "internal-airflow-ci-cd" text: >-   🔧 [${{ inputs.target-branch }}] Scheduled CI upgrade PR   ready: ${{ steps.find-pr.outputs.pr-url }} blocks:   - type: section     text:       type: mrkdwn       text: >-         🔧 *[${{ inputs.target-branch }}] Scheduled CI upgrade         PR ready*          A new CI upgrade PR has been created as a draft on the         `${{ inputs.target-branch }}` branch. Please:            1. *Undraft* the PR to trigger CI           2. *Review* the changes           3. *Merge* it once CI passes          <${{ steps.find-pr.outputs.pr-url }}|View PR>`
+     - `payload`: `` channel: "internal-airflow-ci-cd" text: >-   🔧 [${{ inputs.target-branch }}] Scheduled CI upgrade PR   ready: ${{ steps.find-pr.outputs.pr-url }} blocks:   - type: section     text:       type: mrkdwn       text: >-         🔧 *[${{ inputs.target-branch }}] Scheduled CI upgrade         PR ready*          A new CI upgrade PR has been created as a draft on the         `${{ inputs.target-branch }}` branch. Please:            1. *Undraft* the PR to trigger CI           2. *Review* the changes           3. *Merge* it once CI passes          <${{ steps.find-pr.outputs.pr-url }}|View PR> ``
 
 9. **[${{ inputs.target-branch }}] Notify Slack on failure**
    - Uses: `slackapi/slack-github-action@45a88b9581bfab2566dc881e2cd66d334e621e2c`
@@ -9047,7 +9047,7 @@ upgrade-check.yml
    - With:
      - `method`: `chat.postMessage`
      - `token`: `${{ env.SLACK_BOT_TOKEN }}`
-     - `payload`: `channel: "internal-airflow-ci-cd" text: >-   ⚠️ [${{ inputs.target-branch }}] Scheduled CI upgrade FAILED.   See: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} blocks:   - type: section     text:       type: mrkdwn       text: >-         ⚠️ *[${{ inputs.target-branch }}] Scheduled CI upgrade         FAILED*          The `breeze ci upgrade` job on the         `${{ inputs.target-branch }}` branch did not complete         successfully. Please investigate the failed run and         re-run the workflow if needed.          <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View failed run>`
+     - `payload`: `` channel: "internal-airflow-ci-cd" text: >-   ⚠️ [${{ inputs.target-branch }}] Scheduled CI upgrade FAILED.   See: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} blocks:   - type: section     text:       type: mrkdwn       text: >-         ⚠️ *[${{ inputs.target-branch }}] Scheduled CI upgrade         FAILED*          The `breeze ci upgrade` job on the         `${{ inputs.target-branch }}` branch did not complete         successfully. Please investigate the failed run and         re-run the workflow if needed.          <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View failed run> ``
 
 # Setup Breeze
 
