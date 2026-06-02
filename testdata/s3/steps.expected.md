@@ -82,6 +82,8 @@ Exercises step rendering, matrix job names, runs-on normalization, and secret ag
 2. **Notify** `[continue-on-error]`
    - Condition: `${{ vars.NOTIFY_CHANNEL && secrets.SLACK_WEBHOOK }}`
 
+3. **Report deploy status: ${{ matrix.target.env }}**
+
 ### Verify ${{ matrix.case }} (`verify`)
 
 | Property | Value |

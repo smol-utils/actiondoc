@@ -82,6 +82,45 @@ func TestParseStepFields(t *testing.T) {
 	}
 }
 
+// TestParseMultilineNames verifies that block-scalar name: values (which carry embedded
+// or trailing newlines) are normalized to a single line at parse time. A multi-line name
+// would otherwise break the Markdown structures built around names: bold step titles,
+// ASCII call-graph tree labels, and heading anchors.
+func TestParseMultilineNames(t *testing.T) {
+	src := `name: >
+  Continuous
+  Integration
+on: push
+jobs:
+  build:
+    name: |
+      Build and
+      Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: >-
+          Migration Tests: ${{ matrix.python-version }}:
+          ${{ env.PARALLEL_TEST_TYPES }}
+        run: ./run.sh
+`
+	w, err := parseString(t, src)
+	if err != nil {
+		t.Fatalf("ParseFile: %v", err)
+	}
+	for _, tc := range []struct{ got, want, what string }{
+		{w.Name, "Continuous Integration", "workflow name"},
+		{w.Jobs[0].Name, "Build and Test", "job name"},
+		{w.Jobs[0].Steps[0].Name, "Migration Tests: ${{ matrix.python-version }}: ${{ env.PARALLEL_TEST_TYPES }}", "step name"},
+	} {
+		if tc.got != tc.want {
+			t.Errorf("%s = %q, want %q", tc.what, tc.got, tc.want)
+		}
+		if strings.Contains(tc.got, "\n") {
+			t.Errorf("%s still contains a newline: %q", tc.what, tc.got)
+		}
+	}
+}
+
 // TestParseContinueOnErrorExpression verifies that an expression-valued
 // continue-on-error (e.g. matrix-driven) is captured as an expression rather than
 // silently coerced to false, so the step is still flagged as failure-tolerant.

@@ -1892,7 +1892,7 @@ doctest_job.yml
 
 ## Jobs
 
-###   (`run_doctests`)
+### `run_doctests`
 
 | Property | Value |
 |----------|-------|
@@ -2442,7 +2442,7 @@ model_jobs.yml
 
 ## Jobs
 
-###   (`run_models_gpu`)
+### `run_models_gpu`
 
 | Property | Value |
 |----------|-------|
@@ -2598,7 +2598,7 @@ model_jobs_intel_gaudi.yml
 
 ## Jobs
 
-###   (`run_models_gpu`)
+### `run_models_gpu`
 
 | Property | Value |
 |----------|-------|
@@ -5060,7 +5060,7 @@ self-scheduled-intel-gaudi.yml
    - ID: `set-matrix-quantization`
    - Condition: `${{ inputs.job == 'run_quantization_torch_gpu' }}`
 
-###   (`run_models_gpu`)
+### `run_models_gpu`
 
 | Property | Value |
 |----------|-------|
@@ -5079,7 +5079,7 @@ self-scheduled-intel-gaudi.yml
 
 - `secrets: inherit` (all caller secrets are passed to the callee)
 
-###   (`run_trainer_and_fsdp_gpu`)
+### `run_trainer_and_fsdp_gpu`
 
 | Property | Value |
 |----------|-------|
@@ -5500,7 +5500,7 @@ self-scheduled.yml
 
 6. **NVIDIA-SMI**
 
-###   (`run_models_gpu`)
+### `run_models_gpu`
 
 | Property | Value |
 |----------|-------|
@@ -5523,7 +5523,7 @@ self-scheduled.yml
 
 - `secrets: inherit` (all caller secrets are passed to the callee)
 
-###   (`run_trainer_and_fsdp_gpu`)
+### `run_trainer_and_fsdp_gpu`
 
 | Property | Value |
 |----------|-------|
@@ -5670,7 +5670,7 @@ self-scheduled.yml
      - `name`: `${{ env.machine_type }}_run_torch_cuda_extensions_gpu_test_reports`
      - `path`: `${{ inputs.working-directory-prefix }}/transformers/reports/${{ env.machine_type }}_run_torch_cuda_extensions_gpu_test_reports`
 
-###   (`run_quantization_torch_gpu`)
+### `run_quantization_torch_gpu`
 
 | Property | Value |
 |----------|-------|

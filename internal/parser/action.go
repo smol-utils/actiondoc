@@ -42,7 +42,7 @@ func ParseActionFile(path string) (*model.Action, error) {
 		keyStr := mapKeyString(mv.Key)
 		switch keyStr {
 		case "name":
-			a.Name = nodeString(mv.Value)
+			a.Name = nameString(mv.Value)
 		case "description":
 			a.Description = nodeString(mv.Value)
 		case "inputs":

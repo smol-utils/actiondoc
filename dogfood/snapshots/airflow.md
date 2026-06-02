@@ -659,8 +659,7 @@ airflow-distributions-tests.yml
 7. **Verify wheel packages with twine**
    - Condition: `${{ matrix.python-version == inputs.default-python-version }}`
 
-8. **Run unit tests for Airflow ${{inputs.distribution-name}}:Python ${{ matrix.python-version }}
-**
+8. **Run unit tests for Airflow ${{inputs.distribution-name}}:Python ${{ matrix.python-version }}**
    - Env:
      - `PYTHON_VERSION`: `${{ matrix.python-version }}`
      - `TEST_TYPE`: `${{ inputs.test-type }}`
@@ -1488,117 +1487,98 @@ ci-amd.yml [schedule, pull_request, push, workflow_dispatch]
 |   +-- tests-helm-release / Install Breeze (uses ./.github/actions/breeze)
 +-- tests-postgres-core (uses run-unit-tests.yml)
 |   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }}
- (uses ./.github/actions/migration_tests)
+|   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
 |   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
 |   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
 +-- tests-postgres-providers (uses run-unit-tests.yml)
 |   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }}
- (uses ./.github/actions/migration_tests)
+|   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
 |   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
 |   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
 +-- tests-mysql-core (uses run-unit-tests.yml)
 |   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }}
- (uses ./.github/actions/migration_tests)
+|   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
 |   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
 |   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
 +-- tests-mysql-providers (uses run-unit-tests.yml)
 |   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }}
- (uses ./.github/actions/migration_tests)
+|   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
 |   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
 |   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
 +-- tests-sqlite-core (uses run-unit-tests.yml)
 |   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }}
- (uses ./.github/actions/migration_tests)
+|   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
 |   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
 |   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
 +-- tests-sqlite-providers (uses run-unit-tests.yml)
 |   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }}
- (uses ./.github/actions/migration_tests)
+|   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
 |   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
 |   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
 +-- tests-non-db-core (uses run-unit-tests.yml)
 |   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }}
- (uses ./.github/actions/migration_tests)
+|   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
 |   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
 |   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
 +-- tests-non-db-providers (uses run-unit-tests.yml)
 |   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }}
- (uses ./.github/actions/migration_tests)
+|   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
 |   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
 |   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
 +-- tests-special (uses special-tests.yml)
 |   +-- tests-min-sqlalchemy (uses run-unit-tests.yml)
 |   |   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   |   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }}
- (uses ./.github/actions/migration_tests)
+|   |   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
 |   |   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
 |   |   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
 |   +-- tests-min-sqlalchemy-providers (uses run-unit-tests.yml)
 |   |   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   |   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }}
- (uses ./.github/actions/migration_tests)
+|   |   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
 |   |   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
 |   |   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
 |   +-- tests-latest-sqlalchemy (uses run-unit-tests.yml)
 |   |   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   |   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }}
- (uses ./.github/actions/migration_tests)
+|   |   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
 |   |   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
 |   |   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
 |   +-- tests-latest-sqlalchemy-providers (uses run-unit-tests.yml)
 |   |   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   |   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }}
- (uses ./.github/actions/migration_tests)
+|   |   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
 |   |   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
 |   |   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
 |   +-- tests-boto-core (uses run-unit-tests.yml)
 |   |   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   |   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }}
- (uses ./.github/actions/migration_tests)
+|   |   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
 |   |   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
 |   |   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
 |   +-- tests-boto-providers (uses run-unit-tests.yml)
 |   |   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   |   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }}
- (uses ./.github/actions/migration_tests)
+|   |   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
 |   |   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
 |   |   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
 |   +-- tests-pendulum-2-core (uses run-unit-tests.yml)
 |   |   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   |   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }}
- (uses ./.github/actions/migration_tests)
+|   |   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
 |   |   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
 |   |   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
 |   +-- tests-pendulum-2-providers (uses run-unit-tests.yml)
 |   |   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   |   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }}
- (uses ./.github/actions/migration_tests)
+|   |   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
 |   |   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
 |   |   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
 |   +-- tests-quarantined-core (uses run-unit-tests.yml)
 |   |   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   |   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }}
- (uses ./.github/actions/migration_tests)
+|   |   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
 |   |   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
 |   |   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
 |   +-- tests-quarantined-providers (uses run-unit-tests.yml)
 |   |   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   |   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }}
- (uses ./.github/actions/migration_tests)
+|   |   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
 |   |   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
 |   |   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
 |   +-- tests-system-core (uses run-unit-tests.yml)
 |       +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|       +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }}
- (uses ./.github/actions/migration_tests)
+|       +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
 |       +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
 |       +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
 +-- tests-integration-system (uses integration-system-tests.yml)
@@ -1613,14 +1593,12 @@ ci-amd.yml [schedule, pull_request, push, workflow_dispatch]
 |   +-- tests-system / Post Tests failure (uses ./.github/actions/post_tests_failure)
 +-- tests-with-lowest-direct-resolution-core (uses run-unit-tests.yml)
 |   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }}
- (uses ./.github/actions/migration_tests)
+|   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
 |   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
 |   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
 +-- tests-with-lowest-direct-resolution-providers (uses run-unit-tests.yml)
 |   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }}
- (uses ./.github/actions/migration_tests)
+|   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
 |   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
 |   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
 +-- build-prod-images (uses prod-image-build.yml)
@@ -2829,117 +2807,98 @@ ci-arm.yml [schedule, push, workflow_dispatch]
 |   +-- tests-helm-release / Install Breeze (uses ./.github/actions/breeze)
 +-- tests-postgres-core (uses run-unit-tests.yml)
 |   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }}
- (uses ./.github/actions/migration_tests)
+|   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
 |   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
 |   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
 +-- tests-postgres-providers (uses run-unit-tests.yml)
 |   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }}
- (uses ./.github/actions/migration_tests)
+|   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
 |   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
 |   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
 +-- tests-mysql-core (uses run-unit-tests.yml)
 |   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }}
- (uses ./.github/actions/migration_tests)
+|   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
 |   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
 |   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
 +-- tests-mysql-providers (uses run-unit-tests.yml)
 |   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }}
- (uses ./.github/actions/migration_tests)
+|   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
 |   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
 |   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
 +-- tests-sqlite-core (uses run-unit-tests.yml)
 |   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }}
- (uses ./.github/actions/migration_tests)
+|   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
 |   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
 |   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
 +-- tests-sqlite-providers (uses run-unit-tests.yml)
 |   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }}
- (uses ./.github/actions/migration_tests)
+|   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
 |   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
 |   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
 +-- tests-non-db-core (uses run-unit-tests.yml)
 |   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }}
- (uses ./.github/actions/migration_tests)
+|   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
 |   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
 |   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
 +-- tests-non-db-providers (uses run-unit-tests.yml)
 |   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }}
- (uses ./.github/actions/migration_tests)
+|   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
 |   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
 |   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
 +-- tests-special (uses special-tests.yml)
 |   +-- tests-min-sqlalchemy (uses run-unit-tests.yml)
 |   |   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   |   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }}
- (uses ./.github/actions/migration_tests)
+|   |   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
 |   |   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
 |   |   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
 |   +-- tests-min-sqlalchemy-providers (uses run-unit-tests.yml)
 |   |   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   |   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }}
- (uses ./.github/actions/migration_tests)
+|   |   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
 |   |   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
 |   |   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
 |   +-- tests-latest-sqlalchemy (uses run-unit-tests.yml)
 |   |   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   |   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }}
- (uses ./.github/actions/migration_tests)
+|   |   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
 |   |   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
 |   |   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
 |   +-- tests-latest-sqlalchemy-providers (uses run-unit-tests.yml)
 |   |   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   |   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }}
- (uses ./.github/actions/migration_tests)
+|   |   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
 |   |   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
 |   |   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
 |   +-- tests-boto-core (uses run-unit-tests.yml)
 |   |   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   |   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }}
- (uses ./.github/actions/migration_tests)
+|   |   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
 |   |   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
 |   |   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
 |   +-- tests-boto-providers (uses run-unit-tests.yml)
 |   |   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   |   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }}
- (uses ./.github/actions/migration_tests)
+|   |   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
 |   |   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
 |   |   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
 |   +-- tests-pendulum-2-core (uses run-unit-tests.yml)
 |   |   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   |   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }}
- (uses ./.github/actions/migration_tests)
+|   |   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
 |   |   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
 |   |   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
 |   +-- tests-pendulum-2-providers (uses run-unit-tests.yml)
 |   |   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   |   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }}
- (uses ./.github/actions/migration_tests)
+|   |   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
 |   |   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
 |   |   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
 |   +-- tests-quarantined-core (uses run-unit-tests.yml)
 |   |   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   |   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }}
- (uses ./.github/actions/migration_tests)
+|   |   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
 |   |   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
 |   |   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
 |   +-- tests-quarantined-providers (uses run-unit-tests.yml)
 |   |   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   |   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }}
- (uses ./.github/actions/migration_tests)
+|   |   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
 |   |   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
 |   |   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
 |   +-- tests-system-core (uses run-unit-tests.yml)
 |       +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|       +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }}
- (uses ./.github/actions/migration_tests)
+|       +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
 |       +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
 |       +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
 +-- tests-integration-system (uses integration-system-tests.yml)
@@ -2954,14 +2913,12 @@ ci-arm.yml [schedule, push, workflow_dispatch]
 |   +-- tests-system / Post Tests failure (uses ./.github/actions/post_tests_failure)
 +-- tests-with-lowest-direct-resolution-core (uses run-unit-tests.yml)
 |   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }}
- (uses ./.github/actions/migration_tests)
+|   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
 |   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
 |   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
 +-- tests-with-lowest-direct-resolution-providers (uses run-unit-tests.yml)
 |   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }}
- (uses ./.github/actions/migration_tests)
+|   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
 |   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
 |   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
 +-- build-prod-images (uses prod-image-build.yml)
@@ -4152,8 +4109,8 @@ ci-image-build.yml
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | job `build-ci-images` env `GITHUB_TOKEN`; job `build-ci-images` step `Login to ghcr.io` env `GITHUB_TOKEN`; job `build-ci-images` step `Build ${{ inputs.push-image == 'true' && ' & push ' \|\| '' }} ${{ inputs.platform }}:${{ env.PYTHON_MAJOR_MINOR_VERSION }} image<br>` env `GITHUB_TOKEN` |
-| `CONSTRAINTS_GITHUB_REPOSITORY` | job `build-ci-images` step `Build ${{ inputs.push-image == 'true' && ' & push ' \|\| '' }} ${{ inputs.platform }}:${{ env.PYTHON_MAJOR_MINOR_VERSION }} image<br>` env `CONSTRAINTS_GITHUB_REPOSITORY` |
+| `GITHUB_TOKEN` | job `build-ci-images` env `GITHUB_TOKEN`; job `build-ci-images` step `Login to ghcr.io` env `GITHUB_TOKEN`; job `build-ci-images` step `Build ${{ inputs.push-image == 'true' && ' & push ' \|\| '' }} ${{ inputs.platform }}:${{ env.PYTHON_MAJOR_MINOR_VERSION }} image` env `GITHUB_TOKEN` |
+| `CONSTRAINTS_GITHUB_REPOSITORY` | job `build-ci-images` step `Build ${{ inputs.push-image == 'true' && ' & push ' \|\| '' }} ${{ inputs.platform }}:${{ env.PYTHON_MAJOR_MINOR_VERSION }} image` env `CONSTRAINTS_GITHUB_REPOSITORY` |
 
 ## Jobs
 
@@ -4216,8 +4173,7 @@ ci-image-build.yml
      - `GITHUB_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
      - `ACTOR`: `${{ github.actor }}`
 
-11. **Build ${{ inputs.push-image == 'true' && ' & push ' || '' }} ${{ inputs.platform }}:${{ env.PYTHON_MAJOR_MINOR_VERSION }} image
-**
+11. **Build ${{ inputs.push-image == 'true' && ' & push ' || '' }} ${{ inputs.platform }}:${{ env.PYTHON_MAJOR_MINOR_VERSION }} image**
    - Env:
      - `DOCKER_CACHE`: `${{ inputs.docker-cache }}`
      - `DISABLE_AIRFLOW_REPO_CACHE`: `${{ inputs.disable-airflow-repo-cache }}`
@@ -6221,7 +6177,7 @@ Permissions declared across the chain: `contents: read`, `id-token: write (OIDC)
 
 6. **Copy the version retrieval script**
 
-7. **Checkout ${{ inputs.ref }} **
+7. **Checkout ${{ inputs.ref }}**
    - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
    - With:
      - `persist-credentials`: `false`
@@ -6449,7 +6405,7 @@ push-image-cache.yml
 
 ## Jobs
 
-### Push CI ${{ inputs.cache-type }}:${{ matrix.python }} image cache  (`push-ci-image-cache`)
+### Push CI ${{ inputs.cache-type }}:${{ matrix.python }} image cache (`push-ci-image-cache`)
 
 | Property | Value |
 |----------|-------|
@@ -7322,17 +7278,13 @@ release_single_dockerhub_image.yml
 
 10. **Create airflow_cache builder**
 
-11. **Build regular images: ${{ inputs.airflowVersion }}, ${{ inputs.pythonVersion }}, ${{ matrix.platform }}
-**
+11. **Build regular images: ${{ inputs.airflowVersion }}, ${{ inputs.pythonVersion }}, ${{ matrix.platform }}**
 
-12. **Verify regular image: ${{ inputs.airflowVersion }}, ${{ inputs.pythonVersion }}, ${{ matrix.platform }}
-**
+12. **Verify regular image: ${{ inputs.airflowVersion }}, ${{ inputs.pythonVersion }}, ${{ matrix.platform }}**
 
-13. **Release slim images: ${{ inputs.airflowVersion }}, ${{ inputs.pythonVersion }}, ${{ matrix.platform }}
-**
+13. **Release slim images: ${{ inputs.airflowVersion }}, ${{ inputs.pythonVersion }}, ${{ matrix.platform }}**
 
-14. **Verify slim image: ${{ inputs.airflowVersion }}, ${{ inputs.pythonVersion }}, ${{ matrix.platform }}
-**
+14. **Verify slim image: ${{ inputs.airflowVersion }}, ${{ inputs.pythonVersion }}, ${{ matrix.platform }}**
 
 15. **List upload-able artifacts**
 
@@ -7578,15 +7530,13 @@ run-unit-tests.yml
      - `use-uv`: `${{ inputs.use-uv }}` - Whether to use uv (required)
      - `make-mnt-writeable-and-cleanup`: `false` - Whether to cleanup /mnt (required)
 
-6. **Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }}
-**
+6. **Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }}**
    - Uses: `./.github/actions/migration_tests`
    - Condition: `inputs.run-migration-tests == 'true' && inputs.test-group == 'core' && matrix.python-version != '3.14'`
    - With:
      - `python-version`: `${{ matrix.python-version }}` - Python version to run the tests on (required)
 
-7. **${{ inputs.test-group }}:${{ inputs.test-scope }} Tests ${{ inputs.test-name }} ${{ matrix.backend-version }} Py${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }}
-**
+7. **${{ inputs.test-group }}:${{ inputs.test-scope }} Tests ${{ inputs.test-name }} ${{ matrix.backend-version }} Py${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }}**
    - Env:
      - `TEST_GROUP`: `${{ inputs.test-group }}`
      - `TEST_SCOPE`: `${{ inputs.test-scope }}`
@@ -8386,16 +8336,14 @@ test-providers.yml
 
 8. **Download airflow package: wheel**
 
-9. **Install and verify all provider distributions and airflow on Airflow ${{ matrix.compat.airflow-version }}:Python ${{ matrix.compat.python-version }}
-**
+9. **Install and verify all provider distributions and airflow on Airflow ${{ matrix.compat.airflow-version }}:Python ${{ matrix.compat.python-version }}**
    - Condition: `matrix.compat.run-unit-tests != 'true'`
    - Env:
      - `AIRFLOW_VERSION`: `${{ matrix.compat.airflow-version }}`
 
 10. **Check amount of disk space available**
 
-11. **Run provider unit tests on Airflow ${{ matrix.compat.airflow-version }}:Python ${{ matrix.compat.python-version }}:${{ matrix.test-types.description }}
-**
+11. **Run provider unit tests on Airflow ${{ matrix.compat.airflow-version }}:Python ${{ matrix.compat.python-version }}:${{ matrix.test-types.description }}**
    - Condition: `matrix.compat.run-unit-tests == 'true'`
    - Env:
      - `PROVIDERS_TEST_TYPES`: `${{ matrix.test-types.test_types }}`

@@ -93,7 +93,7 @@ func ParseFile(path string) (*model.Workflow, error) {
 		keyStr := mapKeyString(mv.Key)
 		switch keyStr {
 		case "name":
-			w.Name = nodeString(mv.Value)
+			w.Name = nameString(mv.Value)
 		case "on", "true":
 			w.On = parseTriggers(mv.Value)
 			w.Triggers = parseTriggerSurface(mv.Value)
@@ -184,6 +184,15 @@ func nodeString(node ast.Node) string {
 	}
 }
 
+// nameString reads a display-name value (workflow/job/step/action `name:`) as a single
+// line: newlines from block scalars collapse to spaces and runs of whitespace collapse to
+// one space. A display name is one line by definition; embedded newlines are YAML
+// formatting accidents that would otherwise break the Markdown structures built around
+// names (bold step titles, ASCII tree labels, heading anchors).
+func nameString(node ast.Node) string {
+	return strings.Join(strings.Fields(nodeString(node)), " ")
+}
+
 // parseTriggers extracts event names from the on: node.
 // Handles: scalar ("push"), sequence ([push, pull_request]),
 // and mapping (push: { branches: [...] }).
@@ -246,7 +255,7 @@ func parseJobFields(job *model.Job, mapping *ast.MappingNode) {
 		keyStr := mapKeyString(mv.Key)
 		switch keyStr {
 		case "name":
-			job.Name = nodeString(mv.Value)
+			job.Name = nameString(mv.Value)
 		case "runs-on":
 			job.RunsOn = parseRunsOn(mv.Value)
 		case "needs":
@@ -323,7 +332,7 @@ func parseSteps(node ast.Node) []model.Step {
 			keyStr := mapKeyString(mv.Key)
 			switch keyStr {
 			case "name":
-				step.Name = nodeString(mv.Value)
+				step.Name = nameString(mv.Value)
 			case "id":
 				step.ID = nodeString(mv.Value)
 			case "uses":

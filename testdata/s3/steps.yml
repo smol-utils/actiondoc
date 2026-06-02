@@ -62,6 +62,10 @@ jobs:
         if: ${{ vars.NOTIFY_CHANNEL && secrets.SLACK_WEBHOOK }}
         run: curl -X POST "${{ secrets.SLACK_WEBHOOK }}"
         continue-on-error: true
+      - name: >
+          Report deploy status:
+          ${{ matrix.target.env }}
+        run: ./scripts/report.sh
 
   verify:
     name: Verify ${{ matrix.case }}
