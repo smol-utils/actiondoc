@@ -1,0 +1,25 @@
+name: CI
+
+on: [push]
+
+jobs:
+  build:
+    uses: ./.github/workflows/reusable.yml
+    permissions:
+      id-token: write
+      contents: read
+    with:
+      target: linux
+    secrets:
+      BUILD_TOKEN: ${{ secrets.CI_BUILD_TOKEN }}
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to staging
+        continue-on-error: true
+        uses: ./.github/actions/deploy
+        with:
+          environment: staging
+          token: ${{ secrets.DEPLOY_TOKEN }}

@@ -1,0 +1,2 @@
+# Fetched corpus clones are reproducible from manifest.txt; don't commit them.
+repos/

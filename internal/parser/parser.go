@@ -4,11 +4,55 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/goccy/go-yaml/ast"
 	yamlparser "github.com/goccy/go-yaml/parser"
 	"github.com/smol-utils/actiondoc/internal/model"
 )
+
+// firstMappingDoc returns the first YAML document whose body is a mapping, wrapping a
+// bare MappingValueNode if needed. goccy/go-yaml emits a leading comment-only document
+// when a file opens with a '#' comment block followed by a '---' document-start marker
+// (e.g. a license header). Taking Docs[0] unconditionally then fails with
+// "expected top-level mapping"; iterating skips the comment-only document.
+//
+// It also returns any documents skipped before the mapping. Their comments must still be
+// searched for the head comment -- otherwise a description or ActionDoc tags placed in a
+// comment block before `---` would be silently lost.
+func firstMappingDoc(file *ast.File) (doc *ast.DocumentNode, root *ast.MappingNode, skipped []*ast.DocumentNode, ok bool) {
+	for _, d := range file.Docs {
+		if d == nil || d.Body == nil {
+			skipped = append(skipped, d)
+			continue
+		}
+		switch body := d.Body.(type) {
+		case *ast.MappingNode:
+			return d, body, skipped, true
+		case *ast.MappingValueNode:
+			return d, &ast.MappingNode{Values: []*ast.MappingValueNode{body}}, skipped, true
+		}
+		skipped = append(skipped, d)
+	}
+	return nil, nil, skipped, false
+}
+
+// headCommentNodes builds the node list to search for the head comment: the leading
+// comment-only documents skipped before the mapping (where a pre-`---` comment block
+// lands) first, then the mapping document, root, first entry, and its key.
+func headCommentNodes(doc *ast.DocumentNode, root *ast.MappingNode, skipped []*ast.DocumentNode) []ast.Node {
+	var nodes []ast.Node
+	for _, d := range skipped {
+		if d != nil {
+			nodes = append(nodes, d)
+		}
+	}
+	nodes = append(nodes, doc, root)
+	if len(root.Values) > 0 {
+		nodes = append(nodes, root.Values[0], root.Values[0].Key)
+	}
+	return nodes
+}
 
 // ParseFile parses a single workflow YAML file into the IR.
 func ParseFile(path string) (*model.Workflow, error) {
@@ -25,32 +69,24 @@ func ParseFile(path string) (*model.Workflow, error) {
 	if len(file.Docs) == 0 {
 		return nil, fmt.Errorf("%s: no YAML documents found", path)
 	}
-	doc := file.Docs[0]
-
-	root, ok := doc.Body.(*ast.MappingNode)
+	doc, root, skipped, ok := firstMappingDoc(file)
 	if !ok {
-		// Could be a single MappingValueNode; wrap it.
-		if mv, ok := doc.Body.(*ast.MappingValueNode); ok {
-			root = &ast.MappingNode{Values: []*ast.MappingValueNode{mv}}
-		} else {
-			return nil, fmt.Errorf("%s: expected top-level mapping", path)
-		}
+		return nil, fmt.Errorf("%s: expected top-level mapping", path)
 	}
 
 	w := &model.Workflow{
 		File: filepath.Base(path),
 	}
 
-	// Workflow-level tags: the YAML library may attach the top-of-file comment
-	// to the document, root mapping, first MappingValueNode, or its key.
-	var firstMV, firstKey ast.Node
-	if len(root.Values) > 0 {
-		firstMV = root.Values[0]
-		firstKey = root.Values[0].Key
-	}
-	headComment := findComment(doc, root, firstMV, firstKey)
+	// Workflow-level tags: the YAML library may attach the top-of-file comment to a
+	// leading comment-only document (pre-`---` block), the mapping document, root
+	// mapping, first MappingValueNode, or its key.
+	headComment := findComment(headCommentNodes(doc, root, skipped)...)
 	w.Tags = ParseTags(headComment)
 	w.Description = w.Tags.Desc
+	if w.Description == "" {
+		w.Description = implicitDescription(headComment, w.Tags)
+	}
 
 	// Walk top-level keys.
 	for _, mv := range root.Values {
@@ -60,8 +96,17 @@ func ParseFile(path string) (*model.Workflow, error) {
 			w.Name = nodeString(mv.Value)
 		case "on", "true":
 			w.On = parseTriggers(mv.Value)
+			w.Triggers = parseTriggerSurface(mv.Value)
 		case "jobs":
 			w.Jobs = parseJobs(mv.Value)
+		case "permissions":
+			w.Permissions = parsePermissions(mv.Value)
+		case "env":
+			w.Env = parseKVMap(mv.Value)
+		case "concurrency":
+			w.Concurrency = parseConcurrency(mv.Value)
+		case "defaults":
+			w.Defaults = parseDefaults(mv.Value)
 		}
 	}
 
@@ -80,11 +125,25 @@ func commentString(cg *ast.CommentGroupNode) string {
 	return cg.String()
 }
 
-// findComment returns the first non-empty comment string from the given nodes.
+// findComment returns the first non-empty comment string from the given nodes. A node
+// may carry its comment via GetComment(), or BE a comment group itself (goccy represents
+// a pre-`---` comment block as a document whose body is a *ast.CommentGroupNode).
 func findComment(nodes ...ast.Node) string {
 	for _, n := range nodes {
 		if n == nil {
 			continue
+		}
+		if cg, ok := n.(*ast.CommentGroupNode); ok {
+			if s := commentString(cg); s != "" {
+				return s
+			}
+		}
+		if doc, ok := n.(*ast.DocumentNode); ok {
+			if cg, ok := doc.Body.(*ast.CommentGroupNode); ok {
+				if s := commentString(cg); s != "" {
+					return s
+				}
+			}
 		}
 		if s := commentString(n.GetComment()); s != "" {
 			return s
@@ -189,15 +248,56 @@ func parseJobFields(job *model.Job, mapping *ast.MappingNode) {
 		case "name":
 			job.Name = nodeString(mv.Value)
 		case "runs-on":
-			job.RunsOn = nodeString(mv.Value)
+			job.RunsOn = parseRunsOn(mv.Value)
 		case "needs":
 			job.Needs = parseStringOrSequence(mv.Value)
 		case "if":
 			job.If = nodeString(mv.Value)
+		case "strategy":
+			job.Matrix = parseMatrix(mv.Value)
 		case "steps":
 			job.Steps = parseSteps(mv.Value)
+		// Reusable-workflow caller jobs use uses:/with:/secrets: instead of steps.
+		case "uses":
+			job.Uses = nodeString(mv.Value)
+		case "with":
+			job.With = parseKVMap(mv.Value)
+		case "secrets":
+			// `secrets: inherit` (scalar) vs an explicit mapping of forwarded secrets.
+			if strings.TrimSpace(nodeString(mv.Value)) == "inherit" {
+				job.SecretsInherit = true
+			} else {
+				job.Secrets = parseKVMap(mv.Value)
+			}
+		case "permissions":
+			job.Permissions = parsePermissions(mv.Value)
+		case "env":
+			job.Env = parseKVMap(mv.Value)
+		case "concurrency":
+			job.Concurrency = parseConcurrency(mv.Value)
+		case "defaults":
+			job.Defaults = parseDefaults(mv.Value)
+		case "environment":
+			job.Environment = parseEnvironment(mv.Value)
 		}
 	}
+}
+
+// parseKVMap parses a YAML mapping into an ordered slice of key/value pairs, preserving
+// source order. Used for reusable-workflow `with:`/`secrets:` forwarding maps.
+func parseKVMap(node ast.Node) []model.KV {
+	mapping := toMapping(node)
+	if mapping == nil {
+		return nil
+	}
+	var out []model.KV
+	for _, mv := range mapping.Values {
+		out = append(out, model.KV{
+			Key:   mapKeyString(mv.Key),
+			Value: nodeString(mv.Value),
+		})
+	}
+	return out
 }
 
 // parseSteps extracts steps from the steps: sequence node.
@@ -228,10 +328,22 @@ func parseSteps(node ast.Node) []model.Step {
 				step.ID = nodeString(mv.Value)
 			case "uses":
 				step.Uses = nodeString(mv.Value)
+				step.UsesVersion = versionComment(TrailingComment(mv))
 			case "run":
 				step.Run = nodeString(mv.Value)
 			case "if":
 				step.If = nodeString(mv.Value)
+			case "with":
+				step.With = parseKVMap(mv.Value)
+			case "continue-on-error":
+				v := strings.TrimSpace(nodeString(mv.Value))
+				if strings.EqualFold(v, "true") {
+					step.ContinueOnError = true
+				} else if strings.Contains(v, "${{") {
+					// An expression-valued continue-on-error (e.g. matrix-driven) is still
+					// failure-tolerant; keep the raw expression so the renderer can show it.
+					step.ContinueOnErrorExpr = v
+				}
 			}
 		}
 		steps = append(steps, step)
@@ -281,165 +393,4 @@ func toMapping(node ast.Node) *ast.MappingNode {
 		return &ast.MappingNode{Values: []*ast.MappingValueNode{n}}
 	}
 	return nil
-}
-
-// ParseActionFile parses a GitHub Action metadata file (action.yml) into the data model.
-func ParseActionFile(path string) (*model.Action, error) {
-	data, err := os.ReadFile(path)
-	if err != nil {
-		return nil, fmt.Errorf("reading %s: %w", path, err)
-	}
-
-	file, err := yamlparser.ParseBytes(data, yamlparser.ParseComments)
-	if err != nil {
-		return nil, fmt.Errorf("parsing %s: %w", path, err)
-	}
-
-	if len(file.Docs) == 0 {
-		return nil, fmt.Errorf("%s: no YAML documents found", path)
-	}
-	doc := file.Docs[0]
-
-	root, ok := doc.Body.(*ast.MappingNode)
-	if !ok {
-		if mv, ok := doc.Body.(*ast.MappingValueNode); ok {
-			root = &ast.MappingNode{Values: []*ast.MappingValueNode{mv}}
-		} else {
-			return nil, fmt.Errorf("%s: expected top-level mapping", path)
-		}
-	}
-
-	a := &model.Action{
-		File: filepath.Base(path),
-	}
-
-	// Action-level tags from top-of-file comments.
-	var firstMV, firstKey ast.Node
-	if len(root.Values) > 0 {
-		firstMV = root.Values[0]
-		firstKey = root.Values[0].Key
-	}
-	a.Tags = ParseTags(findComment(doc, root, firstMV, firstKey))
-
-	for _, mv := range root.Values {
-		keyStr := mapKeyString(mv.Key)
-		switch keyStr {
-		case "name":
-			a.Name = nodeString(mv.Value)
-		case "description":
-			a.Description = nodeString(mv.Value)
-		case "inputs":
-			a.Inputs = parseActionInputs(mv.Value)
-		case "outputs":
-			a.Outputs = parseActionOutputs(mv.Value)
-		case "runs":
-			a.Runs = parseActionRuns(mv.Value)
-		case "branding":
-			a.Branding = parseBranding(mv.Value)
-		}
-	}
-
-	// Fall back to @desc if no native description.
-	if a.Description == "" {
-		a.Description = a.Tags.Desc
-	}
-
-	if a.Name == "" {
-		a.Name = a.File
-	}
-
-	return a, nil
-}
-
-func parseActionInputs(node ast.Node) []model.ActionInput {
-	mapping := toMapping(node)
-	if mapping == nil {
-		return nil
-	}
-
-	var inputs []model.ActionInput
-	for _, mv := range mapping.Values {
-		input := model.ActionInput{
-			Name: mapKeyString(mv.Key),
-		}
-
-		if inputMapping := toMapping(mv.Value); inputMapping != nil {
-			for _, field := range inputMapping.Values {
-				switch mapKeyString(field.Key) {
-				case "description":
-					input.Description = nodeString(field.Value)
-				case "required":
-					input.Required = nodeString(field.Value) == "true"
-				case "default":
-					input.Default = nodeString(field.Value)
-				}
-			}
-		}
-
-		inputs = append(inputs, input)
-	}
-	return inputs
-}
-
-func parseActionOutputs(node ast.Node) []model.ActionOutput {
-	mapping := toMapping(node)
-	if mapping == nil {
-		return nil
-	}
-
-	var outputs []model.ActionOutput
-	for _, mv := range mapping.Values {
-		output := model.ActionOutput{
-			Name: mapKeyString(mv.Key),
-		}
-
-		if outputMapping := toMapping(mv.Value); outputMapping != nil {
-			for _, field := range outputMapping.Values {
-				if mapKeyString(field.Key) == "description" {
-					output.Description = nodeString(field.Value)
-				}
-			}
-		}
-
-		outputs = append(outputs, output)
-	}
-	return outputs
-}
-
-func parseActionRuns(node ast.Node) model.ActionRuns {
-	var runs model.ActionRuns
-	mapping := toMapping(node)
-	if mapping == nil {
-		return runs
-	}
-
-	for _, mv := range mapping.Values {
-		switch mapKeyString(mv.Key) {
-		case "using":
-			runs.Using = nodeString(mv.Value)
-		case "main":
-			runs.Main = nodeString(mv.Value)
-		case "image":
-			runs.Image = nodeString(mv.Value)
-		}
-	}
-	return runs
-}
-
-func parseBranding(node ast.Node) *model.Branding {
-	mapping := toMapping(node)
-	if mapping == nil {
-		return nil
-	}
-
-	b := &model.Branding{}
-	for _, mv := range mapping.Values {
-		switch mapKeyString(mv.Key) {
-		case "icon":
-			b.Icon = nodeString(mv.Value)
-		case "color":
-			b.Color = nodeString(mv.Value)
-		}
-	}
-	return b
 }

@@ -4,11 +4,23 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/smol-utils/actiondoc/internal/callgraph"
 	"github.com/smol-utils/actiondoc/internal/model"
 )
 
-// RenderMarkdown converts a Workflow IR into a Markdown document.
+// RenderMarkdown converts a Workflow IR into a Markdown document with no call-graph
+// context (single-file rendering). Reusable-workflow cross-links and the call-graph
+// sections are omitted; use RenderMarkdownGraph to include them.
 func RenderMarkdown(w *model.Workflow) string {
+	return RenderMarkdownGraph(w, nil, "")
+}
+
+// RenderMarkdownGraph converts a Workflow IR into a Markdown document, using the call
+// graph g (built from the whole scan set) to resolve reusable-workflow cross-links and to
+// render the call-graph / "called by" / transitive-requirements sections. id is this
+// workflow's node id in g. g may be nil and id empty, in which case the graph-derived
+// sections are skipped and the output matches single-file rendering.
+func RenderMarkdownGraph(w *model.Workflow, g *callgraph.Graph, id string) string {
 	var b strings.Builder
 
 	// Title
@@ -43,45 +55,40 @@ func RenderMarkdown(w *model.Workflow) string {
 		b.WriteString("\n\n")
 	}
 
-	// Workflow-level secrets
-	if len(w.Tags.Secrets) > 0 {
-		b.WriteString("## Secrets\n\n")
-		writeParamTable(&b, w.Tags.Secrets)
-	}
+	renderWorkflowSurface(&b, w)
 
-	// Workflow-level inputs
-	if len(w.Tags.Inputs) > 0 {
-		b.WriteString("## Inputs\n\n")
-		writeParamTable(&b, w.Tags.Inputs)
-	}
+	// Call-graph sections (rendered only with graph context): downstream tree and
+	// transitive requirements on entry points, upstream chain on reusable workflows.
+	renderCallGraph(&b, g, id)
+	renderTransitiveRequirements(&b, g, id)
+	renderCalledBy(&b, g, id)
 
-	// Workflow-level env
-	if len(w.Tags.Envs) > 0 {
-		b.WriteString("## Environment Variables\n\n")
-		writeParamTable(&b, w.Tags.Envs)
-	}
+	writeParamSections(&b, styleHeading,
+		paramSection{"Secrets", w.Tags.Secrets},
+		paramSection{"Inputs", w.Tags.Inputs},
+		paramSection{"Environment Variables", w.Tags.Envs},
+		paramSection{"Outputs", w.Tags.Outputs},
+	)
 
-	// Workflow-level outputs
-	if len(w.Tags.Outputs) > 0 {
-		b.WriteString("## Outputs\n\n")
-		writeParamTable(&b, w.Tags.Outputs)
-	}
+	// Auto-collected secret and variable references found in expressions.
+	renderReferences(&b, model.ScanReferences(w))
 
 	// Jobs
 	if len(w.Jobs) > 0 {
 		b.WriteString("## Jobs\n\n")
-		for _, job := range w.Jobs {
-			renderJob(&b, &job)
+		for i := range w.Jobs {
+			renderJob(&b, &w.Jobs[i], g, id)
 		}
 	}
 
 	return b.String()
 }
 
-func renderJob(b *strings.Builder, job *model.Job) {
-	// Job heading
-	if job.Name != job.ID {
-		fmt.Fprintf(b, "### %s (`%s`)\n\n", job.Name, job.ID)
+func renderJob(b *strings.Builder, job *model.Job, g *callgraph.Graph, fromID string) {
+	// Job heading. The name may embed ${{ matrix.X }} references, expanded to value lists.
+	name := resolveJobName(job)
+	if name != job.ID {
+		fmt.Fprintf(b, "### %s (`%s`)\n\n", name, job.ID)
 	} else {
 		fmt.Fprintf(b, "### `%s`\n\n", job.ID)
 	}
@@ -96,36 +103,53 @@ func renderJob(b *strings.Builder, job *model.Job) {
 		fmt.Fprintf(b, "%s\n\n", job.Description)
 	}
 
+	// A job that calls a reusable workflow uses `uses:` instead of `runs-on:`/`steps:`;
+	// render its caller surface (callee link + forwarded inputs/secrets) and stop.
+	if job.Uses != "" {
+		renderCallerJob(b, job, g, fromID)
+		return
+	}
+
 	// Properties table
 	hasProps := job.RunsOn != "" || len(job.Needs) > 0 || job.If != ""
 	if hasProps {
 		b.WriteString("| Property | Value |\n")
 		b.WriteString("|----------|-------|\n")
 		if job.RunsOn != "" {
-			fmt.Fprintf(b, "| Runs on | `%s` |\n", job.RunsOn)
+			fmt.Fprintf(b, "| Runs on | `%s` |\n", escapeCell(job.RunsOn))
 		}
 		if len(job.Needs) > 0 {
 			fmt.Fprintf(b, "| Depends on | %s |\n", codelist(job.Needs))
 		}
 		if job.If != "" {
-			fmt.Fprintf(b, "| Condition | `%s` |\n", job.If)
+			// Trim first: literal-block conditions carry a trailing newline that would
+			// otherwise render as a dangling <br>.
+			fmt.Fprintf(b, "| Condition | `%s` |\n", escapeCell(strings.TrimSpace(job.If)))
 		}
 		b.WriteString("\n")
 	}
 
-	// Job-level secrets/envs/outputs
-	if len(job.Tags.Secrets) > 0 {
-		b.WriteString("**Secrets:**\n\n")
-		writeParamTable(b, job.Tags.Secrets)
+	renderJobSurface(b, job)
+	renderJobTags(b, job)
+
+	// Steps
+	if len(job.Steps) > 0 {
+		b.WriteString("#### Steps\n\n")
+		for i, step := range job.Steps {
+			renderStep(b, &step, i+1)
+		}
 	}
-	if len(job.Tags.Envs) > 0 {
-		b.WriteString("**Environment Variables:**\n\n")
-		writeParamTable(b, job.Tags.Envs)
-	}
-	if len(job.Tags.Outputs) > 0 {
-		b.WriteString("**Outputs:**\n\n")
-		writeParamTable(b, job.Tags.Outputs)
-	}
+}
+
+// renderJobTags writes a job's ActionDoc tag sections (@secret/@env/@output/@example/
+// @see). Shared by the normal and reusable-workflow-caller job renderers so caller jobs
+// don't silently drop tags the spec allows on jobs.
+func renderJobTags(b *strings.Builder, job *model.Job) {
+	writeParamSections(b, styleBold,
+		paramSection{"Secrets", job.Tags.Secrets},
+		paramSection{"Environment Variables", job.Tags.Envs},
+		paramSection{"Outputs", job.Tags.Outputs},
+	)
 
 	// Example
 	if job.Tags.Example != "" {
@@ -139,67 +163,9 @@ func renderJob(b *strings.Builder, job *model.Job) {
 		b.WriteString(strings.Join(job.Tags.See, ", "))
 		b.WriteString("\n\n")
 	}
-
-	// Steps
-	if len(job.Steps) > 0 {
-		b.WriteString("#### Steps\n\n")
-		for i, step := range job.Steps {
-			renderStep(b, &step, i+1)
-		}
-	}
 }
 
-func renderStep(b *strings.Builder, step *model.Step, num int) {
-	name := step.Name
-	if name == "" {
-		name = step.ID
-	}
-	if name == "" && step.Uses != "" {
-		name = step.Uses
-	}
-	if name == "" {
-		name = fmt.Sprintf("Step %d", num)
-	}
-
-	fmt.Fprintf(b, "%d. **%s**", num, name)
-
-	if step.Description != "" {
-		fmt.Fprintf(b, " - %s", step.Description)
-	}
-	b.WriteString("\n")
-
-	if step.ID != "" {
-		fmt.Fprintf(b, "   - ID: `%s`\n", step.ID)
-	}
-	if step.Uses != "" {
-		fmt.Fprintf(b, "   - Uses: `%s`\n", step.Uses)
-	}
-	if step.If != "" {
-		fmt.Fprintf(b, "   - Condition: `%s`\n", step.If)
-	}
-
-	// Step-level tags
-	writeStepParams(b, "Output", step.Tags.Outputs)
-	writeStepParams(b, "Secret", step.Tags.Secrets)
-	writeStepParams(b, "Env", step.Tags.Envs)
-
-	b.WriteString("\n")
-}
-
-// writeStepParams writes inline bullet points for step-level params.
-func writeStepParams(b *strings.Builder, label string, params []model.Param) {
-	for _, p := range params {
-		typ := ""
-		if p.Type != "" {
-			typ = " {" + p.Type + "}"
-		}
-		desc := ""
-		if p.Description != "" {
-			desc = " - " + p.Description
-		}
-		fmt.Fprintf(b, "   - %s: `%s`%s%s\n", label, p.Name, typ, desc)
-	}
-}
+// renderStep and writeStepParams live in steps.go.
 
 // writeParamTable writes a Markdown table for a slice of Params.
 func writeParamTable(b *strings.Builder, params []model.Param) {
@@ -219,6 +185,37 @@ func writeParamTable(b *strings.Builder, params []model.Param) {
 	b.WriteString("\n")
 }
 
+// sectionStyle selects how a param-table section heading is rendered.
+type sectionStyle int
+
+const (
+	styleHeading sectionStyle = iota // "## Title"
+	styleBold                        // "**Title:**"
+)
+
+// paramSection pairs a section title with its parameters.
+type paramSection struct {
+	title  string
+	params []model.Param
+}
+
+// writeParamSections writes each non-empty param-table section in order, using the given
+// heading style. Centralizes the "if present: heading + table" boilerplate shared by the
+// workflow, job, and action renderers so adding a section is a one-line change per site.
+func writeParamSections(b *strings.Builder, style sectionStyle, sections ...paramSection) {
+	for _, s := range sections {
+		if len(s.params) == 0 {
+			continue
+		}
+		if style == styleBold {
+			fmt.Fprintf(b, "**%s:**\n\n", s.title)
+		} else {
+			fmt.Fprintf(b, "## %s\n\n", s.title)
+		}
+		writeParamTable(b, s.params)
+	}
+}
+
 // codelist formats a slice of strings as inline code items.
 func codelist(items []string) string {
 	parts := make([]string, len(items))
@@ -228,10 +225,13 @@ func codelist(items []string) string {
 	return strings.Join(parts, ", ")
 }
 
-// escapeCell escapes characters that break Markdown table cells.
+// escapeCell escapes characters that break Markdown table cells. Newlines become
+// <br> (not a space) so multi-line values like multi-line `if:` conditions keep their
+// visual line breaks instead of collapsing or, worse, being parsed as a new table row.
 func escapeCell(s string) string {
+	s = strings.ReplaceAll(s, "\r\n", "\n")
 	s = strings.ReplaceAll(s, "|", "\\|")
-	s = strings.ReplaceAll(s, "\n", " ")
+	s = strings.ReplaceAll(s, "\n", "<br>")
 	return s
 }
 
@@ -302,15 +302,10 @@ func RenderActionMarkdown(a *model.Action) string {
 		b.WriteString("\n")
 	}
 
-	// Tags: secrets, envs
-	if len(a.Tags.Secrets) > 0 {
-		b.WriteString("## Secrets\n\n")
-		writeParamTable(&b, a.Tags.Secrets)
-	}
-	if len(a.Tags.Envs) > 0 {
-		b.WriteString("## Environment Variables\n\n")
-		writeParamTable(&b, a.Tags.Envs)
-	}
+	writeParamSections(&b, styleHeading,
+		paramSection{"Secrets", a.Tags.Secrets},
+		paramSection{"Environment Variables", a.Tags.Envs},
+	)
 
 	// Example
 	if a.Tags.Example != "" {

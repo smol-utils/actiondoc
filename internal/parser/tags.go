@@ -25,6 +25,13 @@ func ParseTags(comment string) model.Tags {
 			flushTag(&tags, currentTag, &currentValue)
 			currentTag = tag
 			currentValue.WriteString(rest)
+		} else if strings.HasPrefix(line, "@") {
+			// An @-prefixed line that is not in the allowlist (e.g. another tool's
+			// markers like Lula's @lulaStart/@lulaEnd) is a section boundary: flush the
+			// current tag and clear it, so neither this line nor the non-@ lines that
+			// follow it leak into a preceding tag's value.
+			flushTag(&tags, currentTag, &currentValue)
+			currentTag = ""
 		} else if currentTag != "" {
 			// Continuation line -- append to current tag.
 			if currentValue.Len() > 0 {
@@ -50,7 +57,24 @@ func stripCommentPrefix(line string) string {
 	return line
 }
 
-// parseTagLine checks if a line starts with @tagname and returns the tag and remainder.
+// tagAppliers is the single source of truth for the recognized @-tag allowlist: it maps
+// each tag name to the function that stores its value into the Tags struct. parseTagLine
+// uses it for membership; flushTag dispatches through it. Adding a tag is a one-line
+// change here.
+var tagAppliers = map[string]func(t *model.Tags, v string){
+	"desc":       func(t *model.Tags, v string) { t.Desc = v },
+	"secret":     func(t *model.Tags, v string) { t.Secrets = append(t.Secrets, parseParam(v)) },
+	"input":      func(t *model.Tags, v string) { t.Inputs = append(t.Inputs, parseParam(v)) },
+	"env":        func(t *model.Tags, v string) { t.Envs = append(t.Envs, parseParam(v)) },
+	"output":     func(t *model.Tags, v string) { t.Outputs = append(t.Outputs, parseParam(v)) },
+	"deprecated": func(t *model.Tags, v string) { t.Deprecated = v },
+	"see":        func(t *model.Tags, v string) { t.See = append(t.See, v) },
+	"since":      func(t *model.Tags, v string) { t.Since = v },
+	"example":    func(t *model.Tags, v string) { t.Example = v },
+}
+
+// parseTagLine checks if a line starts with an allowlisted @tagname and returns the tag
+// and remainder.
 func parseTagLine(line string) (tag, rest string, ok bool) {
 	if !strings.HasPrefix(line, "@") {
 		return "", "", false
@@ -61,12 +85,10 @@ func parseTagLine(line string) (tag, rest string, ok bool) {
 	if len(parts) == 2 {
 		rest = parts[1]
 	}
-	switch tag {
-	case "desc", "secret", "input", "env", "output", "deprecated", "see", "since", "example":
+	if _, ok := tagAppliers[tag]; ok {
 		return tag, rest, true
-	default:
-		return "", "", false
 	}
+	return "", "", false
 }
 
 // flushTag stores the accumulated value for the current tag into the Tags struct.
@@ -81,25 +103,8 @@ func flushTag(tags *model.Tags, tag string, value *strings.Builder) {
 	} else {
 		v = strings.TrimSpace(v)
 	}
-	switch tag {
-	case "desc":
-		tags.Desc = v
-	case "secret":
-		tags.Secrets = append(tags.Secrets, parseParam(v))
-	case "input":
-		tags.Inputs = append(tags.Inputs, parseParam(v))
-	case "env":
-		tags.Envs = append(tags.Envs, parseParam(v))
-	case "output":
-		tags.Outputs = append(tags.Outputs, parseParam(v))
-	case "deprecated":
-		tags.Deprecated = v
-	case "see":
-		tags.See = append(tags.See, v)
-	case "since":
-		tags.Since = v
-	case "example":
-		tags.Example = v
+	if apply, ok := tagAppliers[tag]; ok {
+		apply(tags, v)
 	}
 	value.Reset()
 }

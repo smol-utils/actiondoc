@@ -1,0 +1,35 @@
+# actiondoc dogfood corpus -- real-world repos used as a regression smoke test.
+# Format: <name> <tab> <repo-url> <tab> <commit-sha>
+# Populate with 'make dogfood-fetch'; run with 'make dogfood'.
+airflow	https://github.com/apache/airflow	325f3774ba6dcde31809555a12050b048d79fbc6
+akka	https://github.com/akka/akka	58f1f6db2e505e87f5dc115ee9476833872e7ae0
+cli	https://github.com/cli/cli	e53ff321f06514b5ba290bbc4ef84f7e0efcd3dd
+cosign	https://github.com/sigstore/cosign	5b603990dcee00d6b2c6339fdffd970efae2aabc
+data-gov	https://github.com/GSA/data.gov	e6de8a7be26293bc72a954c3caa985a4006bd5ef
+dependency-track	https://github.com/DependencyTrack/dependency-track	dcaee5d0106cee468ac979c33f43ae65457b2be1
+detekt	https://github.com/detekt/detekt	caa5a5a601c6c1cad42d9904b7a6d07c9813df65
+flink	https://github.com/apache/flink	6f422510a8f3150ac67d40d30cca67065a8c54e5
+gradle	https://github.com/gradle/gradle	0f3d2550185f6d16c9a0aa58ec4c4c1025197a27
+grafana	https://github.com/grafana/grafana	538d9be70cba80ac309cd033bf12f4ec53565313
+grype	https://github.com/anchore/grype	82044d54c18d21186c5b2ef4721a5c57359e5118
+jenkins	https://github.com/jenkinsci/jenkins	ce830a65166fab4c7358bf6da44f8fdb29c1ce93
+jreleaser	https://github.com/jreleaser/jreleaser	14044621fb4bd1775cd3008d9c4432bb7066d0ce
+kafka	https://github.com/apache/kafka	fa097fa593a2a3da17bd1c234bf140565561a1b8
+malcolm	https://github.com/cisagov/Malcolm	d70a39c6973026a20f57d6914dfb053200c812a9
+nextjs	https://github.com/vercel/next.js	9a209d2810d001ad8f1697906dcc0ce5a1e9df73
+oscal-cli	https://github.com/usnistgov/oscal-cli	5cfe61c695f598f1b4240aa39313bade4397cbeb
+oscal	https://github.com/usnistgov/OSCAL	31d197b06516b3c6cc375fc3f81791b91bd5e05e
+otel-collector	https://github.com/open-telemetry/opentelemetry-collector	3771765ca680c976cad611838cd2dad1bdc5d8f4
+prefect	https://github.com/PrefectHQ/prefect	64710e8bd0984713d10bb34b1f3cbd6098a99fac
+quarkus	https://github.com/quarkusio/quarkus	128c12d140d0ad47ba75cace1f831d085811fc76
+scala3	https://github.com/scala/scala3	cf3cc7a841c83cfe946f742e235741b22a40b8d9
+scorecard	https://github.com/ossf/scorecard	916bfc57fa7431467a33a5a013cba3f8a0c1ec50
+slsa-verifier	https://github.com/slsa-framework/slsa-verifier	aaf98fd77ddc1963c0f34f34c46bd84d7a08c260
+spire	https://github.com/spiffe/spire	39fe35e6cf15421bf90d019056cb51db2d678a9c
+spring-boot	https://github.com/spring-projects/spring-boot	7e29e3c06d90c40930cfca365a9050c6e5a318ed
+syft	https://github.com/anchore/syft	58ddf7414063aca1e22c7cf510c4d2439f30f306
+transformers	https://github.com/huggingface/transformers	10555512868d663ee1ff627e4f5c5c260114235b
+uds-core	https://github.com/defenseunicorns/uds-core	0aaf351602975c347d48ce80c635dd396782b23a
+uv	https://github.com/astral-sh/uv	9bac000338ae0b8f4b67fd45211e9bb60b5196c8
+vault	https://github.com/hashicorp/vault	8e20a13896c6844decc5041cf975bd2117a1bc8a
+zarf	https://github.com/zarf-dev/zarf	ac6fb9f7e91dcb805f548e905512283c3134e936
