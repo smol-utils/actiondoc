@@ -1,6 +1,7 @@
 package callgraph
 
 import (
+	"path/filepath"
 	"testing"
 
 	"github.com/smol-utils/actiondoc/internal/model"
@@ -156,5 +157,48 @@ func TestResolveWorkflowBasenameCollision(t *testing.T) {
 	}
 	if got["b"] != "repo/.github/workflows/build.yml" {
 		t.Errorf("job b (uses build.yml) resolved to %q, want the top-level workflow", got["b"])
+	}
+}
+
+// TestResolveWorkflowOSNativePaths verifies reusable-workflow resolution when scan paths
+// use OS-native separators (via filepath.FromSlash) while uses: refs stay slash-separated
+// as in YAML. The resolved node ID must match the original node key, and basename-
+// collision disambiguation must still work. On Windows FromSlash yields backslash paths,
+// exercising the slash-normalization that keeps keys consistent; on Unix it is a no-op
+// (still a valid regression guard against keying nodes and the index differently).
+func TestResolveWorkflowOSNativePaths(t *testing.T) {
+	caller := &model.Workflow{
+		File: "ci.yml", Name: "CI", On: []string{"push"},
+		Jobs: []model.Job{
+			{ID: "a", Uses: "./.github/workflows/sub/build.yml"},
+			{ID: "b", Uses: "./.github/workflows/build.yml"},
+		},
+	}
+	subBuild := &model.Workflow{File: "build.yml", Name: "Sub", On: []string{"workflow_call"}}
+	topBuild := &model.Workflow{File: "build.yml", Name: "Top", On: []string{"workflow_call"}}
+
+	ciPath := filepath.FromSlash("repo/.github/workflows/ci.yml")
+	subPath := filepath.FromSlash("repo/.github/workflows/sub/build.yml")
+	topPath := filepath.FromSlash("repo/.github/workflows/build.yml")
+	g := Build([]Source{
+		{Path: ciPath, Workflow: caller},
+		{Path: subPath, Workflow: subBuild},
+		{Path: topPath, Workflow: topBuild},
+	})
+
+	got := map[string]string{}
+	for _, e := range g.Calls(ciPath) {
+		got[e.JobID] = e.ToID
+	}
+	for job, id := range got {
+		if id == "" || g.Nodes[id] == nil {
+			t.Errorf("job %s resolved to %q, which is not a node key", job, id)
+		}
+	}
+	if got["a"] != subPath {
+		t.Errorf("job a resolved to %q, want %q", got["a"], subPath)
+	}
+	if got["b"] != topPath {
+		t.Errorf("job b resolved to %q, want %q", got["b"], topPath)
 	}
 }

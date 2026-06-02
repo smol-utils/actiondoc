@@ -9,6 +9,7 @@ package callgraph
 
 import (
 	"fmt"
+	"path"
 	"path/filepath"
 	"strings"
 
@@ -75,8 +76,11 @@ func Build(sources []Source) *Graph {
 		case s.Workflow != nil:
 			n := &Node{ID: s.Path, Name: displayName(s.Workflow.Name, s.Path), Path: s.Path, Workflow: s.Workflow}
 			g.Nodes[n.ID] = n
-			base := filepath.Base(s.Path)
-			workflowsByBase[base] = append(workflowsByBase[base], filepath.ToSlash(s.Path))
+			// Key by base filename (normalize to slashes first so the key is consistent
+			// whether the scan path is OS-native or already slash-separated); store the
+			// ORIGINAL path (= node ID) so resolution returns a value that matches g.Nodes.
+			base := path.Base(filepath.ToSlash(s.Path))
+			workflowsByBase[base] = append(workflowsByBase[base], s.Path)
 		case s.Action != nil:
 			n := &Node{ID: s.Path, Name: displayName(s.Action.Name, s.Path), Path: s.Path, IsAction: true, Action: s.Action}
 			g.Nodes[n.ID] = n
@@ -265,7 +269,9 @@ func longestSuffixMatch(index map[string]string, ref string) string {
 // ref, so colliding basenames in different directories can't silently resolve to the
 // wrong file. Returns "" when nothing matches.
 func resolveWorkflow(byBase map[string][]string, ref string) string {
-	paths := byBase[filepath.Base(ref)]
+	// ref is a slash-separated YAML path, so use path.Base (not filepath.Base, which
+	// would not split on '/' on Windows).
+	paths := byBase[path.Base(ref)]
 	switch len(paths) {
 	case 0:
 		return ""
@@ -282,11 +288,12 @@ func resolveWorkflow(byBase map[string][]string, ref string) string {
 	return best
 }
 
-// sharedSuffixSegments counts the path segments two slash-separated paths share from the
-// end (e.g. "a/b/c" and "x/b/c" share 2).
+// sharedSuffixSegments counts the trailing path segments two paths share (e.g. "a/b/c"
+// and "x/b/c" share 2). Either argument may use OS-native separators (scan paths) or
+// slashes (YAML refs), so both are normalized to slashes before comparison.
 func sharedSuffixSegments(a, b string) int {
-	as := strings.Split(a, "/")
-	bs := strings.Split(b, "/")
+	as := strings.Split(filepath.ToSlash(a), "/")
+	bs := strings.Split(filepath.ToSlash(b), "/")
 	n := 0
 	for i, j := len(as)-1, len(bs)-1; i >= 0 && j >= 0 && as[i] == bs[j]; i, j = i-1, j-1 {
 		n++
