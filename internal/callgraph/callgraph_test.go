@@ -126,3 +126,35 @@ func TestResolveUnresolvedLocalKind(t *testing.T) {
 		t.Errorf("unresolved ./.github/workflows/missing.yml kind = %q, want %q", reusableKind, KindReusable)
 	}
 }
+
+// TestResolveWorkflowBasenameCollision verifies that two scanned workflows sharing a
+// basename in different directories resolve to the correct one based on the caller's
+// `uses:` path, rather than colliding on the bare filename.
+func TestResolveWorkflowBasenameCollision(t *testing.T) {
+	caller := &model.Workflow{
+		File: "ci.yml", Name: "CI", On: []string{"push"},
+		Jobs: []model.Job{
+			{ID: "a", Uses: "./.github/workflows/sub/build.yml"},
+			{ID: "b", Uses: "./.github/workflows/build.yml"},
+		},
+	}
+	subBuild := &model.Workflow{File: "build.yml", Name: "Sub Build", On: []string{"workflow_call"}}
+	topBuild := &model.Workflow{File: "build.yml", Name: "Top Build", On: []string{"workflow_call"}}
+
+	g := Build([]Source{
+		{Path: "repo/.github/workflows/ci.yml", Workflow: caller},
+		{Path: "repo/.github/workflows/sub/build.yml", Workflow: subBuild},
+		{Path: "repo/.github/workflows/build.yml", Workflow: topBuild},
+	})
+
+	got := map[string]string{} // jobID -> resolved ToID
+	for _, e := range g.Calls("repo/.github/workflows/ci.yml") {
+		got[e.JobID] = e.ToID
+	}
+	if got["a"] != "repo/.github/workflows/sub/build.yml" {
+		t.Errorf("job a (uses sub/build.yml) resolved to %q, want the sub/ workflow", got["a"])
+	}
+	if got["b"] != "repo/.github/workflows/build.yml" {
+		t.Errorf("job b (uses build.yml) resolved to %q, want the top-level workflow", got["b"])
+	}
+}

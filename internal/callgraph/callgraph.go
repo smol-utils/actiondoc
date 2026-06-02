@@ -63,15 +63,20 @@ type Graph struct {
 func Build(sources []Source) *Graph {
 	g := &Graph{Nodes: map[string]*Node{}}
 
-	// Register in-scope nodes and build resolution indexes.
-	workflowByBase := map[string]string{}  // file base name -> node ID
-	actionDirSuffix := map[string]string{} // normalized action dir -> node ID
+	// Register in-scope nodes and build resolution indexes. Workflows are indexed by base
+	// filename (scan paths and `uses:` refs often live under different parent dirs, so
+	// basename is the reliable join key); when several share a basename the full paths are
+	// kept so resolution can disambiguate by longest shared path suffix. Composite actions
+	// are matched by their normalized directory.
+	workflowsByBase := map[string][]string{} // base filename -> node IDs (paths)
+	actionDirSuffix := map[string]string{}   // normalized action dir -> node ID
 	for _, s := range sources {
 		switch {
 		case s.Workflow != nil:
 			n := &Node{ID: s.Path, Name: displayName(s.Workflow.Name, s.Path), Path: s.Path, Workflow: s.Workflow}
 			g.Nodes[n.ID] = n
-			workflowByBase[filepath.Base(s.Path)] = n.ID
+			base := filepath.Base(s.Path)
+			workflowsByBase[base] = append(workflowsByBase[base], filepath.ToSlash(s.Path))
 		case s.Action != nil:
 			n := &Node{ID: s.Path, Name: displayName(s.Action.Name, s.Path), Path: s.Path, IsAction: true, Action: s.Action}
 			g.Nodes[n.ID] = n
@@ -87,7 +92,7 @@ func Build(sources []Source) *Graph {
 			// call; anything else (e.g. ./.github/actions/x) is a composite action.
 			looksWorkflow := strings.Contains(clean, ".github/workflows/") || strings.HasSuffix(clean, ".yml") || strings.HasSuffix(clean, ".yaml")
 			if looksWorkflow {
-				if id, ok := workflowByBase[filepath.Base(clean)]; ok {
+				if id := resolveWorkflow(workflowsByBase, clean); id != "" {
 					return id, KindReusable, pin
 				}
 			}
@@ -95,16 +100,8 @@ func Build(sources []Source) *Graph {
 			// specific (longest) match so resolution is deterministic regardless of
 			// map iteration order.
 			clean = strings.TrimSuffix(strings.TrimSuffix(clean, "/action.yml"), "/action.yaml")
-			var bestDir, bestID string
-			for dir, id := range actionDirSuffix {
-				if dir == clean || strings.HasSuffix(dir, "/"+clean) {
-					if bestID == "" || len(dir) > len(bestDir) || (len(dir) == len(bestDir) && dir < bestDir) {
-						bestDir, bestID = dir, id
-					}
-				}
-			}
-			if bestID != "" {
-				return bestID, KindComposite, pin
+			if id := longestSuffixMatch(actionDirSuffix, clean); id != "" {
+				return id, KindComposite, pin
 			}
 			// Local but unresolved: classify by what the ref looked like.
 			if looksWorkflow {
@@ -241,6 +238,60 @@ func splitPin(raw string) (ref, pin string) {
 		return raw[:i], raw[i+1:]
 	}
 	return raw, ""
+}
+
+// longestSuffixMatch resolves a cleaned local ref against an index keyed by normalized
+// dir, returning the node ID of the most specific match: the key must equal the ref or
+// end in "/"+ref (a path-segment boundary), and among matches the longest key wins with a
+// lexical tiebreak so the result is deterministic regardless of map iteration order.
+// Returns "" when nothing matches. Used for composite-action resolution.
+func longestSuffixMatch(index map[string]string, ref string) string {
+	var bestKey, bestID string
+	for key, id := range index {
+		if key == ref || strings.HasSuffix(key, "/"+ref) {
+			if bestID == "" || len(key) > len(bestKey) || (len(key) == len(bestKey) && key < bestKey) {
+				bestKey, bestID = key, id
+			}
+		}
+	}
+	return bestID
+}
+
+// resolveWorkflow resolves a cleaned reusable-workflow `uses:` ref to a node ID. Scan
+// paths and refs frequently live under different parent directories (the scan root is not
+// necessarily .github/workflows), so the join key is the base filename. When a single
+// workflow has that basename it wins outright; when several scanned workflows share the
+// basename, pick the one whose path shares the longest trailing path segment with the
+// ref, so colliding basenames in different directories can't silently resolve to the
+// wrong file. Returns "" when nothing matches.
+func resolveWorkflow(byBase map[string][]string, ref string) string {
+	paths := byBase[filepath.Base(ref)]
+	switch len(paths) {
+	case 0:
+		return ""
+	case 1:
+		return paths[0]
+	}
+	best, bestScore := "", -1
+	for _, p := range paths {
+		score := sharedSuffixSegments(p, ref)
+		if score > bestScore || (score == bestScore && p < best) {
+			best, bestScore = p, score
+		}
+	}
+	return best
+}
+
+// sharedSuffixSegments counts the path segments two slash-separated paths share from the
+// end (e.g. "a/b/c" and "x/b/c" share 2).
+func sharedSuffixSegments(a, b string) int {
+	as := strings.Split(a, "/")
+	bs := strings.Split(b, "/")
+	n := 0
+	for i, j := len(as)-1, len(bs)-1; i >= 0 && j >= 0 && as[i] == bs[j]; i, j = i-1, j-1 {
+		n++
+	}
+	return n
 }
 
 func displayName(name, path string) string {

@@ -95,7 +95,7 @@ func calleeLink(g *callgraph.Graph, e callgraph.Edge) string {
 		}
 		return "`" + escapeCell(ref) + "` (external)"
 	}
-	return fmt.Sprintf("[%s](#%s)", escapeCell(n.Name), anchor(n.Name))
+	return fmt.Sprintf("[%s](#%s)", mdLinkLabel(n.Name), anchor(n.Name))
 }
 
 // renderCallGraph renders the downstream `uses:` tree rooted at an entry-point workflow

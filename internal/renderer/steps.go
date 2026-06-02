@@ -254,7 +254,7 @@ func RenderTOC(titles []string) string {
 			slug = fmt.Sprintf("%s-%d", base, n)
 		}
 		seen[base]++
-		fmt.Fprintf(&b, "- [%s](#%s)\n", t, slug)
+		fmt.Fprintf(&b, "- [%s](#%s)\n", mdLinkLabel(t), slug)
 	}
 	b.WriteString("\n")
 	return b.String()
