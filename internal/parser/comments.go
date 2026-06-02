@@ -8,13 +8,21 @@ import (
 
 // cleanCommentText strips the leading "#"/"# " from each line of a raw comment group
 // string and trims surrounding whitespace, joining multi-line comments with a space.
+// Banner-style framing is decoration, not content, and is dropped: rule lines made
+// entirely of '#' characters are skipped, and '#' runs decorating the start or end of a
+// text line are trimmed, so a block like "###  TITLE  ###" reads back as just "TITLE".
 func cleanCommentText(raw string) string {
 	if raw == "" {
 		return ""
 	}
 	var parts []string
 	for _, line := range strings.Split(raw, "\n") {
-		parts = append(parts, stripCommentPrefix(line))
+		line = stripCommentPrefix(line)
+		line = strings.TrimSpace(strings.Trim(line, "#"))
+		if line == "" {
+			continue
+		}
+		parts = append(parts, line)
 	}
 	return strings.TrimSpace(strings.Join(parts, " "))
 }

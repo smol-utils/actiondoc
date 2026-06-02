@@ -3,6 +3,7 @@ package parser
 import (
 	"path/filepath"
 	"runtime"
+	"strings"
 	"testing"
 
 	"github.com/goccy/go-yaml/ast"
@@ -237,6 +238,21 @@ func TestImplicitDescription(t *testing.T) {
 	license := "# Licensed to the Apache Software Foundation (ASF) under one\n# or more contributor license agreements."
 	if got := implicitDescription(license, model.Tags{}); got != "" {
 		t.Errorf("license header must not become a description, got %q", got)
+	}
+
+	// Banner-style comment blocks: '#' rule lines and '#' framing are decoration, not
+	// content. Only the text inside the frame survives, and nothing that could be parsed
+	// as a Markdown heading leaks into the output.
+	banner := "###################################################\n" +
+		"###   THIS IS A REUSABLE WORKFLOW FOR CHOCOLATEY   ###\n" +
+		"### HOW TO USE:                                   ###\n" +
+		"###                                               ###\n" +
+		"###################################################"
+	if got := implicitDescription(banner, model.Tags{}); got != "THIS IS A REUSABLE WORKFLOW FOR CHOCOLATEY HOW TO USE:" {
+		t.Errorf("banner framing not stripped, got %q", got)
+	}
+	if got := implicitDescription(banner, model.Tags{}); strings.Contains(got, "#") {
+		t.Errorf("banner description still contains '#' framing: %q", got)
 	}
 
 	// A comment with recognized tags (but no @desc) must not leak into the description.

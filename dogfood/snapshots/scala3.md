@@ -23,7 +23,7 @@
 
 # Build 'scala' Chocolatey Package
 
-################################################################################################## ##                  THIS IS A REUSABLE WORKFLOW TO BUILD SCALA WITH CHOCOLATEY                 ### ## HOW TO USE:                                                                                 ### ##                                                                                             ### ## NOTE:                                                                                       ### ##                                                                                             ### ##################################################################################################
+THIS IS A REUSABLE WORKFLOW TO BUILD SCALA WITH CHOCOLATEY HOW TO USE: NOTE:
 
 | Property | Value |
 |----------|-------|
@@ -95,7 +95,7 @@ build-chocolatey.yml
 
 # Build the MSI Package
 
-################################################################################################## ##                       THIS IS A REUSABLE WORKFLOW TO BUILD SCALA MSI                        ### ## HOW TO USE:                                                                                 ### ##   - THE RELEASE WORKFLOW SHOULD CALL THIS WORKFLOW                                          ### ##   - IT WILL UPLOAD TO GITHUB THE MSI FILE FOR SCALA UNDER THE 'scala.msi' NAME              ### ##                                                                                             ### ## NOTE:                                                                                       ### ##   - WE SHOULD BUILD SCALA USING JAVA 8                                                      ### ##################################################################################################
+THIS IS A REUSABLE WORKFLOW TO BUILD SCALA MSI HOW TO USE: - THE RELEASE WORKFLOW SHOULD CALL THIS WORKFLOW - IT WILL UPLOAD TO GITHUB THE MSI FILE FOR SCALA UNDER THE 'scala.msi' NAME NOTE: - WE SHOULD BUILD SCALA USING JAVA 8
 
 | Property | Value |
 |----------|-------|
@@ -158,7 +158,7 @@ build-msi.yml
 
 # Build Scala Launchers
 
-################################################################################################## ##                  THIS IS A REUSABLE WORKFLOW TO BUILD THE SCALA LAUNCHERS                   ### ## HOW TO USE:                                                                                 ### ##   - THSI WORKFLOW WILL PACKAGE THE ALL THE LAUNCHERS AND UPLOAD THEM TO GITHUB ARTIFACTS    ### ##                                                                                             ### ## NOTE:                                                                                       ### ##   - SEE THE WORFLOW FOR THE NAMES OF THE ARTIFACTS                                          ### ##################################################################################################
+THIS IS A REUSABLE WORKFLOW TO BUILD THE SCALA LAUNCHERS HOW TO USE: - THSI WORKFLOW WILL PACKAGE THE ALL THE LAUNCHERS AND UPLOAD THEM TO GITHUB ARTIFACTS NOTE: - SEE THE WORFLOW FOR THE NAMES OF THE ARTIFACTS
 
 | Property | Value |
 |----------|-------|
@@ -696,7 +696,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`
 
 # Publish Scala to Chocolatey
 
-################################################################################################## ##                  THIS IS A REUSABLE WORKFLOW TO PUBLISH SCALA TO CHOCOLATEY                 ### ## HOW TO USE:                                                                                 ### ##   - THE RELEASE WORKFLOW SHOULD CALL THIS WORKFLOW                                          ### ##   - IT WILL PUBLISH TO CHOCOLATEY THE MSI                                                   ### ##                                                                                             ### ## NOTE:                                                                                       ### ##   - WE SHOULD KEEP IN SYNC THE NAME OF THE MSI WITH THE ACTUAL BUILD                        ### ##   - WE SHOULD KEEP IN SYNC THE URL OF THE RELEASE                                           ### ##   - IT ASSUMES THAT THE `build-chocolatey` WORKFLOW WAS EXECUTED BEFORE                     ### ##################################################################################################
+THIS IS A REUSABLE WORKFLOW TO PUBLISH SCALA TO CHOCOLATEY HOW TO USE: - THE RELEASE WORKFLOW SHOULD CALL THIS WORKFLOW - IT WILL PUBLISH TO CHOCOLATEY THE MSI NOTE: - WE SHOULD KEEP IN SYNC THE NAME OF THE MSI WITH THE ACTUAL BUILD - WE SHOULD KEEP IN SYNC THE URL OF THE RELEASE - IT ASSUMES THAT THE `build-chocolatey` WORKFLOW WAS EXECUTED BEFORE
 
 | Property | Value |
 |----------|-------|
@@ -756,7 +756,7 @@ publish-chocolatey.yml
 
 # Publish Scala to SDKMAN!
 
-################################################################################################## ##                   THIS IS A REUSABLE WORKFLOW TO PUBLISH SCALA TO SDKMAN!                   ### ## HOW TO USE:                                                                                 ### ##   - THE RELEASE WORKFLOW SHOULD CALL THIS WORKFLOW                                          ### ##   - IT WILL PUBLISH TO SDKMAN! THE BINARIES TO EACH SUPPORTED PLATFORM AND A UNIVERSAL JAR  ### ##   - IT CHANGES THE DEFAULT VERSION IN SDKMAN!                                               ### ##                                                                                             ### ## NOTE:                                                                                       ### ##   - WE SHOULD KEEP IN SYNC THE NAME OF THE ARCHIVES WITH THE ACTUAL BUILD                   ### ##   - WE SHOULD KEEP IN SYNC THE URL OF THE RELEASE                                           ### ##################################################################################################
+THIS IS A REUSABLE WORKFLOW TO PUBLISH SCALA TO SDKMAN! HOW TO USE: - THE RELEASE WORKFLOW SHOULD CALL THIS WORKFLOW - IT WILL PUBLISH TO SDKMAN! THE BINARIES TO EACH SUPPORTED PLATFORM AND A UNIVERSAL JAR - IT CHANGES THE DEFAULT VERSION IN SDKMAN! NOTE: - WE SHOULD KEEP IN SYNC THE NAME OF THE ARCHIVES WITH THE ACTUAL BUILD - WE SHOULD KEEP IN SYNC THE URL OF THE RELEASE
 
 | Property | Value |
 |----------|-------|
@@ -841,7 +841,7 @@ publish-sdkman.yml
 
 # Publish Scala to winget
 
-################################################################################################## ##                   THIS IS A REUSABLE WORKFLOW TO PUBLISH SCALA TO WINGET                    ### ## HOW TO USE:                                                                                 ### ##   - THE RELEASE WORKFLOW SHOULD CALL THIS WORKFLOW                                          ### ##   - IT WILL PUBLISH THE MSI TO WINGET                                                       ### ##                                                                                             ### ## NOTE:                                                                                       ### ##   - WE SHOULD KEEP IN SYNC THE https://github.com/dottybot/winget-pkgs REPOSITORY           ### ##################################################################################################
+THIS IS A REUSABLE WORKFLOW TO PUBLISH SCALA TO WINGET HOW TO USE: - THE RELEASE WORKFLOW SHOULD CALL THIS WORKFLOW - IT WILL PUBLISH THE MSI TO WINGET NOTE: - WE SHOULD KEEP IN SYNC THE https://github.com/dottybot/winget-pkgs REPOSITORY
 
 | Property | Value |
 |----------|-------|
@@ -1185,7 +1185,7 @@ Permissions declared across the chain: `contents: read`
 
 # Official release of Scala
 
-################################################################################################## ##                                  OFFICIAL RELEASE WORKFLOW                                  ### ## HOW TO USE:                                                                                 ### ##   - THIS WORKFLOW WILL NEED TO BE TRIGGERED MANUALLY                                        ### ##                                                                                             ### ## NOTE:                                                                                       ### ##   - THIS WORKFLOW SHOULD ONLY BE RUN ON STABLE RELEASES                                     ### ##   - IT ASSUMES THAT THE PRE-RELEASE WORKFLOW WAS PREVIOUSLY EXECUTED                        ### ##                                                                                             ### ##################################################################################################
+OFFICIAL RELEASE WORKFLOW HOW TO USE: - THIS WORKFLOW WILL NEED TO BE TRIGGERED MANUALLY NOTE: - THIS WORKFLOW SHOULD ONLY BE RUN ON STABLE RELEASES - IT ASSUMES THAT THE PRE-RELEASE WORKFLOW WAS PREVIOUSLY EXECUTED
 
 | Property | Value |
 |----------|-------|
@@ -2153,7 +2153,7 @@ stdlib.yaml
 
 # Test 'scala' Chocolatey Package
 
-################################################################################################## ##                  THIS IS A REUSABLE WORKFLOW TO TEST SCALA WITH CHOCOLATEY                  ### ## HOW TO USE:                                                                                 ### ##                                                                                             ### ## NOTE:                                                                                       ### ##                                                                                             ### ##################################################################################################
+THIS IS A REUSABLE WORKFLOW TO TEST SCALA WITH CHOCOLATEY HOW TO USE: NOTE:
 
 | Property | Value |
 |----------|-------|
@@ -2366,7 +2366,7 @@ test-chocolatey.yml
 
 # Test 'scala' MSI Package
 
-################################################################################################## ##                  THIS IS A REUSABLE WORKFLOW TO TEST SCALA WITH MSI RUNNER                  ### ## HOW TO USE:                                                                                 ### ##  Provide optional `version` to test if installed binaries are installed with                ### ##  correct Scala version.                                                                     ### ## NOTE: Requires `scala.msi` artifact uploaded within the same run                            ### ##                                                                                             ### ##################################################################################################
+THIS IS A REUSABLE WORKFLOW TO TEST SCALA WITH MSI RUNNER HOW TO USE: Provide optional `version` to test if installed binaries are installed with correct Scala version. NOTE: Requires `scala.msi` artifact uploaded within the same run
 
 | Property | Value |
 |----------|-------|
