@@ -202,3 +202,33 @@ func TestResolveWorkflowOSNativePaths(t *testing.T) {
 		t.Errorf("job b resolved to %q, want %q", got["b"], topPath)
 	}
 }
+
+// TestResolveCompositeRefMoreQualified verifies composite resolution when the uses: ref
+// is MORE qualified than the scanned action dir (e.g. scan dir "actions/build", ref
+// "./.github/actions/build") -- the asymmetric case that the one-directional suffix
+// match missed.
+func TestResolveCompositeRefMoreQualified(t *testing.T) {
+	caller := &model.Workflow{
+		File: "ci.yml", Name: "CI", On: []string{"push"},
+		Jobs: []model.Job{{ID: "a", RunsOn: "ubuntu-latest", Steps: []model.Step{
+			{Uses: "./.github/actions/build"},
+		}}},
+	}
+	// Scan dir is shallower than the ref's path.
+	action := &model.Action{Name: "Build"}
+	g := Build([]Source{
+		{Path: "ci.yml", Workflow: caller},
+		{Path: "actions/build/action.yml", Action: action},
+	})
+
+	var got string
+	var kind EdgeKind
+	for _, e := range g.Calls("ci.yml") {
+		if e.Ref == "./.github/actions/build" {
+			got, kind = e.ToID, e.Kind
+		}
+	}
+	if got != "actions/build/action.yml" || kind != KindComposite {
+		t.Errorf("composite ref more-qualified than scan dir resolved to %q (kind %q), want the action node", got, kind)
+	}
+}

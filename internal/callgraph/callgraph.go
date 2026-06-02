@@ -245,14 +245,16 @@ func splitPin(raw string) (ref, pin string) {
 }
 
 // longestSuffixMatch resolves a cleaned local ref against an index keyed by normalized
-// dir, returning the node ID of the most specific match: the key must equal the ref or
-// end in "/"+ref (a path-segment boundary), and among matches the longest key wins with a
-// lexical tiebreak so the result is deterministic regardless of map iteration order.
-// Returns "" when nothing matches. Used for composite-action resolution.
+// dir, returning the node ID of the most specific match. The scan key and the ref may be
+// qualified to different depths (a scan dir can be shallower than the ref, or vice
+// versa), so a match holds when either is a path-segment suffix of the other. Among
+// matches the longest key wins with a lexical tiebreak so the result is deterministic
+// regardless of map iteration order. Returns "" when nothing matches. Used for
+// composite-action resolution.
 func longestSuffixMatch(index map[string]string, ref string) string {
 	var bestKey, bestID string
 	for key, id := range index {
-		if key == ref || strings.HasSuffix(key, "/"+ref) {
+		if key == ref || strings.HasSuffix(key, "/"+ref) || strings.HasSuffix(ref, "/"+key) {
 			if bestID == "" || len(key) > len(bestKey) || (len(key) == len(bestKey) && key < bestKey) {
 				bestKey, bestID = key, id
 			}
