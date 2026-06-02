@@ -45,10 +45,9 @@ clean:
 	rm -f actiondoc
 	rm -rf dist/
 
-## golden: Regenerate the golden test files (workflow + action)
+## golden: Regenerate all golden test files through the golden tests' own render path
 golden:
-	go run . generate testdata/sample-workflow.yml > testdata/expected-output.md
-	go run . generate testdata/action.yml > testdata/expected-action-output.md
+	go test ./internal/renderer ./cmd -run Golden -update
 
 ## demo: Run actiondoc against the sample workflow
 demo:

@@ -92,3 +92,79 @@ func TestRenderMarkdownDeprecated(t *testing.T) {
 		t.Errorf("missing deprecated banner in:\n%s", md)
 	}
 }
+
+func TestRenderActionMarkdownBasic(t *testing.T) {
+	a := &model.Action{
+		File:        "action.yml",
+		Name:        "My Action",
+		Description: "Does a thing.",
+		Inputs: []model.ActionInput{
+			{Name: "token", Description: "GitHub token", Required: true},
+			{Name: "env", Description: "Target environment", Required: false, Default: "staging"},
+		},
+		Outputs: []model.ActionOutput{
+			{Name: "result", Description: "The result"},
+		},
+		Runs: model.ActionRuns{Using: "node20"},
+	}
+
+	md := RenderActionMarkdown(a)
+
+	checks := []string{
+		"# My Action",
+		"Does a thing.",
+		"`node20`",
+		"## Inputs",
+		"| `token`",
+		"| Yes |",
+		"| `env`",
+		"| No |",
+		"`staging`",
+		"## Outputs",
+		"| `result`",
+	}
+
+	for _, want := range checks {
+		if !strings.Contains(md, want) {
+			t.Errorf("output missing %q\n\nFull output:\n%s", want, md)
+		}
+	}
+}
+
+func TestTableEscaping(t *testing.T) {
+	w := &model.Workflow{
+		File: "test.yml",
+		Name: "Test",
+		On:   []string{"push"},
+		Tags: model.Tags{
+			Secrets: []model.Param{
+				{Name: "TOKEN", Description: "Use a|b for options"},
+			},
+		},
+	}
+
+	md := RenderMarkdown(w)
+
+	// The pipe should be escaped so it doesn't break the table.
+	if !strings.Contains(md, `a\|b`) {
+		t.Errorf("pipe character not escaped in table cell.\n\nOutput:\n%s", md)
+	}
+
+	// The unescaped pipe should NOT appear in the table rows (header divider is ok).
+	for _, line := range strings.Split(md, "\n") {
+		if !strings.HasPrefix(line, "|") {
+			continue
+		}
+		// Skip the header divider row.
+		if strings.Contains(line, "---") {
+			continue
+		}
+		// Count unescaped pipes (not preceded by backslash).
+		content := strings.ReplaceAll(line, `\|`, "")
+		pipes := strings.Count(content, "|")
+		// A valid 3-column row has exactly 4 pipes: | col | col | col |
+		if strings.Contains(line, "TOKEN") && pipes != 4 {
+			t.Errorf("table row has %d unescaped pipes (expected 4): %s", pipes, line)
+		}
+	}
+}
