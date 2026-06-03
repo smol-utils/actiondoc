@@ -86,7 +86,11 @@ func callerUsesCell(g *callgraph.Graph, fromID, jobID, rawUses string) string {
 func calleeLink(g *callgraph.Graph, e callgraph.Edge) string {
 	n := g.Nodes[e.ToID]
 	if n == nil {
-		return "`" + escapeCell(e.Ref) + "` (unresolved)"
+		// The ref points outside what was scanned: a path that exists in the repository
+		// but was not discovered, or one that only exists at runtime (e.g. a checkout
+		// into a subdirectory). Either way the tool did not see it -- which is different
+		// from the ref being broken.
+		return "`" + escapeCell(e.Ref) + "` (outside scan scope)"
 	}
 	if n.External {
 		ref := n.Name
@@ -171,7 +175,7 @@ func callEdgeLabel(g *callgraph.Graph, e callgraph.Edge) string {
 func calleeDisplay(g *callgraph.Graph, e callgraph.Edge) string {
 	n := g.Nodes[e.ToID]
 	if n == nil {
-		return e.Ref + " (unresolved)"
+		return e.Ref + " (outside scan scope)"
 	}
 	if n.External {
 		if e.Pin != "" {

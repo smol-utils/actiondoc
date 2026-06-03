@@ -46,7 +46,7 @@ build-and-deploy-snapshot.yml [workflow_dispatch, push]
 +-- build-and-deploy-snapshot / Build and Publish (uses ./.github/actions/build)
 +-- build-and-deploy-snapshot / Send Notification (uses ./.github/actions/send-notification)
 +-- verify (uses verify.yml)
-    +-- verify / Send Notification (uses ./send-notification/.github/actions/send-notification (unresolved))
+    +-- verify / Send Notification (uses ./send-notification/.github/actions/send-notification (outside scan scope))
 ```
 
 ## Transitive requirements (from full call graph)
@@ -391,7 +391,7 @@ Inputs for the `workflow_dispatch` event.
 release-milestone.yml [push]
 +-- build-and-stage-release / Build and Publish (uses ./.github/actions/build)
 +-- verify (uses verify.yml)
-|   +-- verify / Send Notification (uses ./send-notification/.github/actions/send-notification (unresolved))
+|   +-- verify / Send Notification (uses ./send-notification/.github/actions/send-notification (outside scan scope))
 +-- sync-to-maven-central / Sync to Maven Central (uses ./.github/actions/sync-to-maven-central)
 +-- publish-gradle-plugin / Publish (uses ./.github/actions/publish-gradle-plugin)
 +-- create-github-release / Create GitHub Release (uses ./.github/actions/create-github-release)
@@ -609,7 +609,7 @@ release.yml [push]
 +-- build-and-stage-release / Build and Publish (uses ./.github/actions/build)
 +-- build-and-stage-release / Send Notification (uses ./.github/actions/send-notification)
 +-- verify (uses verify.yml)
-|   +-- verify / Send Notification (uses ./send-notification/.github/actions/send-notification (unresolved))
+|   +-- verify / Send Notification (uses ./send-notification/.github/actions/send-notification (outside scan scope))
 +-- sync-to-maven-central / Sync to Maven Central (uses ./.github/actions/sync-to-maven-central)
 +-- publish-gradle-plugin / Publish (uses ./.github/actions/publish-gradle-plugin)
 +-- publish-to-sdkman / Publish to SDKMAN! (uses ./.github/actions/publish-to-sdkman)

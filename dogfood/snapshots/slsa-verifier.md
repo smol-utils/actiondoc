@@ -194,11 +194,11 @@ All scopes: `read-all`.
 
 ```
 e2e.schedule.installer.yml [schedule, workflow_dispatch]
-+-- verifier-run / Run the Action at tag (uses ./actions/installer (unresolved))
-+-- verifier-run / Run the Action at commit (uses ./actions/installer (unresolved))
-+-- verifier-run / Install invalid commit (uses ./actions/installer (unresolved))
-+-- verifier-run / Install non-existent tag (uses ./actions/installer (unresolved))
-+-- verifier-run / Install empty tag (uses ./actions/installer (unresolved))
++-- verifier-run / Run the Action at tag (uses ./actions/installer (outside scan scope))
++-- verifier-run / Run the Action at commit (uses ./actions/installer (outside scan scope))
++-- verifier-run / Install invalid commit (uses ./actions/installer (outside scan scope))
++-- verifier-run / Install non-existent tag (uses ./actions/installer (outside scan scope))
++-- verifier-run / Install empty tag (uses ./actions/installer (outside scan scope))
 ```
 
 ## Jobs
