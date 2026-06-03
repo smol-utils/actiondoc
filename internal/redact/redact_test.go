@@ -3,6 +3,7 @@ package redact
 import (
 	"encoding/json"
 	"reflect"
+	"strings"
 	"testing"
 
 	"github.com/smol-utils/actiondoc/internal/callgraph"
@@ -119,6 +120,29 @@ func TestApply_HostsAndURLs(t *testing.T) {
 	}
 	if m.entries["URL_1"] != "https://api.internal.corp/v1" {
 		t.Errorf("url map: %v", m.entries)
+	}
+}
+
+func TestApply_HostWithContextLikeLabelFullyRedacted(t *testing.T) {
+	// A literal hostname whose leading label matches an expression context (secrets./vars./
+	// env.) must be redacted whole, not corrupted by identifier rewriting. Here "example" is
+	// also a real secret, the worst case: the host substitution must still win on literal
+	// text, while the genuine ${{ secrets.example }} reference is rewritten as an identifier.
+	w := &model.Workflow{Jobs: []model.Job{{
+		ID: "j",
+		Steps: []model.Step{{
+			Run: "echo ${{ secrets.example }}; curl secrets.example.com; curl https://secrets.example.com/x",
+		}},
+	}}}
+	Apply(wf(w), Options{})
+	got := w.Jobs[0].Steps[0].Run
+	for _, leak := range []string{"example.com", ".com"} {
+		if strings.Contains(got, leak) {
+			t.Errorf("host left partly unredacted (%q) in: %q", leak, got)
+		}
+	}
+	if !strings.Contains(got, "${{ secrets.SECRET_1 }}") {
+		t.Errorf("genuine secret reference not redacted: %q", got)
 	}
 }
 

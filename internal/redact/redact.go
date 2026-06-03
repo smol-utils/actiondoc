@@ -195,11 +195,17 @@ func (r *redactor) noteFree(s string) {
 }
 
 // redactFree applies identifier and host/URL substitution to a free-text string.
+// Host/URL substitution runs first, on literal spans only: a literal hostname whose
+// leading label looks like an expression context (secrets.example.com) would otherwise be
+// corrupted by identifier rewriting (-> secrets.SECRET_1.com) before its host placeholder
+// could land, leaving the host partly in the clear. Identifier rewriting then runs over
+// the whole string, including expression bodies; the host/URL placeholders it now sees
+// contain no `context.` pattern, so they pass through untouched.
 func (r *redactor) redactFree(s string) string {
-	s = rewriteIdents(s, r.m)
 	s = mapLiteralSpans(s, func(span string) string {
 		return rewriteHostsURLs(span, r.m[catURL], r.m[catHost])
 	})
+	s = rewriteIdents(s, r.m)
 	return s
 }
 
