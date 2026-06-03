@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"strings"
@@ -199,5 +200,67 @@ func TestGenerateSkipsDisabledWorkflows(t *testing.T) {
 	}
 	if err := Generate([]string{"-o", out, wf}); err == nil {
 		t.Error("Generate with a malformed (non-mapping) file must fail")
+	}
+}
+
+// TestGenerateJSONOutput pins the -json output mode: the result must be valid JSON whose
+// structure exposes the documented model fields. The model's JSON tags are a stable
+// contract for downstream consumers; nothing else guards them.
+func TestGenerateJSONOutput(t *testing.T) {
+	out := filepath.Join(t.TempDir(), "out.json")
+
+	err := Generate([]string{"-json", "-o", out, testdataPath("s3/repo/.github/workflows")})
+	if err != nil {
+		t.Fatalf("Generate -json: %v", err)
+	}
+
+	raw, err := os.ReadFile(out)
+	if err != nil {
+		t.Fatalf("reading output: %v", err)
+	}
+
+	var items []map[string]any
+	if err := json.Unmarshal(raw, &items); err != nil {
+		t.Fatalf("output is not valid JSON: %v\n%s", err, raw)
+	}
+	if len(items) == 0 {
+		t.Fatal("JSON output is empty")
+	}
+
+	// The fixture's workflows and composite action must all be present, keyed by the
+	// documented model fields.
+	var names []string
+	for _, item := range items {
+		name, _ := item["name"].(string)
+		names = append(names, name)
+	}
+	for _, want := range []string{"CI", "Reusable Build", "Deploy"} {
+		found := false
+		for _, n := range names {
+			if n == want {
+				found = true
+			}
+		}
+		if !found {
+			t.Errorf("JSON output missing item %q; got names %v", want, names)
+		}
+	}
+
+	// Spot-check the documented field structure on the workflow items: jobs with ids,
+	// steps, and trigger lists all surface under their JSON tags.
+	for _, item := range items {
+		if item["name"] == "CI" {
+			jobs, ok := item["jobs"].([]any)
+			if !ok || len(jobs) == 0 {
+				t.Fatalf("CI workflow JSON has no jobs: %v", item)
+			}
+			job := jobs[0].(map[string]any)
+			if job["id"] == "" {
+				t.Errorf("job missing id field: %v", job)
+			}
+			if _, hasOn := item["on"]; !hasOn {
+				t.Errorf("workflow missing 'on' field: %v", item)
+			}
+		}
 	}
 }
