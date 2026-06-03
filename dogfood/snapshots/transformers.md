@@ -1812,6 +1812,71 @@ This workflow is reusable via `workflow_call`.
 
 - `contents`: `read`
 
+## Called by
+
+```
+collated-reports.yml
++-- model_jobs.yml (job: collated_reports)
+    +-- self-scheduled.yml (job: run_models_gpu)
+    |   +-- push-important-models.yml (job: model-ci)  <- entry point
+    |   +-- self-comment-ci.yml (job: model-ci)  <- entry point
+    |   +-- self-comment-ci.yml (job: quantization-ci)  <- entry point
+    |   +-- self-nightly-caller.yml (job: model-ci)  <- entry point
+    |   +-- self-past-caller.yml (job: model-ci)
+    |   |   +-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-11)  <- entry point
+    |   |   +-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-10)  <- entry point
+    |   |   +-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-9)  <- entry point
+    |   |   +-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-8)  <- entry point
+    |   |   +-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-7)  <- entry point
+    |   |   +-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-6)  <- entry point
+    |   |   +-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-5)  <- entry point
+    |   +-- self-past-caller.yml (job: deepspeed-ci)
+    |   |   +-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-11)  <- entry point
+    |   |   +-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-10)  <- entry point
+    |   |   +-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-9)  <- entry point
+    |   |   +-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-8)  <- entry point
+    |   |   +-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-7)  <- entry point
+    |   |   +-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-6)  <- entry point
+    |   |   +-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-5)  <- entry point
+    |   +-- self-scheduled-caller.yml (job: model-ci)  <- entry point
+    |   +-- self-scheduled-caller.yml (job: torch-pipeline)  <- entry point
+    |   +-- self-scheduled-caller.yml (job: example-ci)  <- entry point
+    |   +-- self-scheduled-caller.yml (job: trainer-fsdp-ci)  <- entry point
+    |   +-- self-scheduled-caller.yml (job: deepspeed-ci)  <- entry point
+    |   +-- self-scheduled-caller.yml (job: quantization-ci)  <- entry point
+    |   +-- self-scheduled-caller.yml (job: kernels-ci)  <- entry point
+    |   +-- self-scheduled-flash-attn-caller.yml (job: model-ci)  <- entry point
+    +-- self-scheduled.yml (job: run_trainer_and_fsdp_gpu)
+        +-- push-important-models.yml (job: model-ci)  <- entry point
+        +-- self-comment-ci.yml (job: model-ci)  <- entry point
+        +-- self-comment-ci.yml (job: quantization-ci)  <- entry point
+        +-- self-nightly-caller.yml (job: model-ci)  <- entry point
+        +-- self-past-caller.yml (job: model-ci)
+        |   +-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-11)  <- entry point
+        |   +-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-10)  <- entry point
+        |   +-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-9)  <- entry point
+        |   +-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-8)  <- entry point
+        |   +-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-7)  <- entry point
+        |   +-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-6)  <- entry point
+        |   +-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-5)  <- entry point
+        +-- self-past-caller.yml (job: deepspeed-ci)
+        |   +-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-11)  <- entry point
+        |   +-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-10)  <- entry point
+        |   +-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-9)  <- entry point
+        |   +-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-8)  <- entry point
+        |   +-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-7)  <- entry point
+        |   +-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-6)  <- entry point
+        |   +-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-5)  <- entry point
+        +-- self-scheduled-caller.yml (job: model-ci)  <- entry point
+        +-- self-scheduled-caller.yml (job: torch-pipeline)  <- entry point
+        +-- self-scheduled-caller.yml (job: example-ci)  <- entry point
+        +-- self-scheduled-caller.yml (job: trainer-fsdp-ci)  <- entry point
+        +-- self-scheduled-caller.yml (job: deepspeed-ci)  <- entry point
+        +-- self-scheduled-caller.yml (job: quantization-ci)  <- entry point
+        +-- self-scheduled-caller.yml (job: kernels-ci)  <- entry point
+        +-- self-scheduled-flash-attn-caller.yml (job: model-ci)  <- entry point
+```
+
 ## Referenced secrets and variables
 
 **Secrets:**
@@ -2519,7 +2584,7 @@ model_jobs.yml
 
 | Property | Value |
 |----------|-------|
-| Uses workflow | `huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a` (external) |
+| Uses workflow | [CI collated reports](#ci-collated-reports) (`@6abd9725ee7d809dc974991f8ff6c958afb63a3a`) |
 | Depends on | `run_models_gpu` |
 | Condition | `${{ always() && inputs.runner_type != '' }}` |
 
@@ -3265,9 +3330,9 @@ Permissions declared across the chain: `contents: read`, `pull-requests: write`
 push-important-models.yml [push]
 +-- model-ci (uses self-scheduled.yml)
     +-- run_models_gpu (uses model_jobs.yml)
-    |   +-- collated_reports (uses huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
+    |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
     +-- run_trainer_and_fsdp_gpu (uses model_jobs.yml)
-    |   +-- collated_reports (uses huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
+    |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
     +-- send_results (uses slack-report.yml)
     +-- check_new_failures (uses check_failed_tests.yml)
 ```
@@ -3277,8 +3342,6 @@ push-important-models.yml [push]
 Secrets referenced (literal names): `ACCESS_REPO_INFO_TOKEN`, `CI_SLACK_BOT_TOKEN`, `CI_SLACK_CHANNEL_DUMMY_TESTS`, `CI_SLACK_CHANNEL_ID`, `CI_SLACK_CHANNEL_ID_DAILY`, `GITHUB_TOKEN`, `HF_HUB_READ_TOKEN`, `SLACK_CIFEEDBACK_BOT_TOKEN`, `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN`
 
 Permissions declared across the chain: `contents: read`
-
-External workflows referenced: `huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a`
 
 ## Jobs
 
@@ -3531,16 +3594,16 @@ self-comment-ci.yml [issue_comment]
 +-- get-pr-info (uses get-pr-info.yml)
 +-- model-ci (uses self-scheduled.yml)
 |   +-- run_models_gpu (uses model_jobs.yml)
-|   |   +-- collated_reports (uses huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
+|   |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
 |   +-- run_trainer_and_fsdp_gpu (uses model_jobs.yml)
-|   |   +-- collated_reports (uses huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
+|   |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
 |   +-- send_results (uses slack-report.yml)
 |   +-- check_new_failures (uses check_failed_tests.yml)
 +-- quantization-ci (uses self-scheduled.yml)
     +-- run_models_gpu (uses model_jobs.yml)
-    |   +-- collated_reports (uses huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
+    |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
     +-- run_trainer_and_fsdp_gpu (uses model_jobs.yml)
-    |   +-- collated_reports (uses huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
+    |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
     +-- send_results (uses slack-report.yml)
     +-- check_new_failures (uses check_failed_tests.yml)
 ```
@@ -3550,8 +3613,6 @@ self-comment-ci.yml [issue_comment]
 Secrets referenced (literal names): `ACCESS_REPO_INFO_TOKEN`, `CI_SLACK_BOT_TOKEN`, `CI_SLACK_CHANNEL_DUMMY_TESTS`, `CI_SLACK_CHANNEL_ID`, `CI_SLACK_CHANNEL_ID_DAILY`, `GITHUB_TOKEN`, `HF_HUB_READ_TOKEN`, `SLACK_CIFEEDBACK_BOT_TOKEN`, `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN`
 
 Permissions declared across the chain: `contents: read`, `pull-requests: write`, `statuses: write`
-
-External workflows referenced: `huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a`
 
 ## Referenced secrets and variables
 
@@ -3820,9 +3881,9 @@ self-nightly-caller.yml [repository_dispatch, workflow_run, push]
 +-- build_nightly_torch_ci_images (uses build-nightly-ci-docker-images.yml)
 +-- model-ci (uses self-scheduled.yml)
     +-- run_models_gpu (uses model_jobs.yml)
-    |   +-- collated_reports (uses huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
+    |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
     +-- run_trainer_and_fsdp_gpu (uses model_jobs.yml)
-    |   +-- collated_reports (uses huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
+    |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
     +-- send_results (uses slack-report.yml)
     +-- check_new_failures (uses check_failed_tests.yml)
 ```
@@ -3832,8 +3893,6 @@ self-nightly-caller.yml [repository_dispatch, workflow_run, push]
 Secrets referenced (literal names): `ACCESS_REPO_INFO_TOKEN`, `CI_SLACK_BOT_TOKEN`, `CI_SLACK_CHANNEL_DUMMY_TESTS`, `CI_SLACK_CHANNEL_ID`, `CI_SLACK_CHANNEL_ID_DAILY`, `DOCKERHUB_PASSWORD`, `DOCKERHUB_USERNAME`, `GITHUB_TOKEN`, `HF_HUB_READ_TOKEN`, `SLACK_CIFEEDBACK_BOT_TOKEN`, `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN`
 
 Permissions declared across the chain: `contents: read`
-
-External workflows referenced: `huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a`
 
 ## Jobs
 
@@ -3918,106 +3977,106 @@ self-nightly-past-ci-caller.yml [schedule, push]
 +-- run_past_ci_tensorflow_2-11 (uses self-past-caller.yml)
 |   +-- model-ci (uses self-scheduled.yml)
 |   |   +-- run_models_gpu (uses model_jobs.yml)
-|   |   |   +-- collated_reports (uses huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
+|   |   |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
 |   |   +-- run_trainer_and_fsdp_gpu (uses model_jobs.yml)
-|   |   |   +-- collated_reports (uses huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
+|   |   |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
 |   |   +-- send_results (uses slack-report.yml)
 |   |   +-- check_new_failures (uses check_failed_tests.yml)
 |   +-- deepspeed-ci (uses self-scheduled.yml)
 |       +-- run_models_gpu (uses model_jobs.yml)
-|       |   +-- collated_reports (uses huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
+|       |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
 |       +-- run_trainer_and_fsdp_gpu (uses model_jobs.yml)
-|       |   +-- collated_reports (uses huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
+|       |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
 |       +-- send_results (uses slack-report.yml)
 |       +-- check_new_failures (uses check_failed_tests.yml)
 +-- run_past_ci_tensorflow_2-10 (uses self-past-caller.yml)
 |   +-- model-ci (uses self-scheduled.yml)
 |   |   +-- run_models_gpu (uses model_jobs.yml)
-|   |   |   +-- collated_reports (uses huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
+|   |   |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
 |   |   +-- run_trainer_and_fsdp_gpu (uses model_jobs.yml)
-|   |   |   +-- collated_reports (uses huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
+|   |   |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
 |   |   +-- send_results (uses slack-report.yml)
 |   |   +-- check_new_failures (uses check_failed_tests.yml)
 |   +-- deepspeed-ci (uses self-scheduled.yml)
 |       +-- run_models_gpu (uses model_jobs.yml)
-|       |   +-- collated_reports (uses huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
+|       |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
 |       +-- run_trainer_and_fsdp_gpu (uses model_jobs.yml)
-|       |   +-- collated_reports (uses huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
+|       |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
 |       +-- send_results (uses slack-report.yml)
 |       +-- check_new_failures (uses check_failed_tests.yml)
 +-- run_past_ci_tensorflow_2-9 (uses self-past-caller.yml)
 |   +-- model-ci (uses self-scheduled.yml)
 |   |   +-- run_models_gpu (uses model_jobs.yml)
-|   |   |   +-- collated_reports (uses huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
+|   |   |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
 |   |   +-- run_trainer_and_fsdp_gpu (uses model_jobs.yml)
-|   |   |   +-- collated_reports (uses huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
+|   |   |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
 |   |   +-- send_results (uses slack-report.yml)
 |   |   +-- check_new_failures (uses check_failed_tests.yml)
 |   +-- deepspeed-ci (uses self-scheduled.yml)
 |       +-- run_models_gpu (uses model_jobs.yml)
-|       |   +-- collated_reports (uses huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
+|       |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
 |       +-- run_trainer_and_fsdp_gpu (uses model_jobs.yml)
-|       |   +-- collated_reports (uses huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
+|       |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
 |       +-- send_results (uses slack-report.yml)
 |       +-- check_new_failures (uses check_failed_tests.yml)
 +-- run_past_ci_tensorflow_2-8 (uses self-past-caller.yml)
 |   +-- model-ci (uses self-scheduled.yml)
 |   |   +-- run_models_gpu (uses model_jobs.yml)
-|   |   |   +-- collated_reports (uses huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
+|   |   |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
 |   |   +-- run_trainer_and_fsdp_gpu (uses model_jobs.yml)
-|   |   |   +-- collated_reports (uses huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
+|   |   |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
 |   |   +-- send_results (uses slack-report.yml)
 |   |   +-- check_new_failures (uses check_failed_tests.yml)
 |   +-- deepspeed-ci (uses self-scheduled.yml)
 |       +-- run_models_gpu (uses model_jobs.yml)
-|       |   +-- collated_reports (uses huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
+|       |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
 |       +-- run_trainer_and_fsdp_gpu (uses model_jobs.yml)
-|       |   +-- collated_reports (uses huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
+|       |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
 |       +-- send_results (uses slack-report.yml)
 |       +-- check_new_failures (uses check_failed_tests.yml)
 +-- run_past_ci_tensorflow_2-7 (uses self-past-caller.yml)
 |   +-- model-ci (uses self-scheduled.yml)
 |   |   +-- run_models_gpu (uses model_jobs.yml)
-|   |   |   +-- collated_reports (uses huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
+|   |   |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
 |   |   +-- run_trainer_and_fsdp_gpu (uses model_jobs.yml)
-|   |   |   +-- collated_reports (uses huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
+|   |   |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
 |   |   +-- send_results (uses slack-report.yml)
 |   |   +-- check_new_failures (uses check_failed_tests.yml)
 |   +-- deepspeed-ci (uses self-scheduled.yml)
 |       +-- run_models_gpu (uses model_jobs.yml)
-|       |   +-- collated_reports (uses huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
+|       |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
 |       +-- run_trainer_and_fsdp_gpu (uses model_jobs.yml)
-|       |   +-- collated_reports (uses huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
+|       |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
 |       +-- send_results (uses slack-report.yml)
 |       +-- check_new_failures (uses check_failed_tests.yml)
 +-- run_past_ci_tensorflow_2-6 (uses self-past-caller.yml)
 |   +-- model-ci (uses self-scheduled.yml)
 |   |   +-- run_models_gpu (uses model_jobs.yml)
-|   |   |   +-- collated_reports (uses huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
+|   |   |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
 |   |   +-- run_trainer_and_fsdp_gpu (uses model_jobs.yml)
-|   |   |   +-- collated_reports (uses huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
+|   |   |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
 |   |   +-- send_results (uses slack-report.yml)
 |   |   +-- check_new_failures (uses check_failed_tests.yml)
 |   +-- deepspeed-ci (uses self-scheduled.yml)
 |       +-- run_models_gpu (uses model_jobs.yml)
-|       |   +-- collated_reports (uses huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
+|       |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
 |       +-- run_trainer_and_fsdp_gpu (uses model_jobs.yml)
-|       |   +-- collated_reports (uses huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
+|       |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
 |       +-- send_results (uses slack-report.yml)
 |       +-- check_new_failures (uses check_failed_tests.yml)
 +-- run_past_ci_tensorflow_2-5 (uses self-past-caller.yml)
     +-- model-ci (uses self-scheduled.yml)
     |   +-- run_models_gpu (uses model_jobs.yml)
-    |   |   +-- collated_reports (uses huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
+    |   |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
     |   +-- run_trainer_and_fsdp_gpu (uses model_jobs.yml)
-    |   |   +-- collated_reports (uses huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
+    |   |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
     |   +-- send_results (uses slack-report.yml)
     |   +-- check_new_failures (uses check_failed_tests.yml)
     +-- deepspeed-ci (uses self-scheduled.yml)
         +-- run_models_gpu (uses model_jobs.yml)
-        |   +-- collated_reports (uses huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
+        |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
         +-- run_trainer_and_fsdp_gpu (uses model_jobs.yml)
-        |   +-- collated_reports (uses huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
+        |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
         +-- send_results (uses slack-report.yml)
         +-- check_new_failures (uses check_failed_tests.yml)
 ```
@@ -4027,8 +4086,6 @@ self-nightly-past-ci-caller.yml [schedule, push]
 Secrets referenced (literal names): `ACCESS_REPO_INFO_TOKEN`, `CI_SLACK_BOT_TOKEN`, `CI_SLACK_CHANNEL_DUMMY_TESTS`, `CI_SLACK_CHANNEL_ID`, `CI_SLACK_CHANNEL_ID_DAILY`, `GITHUB_TOKEN`, `HF_HUB_READ_TOKEN`, `SLACK_CIFEEDBACK_BOT_TOKEN`, `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN`
 
 Permissions declared across the chain: `contents: read`
-
-External workflows referenced: `huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a`
 
 ## Jobs
 
@@ -4659,51 +4716,51 @@ Inputs for the `workflow_dispatch` event.
 self-scheduled-caller.yml [repository_dispatch, schedule, push, workflow_dispatch]
 +-- model-ci (uses self-scheduled.yml)
 |   +-- run_models_gpu (uses model_jobs.yml)
-|   |   +-- collated_reports (uses huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
+|   |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
 |   +-- run_trainer_and_fsdp_gpu (uses model_jobs.yml)
-|   |   +-- collated_reports (uses huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
+|   |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
 |   +-- send_results (uses slack-report.yml)
 |   +-- check_new_failures (uses check_failed_tests.yml)
 +-- torch-pipeline (uses self-scheduled.yml)
 |   +-- run_models_gpu (uses model_jobs.yml)
-|   |   +-- collated_reports (uses huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
+|   |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
 |   +-- run_trainer_and_fsdp_gpu (uses model_jobs.yml)
-|   |   +-- collated_reports (uses huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
+|   |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
 |   +-- send_results (uses slack-report.yml)
 |   +-- check_new_failures (uses check_failed_tests.yml)
 +-- example-ci (uses self-scheduled.yml)
 |   +-- run_models_gpu (uses model_jobs.yml)
-|   |   +-- collated_reports (uses huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
+|   |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
 |   +-- run_trainer_and_fsdp_gpu (uses model_jobs.yml)
-|   |   +-- collated_reports (uses huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
+|   |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
 |   +-- send_results (uses slack-report.yml)
 |   +-- check_new_failures (uses check_failed_tests.yml)
 +-- trainer-fsdp-ci (uses self-scheduled.yml)
 |   +-- run_models_gpu (uses model_jobs.yml)
-|   |   +-- collated_reports (uses huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
+|   |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
 |   +-- run_trainer_and_fsdp_gpu (uses model_jobs.yml)
-|   |   +-- collated_reports (uses huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
+|   |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
 |   +-- send_results (uses slack-report.yml)
 |   +-- check_new_failures (uses check_failed_tests.yml)
 +-- deepspeed-ci (uses self-scheduled.yml)
 |   +-- run_models_gpu (uses model_jobs.yml)
-|   |   +-- collated_reports (uses huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
+|   |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
 |   +-- run_trainer_and_fsdp_gpu (uses model_jobs.yml)
-|   |   +-- collated_reports (uses huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
+|   |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
 |   +-- send_results (uses slack-report.yml)
 |   +-- check_new_failures (uses check_failed_tests.yml)
 +-- quantization-ci (uses self-scheduled.yml)
 |   +-- run_models_gpu (uses model_jobs.yml)
-|   |   +-- collated_reports (uses huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
+|   |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
 |   +-- run_trainer_and_fsdp_gpu (uses model_jobs.yml)
-|   |   +-- collated_reports (uses huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
+|   |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
 |   +-- send_results (uses slack-report.yml)
 |   +-- check_new_failures (uses check_failed_tests.yml)
 +-- kernels-ci (uses self-scheduled.yml)
     +-- run_models_gpu (uses model_jobs.yml)
-    |   +-- collated_reports (uses huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
+    |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
     +-- run_trainer_and_fsdp_gpu (uses model_jobs.yml)
-    |   +-- collated_reports (uses huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
+    |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
     +-- send_results (uses slack-report.yml)
     +-- check_new_failures (uses check_failed_tests.yml)
 ```
@@ -4713,8 +4770,6 @@ self-scheduled-caller.yml [repository_dispatch, schedule, push, workflow_dispatc
 Secrets referenced (literal names): `ACCESS_REPO_INFO_TOKEN`, `CI_SLACK_BOT_TOKEN`, `CI_SLACK_CHANNEL_DUMMY_TESTS`, `CI_SLACK_CHANNEL_ID`, `CI_SLACK_CHANNEL_ID_DAILY`, `GITHUB_TOKEN`, `HF_HUB_READ_TOKEN`, `SLACK_CIFEEDBACK_BOT_TOKEN`, `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN`
 
 Permissions declared across the chain: `contents: read`
-
-External workflows referenced: `huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a`
 
 ## Jobs
 
@@ -4915,9 +4970,9 @@ Inputs for the `workflow_dispatch` event.
 self-scheduled-flash-attn-caller.yml [repository_dispatch, schedule, push, workflow_dispatch]
 +-- model-ci (uses self-scheduled.yml)
     +-- run_models_gpu (uses model_jobs.yml)
-    |   +-- collated_reports (uses huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
+    |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
     +-- run_trainer_and_fsdp_gpu (uses model_jobs.yml)
-    |   +-- collated_reports (uses huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
+    |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
     +-- send_results (uses slack-report.yml)
     +-- check_new_failures (uses check_failed_tests.yml)
 ```
@@ -4927,8 +4982,6 @@ self-scheduled-flash-attn-caller.yml [repository_dispatch, schedule, push, workf
 Secrets referenced (literal names): `ACCESS_REPO_INFO_TOKEN`, `CI_SLACK_BOT_TOKEN`, `CI_SLACK_CHANNEL_DUMMY_TESTS`, `CI_SLACK_CHANNEL_ID`, `CI_SLACK_CHANNEL_ID_DAILY`, `GITHUB_TOKEN`, `HF_HUB_READ_TOKEN`, `SLACK_CIFEEDBACK_BOT_TOKEN`, `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN`
 
 Permissions declared across the chain: `contents: read`
-
-External workflows referenced: `huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a`
 
 ## Jobs
 

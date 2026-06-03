@@ -95,7 +95,14 @@ func calleeLink(g *callgraph.Graph, e callgraph.Edge) string {
 		}
 		return "`" + escapeCell(ref) + "` (external)"
 	}
-	return fmt.Sprintf("[%s](#%s)", mdLinkLabel(n.Name), nodeAnchor(n))
+	// An in-scope edge carrying a pin is a cross-repo self-reference (the repo calling
+	// its own workflow at a branch/tag); keep the pin visible next to the link so the
+	// reader knows the pinned version is what actually runs.
+	link := fmt.Sprintf("[%s](#%s)", mdLinkLabel(n.Name), nodeAnchor(n))
+	if e.Pin != "" {
+		link += " (`@" + escapeCell(e.Pin) + "`)"
+	}
+	return link
 }
 
 // nodeAnchor is the anchor slug for an in-scope node's rendered section: the
@@ -174,6 +181,11 @@ func calleeDisplay(g *callgraph.Graph, e callgraph.Edge) string {
 	}
 	if n.IsAction {
 		return e.Ref
+	}
+	// An in-scope edge carrying a pin is a cross-repo self-reference; keep the pinned
+	// version visible in the tree label.
+	if e.Pin != "" {
+		return filepath.Base(n.Path) + "@" + e.Pin
 	}
 	return filepath.Base(n.Path)
 }

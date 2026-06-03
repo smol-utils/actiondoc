@@ -101,7 +101,7 @@
 
 ```
 codeql.yml [workflow_dispatch, push, pull_request]
-+-- precheck (uses jreleaser/jreleaser/.github/workflows/step-precheck.yml@main)
++-- precheck (uses step-precheck.yml@main)
 ```
 
 ## Transitive requirements (from full call graph)
@@ -109,8 +109,6 @@ codeql.yml [workflow_dispatch, push, pull_request]
 Secrets referenced (literal names): `GITHUB_TOKEN`, `github-token`
 
 Permissions declared across the chain: `actions: read`, `contents: read`, `security-events: write`
-
-External workflows referenced: `jreleaser/jreleaser/.github/workflows/step-precheck.yml@main`
 
 ## Referenced secrets and variables
 
@@ -126,7 +124,7 @@ External workflows referenced: `jreleaser/jreleaser/.github/workflows/step-prech
 
 | Property | Value |
 |----------|-------|
-| Uses workflow | `jreleaser/jreleaser/.github/workflows/step-precheck.yml@main` (external) |
+| Uses workflow | [X-Precheck](#x-precheck) (`@main`) |
 
 #### Secrets forwarded
 
@@ -194,23 +192,23 @@ External workflows referenced: `jreleaser/jreleaser/.github/workflows/step-prech
 
 ```
 early-access.yml [push]
-+-- precheck (uses jreleaser/jreleaser/.github/workflows/step-precheck.yml@main)
-+-- jlink (uses jreleaser/jreleaser/.github/workflows/step-jlink.yml@main)
-+-- jpackage (uses jreleaser/jreleaser/.github/workflows/step-jpackage.yml@main)
-+-- native-image (uses jreleaser/jreleaser/.github/workflows/step-native-image.yml@main)
++-- precheck (uses step-precheck.yml@main)
++-- jlink (uses step-jlink.yml@main)
++-- jpackage (uses step-jpackage.yml@main)
++-- native-image (uses step-native-image.yml@main)
 +-- provenance (uses slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v2.1.0)
-+-- update-wiki (uses jreleaser/jreleaser/.github/workflows/step-update-wiki.yml@main)
++-- update-wiki (uses step-update-wiki.yml@main)
 ```
 
 ## Transitive requirements (from full call graph)
 
 Secrets referenced (literal names): `GITHUB_TOKEN`, `GIT_ACCESS_TOKEN`, `GPG_PASSPHRASE`, `GPG_PUBLIC_KEY`, `GPG_SECRET_KEY`, `JRELEASER_DOCKER_PASSWORD`, `JRELEASER_OCI_COMPARTMENTID`, `gh-access-token`, `github-token`, `gpg-passphrase`, `oci-compartment-id`
 
-Variables referenced: `GH_BOT_EMAIL`
+Variables referenced: `GH_BOT_EMAIL`, `GRAAL_JAVA_VERSION`, `JAVA_DISTRO`, `JAVA_VERSION`
 
-Permissions declared across the chain: `actions: write`, `attestations: write`, `contents: read`, `contents: write`, `id-token: write (OIDC)`
+Permissions declared across the chain: `actions: read`, `actions: write`, `attestations: write`, `contents: read`, `contents: write`, `id-token: write (OIDC)`
 
-External workflows referenced: `jreleaser/jreleaser/.github/workflows/step-jlink.yml@main`, `jreleaser/jreleaser/.github/workflows/step-jpackage.yml@main`, `jreleaser/jreleaser/.github/workflows/step-native-image.yml@main`, `jreleaser/jreleaser/.github/workflows/step-precheck.yml@main`, `jreleaser/jreleaser/.github/workflows/step-update-wiki.yml@main`, `slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v2.1.0`
+External workflows referenced: `slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v2.1.0`
 
 ## Referenced secrets and variables
 
@@ -238,7 +236,7 @@ External workflows referenced: `jreleaser/jreleaser/.github/workflows/step-jlink
 
 | Property | Value |
 |----------|-------|
-| Uses workflow | `jreleaser/jreleaser/.github/workflows/step-precheck.yml@main` (external) |
+| Uses workflow | [X-Precheck](#x-precheck) (`@main`) |
 
 #### Secrets forwarded
 
@@ -248,7 +246,7 @@ External workflows referenced: `jreleaser/jreleaser/.github/workflows/step-jlink
 
 | Property | Value |
 |----------|-------|
-| Uses workflow | `jreleaser/jreleaser/.github/workflows/step-jlink.yml@main` (external) |
+| Uses workflow | [X-Jlink](#x-jlink) (`@main`) |
 | Depends on | `precheck` |
 | Condition | `${{ endsWith(needs.precheck.outputs.version, '-SNAPSHOT') }}` |
 
@@ -265,7 +263,7 @@ External workflows referenced: `jreleaser/jreleaser/.github/workflows/step-jlink
 
 | Property | Value |
 |----------|-------|
-| Uses workflow | `jreleaser/jreleaser/.github/workflows/step-jpackage.yml@main` (external) |
+| Uses workflow | [X-JPackage](#x-jpackage) (`@main`) |
 | Depends on | `precheck`, `jlink` |
 
 #### Inputs forwarded
@@ -277,7 +275,7 @@ External workflows referenced: `jreleaser/jreleaser/.github/workflows/step-jlink
 
 | Property | Value |
 |----------|-------|
-| Uses workflow | `jreleaser/jreleaser/.github/workflows/step-native-image.yml@main` (external) |
+| Uses workflow | [X-NativeImage](#x-nativeimage) (`@main`) |
 | Depends on | `precheck`, `jlink` |
 
 #### Inputs forwarded
@@ -382,7 +380,7 @@ External workflows referenced: `jreleaser/jreleaser/.github/workflows/step-jlink
 
 | Property | Value |
 |----------|-------|
-| Uses workflow | `jreleaser/jreleaser/.github/workflows/step-update-wiki.yml@main` (external) |
+| Uses workflow | [X-UpdateWiki](#x-updatewiki) (`@main`) |
 | Depends on | `precheck`, `release` |
 
 #### Inputs forwarded
@@ -454,7 +452,7 @@ All scopes: `read-all`.
 
 ```
 openssf-scorecard.yml [branch_protection_rule, schedule, push, workflow_dispatch]
-+-- precheck (uses jreleaser/jreleaser/.github/workflows/step-precheck.yml@main)
++-- precheck (uses step-precheck.yml@main)
 ```
 
 ## Transitive requirements (from full call graph)
@@ -462,8 +460,6 @@ openssf-scorecard.yml [branch_protection_rule, schedule, push, workflow_dispatch
 Secrets referenced (literal names): `GITHUB_TOKEN`, `github-token`
 
 Permissions declared across the chain: `actions: read`, `contents: read`, `id-token: write (OIDC)`, `read-all`, `security-events: write`
-
-External workflows referenced: `jreleaser/jreleaser/.github/workflows/step-precheck.yml@main`
 
 ## Referenced secrets and variables
 
@@ -479,7 +475,7 @@ External workflows referenced: `jreleaser/jreleaser/.github/workflows/step-prech
 
 | Property | Value |
 |----------|-------|
-| Uses workflow | `jreleaser/jreleaser/.github/workflows/step-precheck.yml@main` (external) |
+| Uses workflow | [X-Precheck](#x-precheck) (`@main`) |
 
 #### Secrets forwarded
 
@@ -543,22 +539,22 @@ External workflows referenced: `jreleaser/jreleaser/.github/workflows/step-prech
 
 ```
 release.yml [workflow_dispatch]
-+-- jlink (uses jreleaser/jreleaser/.github/workflows/step-jlink.yml@main)
-+-- jpackage (uses jreleaser/jreleaser/.github/workflows/step-jpackage.yml@main)
-+-- native-image (uses jreleaser/jreleaser/.github/workflows/step-native-image.yml@main)
++-- jlink (uses step-jlink.yml@main)
++-- jpackage (uses step-jpackage.yml@main)
++-- native-image (uses step-native-image.yml@main)
 +-- provenance (uses slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v2.1.0)
-+-- update-wiki (uses jreleaser/jreleaser/.github/workflows/step-update-wiki.yml@main)
++-- update-wiki (uses step-update-wiki.yml@main)
 ```
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `BLUESKY_HANDLE`, `BLUESKY_HOST`, `BLUESKY_PASSWORD`, `COMMIT_EMAIL`, `GIT_ACCESS_TOKEN`, `GPG_PASSPHRASE`, `GPG_PUBLIC_KEY`, `GPG_SECRET_KEY`, `GRADLE_PUBLISH_KEY`, `GRADLE_PUBLISH_SECRET`, `JRELEASER_DOCKER_PASSWORD`, `JRELEASER_OCI_COMPARTMENTID`, `MASTODON_ACCESS_TOKEN`, `NOTICEABLE_APIKEY`, `OPENCOLLECTIVE_TOKEN`, `SDKMAN_CONSUMER_KEY`, `SDKMAN_CONSUMER_TOKEN`, `SONATYPE_PASSWORD`, `SONATYPE_USERNAME`, `gh-access-token`, `gpg-passphrase`, `oci-compartment-id`
+Secrets referenced (literal names): `BLUESKY_HANDLE`, `BLUESKY_HOST`, `BLUESKY_PASSWORD`, `COMMIT_EMAIL`, `GITHUB_TOKEN`, `GIT_ACCESS_TOKEN`, `GPG_PASSPHRASE`, `GPG_PUBLIC_KEY`, `GPG_SECRET_KEY`, `GRADLE_PUBLISH_KEY`, `GRADLE_PUBLISH_SECRET`, `JRELEASER_DOCKER_PASSWORD`, `JRELEASER_OCI_COMPARTMENTID`, `MASTODON_ACCESS_TOKEN`, `NOTICEABLE_APIKEY`, `OPENCOLLECTIVE_TOKEN`, `SDKMAN_CONSUMER_KEY`, `SDKMAN_CONSUMER_TOKEN`, `SONATYPE_PASSWORD`, `SONATYPE_USERNAME`, `gh-access-token`, `gpg-passphrase`, `oci-compartment-id`
 
-Variables referenced: `COMMIT_EMAIL`, `GH_BOT_EMAIL`, `JAVA_DISTRO`, `JAVA_VERSION`
+Variables referenced: `COMMIT_EMAIL`, `GH_BOT_EMAIL`, `GRAAL_JAVA_VERSION`, `JAVA_DISTRO`, `JAVA_VERSION`
 
-Permissions declared across the chain: `actions: write`, `contents: write`, `id-token: write (OIDC)`
+Permissions declared across the chain: `actions: read`, `actions: write`, `contents: read`, `contents: write`, `id-token: write (OIDC)`
 
-External workflows referenced: `jreleaser/jreleaser/.github/workflows/step-jlink.yml@main`, `jreleaser/jreleaser/.github/workflows/step-jpackage.yml@main`, `jreleaser/jreleaser/.github/workflows/step-native-image.yml@main`, `jreleaser/jreleaser/.github/workflows/step-update-wiki.yml@main`, `slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v2.1.0`
+External workflows referenced: `slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v2.1.0`
 
 ## Referenced secrets and variables
 
@@ -619,7 +615,7 @@ External workflows referenced: `jreleaser/jreleaser/.github/workflows/step-jlink
 
 | Property | Value |
 |----------|-------|
-| Uses workflow | `jreleaser/jreleaser/.github/workflows/step-jlink.yml@main` (external) |
+| Uses workflow | [X-Jlink](#x-jlink) (`@main`) |
 | Depends on | `precheck` |
 
 #### Inputs forwarded
@@ -635,7 +631,7 @@ External workflows referenced: `jreleaser/jreleaser/.github/workflows/step-jlink
 
 | Property | Value |
 |----------|-------|
-| Uses workflow | `jreleaser/jreleaser/.github/workflows/step-jpackage.yml@main` (external) |
+| Uses workflow | [X-JPackage](#x-jpackage) (`@main`) |
 | Depends on | `precheck`, `jlink` |
 
 #### Inputs forwarded
@@ -647,7 +643,7 @@ External workflows referenced: `jreleaser/jreleaser/.github/workflows/step-jlink
 
 | Property | Value |
 |----------|-------|
-| Uses workflow | `jreleaser/jreleaser/.github/workflows/step-native-image.yml@main` (external) |
+| Uses workflow | [X-NativeImage](#x-nativeimage) (`@main`) |
 | Depends on | `precheck`, `jlink` |
 
 #### Inputs forwarded
@@ -778,7 +774,7 @@ External workflows referenced: `jreleaser/jreleaser/.github/workflows/step-jlink
 
 | Property | Value |
 |----------|-------|
-| Uses workflow | `jreleaser/jreleaser/.github/workflows/step-update-wiki.yml@main` (external) |
+| Uses workflow | [X-UpdateWiki](#x-updatewiki) (`@main`) |
 | Depends on | `precheck`, `release` |
 
 #### Inputs forwarded
@@ -852,7 +848,7 @@ External workflows referenced: `jreleaser/jreleaser/.github/workflows/step-jlink
 
 ```
 smoke-tests.yml [push]
-+-- precheck (uses jreleaser/jreleaser/.github/workflows/step-precheck.yml@main)
++-- precheck (uses step-precheck.yml@main)
 ```
 
 ## Transitive requirements (from full call graph)
@@ -861,7 +857,7 @@ Secrets referenced (literal names): `CODECOV_TOKEN`, `COVERALLS_TOKEN`, `GITHUB_
 
 Variables referenced: `GRAAL_JAVA_VERSION`, `JAVA_DISTRO`, `JAVA_VERSION`
 
-External workflows referenced: `jreleaser/jreleaser/.github/workflows/step-precheck.yml@main`
+Permissions declared across the chain: `contents: read`
 
 ## Referenced secrets and variables
 
@@ -894,7 +890,7 @@ External workflows referenced: `jreleaser/jreleaser/.github/workflows/step-prech
 
 | Property | Value |
 |----------|-------|
-| Uses workflow | `jreleaser/jreleaser/.github/workflows/step-precheck.yml@main` (external) |
+| Uses workflow | [X-Precheck](#x-precheck) (`@main`) |
 
 #### Secrets forwarded
 
@@ -1525,6 +1521,14 @@ This workflow is reusable via `workflow_call`.
 
 - `contents`: `read`
 
+## Called by
+
+```
+step-jlink.yml
++-- early-access.yml (job: jlink)  <- entry point
++-- release.yml (job: jlink)  <- entry point
+```
+
 ## Referenced secrets and variables
 
 **Secrets:**
@@ -1659,6 +1663,14 @@ This workflow is reusable via `workflow_call`.
 
 - `contents`: `read`
 
+## Called by
+
+```
+step-jpackage.yml
++-- early-access.yml (job: jpackage)  <- entry point
++-- release.yml (job: jpackage)  <- entry point
+```
+
 ## Referenced secrets and variables
 
 **Variables:**
@@ -1770,6 +1782,14 @@ This workflow is reusable via `workflow_call`.
 
 - `contents`: `read`
 
+## Called by
+
+```
+step-native-image.yml
++-- early-access.yml (job: native-image)  <- entry point
++-- release.yml (job: native-image)  <- entry point
+```
+
 ## Referenced secrets and variables
 
 **Secrets:**
@@ -1880,6 +1900,16 @@ This workflow is reusable via `workflow_call`.
 ## Permissions
 
 - `contents`: `read`
+
+## Called by
+
+```
+step-precheck.yml
++-- codeql.yml (job: precheck)  <- entry point
++-- early-access.yml (job: precheck)  <- entry point
++-- openssf-scorecard.yml (job: precheck)  <- entry point
++-- smoke-tests.yml (job: precheck)  <- entry point
+```
 
 ## Referenced secrets and variables
 
@@ -2015,6 +2045,14 @@ This workflow is reusable via `workflow_call`.
 - `actions`: `read`
 - `id-token`: `write` (OIDC)
 - `contents`: `write`
+
+## Called by
+
+```
+step-update-wiki.yml
++-- early-access.yml (job: update-wiki)  <- entry point
++-- release.yml (job: update-wiki)  <- entry point
+```
 
 ## Referenced secrets and variables
 

@@ -232,3 +232,67 @@ func TestResolveCompositeRefMoreQualified(t *testing.T) {
 		t.Errorf("composite ref more-qualified than scan dir resolved to %q (kind %q), want the action node", got, kind)
 	}
 }
+
+// TestCrossRepoSelfRefsResolve covers the inference that a cross-repo ref whose
+// owner/repo prefix consistently points back into the scan set is the scanned repository
+// calling itself (with a branch/tag pin), and must resolve to the in-scope node so the
+// callee gets its Called-by chain. Prefixes that reference anything outside the scan set
+// stay external, so a same-named workflow in a different repo is never mis-linked.
+func TestCrossRepoSelfRefsResolve(t *testing.T) {
+	release := &model.Workflow{
+		File: "release.yml", Name: "Release", On: []string{"push"},
+		Jobs: []model.Job{
+			// Self-reference in cross-repo form, pinned to a branch.
+			{ID: "precheck", Uses: "jreleaser/jreleaser/.github/workflows/step-precheck.yml@main"},
+			// Genuinely external: basename matches an in-scope workflow, but the prefix
+			// also references a workflow that is NOT in scope, so the whole prefix is
+			// treated as a different repository.
+			{ID: "shared-pre", Uses: "other-org/shared/.github/workflows/step-precheck.yml@v1"},
+			{ID: "shared-scan", Uses: "other-org/shared/.github/workflows/security-scan.yml@v1"},
+			// Genuinely external with no in-scope match at all.
+			{ID: "slsa", Uses: "slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v2.1.0"},
+		},
+	}
+	precheck := &model.Workflow{
+		File: "step-precheck.yml", Name: "Precheck", On: []string{"workflow_call"},
+		Jobs: []model.Job{{ID: "check", RunsOn: "ubuntu-latest"}},
+	}
+
+	g := Build([]Source{
+		{Path: ".github/workflows/release.yml", Workflow: release},
+		{Path: ".github/workflows/step-precheck.yml", Workflow: precheck},
+	})
+
+	edges := g.Calls(".github/workflows/release.yml")
+	byJob := map[string]Edge{}
+	for _, e := range edges {
+		byJob[e.JobID] = e
+	}
+
+	// The self-reference resolves in scope, keeping the pin.
+	self := byJob["precheck"]
+	if self.ToID != ".github/workflows/step-precheck.yml" {
+		t.Errorf("self cross-repo ref ToID = %q, want in-scope node", self.ToID)
+	}
+	if self.Pin != "main" {
+		t.Errorf("self cross-repo ref Pin = %q, want main", self.Pin)
+	}
+	// The callee's Called-by chain includes the caller.
+	calledBy := g.CalledBy(".github/workflows/step-precheck.yml")
+	if len(calledBy) != 1 || calledBy[0].FromID != ".github/workflows/release.yml" {
+		t.Errorf("CalledBy = %+v, want one edge from release.yml", calledBy)
+	}
+
+	// The mixed prefix (one in-scope basename, one not) stays fully external.
+	if to := byJob["shared-pre"].ToID; to != "other-org/shared/.github/workflows/step-precheck.yml" {
+		t.Errorf("mixed-prefix ref ToID = %q, want external node", to)
+	}
+	if n := g.Nodes[byJob["shared-pre"].ToID]; n == nil || !n.External {
+		t.Error("mixed-prefix ref must remain an external node")
+	}
+
+	// The no-match prefix stays external.
+	if n := g.Nodes[byJob["slsa"].ToID]; n == nil || !n.External {
+		t.Error("unrelated cross-repo ref must remain an external node")
+	}
+}
