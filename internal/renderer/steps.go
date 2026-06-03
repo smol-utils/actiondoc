@@ -44,6 +44,7 @@ func renderStep(b *strings.Builder, step *model.Step, num int) {
 	}
 
 	// Step-level tags
+	writeStepParams(b, "Input", step.Tags.Inputs)
 	writeStepParams(b, "Output", step.Tags.Outputs)
 	writeStepParams(b, "Secret", step.Tags.Secrets)
 	writeStepParams(b, "Env", step.Tags.Envs)

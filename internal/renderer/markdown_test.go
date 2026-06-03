@@ -168,3 +168,37 @@ func TestTableEscaping(t *testing.T) {
 		}
 	}
 }
+
+// TestJobAndStepInputTagsRender locks the spec contract that @input applies at all three
+// scopes: a job-level or step-level @input tag must render, not silently disappear.
+func TestJobAndStepInputTagsRender(t *testing.T) {
+	w := &model.Workflow{
+		File: "test.yml",
+		Name: "Test",
+		On:   []string{"push"},
+		Jobs: []model.Job{{
+			ID:     "deploy",
+			Name:   "deploy",
+			RunsOn: "ubuntu-latest",
+			Tags: model.Tags{
+				Inputs: []model.Param{{Name: "environment", Type: "string", Description: "Target environment"}},
+			},
+			Steps: []model.Step{{
+				Name: "Run",
+				Uses: "./.github/actions/deploy",
+				Tags: model.Tags{
+					Inputs: []model.Param{{Name: "region", Description: "AWS region"}},
+				},
+			}},
+		}},
+	}
+
+	md := RenderMarkdown(w)
+
+	if !strings.Contains(md, "**Inputs:**") || !strings.Contains(md, "`environment`") {
+		t.Errorf("job-level @input not rendered:\n%s", md)
+	}
+	if !strings.Contains(md, "Input: `region` - AWS region") {
+		t.Errorf("step-level @input not rendered:\n%s", md)
+	}
+}

@@ -153,6 +153,7 @@ func renderJob(b *strings.Builder, job *model.Job, g *callgraph.Graph, fromID st
 func renderJobTags(b *strings.Builder, job *model.Job) {
 	writeParamSections(b, styleBold,
 		paramSection{"Secrets", job.Tags.Secrets},
+		paramSection{"Inputs", job.Tags.Inputs},
 		paramSection{"Environment Variables", job.Tags.Envs},
 		paramSection{"Outputs", job.Tags.Outputs},
 	)
