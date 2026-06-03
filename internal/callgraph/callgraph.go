@@ -1,7 +1,7 @@
 // Package callgraph builds the directed graph of `uses:` relationships across a scanned
 // set of workflows and composite actions: workflow -> reusable workflow (job-level
 // `uses:`) and workflow -> composite action (step-level local `uses:`). It backs the
-// reusable-workflow and call-graph rendering features and the caller-count index.
+// reusable-workflow and call-graph rendering features.
 //
 // Cross-repo references (e.g. owner/repo/.github/workflows/x.yml@ref) are recorded as
 // external nodes and never fetched over the network.
@@ -239,18 +239,6 @@ func (g *Graph) CalledBy(id string) []Edge {
 	return out
 }
 
-// CallerCount returns the number of distinct caller nodes for id (used by the index and
-// to collapse high fan-in cases where a reusable workflow has many callers).
-func (g *Graph) CallerCount(id string) int {
-	seen := map[string]bool{}
-	for _, e := range g.Edges {
-		if e.ToID == id {
-			seen[e.FromID] = true
-		}
-	}
-	return len(seen)
-}
-
 // Reachable returns the set of node IDs transitively reachable from id via `uses:`
 // edges (excluding id itself), in deterministic discovery order.
 func (g *Graph) Reachable(id string) []string {
@@ -286,17 +274,6 @@ func (g *Graph) IsEntryPoint(id string) bool {
 		}
 	}
 	return false
-}
-
-// EntryPoints returns the IDs of all entry-point workflows.
-func (g *Graph) EntryPoints() []string {
-	var out []string
-	for id := range g.Nodes {
-		if g.IsEntryPoint(id) {
-			out = append(out, id)
-		}
-	}
-	return out
 }
 
 func isLocal(ref string) bool {

@@ -33,9 +33,6 @@ func TestBuildBasic(t *testing.T) {
 	if g.IsEntryPoint(buildID) {
 		t.Error("build.yml is workflow_call-only; not an entry point")
 	}
-	if got := g.CallerCount(buildID); got != 1 {
-		t.Errorf("CallerCount(build.yml) = %d, want 1", got)
-	}
 	// Local reusable edge resolves to the build.yml node.
 	calls := g.Calls(relID)
 	var foundLocal, foundExternal bool
