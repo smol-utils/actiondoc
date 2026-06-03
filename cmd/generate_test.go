@@ -97,3 +97,62 @@ func TestGenerateNoWorkflowName(t *testing.T) {
 		}
 	}
 }
+
+// TestGenerateDuplicateNameCrossLinks verifies that when two workflows share a name, a
+// caller's cross-link points at the section the TOC assigned to its actual callee (the
+// "-N"-suffixed anchor), not at the first section with that name.
+func TestGenerateDuplicateNameCrossLinks(t *testing.T) {
+	root := t.TempDir()
+	wf := filepath.Join(root, ".github", "workflows")
+	if err := os.MkdirAll(wf, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	write := func(name, content string) {
+		if err := os.WriteFile(filepath.Join(wf, name), []byte(content), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	// Both reusable workflows are named "model jobs"; the caller calls the SECOND one
+	// (model_jobs_gaudi.yml), which the TOC will disambiguate as #model-jobs-1.
+	write("caller.yml", `name: Scheduler
+on: push
+jobs:
+  run:
+    uses: ./.github/workflows/model_jobs_gaudi.yml
+`)
+	write("model_jobs.yml", `name: model jobs
+on: workflow_call
+jobs:
+  x:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo a
+`)
+	write("model_jobs_gaudi.yml", `name: model jobs
+on: workflow_call
+jobs:
+  x:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo b
+`)
+
+	out := filepath.Join(t.TempDir(), "out.md")
+	if err := Generate([]string{"-o", out, wf}); err != nil {
+		t.Fatalf("Generate: %v", err)
+	}
+	b, _ := os.ReadFile(out)
+	md := string(b)
+
+	// File order is alphabetical: caller.yml, model_jobs.yml, model_jobs_gaudi.yml.
+	// So model_jobs.yml gets #model-jobs and model_jobs_gaudi.yml gets #model-jobs-1.
+	if !strings.Contains(md, "[model jobs](#model-jobs-1)") {
+		t.Errorf("caller link must point at the disambiguated anchor #model-jobs-1:\n%s", md)
+	}
+	// The TOC must contain both anchors.
+	for _, want := range []string{"- [model jobs](#model-jobs)\n", "- [model jobs](#model-jobs-1)\n"} {
+		if !strings.Contains(md, want) {
+			t.Errorf("TOC missing %q", want)
+		}
+	}
+}

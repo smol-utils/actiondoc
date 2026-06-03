@@ -5064,7 +5064,7 @@ self-scheduled-intel-gaudi.yml
 
 | Property | Value |
 |----------|-------|
-| Uses workflow | [model jobs](#model-jobs) |
+| Uses workflow | [model jobs](#model-jobs-1) |
 | Depends on | `setup` |
 | Condition | `${{ inputs.job == 'run_models_gpu' }}` |
 
@@ -5083,7 +5083,7 @@ self-scheduled-intel-gaudi.yml
 
 | Property | Value |
 |----------|-------|
-| Uses workflow | [model jobs](#model-jobs) |
+| Uses workflow | [model jobs](#model-jobs-1) |
 | Depends on | `setup` |
 | Condition | `${{ inputs.job == 'run_trainer_and_fsdp_gpu' }}` |
 

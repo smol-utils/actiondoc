@@ -71,16 +71,31 @@ func Generate(args []string) error {
 		output = string(data) + "\n"
 	} else {
 		// Render each document as a section, with a table of contents linking them.
+		// Anchors are assigned before any section renders: cross-links built during
+		// rendering must use the same duplicate-name disambiguation the TOC will use,
+		// so the assignment is computed once here and stored on the graph nodes.
+		var titles []string
+		for _, s := range sources {
+			if s.Workflow != nil {
+				titles = append(titles, s.Workflow.Name)
+			} else {
+				titles = append(titles, s.Action.Name)
+			}
+		}
+		for i, slug := range renderer.AssignAnchors(titles) {
+			if n := graph.Nodes[sources[i].Path]; n != nil {
+				n.Anchor = slug
+			}
+		}
+
 		// Workflows render with graph context so cross-links and call-graph sections
 		// appear; actions render standalone.
-		var sections, titles []string
+		var sections []string
 		for _, s := range sources {
 			if s.Workflow != nil {
 				sections = append(sections, renderer.RenderMarkdownGraph(s.Workflow, graph, s.Path))
-				titles = append(titles, s.Workflow.Name)
 			} else {
 				sections = append(sections, renderer.RenderActionMarkdown(s.Action))
-				titles = append(titles, s.Action.Name)
 			}
 		}
 		output = renderer.RenderTOC(titles) + strings.Join(sections, "")

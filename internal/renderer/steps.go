@@ -238,22 +238,17 @@ func writeRefTable(b *strings.Builder, label string, refs []model.Reference) {
 
 // RenderTOC builds a table of contents linking each top-level heading title to its anchor,
 // for navigating a single-file render of many workflows/actions. Returns "" for fewer than
-// two entries. Duplicate titles get GitHub's `-N` anchor suffixes in document order.
+// two entries. Duplicate titles get GitHub's `-N` anchor suffixes in document order, via
+// the same AssignAnchors pass that cross-links use.
 func RenderTOC(titles []string) string {
 	if len(titles) < 2 {
 		return ""
 	}
 	var b strings.Builder
 	b.WriteString("# Contents\n\n")
-	seen := map[string]int{}
-	for _, t := range titles {
-		base := anchor(t)
-		slug := base
-		if n := seen[base]; n > 0 {
-			slug = fmt.Sprintf("%s-%d", base, n)
-		}
-		seen[base]++
-		fmt.Fprintf(&b, "- [%s](#%s)\n", mdLinkLabel(t), slug)
+	slugs := AssignAnchors(titles)
+	for i, t := range titles {
+		fmt.Fprintf(&b, "- [%s](#%s)\n", mdLinkLabel(t), slugs[i])
 	}
 	b.WriteString("\n")
 	return b.String()

@@ -95,7 +95,17 @@ func calleeLink(g *callgraph.Graph, e callgraph.Edge) string {
 		}
 		return "`" + escapeCell(ref) + "` (external)"
 	}
-	return fmt.Sprintf("[%s](#%s)", mdLinkLabel(n.Name), anchor(n.Name))
+	return fmt.Sprintf("[%s](#%s)", mdLinkLabel(n.Name), nodeAnchor(n))
+}
+
+// nodeAnchor is the anchor slug for an in-scope node's rendered section: the
+// assembler-assigned anchor when present (which carries duplicate-name disambiguation),
+// otherwise the slug of the node's name.
+func nodeAnchor(n *callgraph.Node) string {
+	if n.Anchor != "" {
+		return n.Anchor
+	}
+	return anchor(n.Name)
 }
 
 // renderCallGraph renders the downstream `uses:` tree rooted at an entry-point workflow

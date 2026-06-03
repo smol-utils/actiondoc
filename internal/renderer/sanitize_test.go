@@ -61,3 +61,13 @@ func TestAnchor(t *testing.T) {
 		}
 	}
 }
+
+func TestAssignAnchors(t *testing.T) {
+	got := AssignAnchors([]string{"model jobs", "Build", "model jobs", "model jobs", "Build"})
+	want := []string{"model-jobs", "build", "model-jobs-1", "model-jobs-2", "build-1"}
+	for i := range want {
+		if got[i] != want[i] {
+			t.Errorf("AssignAnchors[%d] = %q, want %q", i, got[i], want[i])
+		}
+	}
+}

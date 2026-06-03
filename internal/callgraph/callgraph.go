@@ -33,6 +33,12 @@ type Node struct {
 	IsAction bool            // true for composite actions
 	Workflow *model.Workflow // non-nil for in-scope workflows
 	Action   *model.Action   // non-nil for in-scope composite actions
+
+	// Anchor is the node's document anchor slug, assigned by the assembler that decides
+	// section order (it owns duplicate-name disambiguation). Renderers building
+	// cross-links use it when set, so links always agree with the table of contents;
+	// when empty (single-file rendering, no assembly), links fall back to slugging Name.
+	Anchor string
 }
 
 // Edge is a `uses:` relationship from a caller to a target node.
