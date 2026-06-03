@@ -200,3 +200,28 @@ func TestContextRefs(t *testing.T) {
 		}
 	}
 }
+
+// TestStepRefLabelCollapsesPins verifies reference-site labels name unnamed uses: steps
+// by their collapsed pin form (actions/labeler@v6), matching the rendered step titles,
+// not by the raw 40-character SHA ref.
+func TestStepRefLabelCollapsesPins(t *testing.T) {
+	sha := "f27b608878404679385c85cfa523b85ccb86e213"
+	w := &Workflow{
+		Jobs: []Job{{ID: "triage", Steps: []Step{{
+			Uses:        "actions/labeler@" + sha,
+			UsesVersion: "v6",
+			With:        []KV{{Key: "repo-token", Value: "${{ secrets.GITHUB_TOKEN }}"}},
+		}}}},
+	}
+	refs := ScanReferences(w)
+	if len(refs.Secrets) != 1 {
+		t.Fatalf("secrets = %+v, want 1", refs.Secrets)
+	}
+	site := refs.Secrets[0].Sites[0]
+	if !strings.Contains(site, "actions/labeler@v6") {
+		t.Errorf("site = %q, want the collapsed actions/labeler@v6 form", site)
+	}
+	if strings.Contains(site, sha) {
+		t.Errorf("site = %q must not contain the raw SHA", site)
+	}
+}

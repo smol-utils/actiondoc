@@ -799,8 +799,8 @@ publish-sdkman.yml
 
 | Name | Used by |
 |------|---------|
-| `CONSUMER-KEY` | job `publish` step `sdkman/sdkman-release-action@f93e93c50d5c60902d0bf87b58aaa58c027094da` with `CONSUMER-KEY`; job `default` step `sdkman/sdkman-default-action@b3f991bd109e40155af1b13a4c6fc8e8ccada65e` with `CONSUMER-KEY` |
-| `CONSUMER-TOKEN` | job `publish` step `sdkman/sdkman-release-action@f93e93c50d5c60902d0bf87b58aaa58c027094da` with `CONSUMER-TOKEN`; job `default` step `sdkman/sdkman-default-action@b3f991bd109e40155af1b13a4c6fc8e8ccada65e` with `CONSUMER-TOKEN` |
+| `CONSUMER-KEY` | job `publish` step `sdkman/sdkman-release-action` with `CONSUMER-KEY`; job `default` step `sdkman/sdkman-default-action` with `CONSUMER-KEY` |
+| `CONSUMER-TOKEN` | job `publish` step `sdkman/sdkman-release-action` with `CONSUMER-TOKEN`; job `default` step `sdkman/sdkman-default-action` with `CONSUMER-TOKEN` |
 
 ## Jobs
 
@@ -878,7 +878,7 @@ publish-winget.yml
 
 | Name | Used by |
 |------|---------|
-| `DOTTYBOT-TOKEN` | job `publish` step `vedantmgoyal9/winget-releaser@4ffc7888bffd451b357355dc214d43bb9f23917e` with `token` |
+| `DOTTYBOT-TOKEN` | job `publish` step `vedantmgoyal9/winget-releaser` with `token` |
 
 ## Jobs
 
@@ -1548,6 +1548,10 @@ Secrets referenced (literal names): `API-KEY`, `CHOCOLATEY_KEY`, `CONSUMER-KEY`,
 |----------|-------|
 | File | `stdlib.yaml` |
 | Triggers | `push`, `pull_request`, `workflow_call` |
+
+## Workflow call API
+
+This workflow is reusable via `workflow_call`.
 
 ## Event filters
 

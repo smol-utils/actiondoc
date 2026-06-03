@@ -88,39 +88,17 @@ func withDoc(step *model.Step, key string) string {
 	return s
 }
 
-// stepTitle picks the most readable heading for a step: name, then id, then a friendly
-// uses: ref, then the first non-comment line of run:, then a positional fallback.
+// stepTitle picks the most readable heading for a step: the shared step label (name, id,
+// or collapsed uses: ref), then the first meaningful run: line, then a positional
+// fallback.
 func stepTitle(step *model.Step, num int) string {
-	switch {
-	case step.Name != "":
-		return step.Name
-	case step.ID != "":
-		return step.ID
-	case step.Uses != "":
-		return friendlyUses(step.Uses, step.UsesVersion)
+	if step.Name != "" || step.ID != "" || step.Uses != "" {
+		return step.Label(num)
 	}
 	if first := firstRunLine(step.Run); first != "" {
 		return first
 	}
 	return fmt.Sprintf("Step %d", num)
-}
-
-// friendlyUses collapses a SHA-pinned action ref to its human form: `owner/repo@v4.1.1`
-// when a trailing version comment is present, or `owner/repo` when only the bare SHA is.
-// Non-SHA refs (tags, branches, local paths) pass through unchanged.
-func friendlyUses(uses, version string) string {
-	at := strings.LastIndex(uses, "@")
-	if at < 0 {
-		return uses
-	}
-	ref, pin := uses[:at], uses[at+1:]
-	if !isSHA(pin) {
-		return uses
-	}
-	if version != "" {
-		return ref + "@" + version
-	}
-	return ref
 }
 
 // usesSuffix returns the parenthetical version annotation shown after a SHA-pinned uses:
@@ -129,37 +107,35 @@ func usesSuffix(uses, version string) string {
 	if version == "" {
 		return ""
 	}
-	if at := strings.LastIndex(uses, "@"); at >= 0 && isSHA(uses[at+1:]) {
+	if at := strings.LastIndex(uses, "@"); at >= 0 && model.IsSHA(uses[at+1:]) {
 		return " (" + version + ")"
 	}
 	return ""
 }
 
-// isSHA reports whether s is a 40-character hexadecimal commit SHA.
-func isSHA(s string) bool {
-	if len(s) != 40 {
-		return false
-	}
-	for i := 0; i < len(s); i++ {
-		c := s[i]
-		if !(c >= '0' && c <= '9' || c >= 'a' && c <= 'f' || c >= 'A' && c <= 'F') {
-			return false
-		}
-	}
-	return true
-}
-
-// firstRunLine returns the first non-blank, non-comment line of a run: script, truncated,
-// for use as a step title when nothing better is available.
+// firstRunLine returns the first non-blank, non-comment line of a run: script that
+// contains at least one letter or digit, truncated, for use as a step title when nothing
+// better is available. Punctuation-only lines (a shell group's opening "{", a lone
+// parenthesis) carry no meaning as a title.
 func firstRunLine(run string) string {
 	for _, line := range strings.Split(run, "\n") {
 		t := strings.TrimSpace(line)
-		if t == "" || strings.HasPrefix(t, "#") {
+		if t == "" || strings.HasPrefix(t, "#") || !hasAlphanumeric(t) {
 			continue
 		}
 		return truncate(t, 60)
 	}
 	return ""
+}
+
+// hasAlphanumeric reports whether s contains at least one letter or digit.
+func hasAlphanumeric(s string) bool {
+	for _, r := range s {
+		if r >= 'a' && r <= 'z' || r >= 'A' && r <= 'Z' || r >= '0' && r <= '9' {
+			return true
+		}
+	}
+	return false
 }
 
 // truncate shortens s to at most max characters (runes), appending "..." when it cuts.

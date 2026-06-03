@@ -1402,7 +1402,7 @@ check_failed_tests.yml
 | Name | Used by |
 |------|---------|
 | `HF_HUB_READ_TOKEN` | workflow env `HF_TOKEN` |
-| `GITHUB_TOKEN` | job `check_new_failures` step `actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c` with `github-token`; job `process_new_failures_with_commit_info` step `actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c` with `github-token` |
+| `GITHUB_TOKEN` | job `check_new_failures` step `actions/download-artifact@v8.0.1` with `github-token`; job `process_new_failures_with_commit_info` step `actions/download-artifact@v8.0.1` with `github-token` |
 | `ACCESS_REPO_INFO_TOKEN` | job `check_new_failures` step `Get `END_SHA` from previous CI runs of the same workflow` env `ACCESS_TOKEN`; job `process_new_failures_with_commit_info` step `Process report` env `ACCESS_REPO_INFO_TOKEN` |
 | `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN` | job `process_new_failures_with_commit_info` step `Process report` env `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN` |
 | `SLACK_CIFEEDBACK_BOT_TOKEN` | job `process_new_failures_with_commit_info` step `Send processed report` env `SLACK_BOT_TOKEN` |
@@ -5530,7 +5530,7 @@ self-scheduled.yml
 | Name | Used by |
 |------|---------|
 | `HF_HUB_READ_TOKEN` | workflow env `HF_TOKEN` |
-| `GITHUB_TOKEN` | job `run_extract_warnings` step `actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c` with `github-token` |
+| `GITHUB_TOKEN` | job `run_extract_warnings` step `actions/download-artifact@v8.0.1` with `github-token` |
 | `ACCESS_REPO_INFO_TOKEN` | job `run_extract_warnings` step `Extract warnings in CI artifacts` env `access_token` |
 
 ## Jobs
@@ -6005,7 +6005,7 @@ slack-report.yml
 | Name | Used by |
 |------|---------|
 | `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN` | workflow env `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN` |
-| `GITHUB_TOKEN` | job `send_results` step `actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c` with `github-token` |
+| `GITHUB_TOKEN` | job `send_results` step `actions/download-artifact@v8.0.1` with `github-token` |
 | `CI_SLACK_BOT_TOKEN` | job `send_results` step `Send message to Slack` env `CI_SLACK_BOT_TOKEN` |
 | `CI_SLACK_CHANNEL_ID` | job `send_results` step `Send message to Slack` env `CI_SLACK_CHANNEL_ID` |
 | `CI_SLACK_CHANNEL_ID_DAILY` | job `send_results` step `Send message to Slack` env `CI_SLACK_CHANNEL_ID_DAILY` |

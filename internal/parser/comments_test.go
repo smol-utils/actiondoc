@@ -48,3 +48,25 @@ func TestLeadingComment(t *testing.T) {
 		t.Errorf("LeadingComment = %q, want %q", got, want)
 	}
 }
+
+// TestTrailingCommentIgnoresLeadingComment verifies that a comment on the line above an
+// entry (a note about the whole block) is not attributed as that entry's rationale, while
+// a same-line trailing comment still is.
+func TestTrailingCommentIgnoresLeadingComment(t *testing.T) {
+	root := parseTopMapping(t, `permissions:
+  # All other permissions are set to none
+  contents: read
+  id-token: write  # for OIDC keyless signing
+`)
+	perms := root.Values[0].Value
+	mapping, ok := perms.(*ast.MappingNode)
+	if !ok {
+		t.Fatalf("permissions value is %T, want mapping", perms)
+	}
+	if got := TrailingComment(mapping.Values[0]); got != "" {
+		t.Errorf("leading block comment attributed as rationale: %q", got)
+	}
+	if got := TrailingComment(mapping.Values[1]); got != "for OIDC keyless signing" {
+		t.Errorf("same-line trailing comment = %q, want it preserved", got)
+	}
+}

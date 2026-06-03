@@ -492,8 +492,8 @@ Permissions declared across the chain: `actions: read`, `contents: read`, `id-to
 
 **Permissions:**
 
-- `security-events`: `write` - Needed to upload the results to code-scanning dashboard.
-- `id-token`: `write` (OIDC) - Used to receive a badge. (Upcoming feature)
+- `security-events`: `write`
+- `id-token`: `write` (OIDC)
 - `actions`: `read`
 - `contents`: `read`
 

@@ -393,7 +393,7 @@ All scopes: `read-all`.
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | job `validate` step `thehanimo/pr-title-checker@7fbfe05602bdd86f926d3fb3bccb6f3aed43bc70` with `GITHUB_TOKEN` |
+| `GITHUB_TOKEN` | job `validate` step `thehanimo/pr-title-checker@v1.4.3` with `GITHUB_TOKEN` |
 
 ## Jobs
 
@@ -588,7 +588,7 @@ All scopes: `read-all`.
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | job `large-file-check` step `actionsdesk/lfs-warning@4b98a8a5e6c429c23c34eee02d71553bca216425` with `token` |
+| `GITHUB_TOKEN` | job `large-file-check` step `actionsdesk/lfs-warning@v3.3` with `token` |
 
 ## Jobs
 
@@ -620,7 +620,7 @@ All scopes: `read-all`.
 
 ## Permissions
 
-- `contents`: `read` - Needed to check out the repo.
+- `contents`: `read`
 
 ## Jobs
 
@@ -928,9 +928,9 @@ All scopes: `read-all`.
 
 **Permissions:**
 
-- `security-events`: `write` - Needed to upload the results to code-scanning dashboard.
-- `id-token`: `write` (OIDC) - Used to receive a badge. (Upcoming feature)
-- `contents`: `read` - Needs for private repositories.
+- `security-events`: `write`
+- `id-token`: `write` (OIDC)
+- `contents`: `read`
 - `actions`: `read`
 
 #### Steps
@@ -990,7 +990,7 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 **Permissions:**
 
-- `pull-requests`: `read` - This Job executes the PR's untrusted code, so it must how low permissions.
+- `pull-requests`: `read`
 
 #### Steps
 
@@ -1026,7 +1026,7 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 **Permissions:**
 
-- `pull-requests`: `read` - This Job does not run untrusted code, but it does need to push changes to the PR's branch.
+- `pull-requests`: `read`
 - `contents`: `write`
 
 #### Steps

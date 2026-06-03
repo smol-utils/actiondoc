@@ -116,7 +116,7 @@ additional-ci-image-checks.yml
 **Permissions:**
 
 - `contents`: `read`
-- `packages`: `write` - This write is only given here for `push` events from "apache/airflow" repo. It is not given for PRs from forks. This is to prevent malicious PRs from creating images in the "apache/airflow" repo.
+- `packages`: `write`
 
 #### Inputs forwarded
 
@@ -951,7 +951,7 @@ This workflow is reusable via `workflow_call`.
 
 ## Permissions
 
-- `contents`: `write` - Those permissions are only active for workflow dispatch (only committers can trigger it) and workflow call Which is triggered automatically by "automatic-backport" push workflow (only when merging by committer) Branch protection  prevents from pushing to the "code" branches
+- `contents`: `write`
 - `pull-requests`: `write`
 
 ## Called by
@@ -1434,7 +1434,7 @@ basic-tests.yml
 
 ## Permissions
 
-- `contents`: `read` - All other permissions are set to none by default
+- `contents`: `read`
 
 ## Environment (`env`)
 
@@ -1770,7 +1770,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
 **Permissions:**
 
 - `contents`: `read`
-- `packages`: `write` - This write is only given here for `push` events from "apache/airflow" repo. It is not given for PRs from forks. This is to prevent malicious PRs from creating images in the "apache/airflow" repo.
+- `packages`: `write`
 
 #### Inputs forwarded
 
@@ -2440,7 +2440,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
 **Permissions:**
 
 - `contents`: `read`
-- `packages`: `write` - This write is only given here for `push` events from "apache/airflow" repo. It is not given for PRs from forks. This is to prevent malicious PRs from creating images in the "apache/airflow" repo.
+- `packages`: `write`
 
 #### Inputs forwarded
 
@@ -2754,7 +2754,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
 
 ## Permissions
 
-- `contents`: `read` - All other permissions are set to none by default
+- `contents`: `read`
 
 ## Environment (`env`)
 
@@ -3090,7 +3090,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
 **Permissions:**
 
 - `contents`: `read`
-- `packages`: `write` - This write is only given here for `push` events from "apache/airflow" repo. It is not given for PRs from forks. This is to prevent malicious PRs from creating images in the "apache/airflow" repo.
+- `packages`: `write`
 
 #### Inputs forwarded
 
@@ -3760,7 +3760,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
 **Permissions:**
 
 - `contents`: `read`
-- `packages`: `write` - This write is only given here for `push` events from "apache/airflow" repo. It is not given for PRs from forks. This is to prevent malicious PRs from creating images in the "apache/airflow" repo.
+- `packages`: `write`
 
 #### Inputs forwarded
 
@@ -4638,7 +4638,7 @@ ci-image-checks.yml
 
 ## Permissions
 
-- `contents`: `read` - All other permissions are set to none by default
+- `contents`: `read`
 
 ## Environment (`env`)
 
@@ -5018,7 +5018,7 @@ finalize-tests.yml
 **Permissions:**
 
 - `contents`: `read`
-- `packages`: `write` - This write is only given here for `push` events from "apache/airflow" repo. It is not given for PRs from forks. This is to prevent malicious PRs from creating images in the "apache/airflow" repo.
+- `packages`: `write`
 
 #### Inputs forwarded
 
@@ -6560,7 +6560,7 @@ push-image-cache.yml
 
 ## Permissions
 
-- `issues`: `write` - All other permissions are set to none
+- `issues`: `write`
 
 ## Jobs
 
@@ -8135,7 +8135,7 @@ special-tests.yml
 
 ## Permissions
 
-- `pull-requests`: `write` - All other permissions are set to none
+- `pull-requests`: `write`
 - `issues`: `write`
 
 ## Jobs

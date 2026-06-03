@@ -240,7 +240,7 @@ func codelist(items []string) string {
 func matrixCell(axes []model.MatrixAxis, adjusted bool) string {
 	parts := make([]string, len(axes))
 	for i, a := range axes {
-		parts[i] = "`" + escapeCell(a.Name) + "`: " + escapeCell(strings.Join(a.Values, ", "))
+		parts[i] = codeSpan(escapeCell(a.Name)) + ": " + escapeCell(strings.Join(a.Values, ", "))
 	}
 	s := strings.Join(parts, "; ")
 	if adjusted {

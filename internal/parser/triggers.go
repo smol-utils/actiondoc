@@ -25,7 +25,12 @@ func parseTriggerSurface(node ast.Node) *model.Triggers {
 				t.Dispatch = &model.DispatchTrigger{Inputs: inputs}
 			}
 		case "workflow_call":
-			t.Call = parseCallTrigger(mv.Value)
+			if t.Call = parseCallTrigger(mv.Value); t.Call == nil {
+				// A bare `workflow_call:` with no inputs/outputs/secrets is still a
+				// reusable workflow; record it so the "reusable via workflow_call" note
+				// renders.
+				t.Call = &model.CallTrigger{}
+			}
 		case "schedule":
 			t.Schedule = parseSchedule(mv.Value)
 		default:

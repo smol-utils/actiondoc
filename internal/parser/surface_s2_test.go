@@ -323,3 +323,16 @@ func TestParseFileLicenseHeaderSkipped(t *testing.T) {
 		t.Errorf("license header leaked into description: %q", w.Description)
 	}
 }
+
+// TestParseBareWorkflowCall verifies that `on: workflow_call:` with no inputs, outputs,
+// or secrets still records a Call trigger, so the workflow is documented as reusable.
+func TestParseBareWorkflowCall(t *testing.T) {
+	node := firstValue(t, "on:\n  workflow_call:\n  push:\n")
+	tr := parseTriggerSurface(node)
+	if tr == nil || tr.Call == nil {
+		t.Fatalf("bare workflow_call must record a Call trigger, got %+v", tr)
+	}
+	if len(tr.Call.Inputs) != 0 || len(tr.Call.Outputs) != 0 || len(tr.Call.Secrets) != 0 {
+		t.Errorf("bare workflow_call must have empty API, got %+v", tr.Call)
+	}
+}

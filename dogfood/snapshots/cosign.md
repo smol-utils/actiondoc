@@ -956,7 +956,7 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 **Permissions:**
 
-- `security-events`: `write` - Needed to upload the results to code-scanning dashboard.
+- `security-events`: `write`
 - `actions`: `read`
 - `contents`: `read`
 - `id-token`: `write` (OIDC)

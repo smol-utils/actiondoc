@@ -229,3 +229,15 @@ func TestStepTitleMarkupEscaped(t *testing.T) {
 		t.Errorf("step name with asterisks not escaped:\n%s", b2.String())
 	}
 }
+
+// TestStepTitleSkipsPunctuationLines verifies the run-derived title skips lines with no
+// letters or digits (a shell group's opening brace), and that unnamed uses: steps title
+// with the collapsed pin form everywhere they are referenced.
+func TestStepTitleSkipsPunctuationLines(t *testing.T) {
+	if got := stepTitle(&model.Step{Run: "{\n  echo hello\n} > out.txt"}, 1); got != "echo hello" {
+		t.Errorf("stepTitle = %q, want %q (brace-only line skipped)", got, "echo hello")
+	}
+	if got := stepTitle(&model.Step{Run: "{\n}\n"}, 4); got != "Step 4" {
+		t.Errorf("stepTitle = %q, want positional fallback for punctuation-only script", got)
+	}
+}

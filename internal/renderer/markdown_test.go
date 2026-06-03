@@ -202,3 +202,12 @@ func TestJobAndStepInputTagsRender(t *testing.T) {
 		t.Errorf("step-level @input not rendered:\n%s", md)
 	}
 }
+
+// TestMatrixCellBacktickSafe verifies an axis name containing a backtick renders inside a
+// backtick-safe code span instead of breaking the table cell.
+func TestMatrixCellBacktickSafe(t *testing.T) {
+	got := matrixCell([]model.MatrixAxis{{Name: "weird`name", Values: []string{"a"}}}, false)
+	if !strings.Contains(got, "`` weird`name ``") {
+		t.Errorf("matrixCell = %q, want backtick-safe span for the axis name", got)
+	}
+}
