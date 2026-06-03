@@ -491,7 +491,11 @@ func (r *redactor) collectAction(a *model.Action) {
 	r.noteFree(a.Description)
 	for _, in := range a.Inputs {
 		r.noteFree(in.Description)
-		r.noteValue(in.Default)
+		// An action's input default is part of its public contract, like a workflow_call
+		// input default -- treat it as free text (redact secrets/hosts/URLs inside it) but
+		// never blank it wholesale, even under the aggressive profile, whose value-blanking
+		// is scoped to env:/with: values.
+		r.noteFree(in.Default)
 	}
 	for _, out := range a.Outputs {
 		r.noteFree(out.Description)
@@ -504,7 +508,7 @@ func (r *redactor) rewriteAction(a *model.Action) {
 	a.Description = r.redactFree(a.Description)
 	for i := range a.Inputs {
 		a.Inputs[i].Description = r.redactFree(a.Inputs[i].Description)
-		a.Inputs[i].Default = r.redactValue(a.Inputs[i].Default)
+		a.Inputs[i].Default = r.redactFree(a.Inputs[i].Default)
 	}
 	for i := range a.Outputs {
 		a.Outputs[i].Description = r.redactFree(a.Outputs[i].Description)

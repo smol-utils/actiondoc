@@ -218,6 +218,27 @@ func TestApply_TagSecretNameRedacted(t *testing.T) {
 	}
 }
 
+func TestApply_ActionInputDefaultsAreFreeText(t *testing.T) {
+	// An action.yml input default is public contract, like a workflow_call input default:
+	// even under the aggressive profile it must not be blanked to VALUE_n, but a host
+	// inside it is still redacted.
+	a := &model.Action{
+		Name: "A",
+		Inputs: []model.ActionInput{
+			{Name: "node-version", Default: "20"},
+			{Name: "registry", Default: "registry.internal.corp"},
+		},
+	}
+	sources := []callgraph.Source{{Path: "action.yml", Action: a}}
+	Apply(sources, Options{Level: Aggressive})
+	if a.Inputs[0].Default != "20" {
+		t.Errorf("harmless default should be preserved, got %q", a.Inputs[0].Default)
+	}
+	if a.Inputs[1].Default != "HOST_1" {
+		t.Errorf("host in default should be redacted as a host, got %q", a.Inputs[1].Default)
+	}
+}
+
 func TestMappingJSON(t *testing.T) {
 	w := &model.Workflow{Jobs: []model.Job{{ID: "j", Steps: []model.Step{{Run: "${{ secrets.A }}"}}}}}
 	m := Apply(wf(w), Options{})

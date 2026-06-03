@@ -191,8 +191,8 @@ reference tables -- stay intact.
 | Env-var names | `ENV_n` | `env:` keys, `@env`, `${{ env.X }}` |
 | Self-hosted runner labels | `RUNNER_n` | `runs-on:` labels outside the GitHub-hosted set |
 | Deploy environment names | `ENVIRONMENT_n` | `environment:` |
-| URLs | `URL_n` | scheme-qualified URLs in any field |
-| Hostnames | `HOST_n` | bare dotted hostnames in any field |
+| URLs | `URL_n` | scheme-qualified URLs in any field's literal text (outside `${{ }}`) |
+| Hostnames | `HOST_n` | bare dotted hostnames in any field's literal text (outside `${{ }}`) |
 | Literal values | `VALUE_n` | every literal `env:`/`with:` value (aggressive only) |
 
 Placeholder numbering is **deterministic**: originals are sorted before they are numbered,
