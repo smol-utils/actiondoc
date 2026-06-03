@@ -278,6 +278,7 @@ Permissions declared across the chain: `contents: read`
 | Property | Value |
 |----------|-------|
 | Runs on | `${{ matrix.os.id }}` |
+| Matrix | `os.id`: ${{ vars.UBUNTU_MEDIUM \|\| 'ubuntu-latest' }}, windows-latest; `os.name`: Linux, Windows; `java.version`: 17, 21, 25, 26; `java.toolchain`: true, false (combinations adjusted by include/exclude) |
 | Condition | `${{ github.repository == 'spring-projects/spring-boot' \|\| github.repository == 'spring-projects/spring-boot-commercial' }}` |
 
 #### Steps
@@ -949,7 +950,7 @@ Permissions declared across the chain: `contents: read`
 | Property | Value |
 |----------|-------|
 | Runs on | `${{ vars.UBUNTU_MEDIUM \|\| 'ubuntu-latest' }}` |
-| Matrix | `java.version`: 17, 21; `java.toolchain`: true, true |
+| Matrix | `java.version`: 17, 21; `java.toolchain`: true |
 | Condition | `${{ github.repository == 'spring-projects/spring-boot' }}` |
 
 #### Steps

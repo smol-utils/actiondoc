@@ -122,7 +122,7 @@ func renderJob(b *strings.Builder, job *model.Job, g *callgraph.Graph, fromID st
 			fmt.Fprintf(b, "| Runs on | `%s` |\n", escapeCell(job.RunsOn))
 		}
 		if len(job.Matrix) > 0 {
-			fmt.Fprintf(b, "| Matrix | %s |\n", matrixCell(job.Matrix))
+			fmt.Fprintf(b, "| Matrix | %s |\n", matrixCell(job.Matrix, job.MatrixAdjusted))
 		}
 		if len(job.Needs) > 0 {
 			fmt.Fprintf(b, "| Depends on | %s |\n", codelist(job.Needs))
@@ -232,15 +232,21 @@ func codelist(items []string) string {
 	return strings.Join(parts, ", ")
 }
 
-// matrixCell formats a job's statically-resolved matrix axes for the properties table:
-// each axis as `name`: v1, v2, joined with "; ". The job heading shows the name template
-// as written; this row is what tells the reader which values its placeholders take.
-func matrixCell(axes []model.MatrixAxis) string {
+// matrixCell formats a job's declared matrix axes for the properties table: each axis as
+// `name`: v1, v2, joined with "; ". The job heading shows the name template as written;
+// this row is what tells the reader which values its placeholders take. When the matrix
+// also has include:/exclude: entries, the listed values are not the exact combination
+// set, and the cell says so.
+func matrixCell(axes []model.MatrixAxis, adjusted bool) string {
 	parts := make([]string, len(axes))
 	for i, a := range axes {
 		parts[i] = "`" + escapeCell(a.Name) + "`: " + escapeCell(strings.Join(a.Values, ", "))
 	}
-	return strings.Join(parts, "; ")
+	s := strings.Join(parts, "; ")
+	if adjusted {
+		s += " (combinations adjusted by include/exclude)"
+	}
+	return s
 }
 
 // RenderActionMarkdown converts an Action data model into a Markdown document.

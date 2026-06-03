@@ -243,6 +243,7 @@ e2e.schedule.installer.yml [schedule, workflow_dispatch]
 | Property | Value |
 |----------|-------|
 | Runs on | `ubuntu-latest` |
+| Matrix | `version`: ${{ fromJson(needs.list-verifiers.outputs.version) }} |
 | Depends on | `list-verifiers` |
 
 #### Steps
@@ -807,6 +808,7 @@ External workflows referenced: `slsa-framework/slsa-github-generator/.github/wor
 | Property | Value |
 |----------|-------|
 | Uses workflow | `slsa-framework/slsa-github-generator/.github/workflows/builder_go_slsa3.yml@v2.0.0` (external) |
+| Matrix | `os`: linux, windows, darwin; `arch`: amd64, arm64 |
 | Depends on | `args` |
 
 **Permissions:**

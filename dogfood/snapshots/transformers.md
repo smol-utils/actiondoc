@@ -1434,6 +1434,7 @@ check_failed_tests.yml
 | Property | Value |
 |----------|-------|
 | Runs on | `group: aws-g5-4xlarge-cache` |
+| Matrix | `run_idx`: ${{ fromJson(needs.setup_check_new_failures.outputs.matrix) }} |
 | Depends on | `setup_check_new_failures` |
 | Condition | `needs.setup_check_new_failures.outputs.process == 'true'` |
 
@@ -1966,6 +1967,7 @@ doctest_job.yml
 | Property | Value |
 |----------|-------|
 | Runs on | `group: aws-g5-4xlarge-cache` |
+| Matrix | `split_keys`: ${{ fromJson(inputs.split_keys) }} |
 
 #### Steps
 
@@ -2070,6 +2072,7 @@ Permissions declared across the chain: `contents: read`
 | Property | Value |
 |----------|-------|
 | Uses workflow | [Doctest job](#doctest-job) |
+| Matrix | `split_keys`: ${{ fromJson(needs.setup.outputs.split_keys) }} |
 | Depends on | `setup` |
 
 #### Inputs forwarded
@@ -2166,6 +2169,7 @@ Permissions declared across the chain: `contents: read`
 | Property | Value |
 |----------|-------|
 | Runs on | `ubuntu-latest` |
+| Matrix | `python-version`: ${{ fromJson(needs.get-python-versions.outputs.versions) }} |
 | Depends on | `get-python-versions` |
 
 #### Steps
@@ -2516,6 +2520,7 @@ model_jobs.yml
 | Property | Value |
 |----------|-------|
 | Runs on | `group: ${{ inputs.machine_type }}` |
+| Matrix | `folders`: ${{ fromJson(inputs.folder_slices)[inputs.slice_id] }} |
 
 #### Steps
 
@@ -2672,6 +2677,7 @@ model_jobs_intel_gaudi.yml
 | Property | Value |
 |----------|-------|
 | Runs on | `group: ${{ inputs.runner }}` |
+| Matrix | `folders`: ${{ fromJson(inputs.folder_slices)[inputs.slice_id] }} |
 
 #### Steps
 
@@ -5122,6 +5128,7 @@ self-scheduled-intel-gaudi.yml
 | Property | Value |
 |----------|-------|
 | Uses workflow | [model jobs](#model-jobs-1) |
+| Matrix | `machine_type`: 1gaudi, 2gaudi; `slice_id`: ${{ fromJSON(needs.setup.outputs.slice_ids) }} |
 | Depends on | `setup` |
 | Condition | `${{ inputs.job == 'run_models_gpu' }}` |
 
@@ -5141,6 +5148,7 @@ self-scheduled-intel-gaudi.yml
 | Property | Value |
 |----------|-------|
 | Uses workflow | [model jobs](#model-jobs-1) |
+| Matrix | `machine_type`: 1gaudi, 2gaudi; `slice_id`: ${{ fromJSON(needs.setup.outputs.slice_ids) }} |
 | Depends on | `setup` |
 | Condition | `${{ inputs.job == 'run_trainer_and_fsdp_gpu' }}` |
 
@@ -5566,6 +5574,7 @@ self-scheduled.yml
 | Property | Value |
 |----------|-------|
 | Uses workflow | [model jobs](#model-jobs) |
+| Matrix | `machine_type`: aws-g5-4xlarge-cache, aws-g5-12xlarge-cache; `slice_id`: ${{ fromJSON(needs.setup.outputs.slice_ids) }} |
 | Depends on | `setup` |
 | Condition | `${{ inputs.job == 'run_models_gpu' }}` |
 
@@ -5589,6 +5598,7 @@ self-scheduled.yml
 | Property | Value |
 |----------|-------|
 | Uses workflow | [model jobs](#model-jobs) |
+| Matrix | `machine_type`: aws-g5-4xlarge-cache, aws-g5-12xlarge-cache; `slice_id`: 0, 1, 2 |
 | Depends on | `setup` |
 | Condition | `${{ inputs.job == 'run_trainer_and_fsdp_gpu' }}` |
 
@@ -5739,6 +5749,7 @@ self-scheduled.yml
 | Property | Value |
 |----------|-------|
 | Runs on | `group: ${{ matrix.machine_type }}` |
+| Matrix | `folders`: ${{ fromJson(needs.setup.outputs.quantization_matrix) }}; `machine_type`: aws-g5-4xlarge-cache, aws-g5-12xlarge-cache |
 | Depends on | `setup` |
 | Condition | `${{ inputs.job == 'run_quantization_torch_gpu' }}` |
 

@@ -53,13 +53,21 @@ func versionComment(c string) string {
 	return ""
 }
 
-// parseMatrix extracts the statically-resolvable axes of a job's strategy.matrix. It
-// returns nil (render names verbatim) for matrices that use include/exclude, a non-list
-// axis, or a dynamic fromJSON source, since those can't be resolved without runtime data.
-func parseMatrix(node ast.Node) []model.MatrixAxis {
+// parseMatrix extracts the declared axes of a job's strategy.matrix in every form the
+// syntax allows:
+//   - literal list axes (os: [a, b]) -> one axis per key
+//   - list-of-objects axes (java: [{version: 17}, ...]) -> dotted axes (java.version)
+//   - include: entries -> their keys and values merge into the axes (include adds
+//     combinations, so its values are part of the declared surface)
+//   - expression-valued axes (node: ${{ fromJSON(...) }}) -> the expression itself is the
+//     axis's shown value, since it cannot be enumerated statically
+//
+// The second return reports whether an include:/exclude: key is present: the cartesian
+// product of the listed values is then not the exact job set, and the renderer says so.
+func parseMatrix(node ast.Node) ([]model.MatrixAxis, bool) {
 	strat := toMapping(node)
 	if strat == nil {
-		return nil
+		return nil, false
 	}
 	var matrixNode ast.Node
 	for _, mv := range strat.Values {
@@ -69,35 +77,56 @@ func parseMatrix(node ast.Node) []model.MatrixAxis {
 	}
 	m := toMapping(matrixNode)
 	if m == nil {
-		return nil // scalar/dynamic matrix (e.g. fromJSON) -> not statically resolvable
-	}
-	for _, mv := range m.Values {
-		if k := mapKeyString(mv.Key); k == "include" || k == "exclude" {
-			return nil // include/exclude alters the product set; render names verbatim
-		}
+		// The whole matrix is an expression (matrix: ${{ fromJSON(...) }}): there are no
+		// axis names to list.
+		return nil, false
 	}
 
 	acc := newAxisAccum()
+	adjusted := false
 	for _, mv := range m.Values {
 		name := mapKeyString(mv.Key)
-		seq, ok := mv.Value.(*ast.SequenceNode)
-		if !ok {
-			// A non-list/dynamic axis (e.g. fromJSON(...)) makes the whole matrix not
-			// statically resolvable. Bail entirely rather than partially expanding the
-			// other axes, which would misrepresent the generated jobs.
-			return nil
-		}
-		for _, item := range seq.Values {
-			if im := toMapping(item); im != nil {
-				for _, sub := range im.Values {
-					acc.add(name+"."+mapKeyString(sub.Key), nodeString(sub.Value))
+		switch name {
+		case "exclude":
+			adjusted = true
+		case "include":
+			adjusted = true
+			// Each include entry is an object whose keys and values extend the matrix;
+			// fold them into the axes so include-only matrices still document their values.
+			if seq, ok := mv.Value.(*ast.SequenceNode); ok {
+				for _, item := range seq.Values {
+					if im := toMapping(item); im != nil {
+						for _, sub := range im.Values {
+							addAxisValue(acc, mapKeyString(sub.Key), sub.Value)
+						}
+					}
 				}
-			} else {
-				acc.add(name, nodeString(item))
+			}
+		default:
+			seq, ok := mv.Value.(*ast.SequenceNode)
+			if !ok {
+				// Expression-valued axis: show the expression as the value.
+				acc.add(name, nodeString(mv.Value))
+				continue
+			}
+			for _, item := range seq.Values {
+				addAxisValue(acc, name, item)
 			}
 		}
 	}
-	return acc.axes()
+	return acc.axes(), adjusted
+}
+
+// addAxisValue records one axis value, flattening an object value into dotted sub-axes
+// (java: [{version: 17}] -> java.version: 17).
+func addAxisValue(acc *axisAccum, name string, item ast.Node) {
+	if im := toMapping(item); im != nil {
+		for _, sub := range im.Values {
+			acc.add(name+"."+mapKeyString(sub.Key), nodeString(sub.Value))
+		}
+		return
+	}
+	acc.add(name, nodeString(item))
 }
 
 // axisAccum collects matrix axis values in first-seen order so the rendered value lists
@@ -114,6 +143,12 @@ func newAxisAccum() *axisAccum {
 func (a *axisAccum) add(name, val string) {
 	if _, ok := a.vals[name]; !ok {
 		a.order = append(a.order, name)
+	}
+	// Dedup: include entries commonly repeat values already declared on the axis.
+	for _, v := range a.vals[name] {
+		if v == val {
+			return
+		}
 	}
 	a.vals[name] = append(a.vals[name], val)
 }

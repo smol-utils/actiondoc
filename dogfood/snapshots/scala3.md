@@ -809,6 +809,7 @@ publish-sdkman.yml
 | Property | Value |
 |----------|-------|
 | Runs on | `ubuntu-latest` |
+| Matrix | `platform`: LINUX_64, LINUX_ARM64, MAC_OSX, MAC_ARM64, WINDOWS_64; `archive`: scala3-${{ inputs.version }}-x86_64-pc-linux.zip, scala3-${{ inputs.version }}-aarch64-pc-linux.zip, scala3-${{ inputs.version }}-x86_64-apple-darwin.zip, scala3-${{ inputs.version }}-aarch64-apple-darwin.zip, scala3-${{ inputs.version }}-x86_64-pc-win32.zip (combinations adjusted by include/exclude) |
 
 #### Steps
 

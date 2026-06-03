@@ -97,6 +97,7 @@ Exercises step rendering, matrix job names, runs-on normalization, and secret ag
 | Property | Value |
 |----------|-------|
 | Runs on | `ubuntu-latest` |
+| Matrix | `case`: a, b, c (combinations adjusted by include/exclude) |
 
 #### Steps
 

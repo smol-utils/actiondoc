@@ -41,6 +41,7 @@ Permissions declared across the chain: `contents: read`, `id-token: write (OIDC)
 | Property | Value |
 |----------|-------|
 | Uses workflow | [Reusable Build](#reusable-build) |
+| Matrix | `target`: linux, darwin (combinations adjusted by include/exclude) |
 
 **Permissions:**
 
@@ -49,7 +50,7 @@ Permissions declared across the chain: `contents: read`, `id-token: write (OIDC)
 
 #### Inputs forwarded
 
-- `target`: `linux`
+- `target`: `${{ matrix.target }}`
 
 #### Secrets forwarded
 

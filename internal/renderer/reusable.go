@@ -26,6 +26,11 @@ func renderCallerJob(b *strings.Builder, job *model.Job, g *callgraph.Graph, fro
 	b.WriteString("| Property | Value |\n")
 	b.WriteString("|----------|-------|\n")
 	fmt.Fprintf(b, "| Uses workflow | %s |\n", callerUsesCell(g, fromID, job.ID, job.Uses))
+	// A caller job's matrix multiplies the reusable calls; its axes are as much a part of
+	// the job's surface as a regular job's.
+	if len(job.Matrix) > 0 {
+		fmt.Fprintf(b, "| Matrix | %s |\n", matrixCell(job.Matrix, job.MatrixAdjusted))
+	}
 	if len(job.Needs) > 0 {
 		fmt.Fprintf(b, "| Depends on | %s |\n", codelist(job.Needs))
 	}

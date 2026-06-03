@@ -42,10 +42,13 @@ type Job struct {
 	Defaults    *Defaults    `json:"defaults,omitempty"`
 	Environment *Environment `json:"environment,omitempty"`
 
-	// Matrix holds statically-resolvable strategy.matrix axes (axis name -> value list),
-	// used to expand ${{ matrix.X }} references in the job name. Empty when the matrix
-	// uses include/exclude or a dynamic fromJSON source, in which case names render verbatim.
+	// Matrix holds the declared strategy.matrix axes (axis name -> value list), covering
+	// literal axes, values contributed by include: entries, and expression-valued axes
+	// (whose single "value" is the expression itself).
 	Matrix []MatrixAxis `json:"matrix,omitempty"`
+	// MatrixAdjusted records that the matrix also has include:/exclude: entries, so the
+	// cartesian product of the listed axis values is not the exact set of generated jobs.
+	MatrixAdjusted bool `json:"matrix_adjusted,omitempty"`
 }
 
 // Step represents a single step within a job.

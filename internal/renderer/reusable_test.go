@@ -60,6 +60,27 @@ func chainGraph() (*callgraph.Graph, map[string]*model.Workflow) {
 	return callgraph.Build(sources), workflows
 }
 
+// TestRenderCallerJobMatrixRow verifies a caller job's matrix axes render as a Matrix
+// property row (a caller's matrix multiplies the reusable calls), including the
+// include/exclude adjustment note.
+func TestRenderCallerJobMatrixRow(t *testing.T) {
+	g, workflows := chainGraph()
+	id := ".github/workflows/release.yml"
+	job := &workflows[id].Jobs[0]
+	job.Matrix = []model.MatrixAxis{
+		{Name: "os", Values: []string{"linux", "windows", "darwin"}},
+		{Name: "arch", Values: []string{"amd64", "arm64"}},
+	}
+	job.MatrixAdjusted = true
+
+	md := RenderMarkdownGraph(workflows[id], g, id)
+
+	want := "| Matrix | `os`: linux, windows, darwin; `arch`: amd64, arm64 (combinations adjusted by include/exclude) |"
+	if !strings.Contains(md, want) {
+		t.Errorf("caller job missing Matrix row %q:\n%s", want, md)
+	}
+}
+
 func TestRenderCallerJobForwarding(t *testing.T) {
 	g, workflows := chainGraph()
 	id := ".github/workflows/release.yml"

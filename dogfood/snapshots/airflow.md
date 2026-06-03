@@ -613,6 +613,7 @@ airflow-distributions-tests.yml
 | Property | Value |
 |----------|-------|
 | Runs on | `${{ fromJSON(inputs.runners) }}` |
+| Matrix | `python-version`: ${{fromJSON(inputs.python-versions)}} |
 
 **Environment (`env`):**
 
@@ -907,6 +908,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pul
 | Property | Value |
 |----------|-------|
 | Uses workflow | [Backport Commit](#backport-commit) |
+| Matrix | `branch`: ${{ fromJSON(needs.get-pr-info.outputs.branches) }} |
 | Depends on | `get-pr-info` |
 | Condition | `${{ needs.get-pr-info.outputs.branches != '[]' }}` |
 
@@ -1118,6 +1120,7 @@ basic-tests.yml
 | Property | Value |
 |----------|-------|
 | Runs on | `${{ fromJSON(inputs.runners) }}` |
+| Matrix | `shared-distribution`: ${{ fromJSON(inputs.shared-distributions-as-json) }} |
 
 #### Steps
 
@@ -4119,6 +4122,7 @@ ci-image-build.yml
 | Property | Value |
 |----------|-------|
 | Runs on | `${{ fromJSON(inputs.runners) }}` |
+| Matrix | `python-version`: ${{ fromJSON(inputs.python-versions) }} |
 
 **Environment (`env`):**
 
@@ -4970,6 +4974,7 @@ finalize-tests.yml
 | Property | Value |
 |----------|-------|
 | Runs on | `${{ fromJSON(inputs.runners) }}` |
+| Matrix | `python-version`: ${{ fromJson(inputs.python-versions) }}; `constraints-mode`: constraints, constraints-source-providers, constraints-no-providers |
 | Depends on | `update-constraints` |
 | Condition | `inputs.upgrade-to-newer-dependencies == 'true' && inputs.platform == 'linux/amd64'` |
 
@@ -5079,6 +5084,7 @@ generate-constraints.yml
 | Property | Value |
 |----------|-------|
 | Runs on | `${{ fromJSON(inputs.runners) }}` |
+| Matrix | `python-version`: ${{ fromJson(inputs.python-versions) }} |
 
 **Permissions:**
 
@@ -5199,6 +5205,7 @@ helm-tests.yml
 | Property | Value |
 |----------|-------|
 | Runs on | `${{ fromJSON(inputs.runners) }}` |
+| Matrix | `helm-test-package`: ${{ fromJSON(inputs.helm-test-packages) }}; `kubernetes-version`: ${{ fromJSON(inputs.helm-test-kubernetes-versions) }} |
 
 **Environment (`env`):**
 
@@ -5350,6 +5357,7 @@ integration-system-tests.yml
 | Property | Value |
 |----------|-------|
 | Runs on | `${{ fromJSON(inputs.runners) }}` |
+| Matrix | `integration`: ${{ fromJSON(inputs.testable-core-integrations) }} |
 | Condition | `inputs.testable-core-integrations != '[]'` |
 
 **Environment (`env`):**
@@ -5404,6 +5412,7 @@ integration-system-tests.yml
 | Property | Value |
 |----------|-------|
 | Runs on | `${{ fromJSON(inputs.runners) }}` |
+| Matrix | `integration`: ${{ fromJSON(inputs.testable-providers-integrations) }} |
 | Condition | `inputs.testable-providers-integrations != '[]' && inputs.skip-providers-tests != 'true'` |
 
 **Environment (`env`):**
@@ -5555,6 +5564,7 @@ k8s-tests.yml
 | Property | Value |
 |----------|-------|
 | Runs on | `${{ fromJSON(inputs.runners) }}` |
+| Matrix | `executor`: KubernetesExecutor, CeleryExecutor, LocalExecutor; `use-standard-naming`: true, false; `kubernetes-combo`: ${{ fromJSON(inputs.kubernetes-combos) }} |
 
 **Environment (`env`):**
 
@@ -5887,6 +5897,7 @@ prod-image-build.yml
 | Property | Value |
 |----------|-------|
 | Runs on | `${{ fromJSON(inputs.runners) }}` |
+| Matrix | `python-version`: ${{ fromJSON(inputs.python-versions) }} |
 | Depends on | `build-prod-packages` |
 
 **Environment (`env`):**
@@ -6413,6 +6424,7 @@ push-image-cache.yml
 | Property | Value |
 |----------|-------|
 | Runs on | `${{ fromJSON(inputs.runners) }}` |
+| Matrix | `python`: ${{ fromJSON(inputs.python-versions) }} |
 
 **Permissions:**
 
@@ -6472,6 +6484,7 @@ push-image-cache.yml
 | Property | Value |
 |----------|-------|
 | Runs on | `${{ fromJSON(inputs.runners) }}` |
+| Matrix | `python`: ${{ fromJSON(inputs.python-versions) }} |
 | Condition | `inputs.include-prod-images == 'true'` |
 
 **Permissions:**
@@ -7156,6 +7169,7 @@ Permissions declared across the chain: `contents: read`, `packages: read`
 | Property | Value |
 |----------|-------|
 | Uses workflow | [Release single PROD image](#release-single-prod-image) |
+| Matrix | `python`: ${{ fromJSON(needs.build-info.outputs.pythonVersions) }} |
 | Depends on | `build-info` |
 
 **Permissions:**
@@ -7240,6 +7254,7 @@ release_single_dockerhub_image.yml
 | Property | Value |
 |----------|-------|
 | Runs on | `${{ (matrix.platform == 'linux/amd64') && fromJSON(inputs.amdRunners) \|\| fromJSON(inputs.armRunners) }}` |
+| Matrix | `platform`: ${{ fromJSON(inputs.platformMatrix) }} |
 
 **Environment (`env`):**
 
@@ -7481,6 +7496,7 @@ run-unit-tests.yml
 | Property | Value |
 |----------|-------|
 | Runs on | `${{ fromJSON(inputs.runners) }}` |
+| Matrix | `python-version`: ${{fromJSON(inputs.python-versions)}}; `backend-version`: ${{fromJSON(inputs.backend-versions)}}; `test-types`: ${{ fromJSON(inputs.test-types-as-strings-in-json) }} (combinations adjusted by include/exclude) |
 | Condition | `inputs.test-group == 'core' \|\| inputs.skip-providers-tests != 'true'` |
 
 **Environment (`env`):**
@@ -8290,6 +8306,7 @@ test-providers.yml
 | Property | Value |
 |----------|-------|
 | Runs on | `${{ fromJSON(inputs.runners) }}` |
+| Matrix | `compat`: ${{fromJSON(inputs.providers-compatibility-tests-matrix)}}; `test-types`: ${{ fromJSON(inputs.providers-test-types-list-as-strings-in-json) }} |
 | Condition | `inputs.skip-providers-tests != 'true'` |
 
 **Environment (`env`):**

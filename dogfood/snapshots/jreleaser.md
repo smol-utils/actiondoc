@@ -902,7 +902,7 @@ Permissions declared across the chain: `contents: read`
 | Property | Value |
 |----------|-------|
 | Runs on | `${{ matrix.job.os }}` |
-| Matrix | `job.os`: macos-15-intel, ubuntu-latest, windows-latest; `job.args`: -xp docker, , -xp docker |
+| Matrix | `job.os`: macos-15-intel, ubuntu-latest, windows-latest; `job.args`: -xp docker,  |
 | Depends on | `precheck` |
 | Condition | `${{ endsWith(needs.precheck.outputs.version, '-SNAPSHOT') }}` |
 
@@ -985,7 +985,7 @@ Permissions declared across the chain: `contents: read`
 | Property | Value |
 |----------|-------|
 | Runs on | `${{ matrix.job.os }}` |
-| Matrix | `job.os`: macos-15-intel, ubuntu-latest, windows-latest; `job.args`: -xp docker, , -xp docker |
+| Matrix | `job.os`: macos-15-intel, ubuntu-latest, windows-latest; `job.args`: -xp docker,  |
 | Depends on | `precheck` |
 | Condition | `${{ endsWith(needs.precheck.outputs.version, '-SNAPSHOT') }}` |
 
@@ -1068,7 +1068,7 @@ Permissions declared across the chain: `contents: read`
 | Property | Value |
 |----------|-------|
 | Runs on | `${{ matrix.job.os }}` |
-| Matrix | `job.os`: macos-15-intel, ubuntu-latest, windows-latest; `job.args`: -Djreleaser.excluded.packagers=docker, , -Djreleaser.excluded.packagers=docker |
+| Matrix | `job.os`: macos-15-intel, ubuntu-latest, windows-latest; `job.args`: -Djreleaser.excluded.packagers=docker,  |
 | Depends on | `precheck` |
 | Condition | `${{ endsWith(needs.precheck.outputs.version, '-SNAPSHOT') }}` |
 
@@ -1151,7 +1151,7 @@ Permissions declared across the chain: `contents: read`
 | Property | Value |
 |----------|-------|
 | Runs on | `${{ matrix.job.os }}` |
-| Matrix | `job.os`: macos-15-intel, ubuntu-latest, windows-latest; `job.args`: --exclude-packager docker, , --exclude-packager docker |
+| Matrix | `job.os`: macos-15-intel, ubuntu-latest, windows-latest; `job.args`: --exclude-packager docker,  |
 | Depends on | `precheck` |
 | Condition | `${{ endsWith(needs.precheck.outputs.version, '-SNAPSHOT') }}` |
 
@@ -1243,7 +1243,7 @@ Permissions declared across the chain: `contents: read`
 | Property | Value |
 |----------|-------|
 | Runs on | `${{ matrix.job.os }}` |
-| Matrix | `job.os`: macos-15-intel, ubuntu-latest, windows-latest; `job.args`: -Djreleaser.excluded.packagers=docker, , -Djreleaser.excluded.packagers=docker |
+| Matrix | `job.os`: macos-15-intel, ubuntu-latest, windows-latest; `job.args`: -Djreleaser.excluded.packagers=docker,  |
 | Depends on | `precheck` |
 | Condition | `${{ endsWith(needs.precheck.outputs.version, '-SNAPSHOT') }}` |
 

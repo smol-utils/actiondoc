@@ -288,7 +288,7 @@ func parseJobFields(job *model.Job, mapping *ast.MappingNode) {
 		case "if":
 			job.If = nodeString(mv.Value)
 		case "strategy":
-			job.Matrix = parseMatrix(mv.Value)
+			job.Matrix, job.MatrixAdjusted = parseMatrix(mv.Value)
 		case "steps":
 			job.Steps = parseSteps(mv.Value)
 		// Reusable-workflow caller jobs use uses:/with:/secrets: instead of steps.
