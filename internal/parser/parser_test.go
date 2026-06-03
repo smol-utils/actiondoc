@@ -4,7 +4,10 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"testing"
+
+	"github.com/smol-utils/actiondoc/internal/model"
 )
 
 func testdataPath(name string) string {
@@ -148,5 +151,103 @@ func TestParseActionFile(t *testing.T) {
 	}
 	if a.Branding.Icon != "upload-cloud" || a.Branding.Color != "blue" {
 		t.Errorf("branding = %+v", a.Branding)
+	}
+}
+
+// TestResolveAnchors covers YAML anchor/alias indirection across field types: a scalar
+// anchor on runs-on (the syft pattern), an alias reusing it, an anchored mapping reused
+// as a job env: block, and an anchored sequence. Field readers must always see resolved
+// values, never raw &name / *name tokens.
+func TestResolveAnchors(t *testing.T) {
+	src := `name: Anchors
+on: push
+jobs:
+  define:
+    runs-on: &test-runner "runs-on=large/cpu=8/ram=32"
+    env: &common-env
+      REGION: us-east-1
+      TIER: production
+    steps:
+      - run: make build
+  reuse:
+    runs-on: *test-runner
+    env: *common-env
+    steps:
+      - name: Reuse list
+        uses: actions/checkout@v4
+        with:
+          paths: &path-list
+            - src/**
+            - docs/**
+      - name: Alias list
+        uses: actions/checkout@v4
+        with:
+          paths: *path-list
+`
+	w, err := parseString(t, src)
+	if err != nil {
+		t.Fatalf("ParseFile: %v", err)
+	}
+
+	define, reuse := w.Jobs[0], w.Jobs[1]
+
+	// Anchor definition site: the value, not "&test-runner ...".
+	if define.RunsOn != "runs-on=large/cpu=8/ram=32" {
+		t.Errorf("anchor definition RunsOn = %q, want the unwrapped value", define.RunsOn)
+	}
+	// Alias site: the resolved value, not "*test-runner".
+	if reuse.RunsOn != "runs-on=large/cpu=8/ram=32" {
+		t.Errorf("alias RunsOn = %q, want the resolved value", reuse.RunsOn)
+	}
+
+	// Anchored mapping reused as a whole env: block.
+	for _, job := range []model.Job{define, reuse} {
+		if len(job.Env) != 2 || job.Env[0].Key != "REGION" || job.Env[1].Value != "production" {
+			t.Errorf("job %s Env = %+v, want resolved common-env mapping", job.ID, job.Env)
+		}
+	}
+
+	// No raw anchor/alias tokens anywhere in the parsed model.
+	for _, job := range w.Jobs {
+		if strings.Contains(job.RunsOn, "&") || strings.Contains(job.RunsOn, "*test-runner") {
+			t.Errorf("job %s RunsOn contains raw anchor/alias token: %q", job.ID, job.RunsOn)
+		}
+	}
+}
+
+// TestExpressionValuesKeptVerbatim locks the expression half of the field-reading rule:
+// a ${{ }} expression value in any string field is kept verbatim, never interpreted,
+// dropped, or coerced.
+func TestExpressionValuesKeptVerbatim(t *testing.T) {
+	src := `name: Expressions
+on: push
+concurrency:
+  group: ci-${{ github.ref }}
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    environment: ${{ inputs.env }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-14]
+    steps:
+      - run: echo hi
+        env:
+          REF: ${{ github.ref }}
+`
+	w, err := parseString(t, src)
+	if err != nil {
+		t.Fatalf("ParseFile: %v", err)
+	}
+	job := w.Jobs[0]
+	for _, tc := range []struct{ got, want, what string }{
+		{w.Concurrency.Group, "ci-${{ github.ref }}", "concurrency group"},
+		{job.RunsOn, "${{ matrix.os }}", "runs-on"},
+		{job.Environment.Name, "${{ inputs.env }}", "environment name"},
+		{job.Steps[0].Env[0].Value, "${{ github.ref }}", "step env value"},
+	} {
+		if tc.got != tc.want {
+			t.Errorf("%s = %q, want verbatim expression %q", tc.what, tc.got, tc.want)
+		}
 	}
 }

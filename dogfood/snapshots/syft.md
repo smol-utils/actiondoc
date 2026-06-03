@@ -318,7 +318,7 @@ Permissions declared across the chain: `contents: read`
 
 | Property | Value |
 |----------|-------|
-| Runs on | `&test-runner "runs-on=${{ github.run_id }}/cpu=4+8/ram=32+128/family=r5+r6+r7+r8+m4+m5+m6+m7+m8/spot=price-capacity-optimized/extras=tmpfs"` |
+| Runs on | `runs-on=${{ github.run_id }}/cpu=4+8/ram=32+128/family=r5+r6+r7+r8+m4+m5+m6+m7+m8/spot=price-capacity-optimized/extras=tmpfs` |
 
 **Permissions:**
 
@@ -342,7 +342,7 @@ Permissions declared across the chain: `contents: read`
 
 | Property | Value |
 |----------|-------|
-| Runs on | `*test-runner` |
+| Runs on | `runs-on=${{ github.run_id }}/cpu=4+8/ram=32+128/family=r5+r6+r7+r8+m4+m5+m6+m7+m8/spot=price-capacity-optimized/extras=tmpfs` |
 
 **Permissions:**
 
@@ -368,7 +368,7 @@ Permissions declared across the chain: `contents: read`
 
 | Property | Value |
 |----------|-------|
-| Runs on | `*test-runner` |
+| Runs on | `runs-on=${{ github.run_id }}/cpu=4+8/ram=32+128/family=r5+r6+r7+r8+m4+m5+m6+m7+m8/spot=price-capacity-optimized/extras=tmpfs` |
 
 **Permissions:**
 
@@ -427,7 +427,7 @@ Permissions declared across the chain: `contents: read`
 
 | Property | Value |
 |----------|-------|
-| Runs on | `*test-runner` |
+| Runs on | `runs-on=${{ github.run_id }}/cpu=4+8/ram=32+128/family=r5+r6+r7+r8+m4+m5+m6+m7+m8/spot=price-capacity-optimized/extras=tmpfs` |
 | Depends on | `Build-Snapshot-Artifacts` |
 
 **Permissions:**
@@ -508,7 +508,7 @@ Permissions declared across the chain: `contents: read`
 
 | Property | Value |
 |----------|-------|
-| Runs on | `*test-runner` |
+| Runs on | `runs-on=${{ github.run_id }}/cpu=4+8/ram=32+128/family=r5+r6+r7+r8+m4+m5+m6+m7+m8/spot=price-capacity-optimized/extras=tmpfs` |
 | Depends on | `Build-Snapshot-Artifacts` |
 
 **Permissions:**

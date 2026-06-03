@@ -73,6 +73,7 @@ func ParseFile(path string) (*model.Workflow, error) {
 	if !ok {
 		return nil, fmt.Errorf("%s: expected top-level mapping", path)
 	}
+	resolveAnchors(root)
 
 	w := &model.Workflow{
 		File: filepath.Base(path),
