@@ -45,10 +45,9 @@ clean:
 	rm -f actiondoc
 	rm -rf dist/
 
-## golden: Regenerate the golden test files (workflow + action)
+## golden: Regenerate all golden test files through the golden tests' own render path
 golden:
-	go run . generate testdata/sample-workflow.yml > testdata/expected-output.md
-	go run . generate testdata/action.yml > testdata/expected-action-output.md
+	go test ./internal/renderer ./cmd -run Golden -update
 
 ## demo: Run actiondoc against the sample workflow
 demo:
@@ -84,3 +83,44 @@ dogfood: build
 	echo "dogfood: $$ok ok, $$fail failed"; \
 	if [ $$((ok+fail)) -eq 0 ]; then echo "no corpus repos found in $(DOGFOOD_DIR); run 'make dogfood-fetch' first"; exit 1; fi; \
 	if [ $$fail -gt 0 ]; then echo "failed:$$failed"; exit 1; fi
+
+# Corpus repos with committed rendered-output snapshots. Together they exercise every
+# rendering surface where output bugs have been found in the wild: secrets inventories
+# (cosign, dependency-track, jreleaser, scala3, spring-boot), multi-line names and large
+# call-graph trees (airflow, transformers), YAML anchors (syft), matrix job names
+# (slsa-verifier, spring-boot), and link/anchor escaping (airflow, transformers).
+SNAPSHOT_REPOS := airflow cosign dependency-track jreleaser scala3 slsa-verifier spring-boot syft transformers
+SNAPSHOT_DIR := dogfood/snapshots
+
+## dogfood-output: Diff rendered output for the snapshot repos against committed snapshots
+dogfood-output: build
+	@missing=0; fail=0; diffs=""; \
+	for name in $(SNAPSHOT_REPOS); do \
+		dir="$(DOGFOOD_DIR)/$$name/.github/workflows"; \
+		if [ ! -d "$$dir" ]; then echo "missing corpus repo: $$name (run 'make dogfood-fetch')"; missing=1; continue; fi; \
+		if ! ./actiondoc generate "$$dir" > "$(SNAPSHOT_DIR)/$$name.md.tmp" 2>/dev/null; then \
+			echo "generate failed: $$name"; fail=1; rm -f "$(SNAPSHOT_DIR)/$$name.md.tmp"; continue; \
+		fi; \
+		if diff -u "$(SNAPSHOT_DIR)/$$name.md" "$(SNAPSHOT_DIR)/$$name.md.tmp"; then \
+			echo "snapshot ok: $$name"; \
+		else \
+			fail=1; diffs="$$diffs $$name"; \
+		fi; \
+		rm -f "$(SNAPSHOT_DIR)/$$name.md.tmp"; \
+	done; \
+	[ $$missing -eq 0 ] || exit 1; \
+	if [ $$fail -ne 0 ]; then \
+		echo "snapshot diffs:$$diffs"; \
+		echo "if the rendering change is intentional, run 'make dogfood-output-update' and commit the result"; \
+		exit 1; \
+	fi
+
+## dogfood-output-update: Regenerate the committed output snapshots from the corpus
+dogfood-output-update: build
+	@mkdir -p $(SNAPSHOT_DIR)
+	@for name in $(SNAPSHOT_REPOS); do \
+		dir="$(DOGFOOD_DIR)/$$name/.github/workflows"; \
+		[ -d "$$dir" ] || { echo "missing corpus repo: $$name (run 'make dogfood-fetch')"; exit 1; }; \
+		./actiondoc generate "$$dir" > "$(SNAPSHOT_DIR)/$$name.md" || { echo "generate failed: $$name"; exit 1; }; \
+		echo "snapshot updated: $$name"; \
+	done

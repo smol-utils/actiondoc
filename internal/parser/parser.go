@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -10,6 +11,12 @@ import (
 	yamlparser "github.com/goccy/go-yaml/parser"
 	"github.com/smol-utils/actiondoc/internal/model"
 )
+
+// ErrOnlyComments marks a file whose YAML content is entirely comments -- the common way
+// to disable a workflow without deleting it. Callers can distinguish this from a
+// malformed file with errors.Is: a disabled workflow is intentionally unparseable, not
+// broken.
+var ErrOnlyComments = errors.New("contains only comments (disabled?)")
 
 // firstMappingDoc returns the first YAML document whose body is a mapping, wrapping a
 // bare MappingValueNode if needed. goccy/go-yaml emits a leading comment-only document
@@ -35,6 +42,20 @@ func firstMappingDoc(file *ast.File) (doc *ast.DocumentNode, root *ast.MappingNo
 		skipped = append(skipped, d)
 	}
 	return nil, nil, skipped, false
+}
+
+// onlyComments reports whether every document in the file is empty or comment-only --
+// the shape of a workflow that has been disabled by commenting out its entire body.
+func onlyComments(file *ast.File) bool {
+	for _, d := range file.Docs {
+		if d == nil || d.Body == nil {
+			continue
+		}
+		if _, ok := d.Body.(*ast.CommentGroupNode); !ok {
+			return false
+		}
+	}
+	return true
 }
 
 // headCommentNodes builds the node list to search for the head comment: the leading
@@ -71,8 +92,12 @@ func ParseFile(path string) (*model.Workflow, error) {
 	}
 	doc, root, skipped, ok := firstMappingDoc(file)
 	if !ok {
+		if onlyComments(file) {
+			return nil, fmt.Errorf("%s: %w", path, ErrOnlyComments)
+		}
 		return nil, fmt.Errorf("%s: expected top-level mapping", path)
 	}
+	resolveAnchors(root)
 
 	w := &model.Workflow{
 		File: filepath.Base(path),
@@ -93,7 +118,7 @@ func ParseFile(path string) (*model.Workflow, error) {
 		keyStr := mapKeyString(mv.Key)
 		switch keyStr {
 		case "name":
-			w.Name = nodeString(mv.Value)
+			w.Name = nameString(mv.Value)
 		case "on", "true":
 			w.On = parseTriggers(mv.Value)
 			w.Triggers = parseTriggerSurface(mv.Value)
@@ -184,6 +209,15 @@ func nodeString(node ast.Node) string {
 	}
 }
 
+// nameString reads a display-name value (workflow/job/step/action `name:`) as a single
+// line: newlines from block scalars collapse to spaces and runs of whitespace collapse to
+// one space. A display name is one line by definition; embedded newlines are YAML
+// formatting accidents that would otherwise break the Markdown structures built around
+// names (bold step titles, ASCII tree labels, heading anchors).
+func nameString(node ast.Node) string {
+	return strings.Join(strings.Fields(nodeString(node)), " ")
+}
+
 // parseTriggers extracts event names from the on: node.
 // Handles: scalar ("push"), sequence ([push, pull_request]),
 // and mapping (push: { branches: [...] }).
@@ -246,7 +280,7 @@ func parseJobFields(job *model.Job, mapping *ast.MappingNode) {
 		keyStr := mapKeyString(mv.Key)
 		switch keyStr {
 		case "name":
-			job.Name = nodeString(mv.Value)
+			job.Name = nameString(mv.Value)
 		case "runs-on":
 			job.RunsOn = parseRunsOn(mv.Value)
 		case "needs":
@@ -254,7 +288,7 @@ func parseJobFields(job *model.Job, mapping *ast.MappingNode) {
 		case "if":
 			job.If = nodeString(mv.Value)
 		case "strategy":
-			job.Matrix = parseMatrix(mv.Value)
+			job.Matrix, job.MatrixAdjusted = parseMatrix(mv.Value)
 		case "steps":
 			job.Steps = parseSteps(mv.Value)
 		// Reusable-workflow caller jobs use uses:/with:/secrets: instead of steps.
@@ -323,7 +357,7 @@ func parseSteps(node ast.Node) []model.Step {
 			keyStr := mapKeyString(mv.Key)
 			switch keyStr {
 			case "name":
-				step.Name = nodeString(mv.Value)
+				step.Name = nameString(mv.Value)
 			case "id":
 				step.ID = nodeString(mv.Value)
 			case "uses":
@@ -335,6 +369,8 @@ func parseSteps(node ast.Node) []model.Step {
 				step.If = nodeString(mv.Value)
 			case "with":
 				step.With = parseKVMap(mv.Value)
+			case "env":
+				step.Env = parseKVMap(mv.Value)
 			case "continue-on-error":
 				v := strings.TrimSpace(nodeString(mv.Value))
 				if strings.EqualFold(v, "true") {

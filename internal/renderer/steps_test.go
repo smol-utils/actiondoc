@@ -34,52 +34,38 @@ func TestStepTitleFallback(t *testing.T) {
 	}
 }
 
-// TestResolveJobName covers static matrix expansion in job names, dotted axes, and the
-// verbatim fall-through for unresolvable or non-matrix expressions.
-func TestResolveJobName(t *testing.T) {
-	tests := []struct {
-		name string
-		job  model.Job
-		want string
-	}{
-		{
-			"static axis",
-			model.Job{Name: "Java ${{ matrix.java }}", Matrix: []model.MatrixAxis{{Name: "java", Values: []string{"17", "21", "24"}}}},
-			"Java 17, 21, 24",
-		},
-		{
-			"dotted axis",
-			model.Job{Name: "Deploy ${{ matrix.target.env }}", Matrix: []model.MatrixAxis{{Name: "target.env", Values: []string{"staging", "production"}}}},
-			"Deploy staging, production",
-		},
-		{
-			"two axes",
-			model.Job{Name: "${{ matrix.os }} / ${{ matrix.arch }}", Matrix: []model.MatrixAxis{
-				{Name: "os", Values: []string{"linux", "macos"}},
-				{Name: "arch", Values: []string{"amd64"}},
-			}},
-			"linux, macos / amd64",
-		},
-		{
-			"unresolvable axis stays verbatim",
-			model.Job{Name: "Test ${{ matrix.case }}"},
-			"Test ${{ matrix.case }}",
-		},
-		{
-			"non-matrix expression stays verbatim",
-			model.Job{Name: "Run for ${{ github.event.number }}"},
-			"Run for ${{ github.event.number }}",
-		},
-		{
-			"no expression",
-			model.Job{Name: "Build"},
-			"Build",
-		},
+// TestJobNameRenderedVerbatim locks the rule that job headings show the name as written:
+// matrix placeholders are never expanded into joined value lists (GitHub creates one job
+// per combination; "Java 17, 21" is a job name that never exists). The Matrix property
+// row carries the axis values instead.
+func TestJobNameRenderedVerbatim(t *testing.T) {
+	w := &model.Workflow{
+		File: "test.yml",
+		Name: "Test",
+		On:   []string{"push"},
+		Jobs: []model.Job{{
+			ID:     "build",
+			Name:   "Java ${{ matrix.java }} on ${{ matrix.os }}",
+			RunsOn: "${{ matrix.os }}",
+			Matrix: []model.MatrixAxis{
+				{Name: "java", Values: []string{"17", "21", "24"}},
+				{Name: "os", Values: []string{"ubuntu-latest", "macos-14"}},
+			},
+		}},
 	}
-	for _, tt := range tests {
-		if got := resolveJobName(&tt.job); got != tt.want {
-			t.Errorf("%s: resolveJobName = %q, want %q", tt.name, got, tt.want)
-		}
+
+	md := RenderMarkdown(w)
+
+	// Heading: the template as written, never "Java 17, 21, 24 on ...".
+	if !strings.Contains(md, "### Java ${{ matrix.java }} on ${{ matrix.os }} (`build`)") {
+		t.Errorf("job heading must show the name verbatim:\n%s", md)
+	}
+	if strings.Contains(md, "Java 17, 21, 24") {
+		t.Errorf("job heading must not expand matrix values:\n%s", md)
+	}
+	// The Matrix property row carries the axis values.
+	if !strings.Contains(md, "| Matrix | `java`: 17, 21, 24; `os`: ubuntu-latest, macos-14 |") {
+		t.Errorf("Matrix property row missing or wrong:\n%s", md)
 	}
 }
 
@@ -134,6 +120,10 @@ func TestRenderStepDetails(t *testing.T) {
 			{Key: "token", Value: "${{ secrets.DEPLOY_TOKEN }}"},
 			{Key: "undeclared", Value: "x"},
 		},
+		Env: []model.KV{
+			{Key: "DEPLOY_REGION", Value: "us-east-1"},
+			{Key: "API_KEY", Value: "${{ secrets.DEPLOY_API_KEY }}"},
+		},
 		UsesAction: action,
 	}
 
@@ -146,6 +136,9 @@ func TestRenderStepDetails(t *testing.T) {
 		"- `environment`: `staging` - Target environment name (required)",
 		"- `token`: `${{ secrets.DEPLOY_TOKEN }}` - Deployment token",
 		"- `undeclared`: `x`", // no doc suffix for keys the action does not declare
+		"   - Env:",
+		"- `DEPLOY_REGION`: `us-east-1`",
+		"- `API_KEY`: `${{ secrets.DEPLOY_API_KEY }}`",
 	}
 	for _, want := range checks {
 		if !strings.Contains(got, want) {
@@ -216,5 +209,42 @@ func TestTruncateRuneSafe(t *testing.T) {
 	}
 	if r := []rune(got); len(r) != 8 || string(r[5:]) != "..." {
 		t.Errorf("rune cut: got %q (%d runes), want 5 runes + ...", got, len(r))
+	}
+}
+
+// TestStepTitleMarkupEscaped locks the seam discipline for step titles: backticks and
+// asterisks in a step name or run-derived title must render literally, never as Markdown
+// markup that breaks or restyles the surrounding bold.
+func TestStepTitleMarkupEscaped(t *testing.T) {
+	var b strings.Builder
+	renderStep(&b, &model.Step{Run: "echo \"a `b` c\" | grep d"}, 1)
+	got := b.String()
+	if !strings.Contains(got, "1. **echo \"a \\`b\\` c\" | grep d**") {
+		t.Errorf("run-derived title not escaped:\n%s", got)
+	}
+
+	var b2 strings.Builder
+	renderStep(&b2, &model.Step{Name: "Run **everything** now"}, 1)
+	if !strings.Contains(b2.String(), "**Run \\*\\*everything\\*\\* now**") {
+		t.Errorf("step name with asterisks not escaped:\n%s", b2.String())
+	}
+}
+
+// TestStepTitleSkipsPunctuationLines verifies the run-derived title skips lines with no
+// letters or digits (a shell group's opening brace), and that unnamed uses: steps title
+// with the collapsed pin form everywhere they are referenced.
+func TestStepTitleSkipsPunctuationLines(t *testing.T) {
+	if got := stepTitle(&model.Step{Run: "{\n  echo hello\n} > out.txt"}, 1); got != "echo hello" {
+		t.Errorf("stepTitle = %q, want %q (brace-only line skipped)", got, "echo hello")
+	}
+	if got := stepTitle(&model.Step{Run: "{\n}\n"}, 4); got != "Step 4" {
+		t.Errorf("stepTitle = %q, want positional fallback for punctuation-only script", got)
+	}
+	// Letters and digits in any script count as meaningful, not just ASCII.
+	if got := stepTitle(&model.Step{Run: "{\n  输出结果\n}"}, 1); got != "输出结果" {
+		t.Errorf("stepTitle = %q, want the non-Latin run line used as the title", got)
+	}
+	if got := stepTitle(&model.Step{Run: "(λ)"}, 1); got != "(λ)" {
+		t.Errorf("stepTitle = %q, want a line with a non-ASCII letter kept", got)
 	}
 }

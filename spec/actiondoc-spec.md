@@ -57,7 +57,7 @@ Documents a secret that must be configured in the repository or organization set
 
 ### `@input <name> [{type}] [- <description>]`
 
-Documents a `workflow_dispatch` input or a reusable workflow input. The optional `{type}` indicates the expected format.
+Documents an input the annotated scope expects: a `workflow_dispatch` / reusable workflow input at workflow level, or a forwarded / `with:` input at job and step level. The optional `{type}` indicates the expected format.
 
 ```yaml
 # @input environment {string} - Target deployment environment (staging or production)

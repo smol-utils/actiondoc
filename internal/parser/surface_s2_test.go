@@ -3,6 +3,7 @@ package parser
 import (
 	"path/filepath"
 	"runtime"
+	"strings"
 	"testing"
 
 	"github.com/goccy/go-yaml/ast"
@@ -239,6 +240,21 @@ func TestImplicitDescription(t *testing.T) {
 		t.Errorf("license header must not become a description, got %q", got)
 	}
 
+	// Banner-style comment blocks: '#' rule lines and '#' framing are decoration, not
+	// content. Only the text inside the frame survives, and nothing that could be parsed
+	// as a Markdown heading leaks into the output.
+	banner := "###################################################\n" +
+		"###   THIS IS A REUSABLE WORKFLOW FOR CHOCOLATEY   ###\n" +
+		"### HOW TO USE:                                   ###\n" +
+		"###                                               ###\n" +
+		"###################################################"
+	if got := implicitDescription(banner, model.Tags{}); got != "THIS IS A REUSABLE WORKFLOW FOR CHOCOLATEY HOW TO USE:" {
+		t.Errorf("banner framing not stripped, got %q", got)
+	}
+	if got := implicitDescription(banner, model.Tags{}); strings.Contains(got, "#") {
+		t.Errorf("banner description still contains '#' framing: %q", got)
+	}
+
 	// A comment with recognized tags (but no @desc) must not leak into the description.
 	tagged := "# @secret TOKEN - deploy token"
 	if got := implicitDescription(tagged, model.Tags{Secrets: []model.Param{{Name: "TOKEN"}}}); got != "" {
@@ -305,5 +321,18 @@ func TestParseFileLicenseHeaderSkipped(t *testing.T) {
 	}
 	if w.Description != "" {
 		t.Errorf("license header leaked into description: %q", w.Description)
+	}
+}
+
+// TestParseBareWorkflowCall verifies that `on: workflow_call:` with no inputs, outputs,
+// or secrets still records a Call trigger, so the workflow is documented as reusable.
+func TestParseBareWorkflowCall(t *testing.T) {
+	node := firstValue(t, "on:\n  workflow_call:\n  push:\n")
+	tr := parseTriggerSurface(node)
+	if tr == nil || tr.Call == nil {
+		t.Fatalf("bare workflow_call must record a Call trigger, got %+v", tr)
+	}
+	if len(tr.Call.Inputs) != 0 || len(tr.Call.Outputs) != 0 || len(tr.Call.Secrets) != 0 {
+		t.Errorf("bare workflow_call must have empty API, got %+v", tr.Call)
 	}
 }

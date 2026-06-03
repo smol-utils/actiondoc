@@ -42,10 +42,13 @@ type Job struct {
 	Defaults    *Defaults    `json:"defaults,omitempty"`
 	Environment *Environment `json:"environment,omitempty"`
 
-	// Matrix holds statically-resolvable strategy.matrix axes (axis name -> value list),
-	// used to expand ${{ matrix.X }} references in the job name. Empty when the matrix
-	// uses include/exclude or a dynamic fromJSON source, in which case names render verbatim.
+	// Matrix holds the declared strategy.matrix axes (axis name -> value list), covering
+	// literal axes, values contributed by include: entries, and expression-valued axes
+	// (whose single "value" is the expression itself).
 	Matrix []MatrixAxis `json:"matrix,omitempty"`
+	// MatrixAdjusted records that the matrix also has include:/exclude: entries, so the
+	// cartesian product of the listed axis values is not the exact set of generated jobs.
+	MatrixAdjusted bool `json:"matrix_adjusted,omitempty"`
 }
 
 // Step represents a single step within a job.
@@ -58,12 +61,14 @@ type Step struct {
 	If          string `json:"if,omitempty"`
 	Tags        Tags   `json:"tags,omitempty"`
 
-	// With holds the step's `with:` inputs in source order. ContinueOnError records a
-	// literal `continue-on-error: true`; ContinueOnErrorExpr holds the raw value instead
-	// when it is an expression (e.g. `continue-on-error: ${{ matrix.experimental }}`), so
-	// the step is still flagged as failure-tolerant. UsesVersion is the trailing version
-	// comment on a SHA-pinned `uses:` ref (e.g. the "v4" in `uses: actions/checkout@<sha> # v4`).
+	// With holds the step's `with:` inputs and Env its `env:` variables, both in source
+	// order. ContinueOnError records a literal `continue-on-error: true`;
+	// ContinueOnErrorExpr holds the raw value instead when it is an expression (e.g.
+	// `continue-on-error: ${{ matrix.experimental }}`), so the step is still flagged as
+	// failure-tolerant. UsesVersion is the trailing version comment on a SHA-pinned
+	// `uses:` ref (e.g. the "v4" in `uses: actions/checkout@<sha> # v4`).
 	With                []KV   `json:"with,omitempty"`
+	Env                 []KV   `json:"env,omitempty"`
 	ContinueOnError     bool   `json:"continue_on_error,omitempty"`
 	ContinueOnErrorExpr string `json:"continue_on_error_expr,omitempty"`
 	UsesVersion         string `json:"uses_version,omitempty"`

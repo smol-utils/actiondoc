@@ -64,6 +64,61 @@ func TestParseStepFields(t *testing.T) {
 	if build.Steps[0].ContinueOnError {
 		t.Error("unexpected ContinueOnError on checkout step")
 	}
+
+	// Deploy job step 1: env: block parsed in source order.
+	deploy := w.Jobs[1]
+	wantEnv := []model.KV{
+		{Key: "DOCKER_BUILDKIT", Value: "1"},
+		{Key: "IMAGE_SIGNING_KEY", Value: "${{ secrets.IMAGE_SIGNING_KEY }}"},
+	}
+	push := deploy.Steps[0]
+	if len(push.Env) != len(wantEnv) {
+		t.Fatalf("Env = %+v, want %+v", push.Env, wantEnv)
+	}
+	for i, kv := range wantEnv {
+		if push.Env[i] != kv {
+			t.Errorf("Env[%d] = %+v, want %+v", i, push.Env[i], kv)
+		}
+	}
+}
+
+// TestParseMultilineNames verifies that block-scalar name: values (which carry embedded
+// or trailing newlines) are normalized to a single line at parse time. A multi-line name
+// would otherwise break the Markdown structures built around names: bold step titles,
+// ASCII call-graph tree labels, and heading anchors.
+func TestParseMultilineNames(t *testing.T) {
+	src := `name: >
+  Continuous
+  Integration
+on: push
+jobs:
+  build:
+    name: |
+      Build and
+      Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: >-
+          Migration Tests: ${{ matrix.python-version }}:
+          ${{ env.PARALLEL_TEST_TYPES }}
+        run: ./run.sh
+`
+	w, err := parseString(t, src)
+	if err != nil {
+		t.Fatalf("ParseFile: %v", err)
+	}
+	for _, tc := range []struct{ got, want, what string }{
+		{w.Name, "Continuous Integration", "workflow name"},
+		{w.Jobs[0].Name, "Build and Test", "job name"},
+		{w.Jobs[0].Steps[0].Name, "Migration Tests: ${{ matrix.python-version }}: ${{ env.PARALLEL_TEST_TYPES }}", "step name"},
+	} {
+		if tc.got != tc.want {
+			t.Errorf("%s = %q, want %q", tc.what, tc.got, tc.want)
+		}
+		if strings.Contains(tc.got, "\n") {
+			t.Errorf("%s still contains a newline: %q", tc.what, tc.got)
+		}
+	}
 }
 
 // TestParseContinueOnErrorExpression verifies that an expression-valued
@@ -121,8 +176,8 @@ func TestParseRunsOnVariants(t *testing.T) {
 	}
 }
 
-// TestParseMatrix covers static scalar axes, list-of-objects axes (flattened to dotted
-// names), and the include/exclude fall-through that disables static resolution.
+// TestParseMatrix covers literal scalar axes, list-of-objects axes (flattened to dotted
+// names), and include: entries merging into the axes with the adjusted flag set.
 func TestParseMatrix(t *testing.T) {
 	w, err := ParseFile(testdataPath("s3/steps.yml"))
 	if err != nil {
@@ -144,10 +199,18 @@ func TestParseMatrix(t *testing.T) {
 		t.Errorf("deploy matrix target.url = %v (found=%v), want 2 values", vals, ok)
 	}
 
-	// verify: include: present -> no static axes at all
+	// verify: literal axis case: [a, b] plus include: adding case: c -> values merge and
+	// the matrix is flagged as adjusted.
 	verify := w.Jobs[2]
-	if len(verify.Matrix) != 0 {
-		t.Errorf("verify matrix = %+v, want empty (include/exclude disables resolution)", verify.Matrix)
+	if vals, ok := verify.MatrixValues("case"); !ok || strings.Join(vals, ",") != "a,b,c" {
+		t.Errorf("verify matrix case = %v (found=%v), want [a b c] (include values merged)", vals, ok)
+	}
+	if !verify.MatrixAdjusted {
+		t.Error("verify matrix must be flagged adjusted (include: present)")
+	}
+	// build and deploy have no include/exclude -> not adjusted.
+	if build.MatrixAdjusted || deploy.MatrixAdjusted {
+		t.Error("matrices without include/exclude must not be flagged adjusted")
 	}
 
 	// deploy job has a multi-line if: -- make sure it survives parsing with its newline.
@@ -156,10 +219,9 @@ func TestParseMatrix(t *testing.T) {
 	}
 }
 
-// TestParseMatrixMixedDynamic verifies that a matrix mixing a static axis with a
-// dynamic (non-list) axis resolves to NO static axes: partially expanding only the
-// static axis would misrepresent the generated jobs, so the whole matrix is treated as
-// unresolvable and names render verbatim.
+// TestParseMatrixMixedDynamic verifies that a matrix mixing a literal axis with an
+// expression-valued axis keeps both: the literal axis lists its values and the
+// expression axis shows the expression itself, since it cannot be enumerated statically.
 func TestParseMatrixMixedDynamic(t *testing.T) {
 	src := `name: CI
 on: push
@@ -177,8 +239,51 @@ jobs:
 	if err != nil {
 		t.Fatalf("parse: %v", err)
 	}
-	if got := w.Jobs[0].Matrix; len(got) != 0 {
-		t.Errorf("matrix = %+v, want empty (a dynamic axis must disable static resolution for all axes)", got)
+	job := w.Jobs[0]
+	if vals, ok := job.MatrixValues("os"); !ok || strings.Join(vals, ",") != "ubuntu-latest" {
+		t.Errorf("os axis = %v (found=%v), want [ubuntu-latest]", vals, ok)
+	}
+	if vals, ok := job.MatrixValues("node"); !ok || strings.Join(vals, ",") != "${{ fromJSON(needs.detect.outputs.versions) }}" {
+		t.Errorf("node axis = %v (found=%v), want the raw expression", vals, ok)
+	}
+	if job.MatrixAdjusted {
+		t.Error("expression axes alone must not flag the matrix as adjusted")
+	}
+}
+
+// TestParseMatrixIncludeOnly verifies that a matrix declared purely via include: derives
+// its axes from the entries' keys and values, and is flagged as adjusted.
+func TestParseMatrixIncludeOnly(t *testing.T) {
+	src := `name: CI
+on: push
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            jdk: 25
+          - os: macos-latest
+            jdk: 25
+          - os: ubuntu-latest
+            jdk: 17
+    steps:
+      - run: build
+`
+	w, err := parseString(t, src)
+	if err != nil {
+		t.Fatalf("parse: %v", err)
+	}
+	job := w.Jobs[0]
+	if vals, ok := job.MatrixValues("os"); !ok || strings.Join(vals, ",") != "windows-latest,macos-latest,ubuntu-latest" {
+		t.Errorf("os axis = %v (found=%v), want the include entries' values deduped in order", vals, ok)
+	}
+	if vals, ok := job.MatrixValues("jdk"); !ok || strings.Join(vals, ",") != "25,17" {
+		t.Errorf("jdk axis = %v (found=%v), want [25 17] (deduped)", vals, ok)
+	}
+	if !job.MatrixAdjusted {
+		t.Error("include-only matrix must be flagged adjusted")
 	}
 }
 

@@ -1,9 +1,6 @@
 package model
 
-import (
-	"fmt"
-	"strings"
-)
+import "strings"
 
 // Reference is a referenced secret or variable together with the human-readable sites
 // where it is used.
@@ -25,9 +22,9 @@ func (r References) Empty() bool {
 }
 
 // ScanReferences collects every ${{ secrets.X }} and ${{ vars.Y }} reference in a workflow
-// across job/step `if:`, `run:`, `with:`, and forwarded `secrets:` values, recording the
-// site of each use. It is exported so call-graph consumers can union the references of
-// every reachable workflow into a single transitive-requirements view.
+// across job/step `if:`, `run:`, `with:`, `env:`, and forwarded `secrets:` values,
+// recording the site of each use. It is exported so call-graph consumers can union the
+// references of every reachable workflow into a single transitive-requirements view.
 func ScanReferences(w *Workflow) References {
 	sc := newRefScan()
 	for _, kv := range w.Env {
@@ -54,24 +51,18 @@ func ScanReferences(w *Workflow) References {
 			for _, kv := range step.With {
 				sc.scan(kv.Value, stepLabel+" with `"+kv.Key+"`")
 			}
+			for _, kv := range step.Env {
+				sc.scan(kv.Value, stepLabel+" env `"+kv.Key+"`")
+			}
 		}
 	}
 	return References{Secrets: sc.secrets.list(), Vars: sc.vars.list()}
 }
 
-// stepRefLabel is a compact step identifier for reference site labels: name, then id, then
-// uses, then a positional fallback. (The renderer applies a friendlier title separately.)
+// stepRefLabel is a compact step identifier for reference site labels. It delegates to
+// Step.Label so inventories and rendered step titles always name a step the same way.
 func stepRefLabel(s *Step, num int) string {
-	switch {
-	case s.Name != "":
-		return s.Name
-	case s.ID != "":
-		return s.ID
-	case s.Uses != "":
-		return s.Uses
-	default:
-		return fmt.Sprintf("step %d", num)
-	}
+	return s.Label(num)
 }
 
 // refScan accumulates secret and variable references during a workflow walk.

@@ -85,10 +85,13 @@ func RenderMarkdownGraph(w *model.Workflow, g *callgraph.Graph, id string) strin
 }
 
 func renderJob(b *strings.Builder, job *model.Job, g *callgraph.Graph, fromID string) {
-	// Job heading. The name may embed ${{ matrix.X }} references, expanded to value lists.
-	name := resolveJobName(job)
+	// Job heading. The name renders as written -- placeholders like ${{ matrix.X }} are
+	// never expanded into joined value lists (GitHub creates one job per matrix
+	// combination; "Java 17, 21" is a job name that never exists). The Matrix property
+	// row below shows the axis values the placeholders take.
+	name := job.Name
 	if name != job.ID {
-		fmt.Fprintf(b, "### %s (`%s`)\n\n", name, job.ID)
+		fmt.Fprintf(b, "### %s (`%s`)\n\n", escapeInline(name), job.ID)
 	} else {
 		fmt.Fprintf(b, "### `%s`\n\n", job.ID)
 	}
@@ -111,12 +114,15 @@ func renderJob(b *strings.Builder, job *model.Job, g *callgraph.Graph, fromID st
 	}
 
 	// Properties table
-	hasProps := job.RunsOn != "" || len(job.Needs) > 0 || job.If != ""
+	hasProps := job.RunsOn != "" || len(job.Needs) > 0 || job.If != "" || len(job.Matrix) > 0
 	if hasProps {
 		b.WriteString("| Property | Value |\n")
 		b.WriteString("|----------|-------|\n")
 		if job.RunsOn != "" {
 			fmt.Fprintf(b, "| Runs on | `%s` |\n", escapeCell(job.RunsOn))
+		}
+		if len(job.Matrix) > 0 {
+			fmt.Fprintf(b, "| Matrix | %s |\n", matrixCell(job.Matrix, job.MatrixAdjusted))
 		}
 		if len(job.Needs) > 0 {
 			fmt.Fprintf(b, "| Depends on | %s |\n", codelist(job.Needs))
@@ -147,6 +153,7 @@ func renderJob(b *strings.Builder, job *model.Job, g *callgraph.Graph, fromID st
 func renderJobTags(b *strings.Builder, job *model.Job) {
 	writeParamSections(b, styleBold,
 		paramSection{"Secrets", job.Tags.Secrets},
+		paramSection{"Inputs", job.Tags.Inputs},
 		paramSection{"Environment Variables", job.Tags.Envs},
 		paramSection{"Outputs", job.Tags.Outputs},
 	)
@@ -225,13 +232,20 @@ func codelist(items []string) string {
 	return strings.Join(parts, ", ")
 }
 
-// escapeCell escapes characters that break Markdown table cells. Newlines become
-// <br> (not a space) so multi-line values like multi-line `if:` conditions keep their
-// visual line breaks instead of collapsing or, worse, being parsed as a new table row.
-func escapeCell(s string) string {
-	s = strings.ReplaceAll(s, "\r\n", "\n")
-	s = strings.ReplaceAll(s, "|", "\\|")
-	s = strings.ReplaceAll(s, "\n", "<br>")
+// matrixCell formats a job's declared matrix axes for the properties table: each axis as
+// `name`: v1, v2, joined with "; ". The job heading shows the name template as written;
+// this row is what tells the reader which values its placeholders take. When the matrix
+// also has include:/exclude: entries, the listed values are not the exact combination
+// set, and the cell says so.
+func matrixCell(axes []model.MatrixAxis, adjusted bool) string {
+	parts := make([]string, len(axes))
+	for i, a := range axes {
+		parts[i] = codeSpan(escapeCell(a.Name)) + ": " + escapeCell(strings.Join(a.Values, ", "))
+	}
+	s := strings.Join(parts, "; ")
+	if adjusted {
+		s += " (combinations adjusted by include/exclude)"
+	}
 	return s
 }
 

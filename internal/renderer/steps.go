@@ -3,14 +3,15 @@ package renderer
 import (
 	"fmt"
 	"strings"
+	"unicode"
 
 	"github.com/smol-utils/actiondoc/internal/model"
 )
 
 // renderStep writes one step as a numbered list item with its metadata (id, uses, condition,
-// with: inputs) and a continue-on-error badge when set.
+// with: inputs, env: variables) and a continue-on-error badge when set.
 func renderStep(b *strings.Builder, step *model.Step, num int) {
-	fmt.Fprintf(b, "%d. **%s**", num, stepTitle(step, num))
+	fmt.Fprintf(b, "%d. **%s**", num, escapeInline(stepTitle(step, num)))
 	if step.ContinueOnError {
 		b.WriteString(" `[continue-on-error]`")
 	} else if step.ContinueOnErrorExpr != "" {
@@ -28,16 +29,23 @@ func renderStep(b *strings.Builder, step *model.Step, num int) {
 		fmt.Fprintf(b, "   - Uses: `%s`%s\n", step.Uses, usesSuffix(step.Uses, step.UsesVersion))
 	}
 	if step.If != "" {
-		fmt.Fprintf(b, "   - Condition: `%s`\n", oneLine(step.If))
+		fmt.Fprintf(b, "   - Condition: %s\n", codeSpan(oneLine(step.If)))
 	}
 	if len(step.With) > 0 {
 		b.WriteString("   - With:\n")
 		for _, kv := range step.With {
-			fmt.Fprintf(b, "     - `%s`: `%s`%s\n", kv.Key, oneLine(kv.Value), withDoc(step, kv.Key))
+			fmt.Fprintf(b, "     - `%s`: %s%s\n", kv.Key, codeSpan(oneLine(kv.Value)), withDoc(step, kv.Key))
+		}
+	}
+	if len(step.Env) > 0 {
+		b.WriteString("   - Env:\n")
+		for _, kv := range step.Env {
+			fmt.Fprintf(b, "     - `%s`: %s\n", kv.Key, codeSpan(oneLine(kv.Value)))
 		}
 	}
 
 	// Step-level tags
+	writeStepParams(b, "Input", step.Tags.Inputs)
 	writeStepParams(b, "Output", step.Tags.Outputs)
 	writeStepParams(b, "Secret", step.Tags.Secrets)
 	writeStepParams(b, "Env", step.Tags.Envs)
@@ -81,39 +89,17 @@ func withDoc(step *model.Step, key string) string {
 	return s
 }
 
-// stepTitle picks the most readable heading for a step: name, then id, then a friendly
-// uses: ref, then the first non-comment line of run:, then a positional fallback.
+// stepTitle picks the most readable heading for a step: the shared step label (name, id,
+// or collapsed uses: ref), then the first meaningful run: line, then a positional
+// fallback.
 func stepTitle(step *model.Step, num int) string {
-	switch {
-	case step.Name != "":
-		return step.Name
-	case step.ID != "":
-		return step.ID
-	case step.Uses != "":
-		return friendlyUses(step.Uses, step.UsesVersion)
+	if step.Name != "" || step.ID != "" || step.Uses != "" {
+		return step.Label(num)
 	}
 	if first := firstRunLine(step.Run); first != "" {
 		return first
 	}
 	return fmt.Sprintf("Step %d", num)
-}
-
-// friendlyUses collapses a SHA-pinned action ref to its human form: `owner/repo@v4.1.1`
-// when a trailing version comment is present, or `owner/repo` when only the bare SHA is.
-// Non-SHA refs (tags, branches, local paths) pass through unchanged.
-func friendlyUses(uses, version string) string {
-	at := strings.LastIndex(uses, "@")
-	if at < 0 {
-		return uses
-	}
-	ref, pin := uses[:at], uses[at+1:]
-	if !isSHA(pin) {
-		return uses
-	}
-	if version != "" {
-		return ref + "@" + version
-	}
-	return ref
 }
 
 // usesSuffix returns the parenthetical version annotation shown after a SHA-pinned uses:
@@ -122,37 +108,36 @@ func usesSuffix(uses, version string) string {
 	if version == "" {
 		return ""
 	}
-	if at := strings.LastIndex(uses, "@"); at >= 0 && isSHA(uses[at+1:]) {
+	if at := strings.LastIndex(uses, "@"); at >= 0 && model.IsSHA(uses[at+1:]) {
 		return " (" + version + ")"
 	}
 	return ""
 }
 
-// isSHA reports whether s is a 40-character hexadecimal commit SHA.
-func isSHA(s string) bool {
-	if len(s) != 40 {
-		return false
-	}
-	for i := 0; i < len(s); i++ {
-		c := s[i]
-		if !(c >= '0' && c <= '9' || c >= 'a' && c <= 'f' || c >= 'A' && c <= 'F') {
-			return false
-		}
-	}
-	return true
-}
-
-// firstRunLine returns the first non-blank, non-comment line of a run: script, truncated,
-// for use as a step title when nothing better is available.
+// firstRunLine returns the first non-blank, non-comment line of a run: script that
+// contains at least one letter or digit, truncated, for use as a step title when nothing
+// better is available. Punctuation-only lines (a shell group's opening "{", a lone
+// parenthesis) carry no meaning as a title.
 func firstRunLine(run string) string {
 	for _, line := range strings.Split(run, "\n") {
 		t := strings.TrimSpace(line)
-		if t == "" || strings.HasPrefix(t, "#") {
+		if t == "" || strings.HasPrefix(t, "#") || !hasAlphanumeric(t) {
 			continue
 		}
 		return truncate(t, 60)
 	}
 	return ""
+}
+
+// hasAlphanumeric reports whether s contains at least one letter or digit in any script,
+// so a run: line written in non-Latin text still counts as meaningful title material.
+func hasAlphanumeric(s string) bool {
+	for _, r := range s {
+		if unicode.IsLetter(r) || unicode.IsDigit(r) {
+			return true
+		}
+	}
+	return false
 }
 
 // truncate shortens s to at most max characters (runes), appending "..." when it cuts.
@@ -167,51 +152,6 @@ func truncate(s string, max int) string {
 		return string(r[:max])
 	}
 	return string(r[:max-3]) + "..."
-}
-
-// oneLine collapses newlines to spaces so a value renders safely inside an inline code span.
-func oneLine(s string) string {
-	s = strings.ReplaceAll(s, "\r\n", "\n")
-	s = strings.ReplaceAll(s, "\n", " ")
-	return strings.TrimSpace(s)
-}
-
-// resolveJobName expands ${{ matrix.X }} references in a job name to their static value
-// lists (e.g. "Java ${{ matrix.java.version }}" -> "Java 17, 21, 24"). References without a
-// statically-resolvable axis -- and all non-matrix expressions -- are left verbatim.
-func resolveJobName(job *model.Job) string {
-	name := job.Name
-	if !strings.Contains(name, "${{") {
-		return name
-	}
-	var b strings.Builder
-	for {
-		i := strings.Index(name, "${{")
-		if i < 0 {
-			b.WriteString(name)
-			break
-		}
-		b.WriteString(name[:i])
-		rest := name[i+3:]
-		j := strings.Index(rest, "}}")
-		if j < 0 {
-			b.WriteString(name[i:])
-			break
-		}
-		token := name[i : i+3+j+2]
-		inner := strings.TrimSpace(rest[:j])
-		if expressionKind(inner) == "matrix" {
-			if vals, ok := job.MatrixValues(strings.TrimPrefix(inner, "matrix.")); ok {
-				b.WriteString(strings.Join(vals, ", "))
-			} else {
-				b.WriteString(token)
-			}
-		} else {
-			b.WriteString(token)
-		}
-		name = rest[j+2:]
-	}
-	return b.String()
 }
 
 // renderReferences writes the auto-collected "Referenced secrets and variables" section.
@@ -239,22 +179,17 @@ func writeRefTable(b *strings.Builder, label string, refs []model.Reference) {
 
 // RenderTOC builds a table of contents linking each top-level heading title to its anchor,
 // for navigating a single-file render of many workflows/actions. Returns "" for fewer than
-// two entries. Duplicate titles get GitHub's `-N` anchor suffixes in document order.
+// two entries. Duplicate titles get GitHub's `-N` anchor suffixes in document order, via
+// the same AssignAnchors pass that cross-links use.
 func RenderTOC(titles []string) string {
 	if len(titles) < 2 {
 		return ""
 	}
 	var b strings.Builder
 	b.WriteString("# Contents\n\n")
-	seen := map[string]int{}
-	for _, t := range titles {
-		base := anchor(t)
-		slug := base
-		if n := seen[base]; n > 0 {
-			slug = fmt.Sprintf("%s-%d", base, n)
-		}
-		seen[base]++
-		fmt.Fprintf(&b, "- [%s](#%s)\n", mdLinkLabel(t), slug)
+	slugs := AssignAnchors(titles)
+	for i, t := range titles {
+		fmt.Fprintf(&b, "- [%s](#%s)\n", mdLinkLabel(t), slugs[i])
 	}
 	b.WriteString("\n")
 	return b.String()

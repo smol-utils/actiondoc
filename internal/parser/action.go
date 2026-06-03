@@ -29,6 +29,7 @@ func ParseActionFile(path string) (*model.Action, error) {
 	if !ok {
 		return nil, fmt.Errorf("%s: expected top-level mapping", path)
 	}
+	resolveAnchors(root)
 
 	a := &model.Action{
 		File: filepath.Base(path),
@@ -42,7 +43,7 @@ func ParseActionFile(path string) (*model.Action, error) {
 		keyStr := mapKeyString(mv.Key)
 		switch keyStr {
 		case "name":
-			a.Name = nodeString(mv.Value)
+			a.Name = nameString(mv.Value)
 		case "description":
 			a.Description = nodeString(mv.Value)
 		case "inputs":

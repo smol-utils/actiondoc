@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
 	"io/fs"
@@ -56,34 +57,12 @@ func Generate(args []string) error {
 
 	var output string
 	if *jsonFlag {
-		var jsonItems []any
-		for _, s := range sources {
-			if s.Workflow != nil {
-				jsonItems = append(jsonItems, s.Workflow)
-			} else {
-				jsonItems = append(jsonItems, s.Action)
-			}
-		}
-		data, err := json.MarshalIndent(jsonItems, "", "  ")
+		output, err = renderJSONOutput(sources)
 		if err != nil {
-			return fmt.Errorf("marshaling JSON: %w", err)
+			return err
 		}
-		output = string(data) + "\n"
 	} else {
-		// Render each document as a section, with a table of contents linking them.
-		// Workflows render with graph context so cross-links and call-graph sections
-		// appear; actions render standalone.
-		var sections, titles []string
-		for _, s := range sources {
-			if s.Workflow != nil {
-				sections = append(sections, renderer.RenderMarkdownGraph(s.Workflow, graph, s.Path))
-				titles = append(titles, s.Workflow.Name)
-			} else {
-				sections = append(sections, renderer.RenderActionMarkdown(s.Action))
-				titles = append(titles, s.Action.Name)
-			}
-		}
-		output = renderer.RenderTOC(titles) + strings.Join(sections, "")
+		output = renderMarkdownOutput(sources, graph)
 	}
 
 	if *outFlag != "" {
@@ -101,6 +80,57 @@ func Generate(args []string) error {
 		return fmt.Errorf("%d file(s) failed to parse", parseFailures)
 	}
 	return nil
+}
+
+// renderJSONOutput marshals the parsed models as a JSON array -- the machine-readable
+// form of everything the Markdown renderer documents. The model's JSON field tags are a
+// stable contract for downstream consumers.
+func renderJSONOutput(sources []callgraph.Source) (string, error) {
+	var jsonItems []any
+	for _, s := range sources {
+		if s.Workflow != nil {
+			jsonItems = append(jsonItems, s.Workflow)
+		} else {
+			jsonItems = append(jsonItems, s.Action)
+		}
+	}
+	data, err := json.MarshalIndent(jsonItems, "", "  ")
+	if err != nil {
+		return "", fmt.Errorf("marshaling JSON: %w", err)
+	}
+	return string(data) + "\n", nil
+}
+
+// renderMarkdownOutput renders each document as a section with a table of contents
+// linking them. Anchors are assigned before any section renders: cross-links built
+// during rendering must use the same duplicate-name disambiguation the TOC will use, so
+// the assignment is computed once here and stored on the graph nodes.
+func renderMarkdownOutput(sources []callgraph.Source, graph *callgraph.Graph) string {
+	var titles []string
+	for _, s := range sources {
+		if s.Workflow != nil {
+			titles = append(titles, s.Workflow.Name)
+		} else {
+			titles = append(titles, s.Action.Name)
+		}
+	}
+	for i, slug := range renderer.AssignAnchors(titles) {
+		if n := graph.Nodes[sources[i].Path]; n != nil {
+			n.Anchor = slug
+		}
+	}
+
+	// Workflows render with graph context so cross-links and call-graph sections
+	// appear; actions render standalone.
+	var sections []string
+	for _, s := range sources {
+		if s.Workflow != nil {
+			sections = append(sections, renderer.RenderMarkdownGraph(s.Workflow, graph, s.Path))
+		} else {
+			sections = append(sections, renderer.RenderActionMarkdown(s.Action))
+		}
+	}
+	return renderer.RenderTOC(titles) + strings.Join(sections, "")
 }
 
 // parseSources parses each file into a callgraph source, skipping (with a warning) files
@@ -122,6 +152,12 @@ func parseSources(files []string) ([]callgraph.Source, int) {
 		} else {
 			w, err := parser.ParseFile(f)
 			if err != nil {
+				// A fully commented-out file is a disabled workflow, not a broken one:
+				// note it and move on without failing the run.
+				if errors.Is(err, parser.ErrOnlyComments) {
+					fmt.Fprintf(os.Stderr, "note: skipping %v\n", err)
+					continue
+				}
 				fmt.Fprintf(os.Stderr, "warning: %v\n", err)
 				failed++
 				continue
