@@ -1266,7 +1266,7 @@ Secrets referenced (literal names): `API-KEY`, `CHOCOLATEY_KEY`, `CONSUMER-KEY`,
 
 #### Steps
 
-1. **Compute the SHA256 of scala3-${{ inputs.version }}-x86_64-pc-win32.zip in GitHub Release**
+1. **Compute the SHA256 of scala3-${{ inputs.version }}-x86\_64-pc-win32.zip in GitHub Release**
    - ID: `digest`
    - Env:
      - `VERSION`: `${{ inputs.version }}`
@@ -1641,7 +1641,7 @@ stdlib.yaml
 3. **sbt/setup-sbt@v1**
    - Uses: `sbt/setup-sbt@v1`
 
-4. **Report MiMa issues in `scala-library-nonbootstrapped`**
+4. **Report MiMa issues in \`scala-library-nonbootstrapped\`**
 
 ### `mima-scala3-interfaces`
 
@@ -1664,7 +1664,7 @@ stdlib.yaml
 3. **sbt/setup-sbt@v1**
    - Uses: `sbt/setup-sbt@v1`
 
-4. **Report MiMa issues in `scala3-interfaces`**
+4. **Report MiMa issues in \`scala3-interfaces\`**
 
 ### `mima-tasty-core-nonbootstrapped`
 
@@ -1687,7 +1687,7 @@ stdlib.yaml
 3. **sbt/setup-sbt@v1**
    - Uses: `sbt/setup-sbt@v1`
 
-4. **Report MiMa issues in `tasty-core-nonbootstrapped`**
+4. **Report MiMa issues in \`tasty-core-nonbootstrapped\`**
 
 ### `static-analysis-scala-library-bootstrapped`
 
@@ -1710,7 +1710,7 @@ stdlib.yaml
 3. **sbt/setup-sbt@v1**
    - Uses: `sbt/setup-sbt@v1`
 
-4. **Report MiMa issues in `scala-library-bootstrapped`**
+4. **Report MiMa issues in \`scala-library-bootstrapped\`**
 
 5. **Report missingLink checks**
 
@@ -1735,7 +1735,7 @@ stdlib.yaml
 3. **sbt/setup-sbt@v1**
    - Uses: `sbt/setup-sbt@v1`
 
-4. **Report MiMa issues in `tasty-core-bootstrapped`**
+4. **Report MiMa issues in \`tasty-core-bootstrapped\`**
 
 ### `mima-scala-library-sjs`
 
@@ -1758,7 +1758,7 @@ stdlib.yaml
 3. **sbt/setup-sbt@v1**
    - Uses: `sbt/setup-sbt@v1`
 
-4. **Report MiMa issues in `scala-library-sjs`**
+4. **Report MiMa issues in \`scala-library-sjs\`**
 
 ### `test-scala3-compiler-nonbootstrapped`
 
@@ -1781,7 +1781,7 @@ stdlib.yaml
 3. **sbt/setup-sbt@v1**
    - Uses: `sbt/setup-sbt@v1`
 
-4. **Test `scala3-compiler-nonbootstrapped`**
+4. **Test \`scala3-compiler-nonbootstrapped\`**
 
 5. **Cmd Tests**
 
@@ -1806,7 +1806,7 @@ stdlib.yaml
 3. **sbt/setup-sbt@v1**
    - Uses: `sbt/setup-sbt@v1`
 
-4. **Test `scala3-compiler-bootstrapped`**
+4. **Test \`scala3-compiler-bootstrapped\`**
 
 5. **Cmd Tests**
 
@@ -1831,7 +1831,7 @@ stdlib.yaml
 3. **sbt/setup-sbt@v1**
    - Uses: `sbt/setup-sbt@v1`
 
-4. **Run `scala3-bootstrapped/testCompilation --enable-coverage-phase`**
+4. **Run \`scala3-bootstrapped/testCompilation --enable-coverage-phase\`**
 
 ### `test-scala3-sbt-bridge-nonbootstrapped`
 
@@ -1854,7 +1854,7 @@ stdlib.yaml
 3. **sbt/setup-sbt@v1**
    - Uses: `sbt/setup-sbt@v1`
 
-4. **Test `scala3-sbt-bridge-nonbootstrapped`**
+4. **Test \`scala3-sbt-bridge-nonbootstrapped\`**
 
 ### `test-scala3-sbt-bridge-bootstrapped`
 
@@ -1877,7 +1877,7 @@ stdlib.yaml
 3. **sbt/setup-sbt@v1**
    - Uses: `sbt/setup-sbt@v1`
 
-4. **Test `scala3-sbt-bridge-bootstrapped`**
+4. **Test \`scala3-sbt-bridge-bootstrapped\`**
 
 ### `test-tasty-core-nonbootstrapped`
 
@@ -1900,7 +1900,7 @@ stdlib.yaml
 3. **sbt/setup-sbt@v1**
    - Uses: `sbt/setup-sbt@v1`
 
-4. **Test `tasty-core-nonbootstrapped`**
+4. **Test \`tasty-core-nonbootstrapped\`**
 
 ### `test-tasty-core-bootstrapped`
 
@@ -1923,7 +1923,7 @@ stdlib.yaml
 3. **sbt/setup-sbt@v1**
    - Uses: `sbt/setup-sbt@v1`
 
-4. **Test `tasty-core-bootstrapped`**
+4. **Test \`tasty-core-bootstrapped\`**
 
 ### `test-scala-js`
 
@@ -2216,15 +2216,15 @@ test-chocolatey.yml
      - `name`: `scala.nupkg`
      - `path`: `${{ env.CHOCOLATEY-REPOSITORY }}`
 
-3. **Install the `scala` package with Chocolatey**
+3. **Install the \`scala\` package with Chocolatey**
 
-4. **Test the `scala` command**
+4. **Test the \`scala\` command**
 
-5. **Test the `scalac` command**
+5. **Test the \`scalac\` command**
 
-6. **Test the `scaladoc` command**
+6. **Test the \`scaladoc\` command**
 
-7. **Uninstall the `scala` package**
+7. **Uninstall the \`scala\` package**
 
 # Test CLI Launchers on all the platforms
 
@@ -2425,11 +2425,11 @@ test-msi.yml
 
 5. **Test Scala Runner**
 
-6. **Test the `scalac` command**
+6. **Test the \`scalac\` command**
 
-7. **Test the `scaladoc` command**
+7. **Test the \`scaladoc\` command**
 
 8. **Smoke test - compile and run**
 
-9. **Uninstall the `scala` package**
+9. **Uninstall the \`scala\` package**
 

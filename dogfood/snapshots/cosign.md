@@ -1050,7 +1050,7 @@ No permissions granted (`permissions: {}` -- default-deny).
    - With:
      - `env_vars`: `OS`
 
-7. **Run Go tests w/ `-race`**
+7. **Run Go tests w/ \`-race\`**
    - Condition: `${{ runner.os == 'Linux' }}`
 
 ### Run e2e tests (`e2e-tests`)
@@ -1134,7 +1134,7 @@ No permissions granted (`permissions: {}` -- default-deny).
      - `key`: `${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}`
      - `restore-keys`: `${{ runner.os }}-go-`
 
-5. **Run e2e_test.ps1**
+5. **Run e2e\_test.ps1**
 
 ### license boilerplate check (`license-check`)
 
@@ -1218,7 +1218,7 @@ No permissions granted (`permissions: {}` -- default-deny).
    - With:
      - `persist-credentials`: `false`
 
-2. **git config --system --add safe.directory /__w/cosign/cosign**
+2. **git config --system --add safe.directory /\_\_w/cosign/cosign**
 
 3. **free up disk space for the release**
 

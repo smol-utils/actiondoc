@@ -326,7 +326,7 @@ additional-prod-image-tests.yml
      - `fetch-depth`: `2`
      - `persist-credentials`: `false`
 
-3. **Prepare breeze & PROD image: ${{ env.PYTHON_MAJOR_MINOR_VERSION }}**
+3. **Prepare breeze & PROD image: ${{ env.PYTHON\_MAJOR\_MINOR\_VERSION }}**
    - ID: `breeze`
    - Uses: `./.github/actions/prepare_breeze_and_image`
    - With:
@@ -365,7 +365,7 @@ additional-prod-image-tests.yml
      - `fetch-depth`: `2`
      - `persist-credentials`: `false`
 
-3. **Prepare breeze & PROD image: ${{ env.PYTHON_MAJOR_MINOR_VERSION }}**
+3. **Prepare breeze & PROD image: ${{ env.PYTHON\_MAJOR\_MINOR\_VERSION }}**
    - ID: `breeze`
    - Uses: `./.github/actions/prepare_breeze_and_image`
    - With:
@@ -545,7 +545,7 @@ additional-prod-image-tests.yml
      - `fetch-depth`: `2`
      - `persist-credentials`: `false`
 
-3. **Prepare breeze & PROD image: ${{ env.PYTHON_MAJOR_MINOR_VERSION }}**
+3. **Prepare breeze & PROD image: ${{ env.PYTHON\_MAJOR\_MINOR\_VERSION }}**
    - ID: `breeze`
    - Uses: `./.github/actions/prepare_breeze_and_image`
    - With:
@@ -778,7 +778,7 @@ airflow-e2e-tests.yml
      - `fetch-depth`: `2`
      - `persist-credentials`: `false`
 
-3. **Prepare breeze & PROD image: ${{ env.PYTHON_MAJOR_MINOR_VERSION }}**
+3. **Prepare breeze & PROD image: ${{ env.PYTHON\_MAJOR\_MINOR\_VERSION }}**
    - ID: `breeze`
    - Uses: `./.github/actions/prepare_breeze_and_image`
    - With:
@@ -1208,9 +1208,9 @@ basic-tests.yml
      - `path`: `airflow-core/src/airflow/api_fastapi/auth/managers/simple/ui/node_modules/`
      - `key`: `cache-simple-am-ui-node-modules-v1- ${{ runner.os }}-${{ hashFiles('airflow/api_fastapi/auth/managers/simple/ui/**/pnpm-lock.yaml') }}`
 
-10. **cd airflow-core/src/airflow/api_fastapi/auth/managers/sim...**
+10. **cd airflow-core/src/airflow/api\_fastapi/auth/managers/sim...**
 
-11. **cd airflow-core/src/airflow/api_fastapi/auth/managers/sim...**
+11. **cd airflow-core/src/airflow/api\_fastapi/auth/managers/sim...**
    - Env:
      - `FORCE_COLOR`: `2`
 
@@ -4151,7 +4151,7 @@ ci-image-build.yml
 6. **Install Breeze**
    - Uses: `./.github/actions/breeze`
 
-7. **Restore ci-cache mount image ${{ inputs.platform }}:${{ env.PYTHON_MAJOR_MINOR_VERSION }}**
+7. **Restore ci-cache mount image ${{ inputs.platform }}:${{ env.PYTHON\_MAJOR\_MINOR\_VERSION }}**
    - ID: `restore-cache-mount`
    - Uses: `apache/infrastructure-actions/stash/restore@49df447b39b18354895520e0a63731b7cad7cbec`
    - With:
@@ -4163,7 +4163,7 @@ ci-image-build.yml
    - Env:
      - `CACHE_FILE`: `/tmp/ci-cache-mount-save-v3-${{ env.PYTHON_MAJOR_MINOR_VERSION }}.tar.gz`
 
-9. **Import mount-cache ${{ inputs.platform }}:${{ env.PYTHON_MAJOR_MINOR_VERSION }}**
+9. **Import mount-cache ${{ inputs.platform }}:${{ env.PYTHON\_MAJOR\_MINOR\_VERSION }}**
    - Condition: `steps.restore-cache-mount.outputs.stash-hit == 'true'`
    - Env:
      - `PYTHON_MAJOR_MINOR_VERSION`: `${{ env.PYTHON_MAJOR_MINOR_VERSION }}`
@@ -4173,7 +4173,7 @@ ci-image-build.yml
      - `GITHUB_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
      - `ACTOR`: `${{ github.actor }}`
 
-11. **Build ${{ inputs.push-image == 'true' && ' & push ' || '' }} ${{ inputs.platform }}:${{ env.PYTHON_MAJOR_MINOR_VERSION }} image**
+11. **Build ${{ inputs.push-image == 'true' && ' & push ' || '' }} ${{ inputs.platform }}:${{ env.PYTHON\_MAJOR\_MINOR\_VERSION }} image**
    - Env:
      - `DOCKER_CACHE`: `${{ inputs.docker-cache }}`
      - `DISABLE_AIRFLOW_REPO_CACHE`: `${{ inputs.disable-airflow-repo-cache }}`
@@ -4187,12 +4187,12 @@ ci-image-build.yml
      - `VERBOSE`: `true`
      - `PLATFORM`: `${{ inputs.platform }}`
 
-12. **Export CI docker image ${{ env.PYTHON_MAJOR_MINOR_VERSION }}**
+12. **Export CI docker image ${{ env.PYTHON\_MAJOR\_MINOR\_VERSION }}**
    - Condition: `inputs.upload-image-artifact == 'true'`
    - Env:
      - `PLATFORM`: `${{ inputs.platform }}`
 
-13. **Stash CI docker image ${{ env.PYTHON_MAJOR_MINOR_VERSION }}**
+13. **Stash CI docker image ${{ env.PYTHON\_MAJOR\_MINOR\_VERSION }}**
    - Uses: `apache/infrastructure-actions/stash/save@49df447b39b18354895520e0a63731b7cad7cbec`
    - Condition: `inputs.upload-image-artifact == 'true'`
    - With:
@@ -4201,12 +4201,12 @@ ci-image-build.yml
      - `if-no-files-found`: `error`
      - `retention-days`: `2`
 
-14. **Export mount cache ${{ inputs.platform }}:${{ env.PYTHON_MAJOR_MINOR_VERSION }}**
+14. **Export mount cache ${{ inputs.platform }}:${{ env.PYTHON\_MAJOR\_MINOR\_VERSION }}**
    - Condition: `inputs.upload-mount-cache-artifact == 'true'`
    - Env:
      - `PYTHON_MAJOR_MINOR_VERSION`: `${{ env.PYTHON_MAJOR_MINOR_VERSION }}`
 
-15. **Stash cache mount ${{ inputs.platform }}:${{ env.PYTHON_MAJOR_MINOR_VERSION }}**
+15. **Stash cache mount ${{ inputs.platform }}:${{ env.PYTHON\_MAJOR\_MINOR\_VERSION }}**
    - Uses: `apache/infrastructure-actions/stash/save@49df447b39b18354895520e0a63731b7cad7cbec`
    - Condition: `inputs.upload-mount-cache-artifact == 'true'`
    - With:
@@ -5571,7 +5571,7 @@ k8s-tests.yml
 
 1. **Cleanup repo**
 
-2. **Prepare PYTHON_MAJOR_MINOR_VERSION and KUBERNETES_VERSION**
+2. **Prepare PYTHON\_MAJOR\_MINOR\_VERSION and KUBERNETES\_VERSION**
    - ID: `prepare-versions`
    - Env:
      - `KUBERNETES_COMBO`: `${{ matrix.kubernetes-combo }}`
@@ -5581,7 +5581,7 @@ k8s-tests.yml
    - With:
      - `persist-credentials`: `false`
 
-4. **Prepare breeze & PROD image: ${{ env.PYTHON_MAJOR_MINOR_VERSION }}**
+4. **Prepare breeze & PROD image: ${{ env.PYTHON\_MAJOR\_MINOR\_VERSION }}**
    - ID: `breeze`
    - Uses: `./.github/actions/prepare_breeze_and_image`
    - With:
@@ -5591,7 +5591,7 @@ k8s-tests.yml
      - `use-uv`: `${{ inputs.use-uv }}` - Whether to use uv (required)
      - `make-mnt-writeable-and-cleanup`: `true` - Whether to cleanup /mnt (required)
 
-5. **Run complete K8S tests ${{ matrix.executor }}-${{ env.PYTHON_MAJOR_MINOR_VERSION }}-${{env.KUBERNETES_VERSION}}-${{ matrix.use-standard-naming }}**
+5. **Run complete K8S tests ${{ matrix.executor }}-${{ env.PYTHON\_MAJOR\_MINOR\_VERSION }}-${{env.KUBERNETES\_VERSION}}-${{ matrix.use-standard-naming }}**
    - Env:
      - `EXECUTOR`: `${{ matrix.executor }}`
      - `USE_STANDARD_NAMING`: `${{ matrix.use-standard-naming }}`
@@ -5942,7 +5942,7 @@ prod-image-build.yml
      - `GITHUB_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
      - `ACTOR`: `${{ github.actor }}`
 
-11. **Build PROD images w/ source providers ${{ env.PYTHON_MAJOR_MINOR_VERSION }}**
+11. **Build PROD images w/ source providers ${{ env.PYTHON\_MAJOR\_MINOR\_VERSION }}**
    - Env:
      - `PUSH`: `${{ inputs.push-image }}`
      - `DOCKER_CACHE`: `${{ inputs.docker-cache }}`
@@ -5953,14 +5953,14 @@ prod-image-build.yml
      - `INCLUDE_NOT_READY_PROVIDERS`: `true`
      - `USE_UV`: `${{ inputs.use-uv }}`
 
-12. **Verify PROD image ${{ env.PYTHON_MAJOR_MINOR_VERSION }}**
+12. **Verify PROD image ${{ env.PYTHON\_MAJOR\_MINOR\_VERSION }}**
 
-13. **Export PROD docker image ${{ env.PYTHON_MAJOR_MINOR_VERSION }}**
+13. **Export PROD docker image ${{ env.PYTHON\_MAJOR\_MINOR\_VERSION }}**
    - Condition: `inputs.upload-image-artifact == 'true'`
    - Env:
      - `PLATFORM`: `${{ inputs.platform }}`
 
-14. **Stash PROD docker image ${{ env.PYTHON_MAJOR_MINOR_VERSION }}**
+14. **Stash PROD docker image ${{ env.PYTHON\_MAJOR\_MINOR\_VERSION }}**
    - Uses: `apache/infrastructure-actions/stash/save@49df447b39b18354895520e0a63731b7cad7cbec`
    - Condition: `inputs.upload-image-artifact == 'true'`
    - With:
@@ -6458,12 +6458,12 @@ push-image-cache.yml
      - `GITHUB_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
      - `ACTOR`: `${{ github.actor }}`
 
-6. **Push CI latest images: ${{ env.PYTHON_MAJOR_MINOR_VERSION }} (linux/amd64 only)**
+6. **Push CI latest images: ${{ env.PYTHON\_MAJOR\_MINOR\_VERSION }} (linux/amd64 only)**
    - Condition: `inputs.push-latest-images == 'true' && inputs.platform == 'linux/amd64'`
    - Env:
      - `PLATFORM`: `${{ inputs.platform }}`
 
-7. **Push CI ${{ inputs.cache-type }} cache:${{ env.PYTHON_MAJOR_MINOR_VERSION }}:${{ inputs.platform }}**
+7. **Push CI ${{ inputs.cache-type }} cache:${{ env.PYTHON\_MAJOR\_MINOR\_VERSION }}:${{ inputs.platform }}**
    - Env:
      - `PLATFORM`: `${{ inputs.platform }}`
 
@@ -6525,12 +6525,12 @@ push-image-cache.yml
      - `GITHUB_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
      - `ACTOR`: `${{ github.actor }}`
 
-8. **Push PROD latest image: ${{ env.PYTHON_MAJOR_MINOR_VERSION }} (linux/amd64 ONLY)**
+8. **Push PROD latest image: ${{ env.PYTHON\_MAJOR\_MINOR\_VERSION }} (linux/amd64 ONLY)**
    - Condition: `inputs.push-latest-images == 'true' && inputs.platform == 'linux/amd64'`
    - Env:
      - `PLATFORM`: `${{ inputs.platform }}`
 
-9. **Push PROD ${{ inputs.cache-type }} cache: ${{ env.PYTHON_MAJOR_MINOR_VERSION }} ${{ inputs.platform }}**
+9. **Push PROD ${{ inputs.cache-type }} cache: ${{ env.PYTHON\_MAJOR\_MINOR\_VERSION }} ${{ inputs.platform }}**
    - Env:
      - `PLATFORM`: `${{ inputs.platform }}`
 
@@ -7279,7 +7279,7 @@ release_single_dockerhub_image.yml
 
 9. **Install buildx plugin**
 
-10. **Create airflow_cache builder**
+10. **Create airflow\_cache builder**
 
 11. **Build regular images: ${{ inputs.airflowVersion }}, ${{ inputs.pythonVersion }}, ${{ matrix.platform }}**
 
@@ -7291,7 +7291,7 @@ release_single_dockerhub_image.yml
 
 15. **List upload-able artifacts**
 
-16. **Upload metadata artifact ${{ env.ARTIFACT_NAME }}**
+16. **Upload metadata artifact ${{ env.ARTIFACT\_NAME }}**
    - Uses: `actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a` (v7.0.1)
    - With:
      - `name`: `${{ env.ARTIFACT_NAME }}`
@@ -7533,13 +7533,13 @@ run-unit-tests.yml
      - `use-uv`: `${{ inputs.use-uv }}` - Whether to use uv (required)
      - `make-mnt-writeable-and-cleanup`: `false` - Whether to cleanup /mnt (required)
 
-6. **Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }}**
+6. **Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL\_TEST\_TYPES }}**
    - Uses: `./.github/actions/migration_tests`
    - Condition: `inputs.run-migration-tests == 'true' && inputs.test-group == 'core' && matrix.python-version != '3.14'`
    - With:
      - `python-version`: `${{ matrix.python-version }}` - Python version to run the tests on (required)
 
-7. **${{ inputs.test-group }}:${{ inputs.test-scope }} Tests ${{ inputs.test-name }} ${{ matrix.backend-version }} Py${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }}**
+7. **${{ inputs.test-group }}:${{ inputs.test-scope }} Tests ${{ inputs.test-name }} ${{ matrix.backend-version }} Py${{ matrix.python-version }}:${{ env.PARALLEL\_TEST\_TYPES }}**
    - Env:
      - `TEST_GROUP`: `${{ inputs.test-group }}`
      - `TEST_SCOPE`: `${{ inputs.test-scope }}`
@@ -8253,7 +8253,7 @@ test-providers.yml
 
 5. **Cleanup dist files**
 
-6. **Set current date as RELEASE_DATE variable**
+6. **Set current date as RELEASE\_DATE variable**
    - ID: `date`
 
 7. **Prepare provider documentation**
@@ -8463,7 +8463,7 @@ ui-e2e-tests.yml
      - `fetch-depth`: `2`
      - `persist-credentials`: `false`
 
-3. **Prepare breeze & PROD image: ${{ env.PYTHON_MAJOR_MINOR_VERSION }}**
+3. **Prepare breeze & PROD image: ${{ env.PYTHON\_MAJOR\_MINOR\_VERSION }}**
    - ID: `breeze`
    - Uses: `./.github/actions/prepare_breeze_and_image`
    - Condition: `github.event_name != 'workflow_dispatch'`

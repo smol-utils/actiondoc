@@ -1461,11 +1461,11 @@ check_failed_tests.yml
    - Env:
      - `commit_sha`: `${{ inputs.commit_sha || github.sha }}`
 
-5. **Get `START_SHA`**
+5. **Get \`START\_SHA\`**
    - Env:
      - `commit_sha`: `${{ inputs.commit_sha || github.sha }}`
 
-6. **Extract the base commit on `main` (of the merge commit created by Github) if it is a PR**
+6. **Extract the base commit on \`main\` (of the merge commit created by Github) if it is a PR**
    - ID: `pr_info`
    - Uses: `actions/github-script@d7906e4ad0b1822421a7e6a35d5ca353c962f410` (v6.4.1)
    - Condition: `${{ inputs.pr_number != '' }}`
@@ -1475,12 +1475,12 @@ check_failed_tests.yml
      - `PR_NUMBER`: `${{ inputs.pr_number }}`
      - `COMMIT_SHA`: `${{ inputs.commit_sha }}`
 
-7. **Get `END_SHA` from previous CI runs of the same workflow**
+7. **Get \`END\_SHA\` from previous CI runs of the same workflow**
    - Condition: `${{ inputs.pr_number == '' }}`
    - Env:
      - `ACCESS_TOKEN`: `${{ secrets.ACCESS_REPO_INFO_TOKEN }}`
 
-8. **Set `END_SHA`**
+8. **Set \`END\_SHA\`**
    - Condition: `${{ inputs.pr_number != '' }}`
    - Env:
      - `merge_commit_base_sha`: `${{ steps.pr_info.outputs.merge_commit_base_sha }}`
@@ -1979,7 +1979,7 @@ doctest_job.yml
 
 5. **Get doctest files**
 
-6. **Set `split_keys`**
+6. **Set \`split\_keys\`**
    - Env:
      - `MATRIX_SPLIT_KEYS`: `${{ matrix.split_keys }}`
 
@@ -1988,7 +1988,7 @@ doctest_job.yml
 8. **Failure short reports** `[continue-on-error]`
    - Condition: `${{ failure() }}`
 
-9. **Test suite reports artifacts: doc_tests_gpu_test_reports_${{ env.split_keys }}**
+9. **Test suite reports artifacts: doc\_tests\_gpu\_test\_reports\_${{ env.split\_keys }}**
    - Uses: `actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02` (v4.6.2)
    - Condition: `${{ always() }}`
    - With:
@@ -2547,7 +2547,7 @@ model_jobs.yml
 
 9. **Show installed libraries and their versions**
 
-10. **Set `machine_type` for report and artifact names**
+10. **Set \`machine\_type\` for report and artifact names**
    - ID: `set_machine_type`
    - Env:
      - `input_machine_type`: `${{ inputs.machine_type }}`
@@ -2572,12 +2572,12 @@ model_jobs.yml
    - Env:
      - `report_name_prefix`: `${{ inputs.report_name_prefix }}`
 
-15. **Copy test_outputs.txt** `[continue-on-error]`
+15. **Copy test\_outputs.txt** `[continue-on-error]`
    - Condition: `${{ always() }}`
    - Env:
      - `report_name_prefix`: `${{ inputs.report_name_prefix }}`
 
-16. **Test suite reports artifacts: ${{ env.machine_type }}_${{ inputs.report_name_prefix }}_${{ env.matrix_folders }}_test_reports**
+16. **Test suite reports artifacts: ${{ env.machine\_type }}\_${{ inputs.report\_name\_prefix }}\_${{ env.matrix\_folders }}\_test\_reports**
    - Uses: `actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02` (v4.6.2)
    - Condition: `${{ always() }}`
    - With:
@@ -2699,7 +2699,7 @@ model_jobs_intel_gaudi.yml
 
 7. **Show installed libraries and their versions**
 
-8. **Set `machine_type` for report and artifact names**
+8. **Set \`machine\_type\` for report and artifact names**
    - Env:
      - `MACHINE_TYPE`: `${{ inputs.machine_type }}`
 
@@ -2719,7 +2719,7 @@ model_jobs_intel_gaudi.yml
      - `REPORT_NAME_PREFIX`: `${{ inputs.report_name_prefix }}`
      - `MATRIX_FOLDERS`: `${{ matrix.folders }}`
 
-12. **Test suite reports artifacts: ${{ env.machine_type }}_${{ inputs.report_name_prefix }}_${{ env.matrix_folders }}_test_reports**
+12. **Test suite reports artifacts: ${{ env.machine\_type }}\_${{ inputs.report\_name\_prefix }}\_${{ env.matrix\_folders }}\_test\_reports**
    - Uses: `actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02` (v4.6.2)
    - Condition: `${{ always() }}`
    - With:
@@ -2908,7 +2908,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pul
 
 #### Steps
 
-1. **Verify `merge_commit` timestamp is older than the issue comment timestamp**
+1. **Verify \`merge\_commit\` timestamp is older than the issue comment timestamp**
    - Env:
      - `COMMENT_DATE`: `${{ github.event.comment.created_at }}`
      - `PR_MERGE_COMMIT_TIMESTAMP`: `${{ needs.get-pr-info.outputs.PR_MERGE_COMMIT_TIMESTAMP }}`
@@ -3121,7 +3121,7 @@ External workflows referenced: `huggingface/doc-builder/.github/workflows/build_
 
 #### Steps
 
-1. **COMMENT_TIMESTAMP=$(date -d "${COMMENT_DATE}" +"%s")**
+1. **COMMENT\_TIMESTAMP=$(date -d "${COMMENT\_DATE}" +"%s")**
 
 ### Create run (`create_run`)
 
@@ -3201,7 +3201,7 @@ External workflows referenced: `huggingface/doc-builder/.github/workflows/build_
 
 #### Steps
 
-1. **Get `build-doc` job status**
+1. **Get \`build-doc\` job status**
 
 2. **Update PR commit statuses**
    - Env:
@@ -3270,7 +3270,7 @@ Permissions declared across the chain: `contents: read`, `pull-requests: write`
      - `fetch-depth`: `0`
      - `persist-credentials`: `false`
 
-2. **Write pr_files file**
+2. **Write pr\_files file**
    - Uses: `actions/github-script@d7906e4ad0b1822421a7e6a35d5ca353c962f410` (v6.4.1)
    - With:
      - `script`: `const fs = require('node:fs'); const files = await github.paginate(github.rest.pulls.listFiles, {   owner: context.repo.owner,   repo: context.repo.repo,   pull_number: parseInt(process.env.PR_NUMBER, 10), }); fs.writeFileSync('pr_files.txt', JSON.stringify(files));`
@@ -3362,7 +3362,7 @@ Permissions declared across the chain: `contents: read`
    - With:
      - `persist-credentials`: `false`
 
-2. **Get changed files using `actions/github-script`**
+2. **Get changed files using \`actions/github-script\`**
    - ID: `get-changed-files`
    - Uses: `actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b` (v7.1.0)
    - With:
@@ -3506,9 +3506,9 @@ Permissions declared across the chain: `contents: read`
 
 6. **pip uninstall -y transformers**
 
-7. **pip install dist/*.whl**
+7. **pip install dist/\*.whl**
 
-8. **python -c "from transformers import *"**
+8. **python -c "from transformers import \*"**
 
 9. **pip install -e .[torch]**
 
@@ -3516,7 +3516,7 @@ Permissions declared across the chain: `contents: read`
 
 11. **pip install twine**
 
-12. **twine check --strict dist/***
+12. **twine check --strict dist/\***
 
 13. **Upload build artifacts**
    - Uses: `actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02` (v4.6.2)
@@ -3657,7 +3657,7 @@ Permissions declared across the chain: `contents: read`, `pull-requests: write`,
 
 #### Steps
 
-1. **Verify `merge_commit` timestamp is older than the issue comment timestamp**
+1. **Verify \`merge\_commit\` timestamp is older than the issue comment timestamp**
    - Env:
      - `COMMENT_DATE`: `${{ github.event.comment.created_at }}`
      - `PR_MERGE_COMMIT_TIMESTAMP`: `${{ needs.get-pr-info.outputs.PR_MERGE_COMMIT_TIMESTAMP }}`
@@ -4330,7 +4330,7 @@ self-past-caller.yml
 
 #### Steps
 
-1. **Trigger scheduled AMD CI via workflow_run**
+1. **Trigger scheduled AMD CI via workflow\_run**
 
 # Self-hosted runner (AMD mi250 scheduled CI caller)
 
@@ -5180,14 +5180,14 @@ self-scheduled-intel-gaudi.yml
 
 5. **Show installed libraries and their versions**
 
-6. **Set `machine_type` for report and artifact names**
+6. **Set \`machine\_type\` for report and artifact names**
 
 7. **Run all pipeline tests on Intel Gaudi**
 
 8. **Failure short reports** `[continue-on-error]`
    - Condition: `${{ failure() }}`
 
-9. **Test suite reports artifacts: ${{ env.machine_type }}_run_pipelines_torch_gpu_test_reports**
+9. **Test suite reports artifacts: ${{ env.machine\_type }}\_run\_pipelines\_torch\_gpu\_test\_reports**
    - Uses: `actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02` (v4.6.2)
    - Condition: `${{ always() }}`
    - With:
@@ -5218,14 +5218,14 @@ self-scheduled-intel-gaudi.yml
 
 5. **Show installed libraries and their versions**
 
-6. **Set `machine_type` for report and artifact names**
+6. **Set \`machine\_type\` for report and artifact names**
 
 7. **Run examples tests on Intel Gaudi**
 
 8. **Failure short reports** `[continue-on-error]`
    - Condition: `${{ failure() }}`
 
-9. **Test suite reports artifacts: ${{ env.machine_type }}_run_examples_gpu_test_reports**
+9. **Test suite reports artifacts: ${{ env.machine\_type }}\_run\_examples\_gpu\_test\_reports**
    - Uses: `actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02` (v4.6.2)
    - Condition: `${{ always() }}`
    - With:
@@ -5256,14 +5256,14 @@ self-scheduled-intel-gaudi.yml
 
 5. **Show installed libraries and their versions**
 
-6. **Set `machine_type` for report and artifact names**
+6. **Set \`machine\_type\` for report and artifact names**
 
 7. **Run all deepspeed tests on intel Gaudi**
 
 8. **Failure short reports** `[continue-on-error]`
    - Condition: `${{ failure() }}`
 
-9. **Test suite reports artifacts: ${{ env.machine_type }}_run_torch_cuda_extensions_gpu_test_reports**
+9. **Test suite reports artifacts: ${{ env.machine\_type }}\_run\_torch\_cuda\_extensions\_gpu\_test\_reports**
    - Uses: `actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02` (v4.6.2)
    - Condition: `${{ always() }}`
    - With:
@@ -5629,7 +5629,7 @@ self-scheduled.yml
 
 5. **Show installed libraries and their versions**
 
-6. **Set `machine_type` for report and artifact names**
+6. **Set \`machine\_type\` for report and artifact names**
    - Env:
      - `matrix_machine_type`: `${{ matrix.machine_type }}`
 
@@ -5638,7 +5638,7 @@ self-scheduled.yml
 8. **Failure short reports** `[continue-on-error]`
    - Condition: `${{ failure() }}`
 
-9. **Test suite reports artifacts: ${{ env.machine_type }}_run_pipelines_torch_gpu_test_reports**
+9. **Test suite reports artifacts: ${{ env.machine\_type }}\_run\_pipelines\_torch\_gpu\_test\_reports**
    - Uses: `actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02` (v4.6.2)
    - Condition: `${{ always() }}`
    - With:
@@ -5667,7 +5667,7 @@ self-scheduled.yml
 
 5. **Show installed libraries and their versions**
 
-6. **Set `machine_type` for report and artifact names**
+6. **Set \`machine\_type\` for report and artifact names**
    - Env:
      - `matrix_machine_type`: `${{ matrix.machine_type }}`
 
@@ -5676,7 +5676,7 @@ self-scheduled.yml
 8. **Failure short reports** `[continue-on-error]`
    - Condition: `${{ failure() }}`
 
-9. **Test suite reports artifacts: ${{ env.machine_type }}_run_examples_gpu_test_reports**
+9. **Test suite reports artifacts: ${{ env.machine\_type }}\_run\_examples\_gpu\_test\_reports**
    - Uses: `actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02` (v4.6.2)
    - Condition: `${{ always() }}`
    - With:
@@ -5704,10 +5704,10 @@ self-scheduled.yml
 
 4. **Remove cached torch extensions**
 
-5. **Pre build DeepSpeed *again* (for daily CI)**
+5. **Pre build DeepSpeed \*again\* (for daily CI)**
    - Condition: `${{ contains(inputs.ci_event, 'Daily CI') }}`
 
-6. **Pre build DeepSpeed *again* (for nightly & Past CI)**
+6. **Pre build DeepSpeed \*again\* (for nightly & Past CI)**
    - Condition: `${{ contains(inputs.ci_event, 'Nightly CI') || contains(inputs.ci_event, 'Past CI') }}`
 
 7. **NVIDIA-SMI**
@@ -5716,7 +5716,7 @@ self-scheduled.yml
 
 9. **Show installed libraries and their versions**
 
-10. **Set `machine_type` for report and artifact names**
+10. **Set \`machine\_type\` for report and artifact names**
    - Env:
      - `matrix_machine_type`: `${{ matrix.machine_type }}`
 
@@ -5727,7 +5727,7 @@ self-scheduled.yml
    - Env:
      - `working_directory_prefix`: `${{ inputs.working-directory-prefix }}`
 
-13. **Test suite reports artifacts: ${{ env.machine_type }}_run_torch_cuda_extensions_gpu_test_reports**
+13. **Test suite reports artifacts: ${{ env.machine\_type }}\_run\_torch\_cuda\_extensions\_gpu\_test\_reports**
    - Uses: `actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02` (v4.6.2)
    - Condition: `${{ always() }}`
    - With:
@@ -5760,7 +5760,7 @@ self-scheduled.yml
 
 6. **Show installed libraries and their versions**
 
-7. **Set `machine_type` for report and artifact names**
+7. **Set \`machine\_type\` for report and artifact names**
    - Env:
      - `matrix_machine_type`: `${{ matrix.machine_type }}`
 
@@ -5771,7 +5771,7 @@ self-scheduled.yml
 9. **Failure short reports** `[continue-on-error]`
    - Condition: `${{ failure() }}`
 
-10. **Test suite reports artifacts: ${{ env.machine_type }}_run_quantization_torch_gpu_${{ env.matrix_folders }}_test_reports**
+10. **Test suite reports artifacts: ${{ env.machine\_type }}\_run\_quantization\_torch\_gpu\_${{ env.matrix\_folders }}\_test\_reports**
    - Uses: `actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02` (v4.6.2)
    - Condition: `${{ always() }}`
    - With:
@@ -5802,7 +5802,7 @@ self-scheduled.yml
 
 6. **Show installed libraries and their versions**
 
-7. **Set `machine_type` for report and artifact names**
+7. **Set \`machine\_type\` for report and artifact names**
    - Env:
      - `matrix_machine_type`: `${{ matrix.machine_type }}`
 
@@ -5811,7 +5811,7 @@ self-scheduled.yml
 9. **Failure short reports** `[continue-on-error]`
    - Condition: `${{ failure() }}`
 
-10. **Test suite reports artifacts: ${{ env.machine_type }}_run_kernels_gpu_test_reports**
+10. **Test suite reports artifacts: ${{ env.machine\_type }}\_run\_kernels\_gpu\_test\_reports**
    - Uses: `actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02` (v4.6.2)
    - Condition: `${{ always() }}`
    - With:

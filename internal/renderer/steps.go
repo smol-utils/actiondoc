@@ -10,7 +10,7 @@ import (
 // renderStep writes one step as a numbered list item with its metadata (id, uses, condition,
 // with: inputs, env: variables) and a continue-on-error badge when set.
 func renderStep(b *strings.Builder, step *model.Step, num int) {
-	fmt.Fprintf(b, "%d. **%s**", num, stepTitle(step, num))
+	fmt.Fprintf(b, "%d. **%s**", num, escapeInline(stepTitle(step, num)))
 	if step.ContinueOnError {
 		b.WriteString(" `[continue-on-error]`")
 	} else if step.ContinueOnErrorExpr != "" {

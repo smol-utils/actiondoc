@@ -4,9 +4,12 @@ import "strings"
 
 // This file is the single seam for making arbitrary strings safe inside Markdown
 // structures: table cells (escapeCell, cellOrDash, codeCellOrDash), inline code spans
-// (codeSpan), and single-line contexts (oneLine). Renderers should reach for these
-// instead of wrapping values in backticks or pipes directly, so a value containing
-// Markdown-significant characters can never break the surrounding structure.
+// (codeSpan), bold/emphasis runs (escapeInline), and single-line contexts (oneLine).
+// Renderers should reach for these instead of wrapping values in backticks, asterisks,
+// or pipes directly, so a value containing Markdown-significant characters can never
+// break the surrounding structure. The one deliberate exception: top-level section
+// headings (workflow/action titles) render raw, because their anchors must match what
+// GitHub's slugger derives from the unescaped text.
 
 // escapeCell escapes characters that break Markdown table cells. Newlines become
 // <br> (not a space) so multi-line values like multi-line `if:` conditions keep their
@@ -69,4 +72,21 @@ func oneLine(s string) string {
 	s = strings.ReplaceAll(s, "\r\n", "\n")
 	s = strings.ReplaceAll(s, "\n", " ")
 	return strings.TrimSpace(s)
+}
+
+// escapeInline escapes the characters that would start or end Markdown inline markup
+// (emphasis, code spans) inside running text, so an arbitrary value rendered inside
+// **bold** -- a step title built from a name or a run: command line -- shows its
+// backticks, asterisks, and underscores literally instead of changing the markup.
+func escapeInline(s string) string {
+	var b strings.Builder
+	b.Grow(len(s))
+	for i := 0; i < len(s); i++ {
+		switch s[i] {
+		case '*', '_', '`':
+			b.WriteByte('\\')
+		}
+		b.WriteByte(s[i])
+	}
+	return b.String()
 }

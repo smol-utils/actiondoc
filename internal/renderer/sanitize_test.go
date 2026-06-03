@@ -71,3 +71,17 @@ func TestAssignAnchors(t *testing.T) {
 		}
 	}
 }
+
+func TestEscapeInline(t *testing.T) {
+	cases := []struct{ in, want string }{
+		{"plain title", "plain title"},
+		{"echo \"a `b` c\" | grep d", "echo \"a \\`b\\` c\" | grep d"},
+		{"run **all** the tests", "run \\*\\*all\\*\\* the tests"},
+		{"snake_case_name", "snake\\_case\\_name"},
+	}
+	for _, c := range cases {
+		if got := escapeInline(c.in); got != c.want {
+			t.Errorf("escapeInline(%q) = %q, want %q", c.in, got, c.want)
+		}
+	}
+}

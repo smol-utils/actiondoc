@@ -211,3 +211,21 @@ func TestTruncateRuneSafe(t *testing.T) {
 		t.Errorf("rune cut: got %q (%d runes), want 5 runes + ...", got, len(r))
 	}
 }
+
+// TestStepTitleMarkupEscaped locks the seam discipline for step titles: backticks and
+// asterisks in a step name or run-derived title must render literally, never as Markdown
+// markup that breaks or restyles the surrounding bold.
+func TestStepTitleMarkupEscaped(t *testing.T) {
+	var b strings.Builder
+	renderStep(&b, &model.Step{Run: "echo \"a `b` c\" | grep d"}, 1)
+	got := b.String()
+	if !strings.Contains(got, "1. **echo \"a \\`b\\` c\" | grep d**") {
+		t.Errorf("run-derived title not escaped:\n%s", got)
+	}
+
+	var b2 strings.Builder
+	renderStep(&b2, &model.Step{Name: "Run **everything** now"}, 1)
+	if !strings.Contains(b2.String(), "**Run \\*\\*everything\\*\\* now**") {
+		t.Errorf("step name with asterisks not escaped:\n%s", b2.String())
+	}
+}

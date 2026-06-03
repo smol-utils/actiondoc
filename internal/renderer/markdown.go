@@ -91,7 +91,7 @@ func renderJob(b *strings.Builder, job *model.Job, g *callgraph.Graph, fromID st
 	// row below shows the axis values the placeholders take.
 	name := job.Name
 	if name != job.ID {
-		fmt.Fprintf(b, "### %s (`%s`)\n\n", name, job.ID)
+		fmt.Fprintf(b, "### %s (`%s`)\n\n", escapeInline(name), job.ID)
 	} else {
 		fmt.Fprintf(b, "### `%s`\n\n", job.ID)
 	}
