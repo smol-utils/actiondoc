@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
 	"io/fs"
@@ -137,6 +138,12 @@ func parseSources(files []string) ([]callgraph.Source, int) {
 		} else {
 			w, err := parser.ParseFile(f)
 			if err != nil {
+				// A fully commented-out file is a disabled workflow, not a broken one:
+				// note it and move on without failing the run.
+				if errors.Is(err, parser.ErrOnlyComments) {
+					fmt.Fprintf(os.Stderr, "note: skipping %v\n", err)
+					continue
+				}
 				fmt.Fprintf(os.Stderr, "warning: %v\n", err)
 				failed++
 				continue

@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -10,6 +11,12 @@ import (
 	yamlparser "github.com/goccy/go-yaml/parser"
 	"github.com/smol-utils/actiondoc/internal/model"
 )
+
+// ErrOnlyComments marks a file whose YAML content is entirely comments -- the common way
+// to disable a workflow without deleting it. Callers can distinguish this from a
+// malformed file with errors.Is: a disabled workflow is intentionally unparseable, not
+// broken.
+var ErrOnlyComments = errors.New("contains only comments (disabled?)")
 
 // firstMappingDoc returns the first YAML document whose body is a mapping, wrapping a
 // bare MappingValueNode if needed. goccy/go-yaml emits a leading comment-only document
@@ -35,6 +42,20 @@ func firstMappingDoc(file *ast.File) (doc *ast.DocumentNode, root *ast.MappingNo
 		skipped = append(skipped, d)
 	}
 	return nil, nil, skipped, false
+}
+
+// onlyComments reports whether every document in the file is empty or comment-only --
+// the shape of a workflow that has been disabled by commenting out its entire body.
+func onlyComments(file *ast.File) bool {
+	for _, d := range file.Docs {
+		if d == nil || d.Body == nil {
+			continue
+		}
+		if _, ok := d.Body.(*ast.CommentGroupNode); !ok {
+			return false
+		}
+	}
+	return true
 }
 
 // headCommentNodes builds the node list to search for the head comment: the leading
@@ -71,6 +92,9 @@ func ParseFile(path string) (*model.Workflow, error) {
 	}
 	doc, root, skipped, ok := firstMappingDoc(file)
 	if !ok {
+		if onlyComments(file) {
+			return nil, fmt.Errorf("%s: %w", path, ErrOnlyComments)
+		}
 		return nil, fmt.Errorf("%s: expected top-level mapping", path)
 	}
 	resolveAnchors(root)
