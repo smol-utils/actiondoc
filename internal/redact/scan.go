@@ -8,12 +8,15 @@ import (
 // This file holds the low-level string scanners shared by the collect and rewrite
 // passes. Two kinds of redaction live here:
 //
-//   - Exact, structural redaction of identifiers that appear inside ${{ }} expression
-//     contexts (secrets.X, vars.Y, env.Z). These come from parsed fields, so the match
-//     is exact: a context prefix on an identifier boundary.
+//   - Exact, structural redaction of context-qualified identifiers (secrets.X, vars.Y,
+//     env.Z). The match keys on the `context.identifier` shape itself, on an identifier
+//     boundary, not on the surrounding ${{ }} delimiters: in practice these references
+//     occur inside expressions, but a bare occurrence in free text (a run: script, a
+//     description) is matched and redacted too, which is the safe behavior for this tool.
 //   - Fuzzy, regex redaction of hosts and URLs in free text (run: scripts, descriptions,
-//     literal values). This is best-effort by nature; its limits are documented in the
-//     spec.
+//     literal values). Unlike the identifier scan, this runs only on the literal spans
+//     outside ${{ }}, so a dotted expression like github.sha is not mistaken for a host.
+//     It is best-effort by nature; its limits are documented in the spec.
 //
 // Both passes walk strings the same way, so collection (gather originals) and rewrite
 // (substitute placeholders) never disagree about what counts as a redactable token.
