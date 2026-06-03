@@ -5,6 +5,7 @@ All notable changes to actiondoc are documented here.
 ## [Unreleased]
 
 ### Added
+- Redacted output mode (`--redact`, `--redact-aggressive`, `--redact-map`): consistent pseudonymization of secret/variable/env names, hostnames, URLs, deploy environments, and self-hosted runner labels so generated docs can be shared externally; honored by both Markdown and JSON output, with a deterministic placeholder scheme and an optional local reverse map
 - ActionDoc comment standard (v2) with 9 tags: @desc, @secret, @input, @env, @output, @deprecated, @see, @since, @example
 - YAML parser using goccy/go-yaml with full comment preservation
 - Markdown renderer with workflow, job, and step documentation

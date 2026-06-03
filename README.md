@@ -126,6 +126,9 @@ actiondoc generate
 # JSON output for tooling integration
 actiondoc generate --json
 
+# Redact sensitive identifiers (secrets, hosts, URLs, runner labels, ...)
+actiondoc generate --redact
+
 # Specific file or directory
 actiondoc generate .github/workflows/deploy.yml
 actiondoc generate .github/workflows/
@@ -143,7 +146,22 @@ actiondoc version
 |------|---------|-------------|
 | `-o` | stdout | Write output to a file |
 | `--json` | false | Output JSON instead of Markdown |
+| `--redact` | false | Redact sensitive identifiers (secret/variable/env names, hosts, URLs, runner labels, environments) |
+| `--redact-aggressive` | false | As `--redact`, and also replace every literal `env:`/`with:` value |
+| `--redact-map` | - | Write the placeholder->original reverse map to this file (for restoring real names later) |
 | path (positional) | `.github/workflows` | File or directory to process |
+
+### Redacted output
+
+`--redact` rewrites the generated docs so they can be shared outside the owning team or
+handed to an external service (for example, an LLM asked to write prose from the
+structure) without leaking sensitive material. Redaction is consistent pseudonymization:
+the same secret always becomes the same `SECRET_n`, so the inventories, call-graph
+requirements, and per-step tables stay cross-referenced. Pipeline structure, names, and
+`uses:` refs are preserved. Pair it with `--redact-map` to get a local map for restoring
+real names after the round-trip. See
+[the spec](spec/actiondoc-spec.md#redacted-output) for the full list of what is and isn't
+redacted, and the detection limits.
 
 ---
 
