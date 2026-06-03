@@ -36,6 +36,7 @@
 | Property | Value |
 |----------|-------|
 | Runs on | `${{ matrix.os }}` |
+| Matrix | `os`: ubuntu-latest, macos-15-intel, windows-latest |
 
 #### Steps
 
@@ -896,11 +897,12 @@ Permissions declared across the chain: `contents: read`
 
 - `github-token`: `${{ secrets.GITHUB_TOKEN }}`
 
-### CLI macos-15-intel, ubuntu-latest, windows-latest (`build-cli`)
+### CLI ${{ matrix.job.os }} (`build-cli`)
 
 | Property | Value |
 |----------|-------|
 | Runs on | `${{ matrix.job.os }}` |
+| Matrix | `job.os`: macos-15-intel, ubuntu-latest, windows-latest; `job.args`: -xp docker, , -xp docker |
 | Depends on | `precheck` |
 | Condition | `${{ endsWith(needs.precheck.outputs.version, '-SNAPSHOT') }}` |
 
@@ -978,11 +980,12 @@ Permissions declared across the chain: `contents: read`
 12. **Cleanup**
    - Condition: `always()`
 
-### Tool macos-15-intel, ubuntu-latest, windows-latest (`build-tool`)
+### Tool ${{ matrix.job.os }} (`build-tool`)
 
 | Property | Value |
 |----------|-------|
 | Runs on | `${{ matrix.job.os }}` |
+| Matrix | `job.os`: macos-15-intel, ubuntu-latest, windows-latest; `job.args`: -xp docker, , -xp docker |
 | Depends on | `precheck` |
 | Condition | `${{ endsWith(needs.precheck.outputs.version, '-SNAPSHOT') }}` |
 
@@ -1060,11 +1063,12 @@ Permissions declared across the chain: `contents: read`
 12. **Cleanup**
    - Condition: `always()`
 
-### Ant macos-15-intel, ubuntu-latest, windows-latest (`build-ant`)
+### Ant ${{ matrix.job.os }} (`build-ant`)
 
 | Property | Value |
 |----------|-------|
 | Runs on | `${{ matrix.job.os }}` |
+| Matrix | `job.os`: macos-15-intel, ubuntu-latest, windows-latest; `job.args`: -Djreleaser.excluded.packagers=docker, , -Djreleaser.excluded.packagers=docker |
 | Depends on | `precheck` |
 | Condition | `${{ endsWith(needs.precheck.outputs.version, '-SNAPSHOT') }}` |
 
@@ -1142,11 +1146,12 @@ Permissions declared across the chain: `contents: read`
 12. **Cleanup**
    - Condition: `always()`
 
-### Gradle macos-15-intel, ubuntu-latest, windows-latest (`build-gradle`)
+### Gradle ${{ matrix.job.os }} (`build-gradle`)
 
 | Property | Value |
 |----------|-------|
 | Runs on | `${{ matrix.job.os }}` |
+| Matrix | `job.os`: macos-15-intel, ubuntu-latest, windows-latest; `job.args`: --exclude-packager docker, , --exclude-packager docker |
 | Depends on | `precheck` |
 | Condition | `${{ endsWith(needs.precheck.outputs.version, '-SNAPSHOT') }}` |
 
@@ -1233,11 +1238,12 @@ Permissions declared across the chain: `contents: read`
 13. **Cleanup**
    - Condition: `always()`
 
-### Maven macos-15-intel, ubuntu-latest, windows-latest (`build-maven`)
+### Maven ${{ matrix.job.os }} (`build-maven`)
 
 | Property | Value |
 |----------|-------|
 | Runs on | `${{ matrix.job.os }}` |
+| Matrix | `job.os`: macos-15-intel, ubuntu-latest, windows-latest; `job.args`: -Djreleaser.excluded.packagers=docker, , -Djreleaser.excluded.packagers=docker |
 | Depends on | `precheck` |
 | Condition | `${{ endsWith(needs.precheck.outputs.version, '-SNAPSHOT') }}` |
 
@@ -1315,11 +1321,12 @@ Permissions declared across the chain: `contents: read`
 12. **Cleanup**
    - Condition: `always()`
 
-### Unit Test ubuntu-latest, macos-15-intel, windows-latest (`unit-tests`)
+### Unit Test ${{ matrix.os }} (`unit-tests`)
 
 | Property | Value |
 |----------|-------|
 | Runs on | `${{ matrix.os }}` |
+| Matrix | `os`: ubuntu-latest, macos-15-intel, windows-latest |
 | Depends on | `precheck` |
 | Condition | `${{ endsWith(needs.precheck.outputs.version, '-SNAPSHOT') }}` |
 
@@ -1682,11 +1689,12 @@ step-jpackage.yml
 
 ## Jobs
 
-### Linux, LinuxArm, Osx, OsxArm, Windows (`jpackage`)
+### ${{ matrix.job.jdkOs }} (`jpackage`)
 
 | Property | Value |
 |----------|-------|
 | Runs on | `${{ matrix.job.runner }}` |
+| Matrix | `job.runner`: ubuntu-latest, ubuntu-22.04-arm, macos-15-intel, macos-15, windows-latest; `job.platform`: linux-x86_64, linux-aarch_64, osx-x86_64, osx-aarch_64, windows-x86_64; `job.platformReplaced`: linux-x86_64, linux-aarch64, osx-x86_64, osx-aarch64, windows-x86_64; `job.jdkOs`: Linux, LinuxArm, Osx, OsxArm, Windows |
 
 #### Steps
 
@@ -1808,11 +1816,12 @@ step-native-image.yml
 
 ## Jobs
 
-### Linux, LinuxArm, Osx, OsxArm, Windows (`native-image`)
+### ${{ matrix.job.jdkOs }} (`native-image`)
 
 | Property | Value |
 |----------|-------|
 | Runs on | `${{ matrix.job.runner }}` |
+| Matrix | `job.runner`: ubuntu-latest, ubuntu-22.04-arm, macos-15-intel, macos-15, windows-latest; `job.jdkOs`: Linux, LinuxArm, Osx, OsxArm, Windows |
 
 #### Steps
 

@@ -279,6 +279,7 @@
 | Property | Value |
 |----------|-------|
 | Runs on | `group: ${{ matrix.group }}` |
+| Matrix | `group`: aws-g5-4xlarge-cache |
 | Condition | `(github.event_name == 'pull_request' && contains( github.event.pull_request.labels.*.name, 'run-benchmark') )\|\|<br>(github.event_name == 'push' && github.ref == 'refs/heads/main')` |
 
 #### Steps
@@ -518,6 +519,7 @@ This workflow is reusable via `workflow_call`.
 | Property | Value |
 |----------|-------|
 | Runs on | `ubuntu-22.04` |
+| Matrix | `file`: quality, consistency, custom-tokenizers, torch-light, exotic-models, examples-torch |
 | Condition | `${{ contains(github.event.head_commit.message, '[build-ci-image]') \|\| contains(github.event.head_commit.message, '[push-ci-image]') && '!cancelled()' \|\| github.event_name == 'schedule' }}` |
 
 #### Steps
@@ -1043,6 +1045,7 @@ build-nightly-ci-docker-images.yml
 | Property | Value |
 |----------|-------|
 | Runs on | `group: aws-general-8-plus` |
+| Matrix | `version`: 1.13, 1.12, 1.11 |
 
 #### Steps
 
@@ -1080,6 +1083,7 @@ build-nightly-ci-docker-images.yml
 | Property | Value |
 |----------|-------|
 | Runs on | `group: aws-general-8-plus` |
+| Matrix | `version`: 2.11, 2.10, 2.9, 2.8, 2.7, 2.6, 2.5 |
 
 #### Steps
 
@@ -5157,6 +5161,7 @@ self-scheduled-intel-gaudi.yml
 | Property | Value |
 |----------|-------|
 | Runs on | `group: ${{ inputs.runner_scale_set }}-${{ matrix.machine_type }}` |
+| Matrix | `machine_type`: 1gaudi, 2gaudi |
 | Condition | `${{ inputs.job == 'run_pipelines_torch_gpu' }}` |
 
 #### Steps
@@ -5194,6 +5199,7 @@ self-scheduled-intel-gaudi.yml
 | Property | Value |
 |----------|-------|
 | Runs on | `group: ${{ inputs.runner_scale_set }}-${{ matrix.machine_type }}` |
+| Matrix | `machine_type`: 1gaudi |
 | Condition | `${{ inputs.job == 'run_examples_gpu' }}` |
 
 #### Steps
@@ -5231,6 +5237,7 @@ self-scheduled-intel-gaudi.yml
 | Property | Value |
 |----------|-------|
 | Runs on | `group: ${{ inputs.runner_scale_set }}-${{ matrix.machine_type }}` |
+| Matrix | `machine_type`: 1gaudi, 2gaudi |
 | Condition | `${{ inputs.job == 'run_torch_cuda_extensions_gpu' }}` |
 
 #### Steps
@@ -5525,6 +5532,7 @@ self-scheduled.yml
 | Property | Value |
 |----------|-------|
 | Runs on | `group: ${{ matrix.machine_type }}` |
+| Matrix | `machine_type`: aws-g5-4xlarge-cache, aws-g5-12xlarge-cache |
 | Condition | `contains(fromJSON('["run_models_gpu", "run_trainer_and_fsdp_gpu", "run_quantization_torch_gpu"]'), inputs.job)` |
 
 #### Steps
@@ -5604,6 +5612,7 @@ self-scheduled.yml
 | Property | Value |
 |----------|-------|
 | Runs on | `group: ${{ matrix.machine_type }}` |
+| Matrix | `machine_type`: aws-g5-4xlarge-cache, aws-g5-12xlarge-cache |
 | Condition | `${{ inputs.job == 'run_pipelines_torch_gpu' }}` |
 
 #### Steps
@@ -5641,6 +5650,7 @@ self-scheduled.yml
 | Property | Value |
 |----------|-------|
 | Runs on | `group: ${{ matrix.machine_type }}` |
+| Matrix | `machine_type`: aws-g5-4xlarge-cache |
 | Condition | `${{ inputs.job == 'run_examples_gpu' }}` |
 
 #### Steps
@@ -5678,6 +5688,7 @@ self-scheduled.yml
 | Property | Value |
 |----------|-------|
 | Runs on | `group: ${{ matrix.machine_type }}` |
+| Matrix | `machine_type`: aws-g5-4xlarge-cache, aws-g5-12xlarge-cache |
 | Condition | `${{ inputs.job == 'run_torch_cuda_extensions_gpu' }}` |
 
 #### Steps
@@ -5772,6 +5783,7 @@ self-scheduled.yml
 | Property | Value |
 |----------|-------|
 | Runs on | `group: ${{ matrix.machine_type }}` |
+| Matrix | `machine_type`: aws-g5-4xlarge-cache |
 | Condition | `${{ inputs.job == 'run_kernels_gpu' }}` |
 
 #### Steps

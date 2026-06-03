@@ -33,11 +33,12 @@ Exercises step rendering, matrix job names, runs-on normalization, and secret ag
 
 ## Jobs
 
-### Java 17, 21, 24 (`build`)
+### Java ${{ matrix.java }} (`build`)
 
 | Property | Value |
 |----------|-------|
 | Runs on | `self-hosted, linux, x64` |
+| Matrix | `java`: 17, 21, 24 |
 
 #### Steps
 
@@ -64,11 +65,12 @@ Exercises step rendering, matrix job names, runs-on normalization, and secret ag
 5. **upload**
    - ID: `upload`
 
-### Deploy staging, production (`deploy`)
+### Deploy ${{ matrix.target.env }} (`deploy`)
 
 | Property | Value |
 |----------|-------|
 | Runs on | `group: deploy-runners, labels: linux, arm64` |
+| Matrix | `target.env`: staging, production; `target.url`: https://staging.example.com, https://example.com |
 | Depends on | `build` |
 | Condition | `github.event_name == 'push' &&<br>startsWith(github.ref, 'refs/heads/main')` |
 

@@ -175,44 +175,6 @@ func truncate(s string, max int) string {
 	return string(r[:max-3]) + "..."
 }
 
-// resolveJobName expands ${{ matrix.X }} references in a job name to their static value
-// lists (e.g. "Java ${{ matrix.java.version }}" -> "Java 17, 21, 24"). References without a
-// statically-resolvable axis -- and all non-matrix expressions -- are left verbatim.
-func resolveJobName(job *model.Job) string {
-	name := job.Name
-	if !strings.Contains(name, "${{") {
-		return name
-	}
-	var b strings.Builder
-	for {
-		i := strings.Index(name, "${{")
-		if i < 0 {
-			b.WriteString(name)
-			break
-		}
-		b.WriteString(name[:i])
-		rest := name[i+3:]
-		j := strings.Index(rest, "}}")
-		if j < 0 {
-			b.WriteString(name[i:])
-			break
-		}
-		token := name[i : i+3+j+2]
-		inner := strings.TrimSpace(rest[:j])
-		if expressionKind(inner) == "matrix" {
-			if vals, ok := job.MatrixValues(strings.TrimPrefix(inner, "matrix.")); ok {
-				b.WriteString(strings.Join(vals, ", "))
-			} else {
-				b.WriteString(token)
-			}
-		} else {
-			b.WriteString(token)
-		}
-		name = rest[j+2:]
-	}
-	return b.String()
-}
-
 // renderReferences writes the auto-collected "Referenced secrets and variables" section.
 func renderReferences(b *strings.Builder, refs model.References) {
 	if refs.Empty() {

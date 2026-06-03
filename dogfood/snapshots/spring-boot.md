@@ -944,11 +944,12 @@ Permissions declared across the chain: `contents: read`
 
 ## Jobs
 
-### Java 17, 21 (`run-system-tests`)
+### Java ${{ matrix.java.version}} (`run-system-tests`)
 
 | Property | Value |
 |----------|-------|
 | Runs on | `${{ vars.UBUNTU_MEDIUM \|\| 'ubuntu-latest' }}` |
+| Matrix | `java.version`: 17, 21; `java.toolchain`: true, true |
 | Condition | `${{ github.repository == 'spring-projects/spring-boot' }}` |
 
 #### Steps

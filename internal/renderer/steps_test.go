@@ -34,52 +34,38 @@ func TestStepTitleFallback(t *testing.T) {
 	}
 }
 
-// TestResolveJobName covers static matrix expansion in job names, dotted axes, and the
-// verbatim fall-through for unresolvable or non-matrix expressions.
-func TestResolveJobName(t *testing.T) {
-	tests := []struct {
-		name string
-		job  model.Job
-		want string
-	}{
-		{
-			"static axis",
-			model.Job{Name: "Java ${{ matrix.java }}", Matrix: []model.MatrixAxis{{Name: "java", Values: []string{"17", "21", "24"}}}},
-			"Java 17, 21, 24",
-		},
-		{
-			"dotted axis",
-			model.Job{Name: "Deploy ${{ matrix.target.env }}", Matrix: []model.MatrixAxis{{Name: "target.env", Values: []string{"staging", "production"}}}},
-			"Deploy staging, production",
-		},
-		{
-			"two axes",
-			model.Job{Name: "${{ matrix.os }} / ${{ matrix.arch }}", Matrix: []model.MatrixAxis{
-				{Name: "os", Values: []string{"linux", "macos"}},
-				{Name: "arch", Values: []string{"amd64"}},
-			}},
-			"linux, macos / amd64",
-		},
-		{
-			"unresolvable axis stays verbatim",
-			model.Job{Name: "Test ${{ matrix.case }}"},
-			"Test ${{ matrix.case }}",
-		},
-		{
-			"non-matrix expression stays verbatim",
-			model.Job{Name: "Run for ${{ github.event.number }}"},
-			"Run for ${{ github.event.number }}",
-		},
-		{
-			"no expression",
-			model.Job{Name: "Build"},
-			"Build",
-		},
+// TestJobNameRenderedVerbatim locks the rule that job headings show the name as written:
+// matrix placeholders are never expanded into joined value lists (GitHub creates one job
+// per combination; "Java 17, 21" is a job name that never exists). The Matrix property
+// row carries the axis values instead.
+func TestJobNameRenderedVerbatim(t *testing.T) {
+	w := &model.Workflow{
+		File: "test.yml",
+		Name: "Test",
+		On:   []string{"push"},
+		Jobs: []model.Job{{
+			ID:     "build",
+			Name:   "Java ${{ matrix.java }} on ${{ matrix.os }}",
+			RunsOn: "${{ matrix.os }}",
+			Matrix: []model.MatrixAxis{
+				{Name: "java", Values: []string{"17", "21", "24"}},
+				{Name: "os", Values: []string{"ubuntu-latest", "macos-14"}},
+			},
+		}},
 	}
-	for _, tt := range tests {
-		if got := resolveJobName(&tt.job); got != tt.want {
-			t.Errorf("%s: resolveJobName = %q, want %q", tt.name, got, tt.want)
-		}
+
+	md := RenderMarkdown(w)
+
+	// Heading: the template as written, never "Java 17, 21, 24 on ...".
+	if !strings.Contains(md, "### Java ${{ matrix.java }} on ${{ matrix.os }} (`build`)") {
+		t.Errorf("job heading must show the name verbatim:\n%s", md)
+	}
+	if strings.Contains(md, "Java 17, 21, 24") {
+		t.Errorf("job heading must not expand matrix values:\n%s", md)
+	}
+	// The Matrix property row carries the axis values.
+	if !strings.Contains(md, "| Matrix | `java`: 17, 21, 24; `os`: ubuntu-latest, macos-14 |") {
+		t.Errorf("Matrix property row missing or wrong:\n%s", md)
 	}
 }
 

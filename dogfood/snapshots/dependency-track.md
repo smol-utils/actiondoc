@@ -94,6 +94,7 @@ _meta-build.yaml
 | Property | Value |
 |----------|-------|
 | Runs on | `ubuntu-latest` |
+| Matrix | `distribution`: apiserver, bundled |
 | Depends on | `build-java` |
 
 **Permissions:**

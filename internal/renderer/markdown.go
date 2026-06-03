@@ -85,8 +85,11 @@ func RenderMarkdownGraph(w *model.Workflow, g *callgraph.Graph, id string) strin
 }
 
 func renderJob(b *strings.Builder, job *model.Job, g *callgraph.Graph, fromID string) {
-	// Job heading. The name may embed ${{ matrix.X }} references, expanded to value lists.
-	name := resolveJobName(job)
+	// Job heading. The name renders as written -- placeholders like ${{ matrix.X }} are
+	// never expanded into joined value lists (GitHub creates one job per matrix
+	// combination; "Java 17, 21" is a job name that never exists). The Matrix property
+	// row below shows the axis values the placeholders take.
+	name := job.Name
 	if name != job.ID {
 		fmt.Fprintf(b, "### %s (`%s`)\n\n", name, job.ID)
 	} else {
@@ -111,12 +114,15 @@ func renderJob(b *strings.Builder, job *model.Job, g *callgraph.Graph, fromID st
 	}
 
 	// Properties table
-	hasProps := job.RunsOn != "" || len(job.Needs) > 0 || job.If != ""
+	hasProps := job.RunsOn != "" || len(job.Needs) > 0 || job.If != "" || len(job.Matrix) > 0
 	if hasProps {
 		b.WriteString("| Property | Value |\n")
 		b.WriteString("|----------|-------|\n")
 		if job.RunsOn != "" {
 			fmt.Fprintf(b, "| Runs on | `%s` |\n", escapeCell(job.RunsOn))
+		}
+		if len(job.Matrix) > 0 {
+			fmt.Fprintf(b, "| Matrix | %s |\n", matrixCell(job.Matrix))
 		}
 		if len(job.Needs) > 0 {
 			fmt.Fprintf(b, "| Depends on | %s |\n", codelist(job.Needs))
@@ -223,6 +229,17 @@ func codelist(items []string) string {
 		parts[i] = "`" + s + "`"
 	}
 	return strings.Join(parts, ", ")
+}
+
+// matrixCell formats a job's statically-resolved matrix axes for the properties table:
+// each axis as `name`: v1, v2, joined with "; ". The job heading shows the name template
+// as written; this row is what tells the reader which values its placeholders take.
+func matrixCell(axes []model.MatrixAxis) string {
+	parts := make([]string, len(axes))
+	for i, a := range axes {
+		parts[i] = "`" + escapeCell(a.Name) + "`: " + escapeCell(strings.Join(a.Values, ", "))
+	}
+	return strings.Join(parts, "; ")
 }
 
 // RenderActionMarkdown converts an Action data model into a Markdown document.

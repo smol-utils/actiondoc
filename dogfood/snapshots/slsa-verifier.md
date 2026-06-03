@@ -46,6 +46,7 @@ All scopes: `read-all`.
 | Property | Value |
 |----------|-------|
 | Runs on | `ubuntu-latest` |
+| Matrix | `language`: go, javascript |
 
 **Permissions:**
 
@@ -801,7 +802,7 @@ External workflows referenced: `slsa-framework/slsa-github-generator/.github/wor
 2. **ldflags**
    - ID: `ldflags`
 
-### builder-linux, windows, darwin-amd64, arm64 (`builder`)
+### builder-${{matrix.os}}-${{matrix.arch}} (`builder`)
 
 | Property | Value |
 |----------|-------|

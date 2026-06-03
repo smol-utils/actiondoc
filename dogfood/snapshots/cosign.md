@@ -131,6 +131,7 @@ No permissions granted (`permissions: {}` -- default-deny).
 | Property | Value |
 |----------|-------|
 | Runs on | `ubuntu-latest` |
+| Matrix | `language`: go |
 | Condition | `github.repository == 'sigstore/cosign'` |
 
 **Permissions:**
@@ -435,6 +436,7 @@ No permissions granted (`permissions: {}` -- default-deny).
 | Property | Value |
 |----------|-------|
 | Runs on | `${{ matrix.os }}` |
+| Matrix | `os`: macos-latest, ubuntu-latest |
 
 #### Steps
 
@@ -622,6 +624,7 @@ No permissions granted (`permissions: {}` -- default-deny).
 | Property | Value |
 |----------|-------|
 | Runs on | `${{ matrix.os }}` |
+| Matrix | `os`: macos-latest, ubuntu-latest, windows-latest |
 | Condition | `${{ github.repository == 'sigstore/cosign' }}` |
 
 **Permissions:**
@@ -828,6 +831,7 @@ No permissions granted (`permissions: {}` -- default-deny).
 | Property | Value |
 |----------|-------|
 | Runs on | `ubuntu-latest` |
+| Matrix | `k8s-version`: v1.30.x, v1.31.x, v1.32.x, v1.33.x; `tuf-root`: remote, air-gap |
 
 **Permissions:**
 
@@ -1004,6 +1008,7 @@ No permissions granted (`permissions: {}` -- default-deny).
 | Property | Value |
 |----------|-------|
 | Runs on | `${{ matrix.os }}` |
+| Matrix | `os`: macos-latest, ubuntu-latest, windows-latest |
 
 **Permissions:**
 

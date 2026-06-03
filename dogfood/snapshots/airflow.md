@@ -4345,6 +4345,7 @@ ci-image-checks.yml
 | Property | Value |
 |----------|-------|
 | Runs on | `${{ fromJSON(inputs.runners) }}` |
+| Matrix | `flag`: --docs-only, --spellcheck-only |
 | Condition | `inputs.docs-build == 'true'` |
 
 **Environment (`env`):**
@@ -4661,6 +4662,7 @@ ci-image-checks.yml
 | Property | Value |
 |----------|-------|
 | Runs on | `ubuntu-latest` |
+| Matrix | `branch`: v3-2-test; `workflow-id`: ci-amd.yml |
 
 #### Steps
 
@@ -4758,6 +4760,7 @@ ci-image-checks.yml
 | Property | Value |
 |----------|-------|
 | Runs on | `ubuntu-22.04` |
+| Matrix | `language`: python, javascript, actions, go |
 
 **Permissions:**
 
@@ -8205,11 +8208,12 @@ test-providers.yml
 
 ## Jobs
 
-### Providers wheel, sdist tests (`prepare-install-verify-provider-distributions`)
+### Providers ${{ matrix.package-format }} tests (`prepare-install-verify-provider-distributions`)
 
 | Property | Value |
 |----------|-------|
 | Runs on | `${{ fromJSON(inputs.runners) }}` |
+| Matrix | `package-format`: wheel, sdist |
 
 **Environment (`env`):**
 
