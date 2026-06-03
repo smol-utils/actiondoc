@@ -3,6 +3,7 @@ package renderer
 import (
 	"fmt"
 	"strings"
+	"unicode"
 
 	"github.com/smol-utils/actiondoc/internal/model"
 )
@@ -128,10 +129,11 @@ func firstRunLine(run string) string {
 	return ""
 }
 
-// hasAlphanumeric reports whether s contains at least one letter or digit.
+// hasAlphanumeric reports whether s contains at least one letter or digit in any script,
+// so a run: line written in non-Latin text still counts as meaningful title material.
 func hasAlphanumeric(s string) bool {
 	for _, r := range s {
-		if r >= 'a' && r <= 'z' || r >= 'A' && r <= 'Z' || r >= '0' && r <= '9' {
+		if unicode.IsLetter(r) || unicode.IsDigit(r) {
 			return true
 		}
 	}

@@ -240,4 +240,11 @@ func TestStepTitleSkipsPunctuationLines(t *testing.T) {
 	if got := stepTitle(&model.Step{Run: "{\n}\n"}, 4); got != "Step 4" {
 		t.Errorf("stepTitle = %q, want positional fallback for punctuation-only script", got)
 	}
+	// Letters and digits in any script count as meaningful, not just ASCII.
+	if got := stepTitle(&model.Step{Run: "{\n  输出结果\n}"}, 1); got != "输出结果" {
+		t.Errorf("stepTitle = %q, want the non-Latin run line used as the title", got)
+	}
+	if got := stepTitle(&model.Step{Run: "(λ)"}, 1); got != "(λ)" {
+		t.Errorf("stepTitle = %q, want a line with a non-ASCII letter kept", got)
+	}
 }
