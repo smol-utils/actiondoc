@@ -213,6 +213,29 @@ func TestApply_EnvironmentName(t *testing.T) {
 	}
 }
 
+func TestApply_RationaleFreeTextRedacted(t *testing.T) {
+	// Free text in permission and cron rationale comments must be swept for hosts/URLs.
+	w := &model.Workflow{
+		Permissions: &model.Permissions{Scopes: []model.Permission{
+			{Scope: "contents", Level: "read", Rationale: "mirror from registry.internal.corp"},
+		}},
+		Triggers: &model.Triggers{Schedule: []model.CronEntry{
+			{Cron: "0 0 * * *", Rationale: "nightly sync to backup.internal.corp"},
+		}},
+	}
+	Apply(wf(w), Options{})
+	if got := w.Permissions.Scopes[0].Rationale; got != "mirror from HOST_2" {
+		t.Errorf("permission rationale: got %q", got)
+	}
+	if got := w.Triggers.Schedule[0].Rationale; got != "nightly sync to HOST_1" {
+		t.Errorf("cron rationale: got %q", got)
+	}
+	// Scope/level are not sensitive and stay intact.
+	if w.Permissions.Scopes[0].Scope != "contents" || w.Permissions.Scopes[0].Level != "read" {
+		t.Errorf("permission scope/level should be untouched: %+v", w.Permissions.Scopes[0])
+	}
+}
+
 func TestApply_GitHubTokenKept(t *testing.T) {
 	w := &model.Workflow{Jobs: []model.Job{{
 		ID:    "j",

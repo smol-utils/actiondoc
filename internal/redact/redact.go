@@ -322,6 +322,7 @@ func (r *redactor) collectWorkflow(w *model.Workflow) {
 	if w.Concurrency != nil {
 		r.noteFree(w.Concurrency.Group)
 	}
+	r.collectPermissions(w.Permissions)
 	r.collectTriggers(w.Triggers)
 	for ji := range w.Jobs {
 		r.collectJob(&w.Jobs[ji])
@@ -338,6 +339,7 @@ func (r *redactor) rewriteWorkflow(w *model.Workflow) {
 	if w.Concurrency != nil {
 		w.Concurrency.Group = r.redactFree(w.Concurrency.Group)
 	}
+	r.rewritePermissions(w.Permissions)
 	r.rewriteTriggers(w.Triggers)
 	for ji := range w.Jobs {
 		r.rewriteJob(&w.Jobs[ji])
@@ -363,6 +365,7 @@ func (r *redactor) collectJob(j *model.Job) {
 	if j.Concurrency != nil {
 		r.noteFree(j.Concurrency.Group)
 	}
+	r.collectPermissions(j.Permissions)
 	if j.Environment != nil {
 		r.noteEnvironmentName(j.Environment.Name)
 		r.noteFree(j.Environment.URL)
@@ -396,6 +399,7 @@ func (r *redactor) rewriteJob(j *model.Job) {
 	if j.Concurrency != nil {
 		j.Concurrency.Group = r.redactFree(j.Concurrency.Group)
 	}
+	r.rewritePermissions(j.Permissions)
 	if j.Environment != nil {
 		j.Environment.Name = r.redactEnvironmentName(j.Environment.Name)
 		j.Environment.URL = r.redactFree(j.Environment.URL)
@@ -438,9 +442,34 @@ func (r *redactor) rewriteStep(s *model.Step) {
 	}
 }
 
+// collectPermissions / rewritePermissions sweep the optional rationale comments on a
+// permissions: block (e.g. `contents: read  # for the internal mirror`), which are
+// free text that can carry a hostname. The scopes and levels themselves are not
+// sensitive and are left intact.
+func (r *redactor) collectPermissions(p *model.Permissions) {
+	if p == nil {
+		return
+	}
+	for _, s := range p.Scopes {
+		r.noteFree(s.Rationale)
+	}
+}
+
+func (r *redactor) rewritePermissions(p *model.Permissions) {
+	if p == nil {
+		return
+	}
+	for i := range p.Scopes {
+		p.Scopes[i].Rationale = r.redactFree(p.Scopes[i].Rationale)
+	}
+}
+
 func (r *redactor) collectTriggers(t *model.Triggers) {
 	if t == nil {
 		return
+	}
+	for _, c := range t.Schedule {
+		r.noteFree(c.Rationale)
 	}
 	if t.Call != nil {
 		for _, sec := range t.Call.Secrets {
@@ -467,6 +496,9 @@ func (r *redactor) collectTriggers(t *model.Triggers) {
 func (r *redactor) rewriteTriggers(t *model.Triggers) {
 	if t == nil {
 		return
+	}
+	for i := range t.Schedule {
+		t.Schedule[i].Rationale = r.redactFree(t.Schedule[i].Rationale)
 	}
 	if t.Call != nil {
 		for i := range t.Call.Secrets {

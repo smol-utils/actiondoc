@@ -201,7 +201,10 @@ so the same input always produces the same output and diffs stay reviewable.
 ### What is NOT redacted
 
 - Pipeline structure: jobs, triggers, permissions, the call-graph shape, matrix shape.
-- Workflow / job / step / action **names** (titles), which are structural anchors.
+- Workflow / job / step / action **names** (titles), which are structural anchors. They
+  are kept verbatim (redacting them would desync the call-graph cross-links), so a name is
+  the one place a hostname is not swept -- avoid putting sensitive hosts in names if you
+  intend to share redacted output.
 - `uses:` references, including local paths and `owner/repo` refs -- redacting them would
   break call-graph resolution. (Hosts inside a `uses:`-style value are not treated as URLs.)
 - `${{ }}` expression structure and well-known contexts (`github.*`, `matrix.*`,
