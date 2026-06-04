@@ -65,7 +65,7 @@ func Generate(args []string) error {
 	// (inventories, transitive requirements, per-step tables) stay consistent.
 	redactOn := *redactFlag || *redactAggressiveFlag
 	if *redactMapFlag != "" && !redactOn {
-		return fmt.Errorf("-redact-map requires -redact or -redact-aggressive")
+		return fmt.Errorf("--redact-map requires --redact or --redact-aggressive")
 	}
 	if redactOn {
 		level := redact.Conservative

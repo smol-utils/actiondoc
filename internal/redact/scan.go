@@ -79,46 +79,100 @@ func isIdentChar(c byte) bool {
 	return c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9' || c == '_' || c == '-'
 }
 
-// walkIdents calls fn(ctx, name) for every `ctx.IDENT` reference in s, for each ctx in
-// contexts. The leading-boundary check avoids matching a longer identifier that merely
-// ends in ctx (mysecrets.X) or property access on an unrelated value
+// parseAccessor parses the property accessor that follows a context word at pos (the
+// index just past the context). It recognizes both forms GitHub expressions allow:
+//
+//	dot form     secrets.NAME
+//	bracket form secrets['NAME']  or  secrets["NAME"]
+//
+// The bracket form is the only way to reference a name containing characters outside the
+// identifier set (notably the hyphens common in workflow_call secret/input keys), so it
+// must be handled or those names leak through redaction. It returns the bounds of the
+// NAME substring, the index just past the whole accessor, and whether a name was found.
+func parseAccessor(s string, pos int) (nameStart, nameEnd, accEnd int, ok bool) {
+	if pos >= len(s) {
+		return 0, 0, 0, false
+	}
+	switch s[pos] {
+	case '.':
+		nameStart = pos + 1
+		j := nameStart
+		for j < len(s) && isIdentChar(s[j]) {
+			j++
+		}
+		if j == nameStart {
+			return 0, 0, 0, false
+		}
+		return nameStart, j, j, true
+	case '[':
+		k := pos + 1
+		for k < len(s) && s[k] == ' ' {
+			k++
+		}
+		if k >= len(s) || (s[k] != '\'' && s[k] != '"') {
+			return 0, 0, 0, false
+		}
+		quote := s[k]
+		nameStart = k + 1
+		m := nameStart
+		for m < len(s) && s[m] != quote {
+			m++
+		}
+		if m >= len(s) || m == nameStart {
+			return 0, 0, 0, false
+		}
+		nameEnd = m
+		k = m + 1
+		for k < len(s) && s[k] == ' ' {
+			k++
+		}
+		if k >= len(s) || s[k] != ']' {
+			return 0, 0, 0, false
+		}
+		return nameStart, nameEnd, k + 1, true
+	default:
+		return 0, 0, 0, false
+	}
+}
+
+// walkIdents calls fn(ctx, name) for every `ctx.NAME` or `ctx['NAME']` reference in s, for
+// each ctx in contexts. The leading-boundary check avoids matching a longer identifier
+// that merely ends in ctx (mysecrets.X) or property access on an unrelated value
 // (steps.secrets.outputs.X). It is the single definition both passes use: collection
 // records the names, rewrite replaces them.
 func walkIdents(s string, fn func(ctx, name string)) {
 	for _, ctx := range contexts {
-		needle := ctx + "."
-		body := s
 		offset := 0
 		for {
-			i := strings.Index(body[offset:], needle)
+			i := strings.Index(s[offset:], ctx)
 			if i < 0 {
 				break
 			}
 			i += offset
+			pos := i + len(ctx)
 			// Require a non-identifier char (or start of string) before the context, and
-			// that the char before is not a dot (property access).
-			if i > 0 && (isIdentChar(body[i-1]) || body[i-1] == '.') {
-				offset = i + len(needle)
+			// that the char before is not a dot (property access on another value).
+			if i > 0 && (isIdentChar(s[i-1]) || s[i-1] == '.') {
+				offset = pos
 				continue
 			}
-			start := i + len(needle)
-			j := start
-			for j < len(body) && isIdentChar(body[j]) {
-				j++
+			nameStart, nameEnd, accEnd, ok := parseAccessor(s, pos)
+			if !ok {
+				offset = pos
+				continue
 			}
-			if j > start {
-				fn(ctx, body[start:j])
-			}
-			offset = j
+			fn(ctx, s[nameStart:nameEnd])
+			offset = accEnd
 		}
 	}
 }
 
-// rewriteIdents replaces every `ctx.OLD` whose OLD is mapped in repl[ctx] with
-// `ctx.NEW`, preserving everything else. It walks s once, honoring the same identifier
-// boundaries as walkIdents so it can never replace a partial match.
+// rewriteIdents replaces every `ctx.OLD` / `ctx['OLD']` whose OLD is mapped in repl[ctx]
+// with the same accessor shape around the new name, preserving everything else (including
+// the bracket quotes). It walks s once, honoring the same boundaries as walkIdents so it
+// can never replace a partial match.
 func rewriteIdents(s string, repl map[string]map[string]string) string {
-	if !strings.Contains(s, ".") {
+	if !strings.ContainsAny(s, ".[") {
 		return s
 	}
 	var b strings.Builder
@@ -130,25 +184,27 @@ func rewriteIdents(s string, repl map[string]map[string]string) string {
 		atBoundary := i == 0 || !(isIdentChar(s[i-1]) || s[i-1] == '.')
 		if atBoundary {
 			for _, ctx := range contexts {
-				needle := ctx + "."
-				if !strings.HasPrefix(s[i:], needle) {
+				if !strings.HasPrefix(s[i:], ctx) {
 					continue
 				}
-				start := i + len(needle)
-				j := start
-				for j < len(s) && isIdentChar(s[j]) {
-					j++
+				pos := i + len(ctx)
+				nameStart, nameEnd, accEnd, ok := parseAccessor(s, pos)
+				if !ok {
+					continue
 				}
-				name := s[start:j]
-				if repl[ctx] != nil {
-					if to, ok := repl[ctx][name]; ok {
-						b.WriteString(needle)
-						b.WriteString(to)
-						i = j
-						matched = true
-						break
-					}
+				name := s[nameStart:nameEnd]
+				to, mapped := repl[ctx][name]
+				if !mapped {
+					continue
 				}
+				// Copy the context plus the accessor punctuation up to the name (the "."
+				// or the "['"), then the new name, then the punctuation after it.
+				b.WriteString(s[i:nameStart])
+				b.WriteString(to)
+				b.WriteString(s[nameEnd:accEnd])
+				i = accEnd
+				matched = true
+				break
 			}
 		}
 		if matched {

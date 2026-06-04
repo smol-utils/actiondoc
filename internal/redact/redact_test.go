@@ -100,6 +100,33 @@ func TestApply_ExpressionStructurePreserved(t *testing.T) {
 	}
 }
 
+func TestApply_BracketNotationIdentifiers(t *testing.T) {
+	// GitHub requires bracket notation for names with characters outside the identifier
+	// set (hyphens are common in workflow_call keys). Both quote styles must be redacted,
+	// the bracket shape preserved, and a hyphenated name must not leak.
+	w := &model.Workflow{Jobs: []model.Job{{
+		ID: "j",
+		Steps: []model.Step{{
+			Run: "a ${{ secrets['my-secret'] }} b ${{ vars[\"REGION-WEST\"] }} c ${{ secrets.PLAIN }}",
+		}},
+	}}}
+	m := Apply(wf(w), Options{})
+	got := w.Jobs[0].Steps[0].Run
+	for _, leak := range []string{"my-secret", "REGION-WEST"} {
+		if strings.Contains(got, leak) {
+			t.Errorf("bracket-form name leaked (%q) in: %q", leak, got)
+		}
+	}
+	// Numbering follows sorted order: "PLAIN" sorts before "my-secret" (byte order).
+	want := "a ${{ secrets['SECRET_2'] }} b ${{ vars[\"VAR_1\"] }} c ${{ secrets.SECRET_1 }}"
+	if got != want {
+		t.Errorf("got  %q\nwant %q", got, want)
+	}
+	if m.entries["SECRET_2"] != "my-secret" || m.entries["VAR_1"] != "REGION-WEST" {
+		t.Errorf("mapping wrong: %v", m.entries)
+	}
+}
+
 func TestApply_HostsAndURLs(t *testing.T) {
 	w := &model.Workflow{
 		Description: "see https://docs.corp.example/x and deploy.internal.corp",

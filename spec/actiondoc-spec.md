@@ -189,7 +189,7 @@ reference tables -- stay intact.
 | Secret names | `SECRET_n` | `@secret`, `workflow_call` secrets, forwarded `secrets:` keys, `${{ secrets.X }}` |
 | Variable names | `VAR_n` | `${{ vars.X }}` |
 | Env-var names | `ENV_n` | `env:` keys, `@env`, `${{ env.X }}` |
-| Self-hosted runner labels | `RUNNER_n` | `runs-on:` labels outside the GitHub-hosted set |
+| Self-hosted runner labels | `RUNNER_n` | `runs-on:` labels (and `group:` names) outside the GitHub-hosted set |
 | Deploy environment names | `ENVIRONMENT_n` | `environment:` |
 | URLs | `URL_n` | scheme-qualified URLs in any field's literal text (outside `${{ }}`) |
 | Hostnames | `HOST_n` | bare dotted hostnames in any field's literal text (outside `${{ }}`) |
@@ -233,9 +233,15 @@ best-effort. It recognizes scheme-qualified URLs and bare dotted domains, and sk
 file extensions (`config.yaml` is not a host), but it cannot catch every internal hostname
 (a single-label internal name with no dot will pass through) and may over-match a dotted
 token that happens to look like a domain. Identifier redaction (secret/variable/env names)
-is exact, because those come from parsed fields. Under the aggressive profile, a bare host
-that appears both as a literal value and elsewhere in free text is pseudonymized
+is exact, because those come from parsed fields, and covers both the dot and quoted-bracket
+expression forms (`secrets.NAME` and `secrets['NAME']`). Under the aggressive profile, a
+bare host that appears both as a literal value and elsewhere in free text is pseudonymized
 consistently only in the conservative profile; identifier consistency holds in both.
+
+The set of GitHub-hosted runner labels that are kept readable is maintained by hand, so a
+newly introduced hosted label may not be recognized and would be redacted to `RUNNER_n`.
+That is safe -- over-redaction, never a leak -- but means an unfamiliar `RUNNER_n` is not
+proof a runner is self-hosted.
 
 ## Design Principles
 
