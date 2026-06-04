@@ -23,7 +23,7 @@ func Generate(args []string) error {
 	outFlag := fs.String("o", "", "output file (default: stdout)")
 	jsonFlag := fs.Bool("json", false, "output JSON instead of Markdown")
 	redactFlag := fs.Bool("redact", false, "redact sensitive identifiers (secrets, vars, env, hosts, URLs, runner labels, environments) in the output")
-	redactAggressiveFlag := fs.Bool("redact-aggressive", false, "redact as with -redact, and also replace all literal env:/with: values with placeholders")
+	redactAggressiveFlag := fs.Bool("redact-aggressive", false, "redact as with --redact, and also replace all literal env:/with: values with placeholders")
 	redactMapFlag := fs.String("redact-map", "", "write the placeholder->original reverse map to this file (for de-redacting output later)")
 	fs.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage: actiondoc generate [flags] [path]\n\n")
