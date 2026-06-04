@@ -155,6 +155,97 @@ them with information the YAML can't express: `@secret`, `@env`, `@deprecated`, 
 - `runs:` -- execution method (node20, docker, composite)
 - `branding:` -- icon and color
 
+## Redacted Output
+
+Generated documentation can carry sensitive-but-unclassified (SBU) material: secret and
+variable names, environment-variable names and values, hostnames and URLs, deploy
+environment names, and self-hosted runner labels. Redacted mode replaces that material
+with stable placeholders so the output can be shared outside the owning team or handed to
+an external service -- for example, an LLM asked to write prose documentation from the
+structure.
+
+```bash
+# Conservative redaction (default profile)
+actiondoc generate --redact
+
+# Also write a local reverse map so real names can be restored afterward
+actiondoc generate --redact --redact-map redaction-map.json
+
+# Aggressive: additionally replace every literal env:/with: value
+actiondoc generate --redact-aggressive
+```
+
+Redaction applies to both Markdown and JSON output.
+
+### What is redacted
+
+Redaction is **consistent pseudonymization, not blanking**: the same original always maps
+to the same placeholder, so the cross-references that make the output useful -- the
+secret/variable inventories, the call-graph transitive requirements, and the per-step
+reference tables -- stay intact.
+
+| Category | Placeholder | Source |
+|----------|-------------|--------|
+| Secret names | `SECRET_n` | `@secret`, `workflow_call` secrets, forwarded `secrets:` keys, `${{ secrets.X }}` |
+| Variable names | `VAR_n` | `${{ vars.X }}` |
+| Env-var names | `ENV_n` | `env:` keys, `@env`, `${{ env.X }}` |
+| Self-hosted runner labels | `RUNNER_n` | `runs-on:` labels (and `group:` names) outside the GitHub-hosted set |
+| Deploy environment names | `ENVIRONMENT_n` | `environment:` |
+| URLs | `URL_n` | scheme-qualified URLs in any field's literal text (outside `${{ }}`) |
+| Hostnames | `HOST_n` | bare dotted hostnames in any field's literal text (outside `${{ }}`) |
+| Literal values | `VALUE_n` | every literal `env:`/`with:` value (aggressive only) |
+
+Placeholder numbering is **deterministic**: originals are sorted before they are numbered,
+so the same input always produces the same output and diffs stay reviewable.
+
+### What is NOT redacted
+
+- Pipeline structure: jobs, triggers, permissions, the call-graph shape, matrix shape.
+- Workflow / job / step / action **names** (titles), which are structural anchors. They
+  are kept verbatim (redacting them would desync the call-graph cross-links), so a name is
+  the one place a hostname is not swept -- avoid putting sensitive hosts in names if you
+  intend to share redacted output.
+- `uses:` references, including local paths and `owner/repo` refs -- redacting them would
+  break call-graph resolution. (Hosts inside a `uses:`-style value are not treated as URLs.)
+- `${{ }}` expression structure and well-known contexts (`github.*`, `matrix.*`,
+  `inputs.*`): only the sensitive identifiers inside an expression are replaced.
+- `GITHUB_TOKEN` and GitHub-hosted runner labels (`ubuntu-latest`, etc.), which are
+  universal and carry no private information.
+- Under the conservative profile, harmless literal values such as `node-version: 20`.
+
+### Fields that accept a literal or an expression
+
+GitHub Actions fields routinely accept either a literal or a `${{ expression }}`. Redaction
+handles both uniformly: a literal is matched for hosts/URLs (and, under the aggressive
+profile, replaced wholesale), while an expression has only its sensitive identifiers
+replaced and its structure preserved. A value mixing the two (`prefix-${{ secrets.X }}`)
+is handled span by span.
+
+### The reverse map
+
+`--redact-map <path>` writes a JSON map of placeholder to original to a local file. This
+closes the external round-trip: redact, let the external service write prose, then
+substitute the real names back locally. The map is the one piece of redaction output that
+is **not** safe to share -- it is written only to the explicit path given, never to stdout
+or mixed into the documentation, and should not be committed.
+
+### Limits
+
+Hostname detection in free text (descriptions, `run:` scripts) is regex-based and
+best-effort. It recognizes scheme-qualified URLs and bare dotted domains, and skips common
+file extensions (`config.yaml` is not a host), but it cannot catch every internal hostname
+(a single-label internal name with no dot will pass through) and may over-match a dotted
+token that happens to look like a domain. Identifier redaction (secret/variable/env names)
+is exact, because those come from parsed fields, and covers both the dot and quoted-bracket
+expression forms (`secrets.NAME` and `secrets['NAME']`). Under the aggressive profile, a
+bare host that appears both as a literal value and elsewhere in free text is pseudonymized
+consistently only in the conservative profile; identifier consistency holds in both.
+
+The set of GitHub-hosted runner labels that are kept readable is maintained by hand, so a
+newly introduced hosted label may not be recognized and would be redacted to `RUNNER_n`.
+That is safe -- over-redaction, never a leak -- but means an unfamiliar `RUNNER_n` is not
+proof a runner is self-hosted.
+
 ## Design Principles
 
 1. **No CI impact.** ActionDoc comments are standard YAML comments. They are invisible to GitHub Actions and all YAML parsers. Adding them cannot break your CI.

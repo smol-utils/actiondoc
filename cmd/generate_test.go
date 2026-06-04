@@ -264,3 +264,76 @@ func TestGenerateJSONOutput(t *testing.T) {
 		}
 	}
 }
+
+// TestGenerateRedact verifies that -redact rewrites the output (secret names become
+// placeholders) and that -redact-map writes the reverse map to the named file only.
+func TestGenerateRedact(t *testing.T) {
+	root := t.TempDir()
+	wf := filepath.Join(root, ".github", "workflows")
+	if err := os.MkdirAll(wf, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	content := "name: Deploy\n" +
+		"on: push\n" +
+		"jobs:\n" +
+		"  deploy:\n" +
+		"    runs-on: [self-hosted, prod-gpu]\n" +
+		"    steps:\n" +
+		"      - name: Push\n" +
+		"        env:\n" +
+		"          API_URL: https://api.internal.corp/v1\n" +
+		"        run: |\n" +
+		"          curl -H \"x: ${{ secrets.DEPLOY_TOKEN }}\" \"$API_URL\"\n"
+	if err := os.WriteFile(filepath.Join(wf, "deploy.yml"), []byte(content), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	out := filepath.Join(t.TempDir(), "out.md")
+	mapPath := filepath.Join(t.TempDir(), "map.json")
+	if err := Generate([]string{"-redact", "-redact-map", mapPath, "-o", out, wf}); err != nil {
+		t.Fatalf("Generate -redact: %v", err)
+	}
+
+	md, _ := os.ReadFile(out)
+	got := string(md)
+	if strings.Contains(got, "DEPLOY_TOKEN") || strings.Contains(got, "api.internal.corp") || strings.Contains(got, "prod-gpu") {
+		t.Errorf("redacted output still contains sensitive material:\n%s", got)
+	}
+	for _, want := range []string{"SECRET_1", "URL_1", "RUNNER_1"} {
+		if !strings.Contains(got, want) {
+			t.Errorf("redacted output missing placeholder %q:\n%s", want, got)
+		}
+	}
+
+	rawMap, err := os.ReadFile(mapPath)
+	if err != nil {
+		t.Fatalf("reading redaction map: %v", err)
+	}
+	var m map[string]string
+	if err := json.Unmarshal(rawMap, &m); err != nil {
+		t.Fatalf("redaction map is not valid JSON: %v\n%s", err, rawMap)
+	}
+	if m["SECRET_1"] != "DEPLOY_TOKEN" {
+		t.Errorf("reverse map wrong: %v", m)
+	}
+}
+
+// TestGenerateRedactMapRequiresRedact verifies that -redact-map without a redact flag is a
+// usage error, so the map file is never produced for non-redacted output.
+func TestGenerateRedactMapRequiresRedact(t *testing.T) {
+	root := t.TempDir()
+	wf := filepath.Join(root, ".github", "workflows")
+	if err := os.MkdirAll(wf, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(wf, "ci.yml"), []byte("name: CI\non: push\njobs:\n  x:\n    runs-on: ubuntu-latest\n    steps:\n      - run: echo hi\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	mapPath := filepath.Join(t.TempDir(), "map.json")
+	if err := Generate([]string{"-redact-map", mapPath, wf}); err == nil {
+		t.Fatal("expected error when -redact-map is used without -redact")
+	}
+	if _, err := os.Stat(mapPath); err == nil {
+		t.Error("redaction map should not be written on usage error")
+	}
+}

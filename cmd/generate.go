@@ -13,6 +13,7 @@ import (
 
 	"github.com/smol-utils/actiondoc/internal/callgraph"
 	"github.com/smol-utils/actiondoc/internal/parser"
+	"github.com/smol-utils/actiondoc/internal/redact"
 	"github.com/smol-utils/actiondoc/internal/renderer"
 )
 
@@ -21,6 +22,9 @@ func Generate(args []string) error {
 	fs := flag.NewFlagSet("generate", flag.ContinueOnError)
 	outFlag := fs.String("o", "", "output file (default: stdout)")
 	jsonFlag := fs.Bool("json", false, "output JSON instead of Markdown")
+	redactFlag := fs.Bool("redact", false, "redact sensitive identifiers (secrets, vars, env, hosts, URLs, runner labels, environments) in the output")
+	redactAggressiveFlag := fs.Bool("redact-aggressive", false, "redact as with --redact, and also replace all literal env:/with: values with placeholders")
+	redactMapFlag := fs.String("redact-map", "", "write the placeholder->original reverse map to this file (for de-redacting output later)")
 	fs.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage: actiondoc generate [flags] [path]\n\n")
 		fmt.Fprintf(os.Stderr, "Generates documentation for GitHub Actions workflow and action files.\n\n")
@@ -55,6 +59,27 @@ func Generate(args []string) error {
 	graph := callgraph.Build(sources)
 	linkCompositeActions(sources, graph)
 
+	// Redaction is one transform over the parsed model, after the call graph is built (so
+	// `uses:` resolution worked on real refs) and before rendering. Every rendered surface
+	// derives from this model, so both Markdown and JSON honor it, and cross-references
+	// (inventories, transitive requirements, per-step tables) stay consistent.
+	redactOn := *redactFlag || *redactAggressiveFlag
+	if *redactMapFlag != "" && !redactOn {
+		return fmt.Errorf("--redact-map requires --redact or --redact-aggressive")
+	}
+	if redactOn {
+		level := redact.Conservative
+		if *redactAggressiveFlag {
+			level = redact.Aggressive
+		}
+		mapping := redact.Apply(sources, redact.Options{Level: level})
+		if *redactMapFlag != "" {
+			if err := writeRedactionMap(*redactMapFlag, mapping); err != nil {
+				return err
+			}
+		}
+	}
+
 	var output string
 	if *jsonFlag {
 		output, err = renderJSONOutput(sources)
@@ -78,6 +103,25 @@ func Generate(args []string) error {
 	// partially-parsed run as success.
 	if parseFailures > 0 {
 		return fmt.Errorf("%d file(s) failed to parse", parseFailures)
+	}
+	return nil
+}
+
+// writeRedactionMap writes the placeholder->original reverse map to path. The map is the
+// one piece of redaction output that is NOT safe to share: it is written only to this
+// explicit local file, never to stdout or mixed into the documentation. An empty mapping
+// (nothing matched) still writes a valid, empty JSON object so the file's presence is
+// predictable.
+func writeRedactionMap(path string, m *redact.Mapping) error {
+	data, err := m.JSON()
+	if err != nil {
+		return fmt.Errorf("building redaction map: %w", err)
+	}
+	if data == nil {
+		data = []byte("{}")
+	}
+	if err := os.WriteFile(path, append(data, '\n'), 0600); err != nil {
+		return fmt.Errorf("writing redaction map %s: %w", path, err)
 	}
 	return nil
 }
