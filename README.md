@@ -90,6 +90,34 @@ Build and push the Docker image to ECR.
 | `ECR_REGISTRY` | - | Must be set in repository variables |
 ```
 
+### Call graphs and cross-file requirements
+
+The bigger win is *across* files. Pointed at a `.github/workflows` directory, actiondoc
+follows `uses:` into reusable workflows and composite actions, then rolls up every secret
+and permission the whole chain needs -- the question a security review or a new hire asks
+first.
+
+A `release.yml` that calls a reusable `publish.yml` and a local `notify` action produces:
+
+````markdown
+## Call graph (rooted at this workflow)
+
+```
+release.yml [push]
++-- publish (uses publish.yml)
++-- announce / Notify (uses ./.github/actions/notify)
+```
+
+## Transitive requirements (from full call graph)
+
+Secrets referenced (literal names): `NPM_TOKEN`, `SLACK_WEBHOOK_URL`, `npm-token`
+
+Permissions declared across the chain: `contents: read`, `id-token: write (OIDC)`
+````
+
+For the full output on real-world repositories (Airflow, jreleaser, and more), see
+[`dogfood/snapshots/`](dogfood/snapshots).
+
 ---
 
 ## Comment Tags
