@@ -232,10 +232,16 @@ or mixed into the documentation, and should not be committed.
 ### Limits
 
 Hostname detection in free text (descriptions, `run:` scripts) is regex-based and
-best-effort. It recognizes scheme-qualified URLs and bare dotted domains, and skips common
-file extensions (`config.yaml` is not a host), but it cannot catch every internal hostname
-(a single-label internal name with no dot will pass through) and may over-match a dotted
-token that happens to look like a domain. Identifier redaction (secret/variable/env names)
+best-effort. Scheme-qualified URLs are always redacted whole. A bare dotted token is
+treated as a hostname only when it is all-lowercase, its final label is not a known file
+extension, and its final label is a recognized public TLD or internal pseudo-TLD
+(`.internal`, `.corp`, `.local`, `.svc`, and similar). This keeps the dotted tokens that
+crowd shell scripts -- Java `-D` system properties, Maven coordinates
+(`org.codehaus.mojo`), archive names (`*.jar`), git config keys (`user.email`) --
+readable. The residual limits run the other way: a single-label internal name with no
+dot, or a host under an unrecognized TLD, passes through unredacted. `.name` and `.email`
+are deliberately unrecognized because they collide with git config keys; put such hosts
+behind a scheme (`https://...`) if they must be caught. Identifier redaction (secret/variable/env names)
 is exact, because those come from parsed fields, and covers both the dot and quoted-bracket
 expression forms (`secrets.NAME` and `secrets['NAME']`). Under the aggressive profile, a
 bare host that appears both as a literal value and elsewhere in free text is pseudonymized

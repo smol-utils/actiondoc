@@ -29,21 +29,57 @@ var contexts = []string{"secrets", "vars", "env"}
 // embedded in prose or a shell command does not swallow the surrounding text.
 var urlRe = regexp.MustCompile("(?i)\\b[a-z][a-z0-9+.-]*://[^\\s\"'`<>()\\[\\]{}|]+")
 
-// hostRe matches a bare dotted hostname (deploy.internal.corp, registry.example.com).
-// It deliberately requires at least one dot and an alphabetic final label so that
-// version strings (1.2.3) and most numeric tokens do not match. File-like names
-// (deploy.yml) still match the shape, so the rewrite step filters them with a
-// known-extension denylist; see looksLikeFilename.
+// hostRe matches the shape of a bare dotted hostname (deploy.internal.corp,
+// registry.example.com): dotted labels with an alphabetic final label, so version
+// strings (1.2.3) and most numeric tokens do not match. Shell-heavy run: scripts are
+// full of dotted tokens that share this shape without being hosts (Java -D properties,
+// Maven coordinates, filenames, git config keys), so a shape match is only treated as a
+// host when isLikelyHost agrees.
 var hostRe = regexp.MustCompile("(?i)\\b(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z][a-z0-9-]*[a-z]\\b")
 
 // fileExts are trailing labels that are almost always file extensions rather than a
 // domain's TLD. A dotted token ending in one of these is left untouched, so config.yaml
-// or deploy.sh is not mistaken for a hostname.
+// or dependency-track-bundled.jar is not mistaken for a hostname. Checked before the
+// TLD allowlist, so an extension that is also a real TLD (.sh, .zip) stays a filename.
 var fileExts = map[string]bool{
 	"yml": true, "yaml": true, "json": true, "md": true, "txt": true,
 	"go": true, "js": true, "ts": true, "sh": true, "py": true, "rb": true,
 	"lock": true, "mod": true, "sum": true, "toml": true, "cfg": true,
 	"ini": true, "xml": true, "html": true, "css": true, "env": true,
+	"jar": true, "war": true, "ear": true, "class": true,
+	"tar": true, "gz": true, "tgz": true, "zip": true, "bz2": true, "xz": true, "zst": true,
+	"exe": true, "dll": true, "dylib": true, "bin": true, "deb": true, "rpm": true,
+	"png": true, "jpg": true, "jpeg": true, "gif": true, "svg": true, "ico": true,
+	"pdf": true, "csv": true, "log": true, "bak": true, "tmp": true,
+	"conf": true, "properties": true, "gradle": true, "kts": true,
+	"ps1": true, "bat": true, "cmd": true, "sql": true, "proto": true,
+	"java": true, "kt": true, "rs": true, "c": true, "h": true, "cpp": true, "hpp": true,
+	"scala": true, "sbt": true, "groovy": true, "php": true, "pl": true, "swift": true,
+}
+
+// hostTLDs are final labels a bare dotted token must end in to be treated as a hostname:
+// common public TLDs plus the pseudo-TLDs used for internal and cluster-local names.
+// This is the precision lever for free-text host detection -- without it, Java system
+// properties (logback.configuration.file), Maven coordinates (org.codehaus.mojo), and
+// git config keys (user.email) all match the hostname shape. Deliberately absent: "name"
+// and "email", which are real but rare TLDs that collide with ubiquitous git config keys.
+// A host under a TLD not listed here passes through unredacted; the spec documents this
+// limit. Scheme-qualified URLs are unaffected (any URL is redacted whole).
+var hostTLDs = map[string]bool{
+	// generic
+	"com": true, "net": true, "org": true, "io": true, "dev": true, "co": true,
+	"app": true, "ai": true, "cloud": true, "tech": true, "biz": true, "info": true,
+	"xyz": true, "online": true, "site": true, "systems": true, "tools": true,
+	"run": true, "page": true, "link": true, "edu": true, "gov": true, "mil": true, "int": true,
+	// common country codes
+	"us": true, "uk": true, "de": true, "fr": true, "nl": true, "se": true, "no": true,
+	"fi": true, "dk": true, "it": true, "es": true, "pt": true, "pl": true, "cz": true,
+	"ch": true, "at": true, "be": true, "ie": true, "jp": true, "cn": true, "kr": true,
+	"in": true, "au": true, "nz": true, "ca": true, "br": true, "mx": true, "za": true, "eu": true,
+	// internal / cluster-local pseudo-TLDs
+	"internal": true, "corp": true, "local": true, "lan": true, "intranet": true,
+	"private": true, "home": true, "test": true, "example": true, "invalid": true,
+	"localdomain": true, "cluster": true, "svc": true, "dmz": true,
 }
 
 // keepSecrets are built-in secret names that are universal GitHub knowledge, not
@@ -63,14 +99,21 @@ var keepRunners = map[string]bool{
 	"x64": true, "x86": true, "arm": true, "arm64": true,
 }
 
-// looksLikeFilename reports whether a dotted token's final label is a common file
-// extension, so the host scanner can skip it.
-func looksLikeFilename(host string) bool {
-	dot := strings.LastIndex(host, ".")
+// isLikelyHost reports whether a token that matched the hostname shape should actually
+// be treated as a bare hostname. Three signals, all required: hostnames in workflow YAML
+// are written lowercase (an uppercase letter means an identifier or filename, e.g.
+// Dockerfile.alpine or a -Dlogback... Java flag); the final label must not be a known
+// file extension; and the final label must be a recognized public or internal TLD.
+func isLikelyHost(token string) bool {
+	if token != strings.ToLower(token) {
+		return false
+	}
+	dot := strings.LastIndex(token, ".")
 	if dot < 0 {
 		return false
 	}
-	return fileExts[strings.ToLower(host[dot+1:])]
+	last := token[dot+1:]
+	return !fileExts[last] && hostTLDs[last]
 }
 
 // isIdentChar reports whether c can appear in a secret/var/env identifier. Names may
@@ -275,7 +318,7 @@ func walkHostsURLs(s string, onURL, onHost func(string)) {
 		return " " // collapse so the embedded host is not re-scanned below
 	})
 	for _, h := range hostRe.FindAllString(rest, -1) {
-		if looksLikeFilename(h) {
+		if !isLikelyHost(h) {
 			continue
 		}
 		onHost(h)
@@ -298,7 +341,7 @@ func rewriteHostsURLs(s string, urls, hosts map[string]string) string {
 		return m
 	})
 	s = hostRe.ReplaceAllStringFunc(s, func(m string) string {
-		if looksLikeFilename(m) {
+		if !isLikelyHost(m) {
 			return m
 		}
 		if to, ok := hosts[m]; ok {
