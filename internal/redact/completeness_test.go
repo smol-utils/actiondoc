@@ -62,8 +62,8 @@ const sentinelMark = "canary-"
 func sentinel(n int) string { return fmt.Sprintf("canary-%d.redact.example", n) }
 
 // fillStrings walks v, allocating nil pointers and one element per slice, and sets every
-// string field to a unique sentinel. skip lists struct fields that must not be entered
-// (cross-source links that are redacted as their own source).
+// string field to a unique sentinel. Unexported fields and UsesAction are not entered:
+// the linked action is a source of its own and is redacted as one.
 func fillStrings(v reflect.Value, n *int) {
 	switch v.Kind() {
 	case reflect.Pointer:
@@ -90,7 +90,7 @@ func fillStrings(v reflect.Value, n *int) {
 			fillStrings(v.Index(i), n)
 		}
 	case reflect.String:
-		*n++
+		(*n)++
 		v.SetString(sentinel(*n))
 	}
 }
