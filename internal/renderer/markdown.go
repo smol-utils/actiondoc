@@ -48,12 +48,7 @@ func RenderMarkdownGraph(w *model.Workflow, g *callgraph.Graph, id string) strin
 	}
 	b.WriteString("\n")
 
-	// See also links
-	if len(w.Tags.See) > 0 {
-		b.WriteString("**See also:** ")
-		b.WriteString(strings.Join(w.Tags.See, ", "))
-		b.WriteString("\n\n")
-	}
+	writeSeeAlso(&b, w.Tags.See)
 
 	renderWorkflowSurface(&b, w)
 
@@ -158,18 +153,8 @@ func renderJobTags(b *strings.Builder, job *model.Job) {
 		paramSection{"Outputs", job.Tags.Outputs},
 	)
 
-	// Example
-	if job.Tags.Example != "" {
-		b.WriteString("**Example:**\n\n")
-		fmt.Fprintf(b, "```\n%s\n```\n\n", job.Tags.Example)
-	}
-
-	// See also
-	if len(job.Tags.See) > 0 {
-		b.WriteString("**See also:** ")
-		b.WriteString(strings.Join(job.Tags.See, ", "))
-		b.WriteString("\n\n")
-	}
+	writeExample(b, styleBold, job.Tags.Example)
+	writeSeeAlso(b, job.Tags.See)
 }
 
 // renderStep and writeStepParams live in steps.go.
@@ -204,6 +189,31 @@ const (
 type paramSection struct {
 	title  string
 	params []model.Param
+}
+
+// writeSeeAlso writes the @see links line, shared by the workflow, job, and action
+// renderers.
+func writeSeeAlso(b *strings.Builder, see []string) {
+	if len(see) == 0 {
+		return
+	}
+	b.WriteString("**See also:** ")
+	b.WriteString(strings.Join(see, ", "))
+	b.WriteString("\n\n")
+}
+
+// writeExample writes the fenced @example block with its heading in the given section
+// style, shared by the workflow, job, and action renderers.
+func writeExample(b *strings.Builder, style sectionStyle, example string) {
+	if example == "" {
+		return
+	}
+	if style == styleHeading {
+		b.WriteString("## Example\n\n")
+	} else {
+		b.WriteString("**Example:**\n\n")
+	}
+	fmt.Fprintf(b, "```\n%s\n```\n\n", example)
 }
 
 // writeParamSections writes each non-empty param-table section in order, using the given
@@ -275,11 +285,7 @@ func RenderActionMarkdown(a *model.Action) string {
 	}
 	b.WriteString("\n")
 
-	if len(a.Tags.See) > 0 {
-		b.WriteString("**See also:** ")
-		b.WriteString(strings.Join(a.Tags.See, ", "))
-		b.WriteString("\n\n")
-	}
+	writeSeeAlso(&b, a.Tags.See)
 
 	// Inputs
 	if len(a.Inputs) > 0 {
@@ -321,11 +327,7 @@ func RenderActionMarkdown(a *model.Action) string {
 		paramSection{"Environment Variables", a.Tags.Envs},
 	)
 
-	// Example
-	if a.Tags.Example != "" {
-		b.WriteString("## Example\n\n")
-		fmt.Fprintf(&b, "```\n%s\n```\n\n", a.Tags.Example)
-	}
+	writeExample(&b, styleHeading, a.Tags.Example)
 
 	return b.String()
 }
