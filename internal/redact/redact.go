@@ -286,6 +286,44 @@ func (r *redactor) classifyRunner(label string) string {
 	return r.lookup(catRunner, label)
 }
 
+// collectConcurrency / rewriteConcurrency sweep a concurrency: block. Group is usually
+// an expression and CancelInProgress is a raw value that may also be one; both are
+// treated as free text.
+func (r *redactor) collectConcurrency(c *model.Concurrency) {
+	if c == nil {
+		return
+	}
+	r.noteFree(c.Group)
+	r.noteFree(c.CancelInProgress)
+}
+
+func (r *redactor) rewriteConcurrency(c *model.Concurrency) {
+	if c == nil {
+		return
+	}
+	c.Group = r.redactFree(c.Group)
+	c.CancelInProgress = r.redactFree(c.CancelInProgress)
+}
+
+// collectDefaults / rewriteDefaults sweep a defaults.run: block. The shell may be a
+// custom command template and the working directory an arbitrary path; both are treated
+// as free text so a host or URL inside them is still caught.
+func (r *redactor) collectDefaults(d *model.Defaults) {
+	if d == nil {
+		return
+	}
+	r.noteFree(d.Shell)
+	r.noteFree(d.WorkingDirectory)
+}
+
+func (r *redactor) rewriteDefaults(d *model.Defaults) {
+	if d == nil {
+		return
+	}
+	d.Shell = r.redactFree(d.Shell)
+	d.WorkingDirectory = r.redactFree(d.WorkingDirectory)
+}
+
 // noteEnvironmentName collects a job's deploy-environment name (a literal name only; an
 // expression is handled as free text).
 func (r *redactor) noteEnvironmentName(s string) {
@@ -319,9 +357,8 @@ func (r *redactor) collectWorkflow(w *model.Workflow) {
 		r.note(catEnv, kv.Key)
 		r.noteValue(kv.Value)
 	}
-	if w.Concurrency != nil {
-		r.noteFree(w.Concurrency.Group)
-	}
+	r.collectConcurrency(w.Concurrency)
+	r.collectDefaults(w.Defaults)
 	r.collectPermissions(w.Permissions)
 	r.collectTriggers(w.Triggers)
 	for ji := range w.Jobs {
@@ -336,9 +373,8 @@ func (r *redactor) rewriteWorkflow(w *model.Workflow) {
 		w.Env[i].Key = r.lookup(catEnv, w.Env[i].Key)
 		w.Env[i].Value = r.redactValue(w.Env[i].Value)
 	}
-	if w.Concurrency != nil {
-		w.Concurrency.Group = r.redactFree(w.Concurrency.Group)
-	}
+	r.rewriteConcurrency(w.Concurrency)
+	r.rewriteDefaults(w.Defaults)
 	r.rewritePermissions(w.Permissions)
 	r.rewriteTriggers(w.Triggers)
 	for ji := range w.Jobs {
@@ -362,9 +398,8 @@ func (r *redactor) collectJob(j *model.Job) {
 		r.note(catSecret, kv.Key)
 		r.noteFree(kv.Value)
 	}
-	if j.Concurrency != nil {
-		r.noteFree(j.Concurrency.Group)
-	}
+	r.collectConcurrency(j.Concurrency)
+	r.collectDefaults(j.Defaults)
 	r.collectPermissions(j.Permissions)
 	if j.Environment != nil {
 		r.noteEnvironmentName(j.Environment.Name)
@@ -396,9 +431,8 @@ func (r *redactor) rewriteJob(j *model.Job) {
 		j.Secrets[i].Key = r.lookup(catSecret, j.Secrets[i].Key)
 		j.Secrets[i].Value = r.redactFree(j.Secrets[i].Value)
 	}
-	if j.Concurrency != nil {
-		j.Concurrency.Group = r.redactFree(j.Concurrency.Group)
-	}
+	r.rewriteConcurrency(j.Concurrency)
+	r.rewriteDefaults(j.Defaults)
 	r.rewritePermissions(j.Permissions)
 	if j.Environment != nil {
 		j.Environment.Name = r.redactEnvironmentName(j.Environment.Name)
@@ -419,6 +453,7 @@ func (r *redactor) collectStep(s *model.Step) {
 	r.noteFree(s.Description)
 	r.noteFree(s.Run)
 	r.noteFree(s.If)
+	r.noteFree(s.ContinueOnErrorExpr)
 	for _, kv := range s.With {
 		r.noteValue(kv.Value)
 	}
@@ -433,6 +468,7 @@ func (r *redactor) rewriteStep(s *model.Step) {
 	s.Description = r.redactFree(s.Description)
 	s.Run = r.redactFree(s.Run)
 	s.If = r.redactFree(s.If)
+	s.ContinueOnErrorExpr = r.redactFree(s.ContinueOnErrorExpr)
 	for i := range s.With {
 		s.With[i].Value = r.redactValue(s.With[i].Value)
 	}
@@ -476,19 +512,22 @@ func (r *redactor) collectTriggers(t *model.Triggers) {
 			r.note(catSecret, sec.Name)
 			r.noteFree(sec.Description)
 		}
-		for _, in := range t.Call.Inputs {
-			r.noteFree(in.Default)
-			r.noteFree(in.Description)
-		}
+		r.collectWorkflowInputs(t.Call.Inputs)
 		for _, out := range t.Call.Outputs {
 			r.noteFree(out.Value)
 			r.noteFree(out.Description)
 		}
 	}
 	if t.Dispatch != nil {
-		for _, in := range t.Dispatch.Inputs {
-			r.noteFree(in.Default)
-			r.noteFree(in.Description)
+		r.collectWorkflowInputs(t.Dispatch.Inputs)
+	}
+	// Event filter values (branches, paths, tags, workflow names, dispatch types) are
+	// free-form strings; sweep them so a host or URL in a filter is still caught.
+	for _, ev := range t.Events {
+		for _, f := range ev.Filters {
+			for _, v := range f.Values {
+				r.noteFree(v)
+			}
 		}
 	}
 }
@@ -505,19 +544,44 @@ func (r *redactor) rewriteTriggers(t *model.Triggers) {
 			t.Call.Secrets[i].Name = r.lookup(catSecret, t.Call.Secrets[i].Name)
 			t.Call.Secrets[i].Description = r.redactFree(t.Call.Secrets[i].Description)
 		}
-		for i := range t.Call.Inputs {
-			t.Call.Inputs[i].Default = r.redactFree(t.Call.Inputs[i].Default)
-			t.Call.Inputs[i].Description = r.redactFree(t.Call.Inputs[i].Description)
-		}
+		r.rewriteWorkflowInputs(t.Call.Inputs)
 		for i := range t.Call.Outputs {
 			t.Call.Outputs[i].Value = r.redactFree(t.Call.Outputs[i].Value)
 			t.Call.Outputs[i].Description = r.redactFree(t.Call.Outputs[i].Description)
 		}
 	}
 	if t.Dispatch != nil {
-		for i := range t.Dispatch.Inputs {
-			t.Dispatch.Inputs[i].Default = r.redactFree(t.Dispatch.Inputs[i].Default)
-			t.Dispatch.Inputs[i].Description = r.redactFree(t.Dispatch.Inputs[i].Description)
+		r.rewriteWorkflowInputs(t.Dispatch.Inputs)
+	}
+	for ei := range t.Events {
+		for fi := range t.Events[ei].Filters {
+			f := &t.Events[ei].Filters[fi]
+			for vi := range f.Values {
+				f.Values[vi] = r.redactFree(f.Values[vi])
+			}
+		}
+	}
+}
+
+// collectWorkflowInputs / rewriteWorkflowInputs sweep the free-text parts of declared
+// workflow_dispatch / workflow_call inputs: defaults, descriptions, and choice options.
+// Input names and types are public contract and stay readable.
+func (r *redactor) collectWorkflowInputs(ins []model.WorkflowInput) {
+	for _, in := range ins {
+		r.noteFree(in.Default)
+		r.noteFree(in.Description)
+		for _, opt := range in.Options {
+			r.noteFree(opt)
+		}
+	}
+}
+
+func (r *redactor) rewriteWorkflowInputs(ins []model.WorkflowInput) {
+	for i := range ins {
+		ins[i].Default = r.redactFree(ins[i].Default)
+		ins[i].Description = r.redactFree(ins[i].Description)
+		for oi := range ins[i].Options {
+			ins[i].Options[oi] = r.redactFree(ins[i].Options[oi])
 		}
 	}
 }
