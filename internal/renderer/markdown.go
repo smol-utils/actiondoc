@@ -65,6 +65,8 @@ func RenderMarkdownGraph(w *model.Workflow, g *callgraph.Graph, id string) strin
 		paramSection{"Outputs", w.Tags.Outputs},
 	)
 
+	writeExample(&b, styleHeading, w.Tags.Example)
+
 	// Auto-collected secret and variable references found in expressions.
 	renderReferences(&b, model.ScanReferences(w))
 
