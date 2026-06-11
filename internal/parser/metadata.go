@@ -63,7 +63,7 @@ func parseDefaults(node ast.Node) *model.Defaults {
 // ActionDoc tags were found. It returns "" when the comment is a license header (which
 // should not masquerade as documentation) or when tags are already present.
 func implicitDescription(headComment string, tags model.Tags) string {
-	if !tagsEmpty(tags) {
+	if !tags.Empty() {
 		return ""
 	}
 	// If the block contains ANY @-marker, it belongs to another tool (e.g. a Lula
@@ -81,13 +81,6 @@ func implicitDescription(headComment string, tags model.Tags) string {
 		return ""
 	}
 	return text
-}
-
-// tagsEmpty reports whether no ActionDoc tag was recognized in a comment block.
-func tagsEmpty(t model.Tags) bool {
-	return t.Desc == "" && t.Deprecated == "" && t.Since == "" && t.Example == "" &&
-		len(t.Secrets) == 0 && len(t.Inputs) == 0 && len(t.Envs) == 0 &&
-		len(t.Outputs) == 0 && len(t.See) == 0
 }
 
 // licenseMarkers are substrings that identify a leading comment block as a license or
