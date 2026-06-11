@@ -293,3 +293,37 @@ func TestCrossRepoSelfRefsResolve(t *testing.T) {
 		t.Error("unrelated cross-repo ref must remain an external node")
 	}
 }
+
+// TestReachableDiamond checks dedup through a diamond: entry calls a and b, which both
+// call c. Cycle termination is covered elsewhere; this is the other graph shape where a
+// node is discovered twice, and c must appear in the reachable set exactly once.
+func TestReachableDiamond(t *testing.T) {
+	wf := func(file, name, on string, uses ...string) *model.Workflow {
+		w := &model.Workflow{File: file, Name: name, On: []string{on}}
+		for i, u := range uses {
+			w.Jobs = append(w.Jobs, model.Job{ID: string(rune('a' + i)), Uses: u})
+		}
+		return w
+	}
+	dir := "/repo/.github/workflows/"
+	g := Build([]Source{
+		{Path: dir + "entry.yml", Workflow: wf("entry.yml", "Entry", "push", "./.github/workflows/a.yml", "./.github/workflows/b.yml")},
+		{Path: dir + "a.yml", Workflow: wf("a.yml", "A", "workflow_call", "./.github/workflows/c.yml")},
+		{Path: dir + "b.yml", Workflow: wf("b.yml", "B", "workflow_call", "./.github/workflows/c.yml")},
+		{Path: dir + "c.yml", Workflow: wf("c.yml", "C", "workflow_call")},
+	})
+
+	r := g.Reachable(dir + "entry.yml")
+	if len(r) != 3 {
+		t.Fatalf("Reachable = %v, want exactly a, b, c", r)
+	}
+	count := 0
+	for _, id := range r {
+		if id == dir+"c.yml" {
+			count++
+		}
+	}
+	if count != 1 {
+		t.Errorf("c.yml appears %d times in %v, want once", count, r)
+	}
+}

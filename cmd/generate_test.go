@@ -337,3 +337,80 @@ func TestGenerateRedactMapRequiresRedact(t *testing.T) {
 		t.Error("redaction map should not be written on usage error")
 	}
 }
+
+// TestGenerateCrossKindAnchorCollision checks that a workflow and a composite action
+// sharing a display name get distinct TOC anchors via the same duplicate-name dedup
+// that same-kind collisions use. Workflows sort before discovered actions, so the
+// workflow takes #deploy and the action #deploy-1.
+func TestGenerateCrossKindAnchorCollision(t *testing.T) {
+	root := t.TempDir()
+	wf := filepath.Join(root, ".github", "workflows")
+	actionDir := filepath.Join(root, ".github", "actions", "deploy")
+	for _, d := range []string{wf, actionDir} {
+		if err := os.MkdirAll(d, 0o755); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if err := os.WriteFile(filepath.Join(wf, "deploy.yml"), []byte(`name: Deploy
+on: push
+jobs:
+  x:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo hi
+`), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(actionDir, "action.yml"), []byte(`name: Deploy
+description: Composite deploy action
+runs:
+  using: composite
+  steps:
+    - run: echo hi
+      shell: bash
+`), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	out := filepath.Join(t.TempDir(), "out.md")
+	if err := Generate([]string{"-o", out, wf}); err != nil {
+		t.Fatalf("Generate: %v", err)
+	}
+	b, _ := os.ReadFile(out)
+	md := string(b)
+	for _, want := range []string{"- [Deploy](#deploy)\n", "- [Deploy](#deploy-1)\n"} {
+		if !strings.Contains(md, want) {
+			t.Errorf("TOC missing %q:\n%s", want, md)
+		}
+	}
+}
+
+// TestGeneratePartialOutputOnParseFailure checks both halves of the partial-failure
+// contract at once: when one file fails to parse, the run exits non-zero AND the files
+// that did parse are still written to the output.
+func TestGeneratePartialOutputOnParseFailure(t *testing.T) {
+	root := t.TempDir()
+	wf := filepath.Join(root, ".github", "workflows")
+	if err := os.MkdirAll(wf, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(wf, "ci.yml"), []byte("name: CI\non: push\njobs:\n  x:\n    runs-on: ubuntu-latest\n    steps:\n      - run: echo hi\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(wf, "broken.yml"), []byte("- this is a list\n- not a mapping\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	out := filepath.Join(t.TempDir(), "out.md")
+	err := Generate([]string{"-o", out, wf})
+	if err == nil {
+		t.Fatal("Generate must return an error when a file fails to parse")
+	}
+	b, readErr := os.ReadFile(out)
+	if readErr != nil {
+		t.Fatalf("output for the parsable files must still be written: %v", readErr)
+	}
+	if !strings.Contains(string(b), "# CI") {
+		t.Errorf("parsable workflow missing from partial output:\n%s", string(b))
+	}
+}
