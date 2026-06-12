@@ -86,10 +86,11 @@ func TestBuildCompositeResolution(t *testing.T) {
 	if got != want {
 		t.Errorf("composite ./.github/actions/build resolved to %q, want %q (must not match my-build)", got, want)
 	}
-	// The calling step is unnamed; it must still get a positional StepName so the call
-	// graph renders it as "job / step N (uses ...)" rather than collapsing to job level.
-	if edge.StepName != "step 1" {
-		t.Errorf("unnamed composite step: StepName = %q, want %q", edge.StepName, "step 1")
+	// The calling step is unnamed; it must still get a non-empty StepName so the call
+	// graph renders it in the "job / step" form rather than collapsing to job level. The
+	// label follows the shared Step.Label rule: with no name or id, the uses: ref.
+	if edge.StepName != "./.github/actions/build" {
+		t.Errorf("unnamed composite step: StepName = %q, want the uses: ref", edge.StepName)
 	}
 }
 
