@@ -33,7 +33,13 @@ func ParseTags(comment string) model.Tags {
 			flushTag(&tags, currentTag, &currentValue)
 			currentTag = ""
 		} else if currentTag != "" {
-			// Continuation line -- append to current tag.
+			// Continuation line -- append to current tag. Continuation lines are commonly
+			// indented under their tag for readability; that source indentation is not part
+			// of the value (it would leak into rendered output, e.g. as '<br>   ' in table
+			// cells), so trim it -- except for @example, whose indentation is content.
+			if currentTag != "example" {
+				line = strings.TrimSpace(line)
+			}
 			if currentValue.Len() > 0 {
 				currentValue.WriteString("\n")
 			}
