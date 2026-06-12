@@ -3,7 +3,7 @@
 All notable changes to actiondoc are documented here. This project adheres to
 [Semantic Versioning](https://semver.org).
 
-## [Unreleased]
+## [0.2.2] - 2026-06-12
 
 ### Added
 - Redacted output mode (`--redact`, `--redact-aggressive`, `--redact-map`): consistent
@@ -11,6 +11,24 @@ All notable changes to actiondoc are documented here. This project adheres to
   self-hosted runner labels so generated docs can be shared externally. Honored by both
   Markdown and JSON output, with a deterministic placeholder scheme and an optional local
   reverse map for restoring real names.
+
+### Fixed
+- Redaction covers every free-text field of the model: concurrency `cancel-in-progress`
+  values, `defaults.run` shell and working directory, step `continue-on-error`
+  expressions, choice input options, and trigger event filter values are now swept. A
+  schema completeness test keeps future model fields from being missed.
+- Bare-hostname detection in redacted output requires a recognized public or internal
+  TLD (and lowercase, non-file-extension form), so Java `-D` properties, Maven
+  coordinates, archive names, and git config keys stay readable instead of becoming
+  `HOST_n`. Scheme-qualified URLs are unaffected.
+- Workflow-level `@example` is rendered; it was parsed but silently dropped.
+- Multi-line tag values no longer carry continuation-line source indentation into the
+  rendered output (`@example` indentation is still preserved as content).
+
+### Changed
+- Call-graph trees label an unnamed step that calls a composite action by its collapsed
+  `uses:` ref instead of a position number, matching how the step is named everywhere
+  else in the output.
 
 ## [0.2.1] - 2026-06-03
 
