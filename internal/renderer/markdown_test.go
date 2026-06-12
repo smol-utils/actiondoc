@@ -211,3 +211,17 @@ func TestMatrixCellBacktickSafe(t *testing.T) {
 		t.Errorf("matrixCell = %q, want backtick-safe span for the axis name", got)
 	}
 }
+
+// TestRenderWorkflowExample checks that a workflow-level @example renders: the spec
+// allows every tag at workflow scope, and this one was silently dropped.
+func TestRenderWorkflowExample(t *testing.T) {
+	w := &model.Workflow{
+		File: "deploy.yml", Name: "Deploy", On: []string{"push"},
+		Tags: model.Tags{Example: "gh workflow run deploy.yml -f env=staging"},
+	}
+	md := RenderMarkdown(w)
+	want := "## Example\n\n```\ngh workflow run deploy.yml -f env=staging\n```\n\n"
+	if !strings.Contains(md, want) {
+		t.Errorf("workflow @example missing:\n%s", md)
+	}
+}

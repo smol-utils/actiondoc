@@ -1,5 +1,7 @@
 package model
 
+import "reflect"
+
 // Workflow is the top-level IR for a single workflow file.
 type Workflow struct {
 	File        string   `json:"file"`
@@ -89,6 +91,12 @@ type Tags struct {
 	See        []string `json:"see,omitempty"`
 	Since      string   `json:"since,omitempty"`
 	Example    string   `json:"example,omitempty"`
+}
+
+// Empty reports whether no tag field is set. It compares against the zero value rather
+// than enumerating fields, so a new Tags field is covered without touching this method.
+func (t Tags) Empty() bool {
+	return reflect.DeepEqual(t, Tags{})
 }
 
 // Param is a named parameter with optional type hint and description.
