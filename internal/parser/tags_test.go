@@ -118,3 +118,25 @@ func TestParseTagsEnv(t *testing.T) {
 		t.Errorf("name = %q", tags.Envs[0].Name)
 	}
 }
+
+func TestParseTagsContinuationIndentation(t *testing.T) {
+	// Continuation lines are commonly indented under their tag for readability; that
+	// source indentation must not leak into the value (it surfaces as '<br>   ' in
+	// rendered tables). @example is the exception: its indentation is content.
+	comment := "# @desc Deploys the application\n" +
+		"#    to the staging environment\n" +
+		"#      and verifies the rollout.\n" +
+		"# @env DEPLOY_HOST - target host,\n" +
+		"#    used by the deploy script"
+
+	tags := ParseTags(comment)
+
+	wantDesc := "Deploys the application\nto the staging environment\nand verifies the rollout."
+	if tags.Desc != wantDesc {
+		t.Errorf("Desc = %q, want %q", tags.Desc, wantDesc)
+	}
+	wantEnvDesc := "target host,\nused by the deploy script"
+	if len(tags.Envs) != 1 || tags.Envs[0].Description != wantEnvDesc {
+		t.Errorf("Envs = %+v, want description %q", tags.Envs, wantEnvDesc)
+	}
+}
