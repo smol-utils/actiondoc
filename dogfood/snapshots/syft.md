@@ -15,6 +15,38 @@
 
 - [Bootstrap](#bootstrap)
 
+## Secrets and variables used across this repository
+
+**Secrets:**
+
+| Name | Used by |
+|------|---------|
+| `ANCHOREOPS_GITHUB_OSS_WRITE_TOKEN` | [Release](#release) |
+| `ANCHOREOSSWRITE_DH_PAT` | [Release](#release) |
+| `ANCHOREOSSWRITE_DH_USERNAME` | [Release](#release) |
+| `ANCHORE_APPLE_DEVELOPER_ID_CERT_CHAIN` | [Release](#release) |
+| `ANCHORE_APPLE_DEVELOPER_ID_CERT_PASS` | [Release](#release) |
+| `APPLE_NOTARY_ISSUER` | [Release](#release) |
+| `APPLE_NOTARY_KEY` | [Release](#release) |
+| `APPLE_NOTARY_KEY_ID` | [Release](#release) |
+| `DEPLOY_KEY` | [Release](#release) |
+| `OSS_R2_INSTALL_ACCESS_KEY_ID` | [Release](#release) |
+| `OSS_R2_INSTALL_SECRET_ACCESS_KEY` | [Release](#release) |
+| `TOOLBOX_AWS_ACCESS_KEY_ID` | [Release](#release) |
+| `TOOLBOX_AWS_SECRET_ACCESS_KEY` | [Release](#release) |
+| `TOOLBOX_CLOUDFLARE_R2_ENDPOINT` | [Release](#release) |
+
+## Permissions across this repository
+
+| Scope | Level |
+|-------|-------|
+| `actions` | `read` |
+| `checks` | `read` |
+| `contents` | `write` (also granted as `read` elsewhere) |
+| `id-token` | `write` (OIDC) |
+| `packages` | `write` (also granted as `read` elsewhere) |
+| `security-events` | `write` |
+
 # CodeQL
 
 **Triggers:** `push`, `pull_request`, `schedule`

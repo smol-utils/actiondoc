@@ -25,6 +25,61 @@
 - [X-Precheck](#x-precheck)
 - [X-UpdateWiki](#x-updatewiki)
 
+## Secrets and variables used across this repository
+
+**Secrets:**
+
+| Name | Used by |
+|------|---------|
+| `BLUESKY_HANDLE` | [Release](#release) |
+| `BLUESKY_HOST` | [Release](#release) |
+| `BLUESKY_PASSWORD` | [Release](#release) |
+| `CODECOV_TOKEN` | [SmokeTests](#smoketests) |
+| `COMMIT_EMAIL` | [Release](#release) |
+| `COVERALLS_TOKEN` | [SmokeTests](#smoketests) |
+| `GIT_ACCESS_TOKEN` | [EarlyAccess](#earlyaccess), [Release](#release), [SmokeTests](#smoketests), [Trigger Early Access](#trigger-early-access) |
+| `GIT_PAT_TOKEN` | [SmokeTests](#smoketests) |
+| `GPG_PASSPHRASE` | [EarlyAccess](#earlyaccess), [Release](#release), [SmokeTests](#smoketests) |
+| `GPG_PUBLIC_KEY` | [EarlyAccess](#earlyaccess), [Release](#release), [SmokeTests](#smoketests) |
+| `GPG_SECRET_KEY` | [EarlyAccess](#earlyaccess), [Release](#release), [SmokeTests](#smoketests) |
+| `GRADLE_PUBLISH_KEY` | [Release](#release) |
+| `GRADLE_PUBLISH_SECRET` | [Release](#release) |
+| `JRELEASER_DOCKER_PASSWORD` | [EarlyAccess](#earlyaccess), [Release](#release) |
+| `JRELEASER_OCI_COMPARTMENTID` | [EarlyAccess](#earlyaccess), [Release](#release), [SmokeTests](#smoketests) |
+| `MASTODON_ACCESS_TOKEN` | [Release](#release) |
+| `NOTICEABLE_APIKEY` | [Release](#release) |
+| `OPENCOLLECTIVE_TOKEN` | [Release](#release) |
+| `SDKMAN_CONSUMER_KEY` | [Release](#release) |
+| `SDKMAN_CONSUMER_TOKEN` | [Release](#release) |
+| `SONARCLOUD_TOKEN` | [SmokeTests](#smoketests) |
+| `SONATYPE_PASSWORD` | [Release](#release) |
+| `SONATYPE_USERNAME` | [Release](#release) |
+| `gh-access-token` | [X-BachInfo](#x-bachinfo), [X-UpdateWiki](#x-updatewiki) |
+| `github-token` | [X-Precheck](#x-precheck) |
+| `gpg-passphrase` | [X-Jlink](#x-jlink) |
+| `oci-compartment-id` | [X-Jlink](#x-jlink) |
+
+**Variables:**
+
+| Name | Used by |
+|------|---------|
+| `COMMIT_EMAIL` | [Release](#release), [X-BachInfo](#x-bachinfo) |
+| `GH_BOT_EMAIL` | [EarlyAccess](#earlyaccess), [Release](#release) |
+| `GRAAL_JAVA_VERSION` | [SmokeTests](#smoketests), [X-NativeImage](#x-nativeimage) |
+| `JAVA_DISTRO` | [Release](#release), [SmokeTests](#smoketests), [Trigger Early Access](#trigger-early-access), [X-Jlink](#x-jlink), [X-JPackage](#x-jpackage), [X-NativeImage](#x-nativeimage) |
+| `JAVA_VERSION` | [Release](#release), [SmokeTests](#smoketests), [Trigger Early Access](#trigger-early-access), [X-Jlink](#x-jlink), [X-JPackage](#x-jpackage), [X-NativeImage](#x-nativeimage) |
+
+## Permissions across this repository
+
+| Scope | Level |
+|-------|-------|
+| `(all scopes)` | `read-all` |
+| `actions` | `write` (also granted as `read` elsewhere) |
+| `attestations` | `write` |
+| `contents` | `write` (also granted as `read` elsewhere) |
+| `id-token` | `write` (OIDC) |
+| `security-events` | `write` |
+
 # Build
 
 **Triggers:** `pull_request`

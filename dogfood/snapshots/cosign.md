@@ -24,6 +24,26 @@
 - [Test GitHub OIDC - push, schedule, workflow_dispatch](#test-github-oidc)
 - [Whitespace - pull_request](#whitespace)
 
+## Secrets and variables used across this repository
+
+**Secrets:**
+
+| Name | Used by |
+|------|---------|
+| `COSIGN_PASSWORD` | [CI-Container-Build](#ci-container-build) |
+| `SCORECARD_TOKEN` | [Scorecards supply-chain security](#scorecards-supply-chain-security) |
+
+## Permissions across this repository
+
+| Scope | Level |
+|-------|-------|
+| `actions` | `read` |
+| `contents` | `read` |
+| `id-token` | `write` (OIDC) |
+| `issues` | `write` |
+| `packages` | `write` |
+| `security-events` | `write` |
+
 # CI-Container-Build
 
 **Triggers:** `push`

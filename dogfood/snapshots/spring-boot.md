@@ -33,6 +33,56 @@
 - [Sync to Maven Central](#sync-to-maven-central)
 - [Update Homebrew Tap](#update-homebrew-tap)
 
+## Secrets and variables used across this repository
+
+**Secrets:**
+
+| Name | Used by |
+|------|---------|
+| `ARTIFACTORY_PASSWORD` | [Build and Deploy Snapshot](#build-and-deploy-snapshot), [Release](#release), [Release Milestone](#release-milestone) |
+| `ARTIFACTORY_USERNAME` | [Build and Deploy Snapshot](#build-and-deploy-snapshot), [Release](#release), [Release Milestone](#release-milestone) |
+| `CENTRAL_TOKEN_PASSWORD` | [Release](#release), [Release Milestone](#release-milestone) |
+| `CENTRAL_TOKEN_USERNAME` | [Release](#release), [Release Milestone](#release-milestone) |
+| `COMMERCIAL_ARTIFACTORY_PASSWORD` | [Build and Deploy Snapshot](#build-and-deploy-snapshot), [CI](#ci), [Distribute](#distribute), [Release](#release) |
+| `COMMERCIAL_ARTIFACTORY_RO_PASSWORD` | [Release Milestone](#release-milestone) |
+| `COMMERCIAL_ARTIFACTORY_RO_USERNAME` | [Release Milestone](#release-milestone) |
+| `COMMERCIAL_ARTIFACTORY_USERNAME` | [Build and Deploy Snapshot](#build-and-deploy-snapshot), [CI](#ci), [Distribute](#distribute), [Release](#release) |
+| `COMMERCIAL_JF_ARTIFACTORY_SPRING` | [Release](#release) |
+| `DEVELOCITY_ACCESS_KEY` | [Build and Deploy Snapshot](#build-and-deploy-snapshot), [CI](#ci), [Release](#release), [Release Milestone](#release-milestone), [Run System Tests](#run-system-tests) |
+| `GH_ACTIONS_REPO_TOKEN` | [Build and Deploy Snapshot](#build-and-deploy-snapshot), [Release](#release), [Release Milestone](#release-milestone) |
+| `GOOGLE_CHAT_WEBHOOK_URL` | [Build and Deploy Snapshot](#build-and-deploy-snapshot), [CI](#ci), [Release](#release), [Release Milestone](#release-milestone), [Run System Tests](#run-system-tests) |
+| `GPG_PASSPHRASE` | [Build and Deploy Snapshot](#build-and-deploy-snapshot), [Release](#release), [Release Milestone](#release-milestone) |
+| `GPG_PRIVATE_KEY` | [Build and Deploy Snapshot](#build-and-deploy-snapshot), [Release](#release), [Release Milestone](#release-milestone) |
+| `GRADLE_PLUGIN_PUBLISH_KEY` | [Release](#release), [Release Milestone](#release-milestone) |
+| `GRADLE_PLUGIN_PUBLISH_SECRET` | [Release](#release), [Release Milestone](#release-milestone) |
+| `JF_ARTIFACTORY_SPRING` | [Release](#release), [Release Milestone](#release-milestone) |
+| `SDKMAN_CONSUMER_KEY` | [Release](#release) |
+| `SDKMAN_CONSUMER_TOKEN` | [Release](#release) |
+| `commercial-repository-password` | [Verify](#verify) |
+| `commercial-repository-username` | [Verify](#verify) |
+| `google-chat-webhook-url` | [Verify](#verify) |
+| `opensource-repository-password` | [Verify](#verify) |
+| `opensource-repository-username` | [Verify](#verify) |
+| `token` | [Verify](#verify) |
+
+**Variables:**
+
+| Name | Used by |
+|------|---------|
+| `COMMERCIAL` | [Build and Deploy Snapshot](#build-and-deploy-snapshot), [Distribute](#distribute), [Release](#release), [Release Milestone](#release-milestone), [Verify](#verify) |
+| `COMMERCIAL_DEPLOY_REPO_URL` | [Build and Deploy Snapshot](#build-and-deploy-snapshot), [Release](#release) |
+| `COMMERCIAL_RELEASE_REPO_URL` | [Build and Deploy Snapshot](#build-and-deploy-snapshot), [CI](#ci), [Release](#release) |
+| `COMMERCIAL_SNAPSHOT_REPO_URL` | [Build and Deploy Snapshot](#build-and-deploy-snapshot), [CI](#ci), [Release](#release) |
+
+## Permissions across this repository
+
+| Scope | Level |
+|-------|-------|
+| `(all scopes)` | `read-all` |
+| `actions` | `write` (also granted as `read` elsewhere) |
+| `contents` | `read` |
+| `security-events` | `write` |
+
 # Build and Deploy Snapshot
 
 **Triggers:** `workflow_dispatch`, `push`

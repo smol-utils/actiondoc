@@ -16,6 +16,22 @@
 
 - [Deploy](#deploy)
 
+## Secrets and variables used across this repository
+
+**Secrets:**
+
+| Name | Used by |
+|------|---------|
+| `CI_BUILD_TOKEN` | [CI](#ci) |
+| `DEPLOY_TOKEN` | [CI](#ci) |
+
+## Permissions across this repository
+
+| Scope | Level |
+|-------|-------|
+| `contents` | `read` |
+| `id-token` | `write` (OIDC) |
+
 # CI
 
 **Triggers:** `push`

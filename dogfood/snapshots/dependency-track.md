@@ -19,6 +19,28 @@
 
 - [_meta-build.yaml](#_meta-buildyaml)
 
+## Secrets and variables used across this repository
+
+**Secrets:**
+
+| Name | Used by |
+|------|---------|
+| `BOT_RELEASE_GITHUB_TOKEN` | [Release CI](#release-ci) |
+| `CODACY_PROJECT_TOKEN` | [Report PR Test Coverage](#report-pr-test-coverage), [Tests CI](#tests-ci) |
+| `HUB_ACCESSS_TOKEN` | [Build CI](#build-ci), [Publish CI](#publish-ci) |
+| `HUB_USERNAME` | [Build CI](#build-ci), [Publish CI](#publish-ci) |
+| `registry-0-psw` | [_meta-build.yaml](#_meta-buildyaml) |
+| `registry-0-usr` | [_meta-build.yaml](#_meta-buildyaml) |
+
+## Permissions across this repository
+
+| Scope | Level |
+|-------|-------|
+| `contents` | `write` |
+| `issues` | `write` |
+| `pull-requests` | `write` |
+| `security-events` | `write` |
+
 # Build CI
 
 **Triggers:** `push`, `pull_request`, `workflow_dispatch`

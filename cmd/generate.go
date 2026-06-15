@@ -227,8 +227,14 @@ func renderMarkdownOutput(sources []callgraph.Source, graph *callgraph.Graph, in
 		sections[i] += "[Back to top](#contents)\n\n"
 	}
 
+	// The document-level inventory (repo-wide secrets/variables + permissions) sits between
+	// the table of contents and the per-section bodies, after anchors are assigned so its
+	// "used by" cross-links resolve to the same section anchors the TOC uses. It is
+	// multi-document only -- the same condition that gates the header and TOC above -- and
+	// returns "" when there is nothing to inventory.
 	header, toc := renderDocumentNav(sources, graph, slugs, inputPath)
-	return header + toc + strings.Join(sections, "")
+	inventory := renderer.RenderDocumentInventory(sources, graph)
+	return header + toc + inventory + strings.Join(sections, "")
 }
 
 // tocGroup indexes the three TOC families in render order.

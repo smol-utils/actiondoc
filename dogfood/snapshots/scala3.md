@@ -30,6 +30,55 @@
 - [Test 'scala' Chocolatey Package](#test-scala-chocolatey-package)
 - [Test 'scala' MSI Package](#test-scala-msi-package)
 
+## Secrets and variables used across this repository
+
+**Secrets:**
+
+| Name | Used by |
+|------|---------|
+| `API-KEY` | [Publish Scala to Chocolatey](#publish-scala-to-chocolatey) |
+| `CHOCOLATEY_KEY` | [Official release of Scala](#official-release-of-scala) |
+| `CONSUMER-KEY` | [Publish Scala to SDKMAN!](#publish-scala-to-sdkman) |
+| `CONSUMER-TOKEN` | [Publish Scala to SDKMAN!](#publish-scala-to-sdkman) |
+| `DOCS_DEPLOY_KEY` | [Language reference documentation](#language-reference-documentation) |
+| `DOCS_KEY` | [Language reference documentation](#language-reference-documentation) |
+| `DOTTYBOT-TOKEN` | [Publish Scala to winget](#publish-scala-to-winget) |
+| `DOTTYBOT_WINGET_TOKEN` | [Official release of Scala](#official-release-of-scala) |
+| `MAVEN_REPOSITORY_TOKEN` | [Release Artifacts to Maven](#release-artifacts-to-maven) |
+| `MAVEN_REPOSITORY_USER` | [Release Artifacts to Maven](#release-artifacts-to-maven) |
+| `PGP_PW` | [Release Artifacts to Maven](#release-artifacts-to-maven), [Scala 3](#scala-3) |
+| `PGP_SECRET` | [Release Artifacts to Maven](#release-artifacts-to-maven), [Scala 3](#scala-3) |
+| `SCALA_APP_ID` | [Add to backporting project](#add-to-backporting-project), [Nightly Release of Scala 3](#nightly-release-of-scala-3) |
+| `SCALA_APP_PRIVATE_KEY` | [Add to backporting project](#add-to-backporting-project), [Nightly Release of Scala 3](#nightly-release-of-scala-3) |
+| `SCALA_PGP_KEY` | [Release Artifacts to Maven](#release-artifacts-to-maven) |
+| `SCALA_PGP_PASSPHRASE` | [Release Artifacts to Maven](#release-artifacts-to-maven) |
+| `SDKMAN_KEY` | [Official release of Scala](#official-release-of-scala) |
+| `SDKMAN_TOKEN` | [Official release of Scala](#official-release-of-scala) |
+| `SONATYPE_PW_ORGSCALALANG` | [Scala 3](#scala-3) |
+| `SONATYPE_USER_ORGSCALALANG` | [Scala 3](#scala-3) |
+| `SPEC_DEPLOY_HOST` | [Specification](#specification) |
+| `SPEC_DEPLOY_KEY` | [Specification](#specification) |
+| `SPEC_DEPLOY_PASS` | [Specification](#specification) |
+| `SPEC_DEPLOY_PATH` | [Specification](#specification) |
+| `SPEC_DEPLOY_USER` | [Specification](#specification) |
+
+**Variables:**
+
+| Name | Used by |
+|------|---------|
+| `MAVEN_REPOSITORY_HOST` | [Release Artifacts to Maven](#release-artifacts-to-maven) |
+| `MAVEN_REPOSITORY_REALM` | [Release Artifacts to Maven](#release-artifacts-to-maven) |
+| `MAVEN_REPOSITORY_URL` | [Release Artifacts to Maven](#release-artifacts-to-maven) |
+| `NEWNIGHTLY` | [Release Artifacts to Maven](#release-artifacts-to-maven) |
+| `NIGHTLYBUILD` | [Nightly Release of Scala 3](#nightly-release-of-scala-3), [Release Artifacts to Maven](#release-artifacts-to-maven) |
+| `SCALA_PGP_FINGERPRINT` | [Release Artifacts to Maven](#release-artifacts-to-maven) |
+
+## Permissions across this repository
+
+| Scope | Level |
+|-------|-------|
+| `contents` | `write` (also granted as `read` elsewhere) |
+
 # Add to backporting project
 
 **Triggers:** `push`

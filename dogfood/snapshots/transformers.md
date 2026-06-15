@@ -64,6 +64,52 @@
 - [Self-hosted runner (past-ci)](#self-hosted-runner-past-ci)
 - [Self-hosted runner (scheduled-intel-gaudi)](#self-hosted-runner-scheduled-intel-gaudi)
 
+## Secrets and variables used across this repository
+
+**Secrets:**
+
+| Name | Used by |
+|------|---------|
+| `ACCESS_REPO_INFO_TOKEN` | [CI collated reports](#ci-collated-reports), [CI slack report](#ci-slack-report), [Doctests](#doctests), [Nvidia CI (job definitions)](#nvidia-ci-job-definitions), [Process failed tests](#process-failed-tests) |
+| `ANACONDA_API_TOKEN` | [Release - Conda](#release---conda) |
+| `CI_SLACK_BOT_TOKEN` | [CI slack report](#ci-slack-report), [Doctests](#doctests) |
+| `CI_SLACK_CHANNEL_DOCKER` | [Build docker images (scheduled)](#build-docker-images-scheduled) |
+| `CI_SLACK_CHANNEL_DUMMY_TESTS` | [CI slack report](#ci-slack-report) |
+| `CI_SLACK_CHANNEL_ID` | [CI slack report](#ci-slack-report) |
+| `CI_SLACK_CHANNEL_ID_DAILY` | [CI slack report](#ci-slack-report) |
+| `CI_SLACK_CHANNEL_ID_DAILY_DOCS` | [Doctests](#doctests) |
+| `COMMENT_BOT_TOKEN` | [Upload PR Documentation](#upload-pr-documentation) |
+| `DOCKERHUB_PASSWORD` | [Build docker images (Nightly CI)](#build-docker-images-nightly-ci), [Build docker images (Past CI)](#build-docker-images-past-ci), [Build docker images (scheduled)](#build-docker-images-scheduled), [Build pr ci-docker](#build-pr-ci-docker) |
+| `DOCKERHUB_USERNAME` | [Build docker images (Nightly CI)](#build-docker-images-nightly-ci), [Build docker images (Past CI)](#build-docker-images-past-ci), [Build docker images (scheduled)](#build-docker-images-scheduled), [Build pr ci-docker](#build-pr-ci-docker) |
+| `HF_CI_WRITE_TOKEN` | [CircleCI Failure Summary Comment](#circleci-failure-summary-comment) |
+| `HF_DOC_BUILD_PUSH` | [Build documentation](#build-documentation), [Upload PR Documentation](#upload-pr-documentation) |
+| `HF_HUB_READ_TOKEN` | [Benchmark v2 Framework](#benchmark-v2-framework), [Check Tiny Models](#check-tiny-models), [model jobs](#model-jobs), [model jobs](#model-jobs-1), [Nvidia CI (job definitions)](#nvidia-ci-job-definitions), [PR comment GitHub CI](#pr-comment-github-ci), [Process failed tests](#process-failed-tests), [Self-hosted runner (benchmark)](#self-hosted-runner-benchmark), [Self-hosted runner (scheduled-intel-gaudi)](#self-hosted-runner-scheduled-intel-gaudi), [SSH into our runners](#ssh-into-our-runners) |
+| `HF_STYLE_BOT_ACTION` | [PR Repo. Consistency Bot](#pr-repo-consistency-bot) |
+| `HUGGINGFACE_PUSH` | [Build documentation](#build-documentation) |
+| `LYSANDRE_HF_TOKEN` | [Update Transformers metadata](#update-transformers-metadata) |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | [PR CI](#pr-ci) |
+| `OTEL_TOKEN` | [PR CI](#pr-ci) |
+| `PUSH_TO_HUB_TOKEN` | [Self-hosted runner (benchmark)](#self-hosted-runner-benchmark) |
+| `SLACK_CIFEEDBACK_BOT_TOKEN` | [Build docker images (scheduled)](#build-docker-images-scheduled), [Build pr ci-docker](#build-pr-ci-docker), [Extras Smoke Test](#extras-smoke-test), [New model PR merged notification](#new-model-pr-merged-notification), [Process failed tests](#process-failed-tests), [SSH into our runners](#ssh-into-our-runners) |
+| `SLACK_CIFEEDBACK_CHANNEL` | [SSH into our runners](#ssh-into-our-runners) |
+| `TAILSCALE_SSH_AUTHKEY` | [SSH into our runners](#ssh-into-our-runners) |
+| `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN` | [Benchmark v2 Framework](#benchmark-v2-framework), [CI collated reports](#ci-collated-reports), [CI slack report](#ci-slack-report), [Process failed tests](#process-failed-tests) |
+| `TRANSFORMERS_HUB_BOT_HF_TOKEN` | [Check Tiny Models](#check-tiny-models) |
+| `TRL_CI_DISPATCH_TOKEN` | [TRL CI bot](#trl-ci-bot) |
+
+## Permissions across this repository
+
+| Scope | Level |
+|-------|-------|
+| `actions` | `read` |
+| `contents` | `write` (also granted as `read` elsewhere) |
+| `id-token` | `write` (OIDC) |
+| `issues` | `write` (also granted as `read` elsewhere) |
+| `packages` | `read` |
+| `pull-requests` | `write` (also granted as `read` elsewhere) |
+| `security-events` | `write` |
+| `statuses` | `write` |
+
 # Add model like runner
 
 **Triggers:** `push`

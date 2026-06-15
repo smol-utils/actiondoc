@@ -21,6 +21,18 @@
 - [verifier action - schedule, workflow_dispatch](#verifier-action)
 - [Verifier releaser - workflow_dispatch, push, schedule](#verifier-releaser)
 
+## Permissions across this repository
+
+| Scope | Level |
+|-------|-------|
+| `(all scopes)` | `read-all` |
+| `actions` | `read` |
+| `contents` | `write` (also granted as `read` elsewhere) |
+| `id-token` | `write` (OIDC) |
+| `issues` | `write` |
+| `pull-requests` | `read` |
+| `security-events` | `write` |
+
 # Actions pre submits
 
 **Triggers:** `pull_request`, `workflow_dispatch`

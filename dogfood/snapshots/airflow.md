@@ -65,6 +65,32 @@
 - [Run migration tests](#run-migration-tests)
 - [Setup Breeze](#setup-breeze)
 
+## Secrets and variables used across this repository
+
+**Secrets:**
+
+| Name | Used by |
+|------|---------|
+| `CODECOV_TOKEN` | [Integration and system tests](#integration-and-system-tests), [Unit tests](#unit-tests) |
+| `CONSTRAINTS_GITHUB_REPOSITORY` | [Build CI images](#build-ci-images), [Build PROD images](#build-prod-images), [Push image cache](#push-image-cache) |
+| `DOCKERHUB_TOKEN` | [Release PROD images](#release-prod-images), [Release single PROD image](#release-single-prod-image) |
+| `DOCKERHUB_USER` | [Release PROD images](#release-prod-images), [Release single PROD image](#release-single-prod-image) |
+| `DOCS_AWS_ACCESS_KEY_ID` | [Build & Publish Registry](#build--publish-registry), [CI Image Checks](#ci-image-checks), [Publish Docs to S3](#publish-docs-to-s3), [Registry Backfill](#registry-backfill), [Tests (AMD)](#tests-amd), [Tests (ARM)](#tests-arm) |
+| `DOCS_AWS_SECRET_ACCESS_KEY` | [Build & Publish Registry](#build--publish-registry), [CI Image Checks](#ci-image-checks), [Publish Docs to S3](#publish-docs-to-s3), [Registry Backfill](#registry-backfill), [Tests (AMD)](#tests-amd), [Tests (ARM)](#tests-arm) |
+| `SLACK_BOT_TOKEN` | [CI Image Checks](#ci-image-checks), [CI Notification](#ci-notification), [E2E Flaky Tests Report](#e2e-flaky-tests-report), [\[main\] Scheduled CI upgrade check](#main-scheduled-ci-upgrade-check), [Scheduled verify release calendar](#scheduled-verify-release-calendar), [Tests (AMD)](#tests-amd), [Tests (ARM)](#tests-arm), [Update constraints on push for main (only when uv.lock changes)](#update-constraints-on-push-for-main-only-when-uvlock-changes), [Update constraints on push for stable branch (always)](#update-constraints-on-push-for-stable-branch-always), [Upgrade check](#upgrade-check), [\[v3-2-test\] Scheduled CI upgrade check](#v3-2-test-scheduled-ci-upgrade-check) |
+
+## Permissions across this repository
+
+| Scope | Level |
+|-------|-------|
+| `actions` | `read` |
+| `contents` | `write` (also granted as `read` elsewhere) |
+| `id-token` | `write` (OIDC) |
+| `issues` | `write` |
+| `packages` | `write` (also granted as `read` elsewhere) |
+| `pull-requests` | `write` (also granted as `read` elsewhere) |
+| `security-events` | `write` |
+
 # [main] Scheduled CI upgrade check
 
 **Triggers:** `schedule`, `workflow_dispatch`
