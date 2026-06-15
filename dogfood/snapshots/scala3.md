@@ -97,7 +97,32 @@
 | File | `stdlib.yaml` |
 | Default runs-on | `ubuntu-latest` |
 
-**Jobs:** [Non-Bootstrapped Library Unit Tests](#non-bootstrapped-library-unit-tests-test-scala-library-nonbootstrapped), [Bootstrapped Library Unit Tests](#bootstrapped-library-unit-tests-test-scala-library-bootstrapped), [`mima-scala-library-nonbootstrapped`](#mima-scala-library-nonbootstrapped), [`mima-scala3-interfaces`](#mima-scala3-interfaces), [`mima-tasty-core-nonbootstrapped`](#mima-tasty-core-nonbootstrapped), [`static-analysis-scala-library-bootstrapped`](#static-analysis-scala-library-bootstrapped), [`mima-tasty-core-bootstrapped`](#mima-tasty-core-bootstrapped), [`mima-scala-library-sjs`](#mima-scala-library-sjs), [`test-scala3-compiler-nonbootstrapped`](#test-scala3-compiler-nonbootstrapped), [`test-scala3-compiler-bootstrapped`](#test-scala3-compiler-bootstrapped), [`test-scala3-bootstrapped-compilation-coverage`](#test-scala3-bootstrapped-compilation-coverage), [`test-scala3-sbt-bridge-nonbootstrapped`](#test-scala3-sbt-bridge-nonbootstrapped), [`test-scala3-sbt-bridge-bootstrapped`](#test-scala3-sbt-bridge-bootstrapped), [`test-tasty-core-nonbootstrapped`](#test-tasty-core-nonbootstrapped), [`test-tasty-core-bootstrapped`](#test-tasty-core-bootstrapped), [`test-scala-js`](#test-scala-js), [`test-repl`](#test-repl), [`test-presentation-compiler`](#test-presentation-compiler), [`test-language-server`](#test-language-server), [`scripted-tests`](#scripted-tests), [`community_build_a`](#community_build_a), [`community_build_b`](#community_build_b), [`community_build_c`](#community_build_c), [`scala-library-docs`](#scala-library-docs)
+**Jobs:**
+
+- [Non-Bootstrapped Library Unit Tests](#non-bootstrapped-library-unit-tests-test-scala-library-nonbootstrapped)
+- [Bootstrapped Library Unit Tests](#bootstrapped-library-unit-tests-test-scala-library-bootstrapped)
+- [`mima-scala-library-nonbootstrapped`](#mima-scala-library-nonbootstrapped)
+- [`mima-scala3-interfaces`](#mima-scala3-interfaces)
+- [`mima-tasty-core-nonbootstrapped`](#mima-tasty-core-nonbootstrapped)
+- [`static-analysis-scala-library-bootstrapped`](#static-analysis-scala-library-bootstrapped)
+- [`mima-tasty-core-bootstrapped`](#mima-tasty-core-bootstrapped)
+- [`mima-scala-library-sjs`](#mima-scala-library-sjs)
+- [`test-scala3-compiler-nonbootstrapped`](#test-scala3-compiler-nonbootstrapped)
+- [`test-scala3-compiler-bootstrapped`](#test-scala3-compiler-bootstrapped)
+- [`test-scala3-bootstrapped-compilation-coverage`](#test-scala3-bootstrapped-compilation-coverage)
+- [`test-scala3-sbt-bridge-nonbootstrapped`](#test-scala3-sbt-bridge-nonbootstrapped)
+- [`test-scala3-sbt-bridge-bootstrapped`](#test-scala3-sbt-bridge-bootstrapped)
+- [`test-tasty-core-nonbootstrapped`](#test-tasty-core-nonbootstrapped)
+- [`test-tasty-core-bootstrapped`](#test-tasty-core-bootstrapped)
+- [`test-scala-js`](#test-scala-js)
+- [`test-repl`](#test-repl)
+- [`test-presentation-compiler`](#test-presentation-compiler)
+- [`test-language-server`](#test-language-server)
+- [`scripted-tests`](#scripted-tests)
+- [`community_build_a`](#community_build_a)
+- [`community_build_b`](#community_build_b)
+- [`community_build_c`](#community_build_c)
+- [`scala-library-docs`](#scala-library-docs)
 
 ## Event filters
 
@@ -999,7 +1024,17 @@ Secrets referenced (literal names): `API-KEY`, `CHOCOLATEY_KEY`, `CONSUMER-KEY`,
 |----------|-------|
 | File | `ci.yaml` |
 
-**Jobs:** [`stdlib-tests`](#stdlib-tests-1), [`test_windows_full`](#test_windows_full), [`publish_release`](#publish_release), [`build-msi-package`](#build-msi-package), [`test-msi-package`](#test-msi-package), [`build-sdk-package`](#build-sdk-package), [`build-chocolatey-package`](#build-chocolatey-package), [`test-chocolatey-package`](#test-chocolatey-package), [`scalafmt`](#scalafmt)
+**Jobs:**
+
+- [`stdlib-tests`](#stdlib-tests-1)
+- [`test_windows_full`](#test_windows_full)
+- [`publish_release`](#publish_release)
+- [`build-msi-package`](#build-msi-package)
+- [`test-msi-package`](#test-msi-package)
+- [`build-sdk-package`](#build-sdk-package)
+- [`build-chocolatey-package`](#build-chocolatey-package)
+- [`test-chocolatey-package`](#test-chocolatey-package)
+- [`scalafmt`](#scalafmt)
 
 ## Event filters
 

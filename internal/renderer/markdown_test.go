@@ -1,6 +1,7 @@
 package renderer
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 
@@ -209,6 +210,53 @@ func TestMatrixCellBacktickSafe(t *testing.T) {
 	got := matrixCell([]model.MatrixAxis{{Name: "weird`name", Values: []string{"a"}}}, false)
 	if !strings.Contains(got, "`` weird`name ``") {
 		t.Errorf("matrixCell = %q, want backtick-safe span for the axis name", got)
+	}
+}
+
+// TestJobMiniTOCLayout checks the job count threshold that switches the mini-TOC between a
+// compact inline comma-joined line and a vertical bulleted list: the labels and anchors are
+// identical either way, only the layout changes so a large roster stays scannable.
+func TestJobMiniTOCLayout(t *testing.T) {
+	makeJobs := func(n int) ([]model.Job, []string) {
+		jobs := make([]model.Job, n)
+		anchors := make([]string, n)
+		for i := 0; i < n; i++ {
+			id := fmt.Sprintf("job%d", i)
+			jobs[i] = model.Job{ID: id, Name: id}
+			anchors[i] = id
+		}
+		return jobs, anchors
+	}
+
+	// At the threshold (8) the roster stays inline: a single comma-joined line, no bullets.
+	jobs, anchors := makeJobs(jobMiniTOCInlineMax)
+	var inline strings.Builder
+	renderJobMiniTOC(&inline, jobs, anchors)
+	gotInline := inline.String()
+	if !strings.HasPrefix(gotInline, "**Jobs:** [`job0`](#job0), [`job1`](#job1)") {
+		t.Errorf("at %d jobs want inline comma-joined line, got:\n%s", jobMiniTOCInlineMax, gotInline)
+	}
+	if strings.Contains(gotInline, "\n- ") {
+		t.Errorf("at %d jobs want no bullets, got:\n%s", jobMiniTOCInlineMax, gotInline)
+	}
+
+	// One past the threshold (9) the roster becomes a vertical bulleted list, one job per line.
+	jobs, anchors = makeJobs(jobMiniTOCInlineMax + 1)
+	var vert strings.Builder
+	renderJobMiniTOC(&vert, jobs, anchors)
+	gotVert := vert.String()
+	if !strings.HasPrefix(gotVert, "**Jobs:**\n\n- [`job0`](#job0)\n- [`job1`](#job1)\n") {
+		t.Errorf("at %d jobs want vertical bulleted list, got:\n%s", jobMiniTOCInlineMax+1, gotVert)
+	}
+	if strings.Contains(gotVert, "), [") {
+		t.Errorf("at %d jobs want no inline comma-joined links, got:\n%s", jobMiniTOCInlineMax+1, gotVert)
+	}
+	// Anchors are unchanged across layouts: every job's link target survives the switch.
+	for i := 0; i < jobMiniTOCInlineMax+1; i++ {
+		want := fmt.Sprintf("(#job%d)", i)
+		if !strings.Contains(gotVert, want) {
+			t.Errorf("vertical layout dropped anchor %s:\n%s", want, gotVert)
+		}
 	}
 }
 

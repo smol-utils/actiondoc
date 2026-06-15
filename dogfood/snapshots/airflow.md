@@ -2099,7 +2099,40 @@ Permissions declared across the chain: `contents: read`, `packages: read`
 | File | `ci-amd.yml` |
 | Default runs-on | `${{ fromJSON(needs.build-info.outputs.runner-type) }}` |
 
-**Jobs:** [Build info](#build-info-build-info-2), [Platform: AMD](#platform-amd-print-platform), [Basic tests](#basic-tests-basic-tests), [Build CI images](#build-ci-images-build-ci-images), [Additional CI image checks](#additional-ci-image-checks-additional-ci-image-checks), [Generate constraints](#generate-constraints-generate-constraints), [CI image checks](#ci-image-checks-ci-image-checks), [MyPy providers checks](#mypy-providers-checks-mypy-providers), [Migration round-trip check](#migration-round-trip-check-migration-round-trip), [provider distributions tests](#provider-distributions-tests-providers), [Helm tests](#helm-tests-tests-helm), [Postgres tests: core](#postgres-tests-core-tests-postgres-core), [Postgres tests: providers](#postgres-tests-providers-tests-postgres-providers), [MySQL tests: core](#mysql-tests-core-tests-mysql-core), [MySQL tests: providers](#mysql-tests-providers-tests-mysql-providers), [Sqlite tests: core](#sqlite-tests-core-tests-sqlite-core), [Sqlite tests: providers](#sqlite-tests-providers-tests-sqlite-providers), [Non-DB tests: core](#non-db-tests-core-tests-non-db-core), [Non-DB tests: providers](#non-db-tests-providers-tests-non-db-providers), [Special tests](#special-tests-tests-special), [Integration and System Tests](#integration-and-system-tests-tests-integration-system), [Low dep tests:core](#low-dep-testscore-tests-with-lowest-direct-resolution-core), [Low dep tests: providers](#low-dep-tests-providers-tests-with-lowest-direct-resolution-providers), [Build PROD images](#build-prod-images-build-prod-images), [Additional PROD image tests](#additional-prod-image-tests-additional-prod-image-tests), [Kubernetes tests](#kubernetes-tests-tests-kubernetes), [Task SDK tests](#task-sdk-tests-tests-task-sdk), [Go SDK tests](#go-sdk-tests-tests-go-sdk), [Airflow CTL tests](#airflow-ctl-tests-tests-airflow-ctl), [Finalize tests](#finalize-tests-finalize-tests), [Notify Slack](#notify-slack-notify-slack), [Summarize warnings](#summarize-warnings-summarize-warnings)
+**Jobs:**
+
+- [Build info](#build-info-build-info-2)
+- [Platform: AMD](#platform-amd-print-platform)
+- [Basic tests](#basic-tests-basic-tests)
+- [Build CI images](#build-ci-images-build-ci-images)
+- [Additional CI image checks](#additional-ci-image-checks-additional-ci-image-checks)
+- [Generate constraints](#generate-constraints-generate-constraints)
+- [CI image checks](#ci-image-checks-ci-image-checks)
+- [MyPy providers checks](#mypy-providers-checks-mypy-providers)
+- [Migration round-trip check](#migration-round-trip-check-migration-round-trip)
+- [provider distributions tests](#provider-distributions-tests-providers)
+- [Helm tests](#helm-tests-tests-helm)
+- [Postgres tests: core](#postgres-tests-core-tests-postgres-core)
+- [Postgres tests: providers](#postgres-tests-providers-tests-postgres-providers)
+- [MySQL tests: core](#mysql-tests-core-tests-mysql-core)
+- [MySQL tests: providers](#mysql-tests-providers-tests-mysql-providers)
+- [Sqlite tests: core](#sqlite-tests-core-tests-sqlite-core)
+- [Sqlite tests: providers](#sqlite-tests-providers-tests-sqlite-providers)
+- [Non-DB tests: core](#non-db-tests-core-tests-non-db-core)
+- [Non-DB tests: providers](#non-db-tests-providers-tests-non-db-providers)
+- [Special tests](#special-tests-tests-special)
+- [Integration and System Tests](#integration-and-system-tests-tests-integration-system)
+- [Low dep tests:core](#low-dep-testscore-tests-with-lowest-direct-resolution-core)
+- [Low dep tests: providers](#low-dep-tests-providers-tests-with-lowest-direct-resolution-providers)
+- [Build PROD images](#build-prod-images-build-prod-images)
+- [Additional PROD image tests](#additional-prod-image-tests-additional-prod-image-tests)
+- [Kubernetes tests](#kubernetes-tests-tests-kubernetes)
+- [Task SDK tests](#task-sdk-tests-tests-task-sdk)
+- [Go SDK tests](#go-sdk-tests-tests-go-sdk)
+- [Airflow CTL tests](#airflow-ctl-tests-tests-airflow-ctl)
+- [Finalize tests](#finalize-tests-finalize-tests)
+- [Notify Slack](#notify-slack-notify-slack)
+- [Summarize warnings](#summarize-warnings-summarize-warnings)
 
 ## Schedule
 
@@ -3301,7 +3334,40 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
 | File | `ci-arm.yml` |
 | Default runs-on | `${{ fromJSON(needs.build-info.outputs.runner-type) }}` |
 
-**Jobs:** [Build info](#build-info-build-info-3), [Platform: ARM](#platform-arm-print-platform), [Basic tests](#basic-tests-basic-tests-1), [Build CI images](#build-ci-images-build-ci-images-1), [Additional CI image checks](#additional-ci-image-checks-additional-ci-image-checks-1), [Generate constraints](#generate-constraints-generate-constraints-1), [CI image checks](#ci-image-checks-ci-image-checks-1), [MyPy providers checks](#mypy-providers-checks-mypy-providers-1), [Migration round-trip check](#migration-round-trip-check-migration-round-trip-1), [provider distributions tests](#provider-distributions-tests-providers-1), [Helm tests](#helm-tests-tests-helm-1), [Postgres tests: core](#postgres-tests-core-tests-postgres-core-1), [Postgres tests: providers](#postgres-tests-providers-tests-postgres-providers-1), [MySQL tests: core](#mysql-tests-core-tests-mysql-core-1), [MySQL tests: providers](#mysql-tests-providers-tests-mysql-providers-1), [Sqlite tests: core](#sqlite-tests-core-tests-sqlite-core-1), [Sqlite tests: providers](#sqlite-tests-providers-tests-sqlite-providers-1), [Non-DB tests: core](#non-db-tests-core-tests-non-db-core-1), [Non-DB tests: providers](#non-db-tests-providers-tests-non-db-providers-1), [Special tests](#special-tests-tests-special-1), [Integration and System Tests](#integration-and-system-tests-tests-integration-system-1), [Low dep tests:core](#low-dep-testscore-tests-with-lowest-direct-resolution-core-1), [Low dep tests: providers](#low-dep-tests-providers-tests-with-lowest-direct-resolution-providers-1), [Build PROD images](#build-prod-images-build-prod-images-1), [Additional PROD image tests](#additional-prod-image-tests-additional-prod-image-tests-1), [Kubernetes tests](#kubernetes-tests-tests-kubernetes-1), [Task SDK tests](#task-sdk-tests-tests-task-sdk-1), [Go SDK tests](#go-sdk-tests-tests-go-sdk-1), [Airflow CTL tests](#airflow-ctl-tests-tests-airflow-ctl-1), [Finalize tests](#finalize-tests-finalize-tests-1), [Notify Slack](#notify-slack-notify-slack-1), [Summarize warnings](#summarize-warnings-summarize-warnings-1)
+**Jobs:**
+
+- [Build info](#build-info-build-info-3)
+- [Platform: ARM](#platform-arm-print-platform)
+- [Basic tests](#basic-tests-basic-tests-1)
+- [Build CI images](#build-ci-images-build-ci-images-1)
+- [Additional CI image checks](#additional-ci-image-checks-additional-ci-image-checks-1)
+- [Generate constraints](#generate-constraints-generate-constraints-1)
+- [CI image checks](#ci-image-checks-ci-image-checks-1)
+- [MyPy providers checks](#mypy-providers-checks-mypy-providers-1)
+- [Migration round-trip check](#migration-round-trip-check-migration-round-trip-1)
+- [provider distributions tests](#provider-distributions-tests-providers-1)
+- [Helm tests](#helm-tests-tests-helm-1)
+- [Postgres tests: core](#postgres-tests-core-tests-postgres-core-1)
+- [Postgres tests: providers](#postgres-tests-providers-tests-postgres-providers-1)
+- [MySQL tests: core](#mysql-tests-core-tests-mysql-core-1)
+- [MySQL tests: providers](#mysql-tests-providers-tests-mysql-providers-1)
+- [Sqlite tests: core](#sqlite-tests-core-tests-sqlite-core-1)
+- [Sqlite tests: providers](#sqlite-tests-providers-tests-sqlite-providers-1)
+- [Non-DB tests: core](#non-db-tests-core-tests-non-db-core-1)
+- [Non-DB tests: providers](#non-db-tests-providers-tests-non-db-providers-1)
+- [Special tests](#special-tests-tests-special-1)
+- [Integration and System Tests](#integration-and-system-tests-tests-integration-system-1)
+- [Low dep tests:core](#low-dep-testscore-tests-with-lowest-direct-resolution-core-1)
+- [Low dep tests: providers](#low-dep-tests-providers-tests-with-lowest-direct-resolution-providers-1)
+- [Build PROD images](#build-prod-images-build-prod-images-1)
+- [Additional PROD image tests](#additional-prod-image-tests-additional-prod-image-tests-1)
+- [Kubernetes tests](#kubernetes-tests-tests-kubernetes-1)
+- [Task SDK tests](#task-sdk-tests-tests-task-sdk-1)
+- [Go SDK tests](#go-sdk-tests-tests-go-sdk-1)
+- [Airflow CTL tests](#airflow-ctl-tests-tests-airflow-ctl-1)
+- [Finalize tests](#finalize-tests-finalize-tests-1)
+- [Notify Slack](#notify-slack-notify-slack-1)
+- [Summarize warnings](#summarize-warnings-summarize-warnings-1)
 
 ## Schedule
 
@@ -5223,7 +5289,23 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 | File | `additional-prod-image-tests.yml` |
 | Default runs-on | `${{ fromJSON(inputs.runners) }}` |
 
-**Jobs:** [PROD image extra checks (main)](#prod-image-extra-checks-main-prod-image-extra-checks-main), [PROD image extra checks (release)](#prod-image-extra-checks-release-prod-image-extra-checks-release-branch), [Test examples of PROD image building](#test-examples-of-prod-image-building-test-examples-of-prod-image-building), [Docker Compose quick start with PROD image verifying](#docker-compose-quick-start-with-prod-image-verifying-test-docker-compose-quick-start), [Task SDK integration tests with PROD image](#task-sdk-integration-tests-with-prod-image-task-sdk-integration-tests), [Test e2e integration tests with PROD image](#test-e2e-integration-tests-with-prod-image-test-e2e-integration-tests-basic), [Remote logging tests with PROD image](#remote-logging-tests-with-prod-image-test-e2e-integration-tests-remote-log), [Elasticsearch remote logging tests with PROD image](#elasticsearch-remote-logging-tests-with-prod-image-test-e2e-integration-tests-remote-log-elasticsearch), [OpenSearch remote logging tests with PROD image](#opensearch-remote-logging-tests-with-prod-image-test-e2e-integration-tests-remote-log-opensearch), [XCom object storage backend tests with PROD image](#xcom-object-storage-backend-tests-with-prod-image-test-e2e-integration-tests-xcom-object-storage), [Event driven tests with PROD image](#event-driven-tests-with-prod-image-test-e2e-integration-tests-event-driven), [Chromium UI e2e tests with PROD image](#chromium-ui-e2e-tests-with-prod-image-test-ui-e2e-chromium), [Firefox UI e2e tests with PROD image](#firefox-ui-e2e-tests-with-prod-image-test-ui-e2e-firefox), [WebKit UI e2e tests with PROD image](#webkit-ui-e2e-tests-with-prod-image-test-ui-e2e-webkit), [Airflow CTL integration tests with PROD image](#airflow-ctl-integration-tests-with-prod-image-airflow-ctl-integration-tests)
+**Jobs:**
+
+- [PROD image extra checks (main)](#prod-image-extra-checks-main-prod-image-extra-checks-main)
+- [PROD image extra checks (release)](#prod-image-extra-checks-release-prod-image-extra-checks-release-branch)
+- [Test examples of PROD image building](#test-examples-of-prod-image-building-test-examples-of-prod-image-building)
+- [Docker Compose quick start with PROD image verifying](#docker-compose-quick-start-with-prod-image-verifying-test-docker-compose-quick-start)
+- [Task SDK integration tests with PROD image](#task-sdk-integration-tests-with-prod-image-task-sdk-integration-tests)
+- [Test e2e integration tests with PROD image](#test-e2e-integration-tests-with-prod-image-test-e2e-integration-tests-basic)
+- [Remote logging tests with PROD image](#remote-logging-tests-with-prod-image-test-e2e-integration-tests-remote-log)
+- [Elasticsearch remote logging tests with PROD image](#elasticsearch-remote-logging-tests-with-prod-image-test-e2e-integration-tests-remote-log-elasticsearch)
+- [OpenSearch remote logging tests with PROD image](#opensearch-remote-logging-tests-with-prod-image-test-e2e-integration-tests-remote-log-opensearch)
+- [XCom object storage backend tests with PROD image](#xcom-object-storage-backend-tests-with-prod-image-test-e2e-integration-tests-xcom-object-storage)
+- [Event driven tests with PROD image](#event-driven-tests-with-prod-image-test-e2e-integration-tests-event-driven)
+- [Chromium UI e2e tests with PROD image](#chromium-ui-e2e-tests-with-prod-image-test-ui-e2e-chromium)
+- [Firefox UI e2e tests with PROD image](#firefox-ui-e2e-tests-with-prod-image-test-ui-e2e-firefox)
+- [WebKit UI e2e tests with PROD image](#webkit-ui-e2e-tests-with-prod-image-test-ui-e2e-webkit)
+- [Airflow CTL integration tests with PROD image](#airflow-ctl-integration-tests-with-prod-image-airflow-ctl-integration-tests)
 
 ## Workflow call API
 
@@ -5618,7 +5700,18 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 | File | `basic-tests.yml` |
 | Default runs-on | `${{ fromJSON(inputs.runners) }}` |
 
-**Jobs:** [Breeze unit tests](#breeze-unit-tests-run-breeze-tests), [Breeze integration tests](#breeze-integration-tests-run-breeze-integration-tests), [Shared ${{ matrix.shared-distribution }} tests](#shared--matrixshared-distribution--tests-tests-shared-distributions), [Scripts tests](#scripts-tests-tests-scripts), [React UI tests](#react-ui-tests-tests-ui), [Check translation completeness](#check-translation-completeness-check-translation-completness), [Static checks: basic checks only](#static-checks-basic-checks-only-static-checks-basic-checks-only), [Test git clone on Windows](#test-git-clone-on-windows-test-git-clone-on-windows), [Test Airflow release commands](#test-airflow-release-commands-test-airflow-release-commands), [Test Airflow standalone commands](#test-airflow-standalone-commands-test-airflow-standalone)
+**Jobs:**
+
+- [Breeze unit tests](#breeze-unit-tests-run-breeze-tests)
+- [Breeze integration tests](#breeze-integration-tests-run-breeze-integration-tests)
+- [Shared ${{ matrix.shared-distribution }} tests](#shared--matrixshared-distribution--tests-tests-shared-distributions)
+- [Scripts tests](#scripts-tests-tests-scripts)
+- [React UI tests](#react-ui-tests-tests-ui)
+- [Check translation completeness](#check-translation-completeness-check-translation-completness)
+- [Static checks: basic checks only](#static-checks-basic-checks-only-static-checks-basic-checks-only)
+- [Test git clone on Windows](#test-git-clone-on-windows-test-git-clone-on-windows)
+- [Test Airflow release commands](#test-airflow-release-commands-test-airflow-release-commands)
+- [Test Airflow standalone commands](#test-airflow-standalone-commands-test-airflow-standalone)
 
 ## Workflow call API
 
@@ -8346,7 +8439,19 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 |----------|-------|
 | File | `special-tests.yml` |
 
-**Jobs:** [Min SQLAlchemy test: core](#min-sqlalchemy-test-core-tests-min-sqlalchemy), [Min SQLAlchemy test: providers](#min-sqlalchemy-test-providers-tests-min-sqlalchemy-providers), [Latest SQLAlchemy test: core](#latest-sqlalchemy-test-core-tests-latest-sqlalchemy), [Latest SQLAlchemy test: providers](#latest-sqlalchemy-test-providers-tests-latest-sqlalchemy-providers), [Latest Boto test: core](#latest-boto-test-core-tests-boto-core), [Latest Boto test: providers](#latest-boto-test-providers-tests-boto-providers), [Pendulum2 test: core](#pendulum2-test-core-tests-pendulum-2-core), [Pendulum2 test: providers](#pendulum2-test-providers-tests-pendulum-2-providers), [Quarantined test: core](#quarantined-test-core-tests-quarantined-core), [Quarantined test: providers](#quarantined-test-providers-tests-quarantined-providers), [System test: ${{ matrix.test-group }}](#system-test--matrixtest-group--tests-system-core)
+**Jobs:**
+
+- [Min SQLAlchemy test: core](#min-sqlalchemy-test-core-tests-min-sqlalchemy)
+- [Min SQLAlchemy test: providers](#min-sqlalchemy-test-providers-tests-min-sqlalchemy-providers)
+- [Latest SQLAlchemy test: core](#latest-sqlalchemy-test-core-tests-latest-sqlalchemy)
+- [Latest SQLAlchemy test: providers](#latest-sqlalchemy-test-providers-tests-latest-sqlalchemy-providers)
+- [Latest Boto test: core](#latest-boto-test-core-tests-boto-core)
+- [Latest Boto test: providers](#latest-boto-test-providers-tests-boto-providers)
+- [Pendulum2 test: core](#pendulum2-test-core-tests-pendulum-2-core)
+- [Pendulum2 test: providers](#pendulum2-test-providers-tests-pendulum-2-providers)
+- [Quarantined test: core](#quarantined-test-core-tests-quarantined-core)
+- [Quarantined test: providers](#quarantined-test-providers-tests-quarantined-providers)
+- [System test: ${{ matrix.test-group }}](#system-test--matrixtest-group--tests-system-core)
 
 ## Workflow call API
 

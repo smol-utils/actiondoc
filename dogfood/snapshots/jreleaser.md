@@ -888,7 +888,18 @@ External workflows referenced: `slsa-framework/slsa-github-generator/.github/wor
 | File | `smoke-tests.yml` |
 | Default runs-on | `${{ matrix.job.os }}` |
 
-**Jobs:** [Precheck](#precheck-precheck-4), [CLI ${{ matrix.job.os }}](#cli--matrixjobos--build-cli), [Tool ${{ matrix.job.os }}](#tool--matrixjobos--build-tool), [Ant ${{ matrix.job.os }}](#ant--matrixjobos--build-ant), [Gradle ${{ matrix.job.os }}](#gradle--matrixjobos--build-gradle), [Maven ${{ matrix.job.os }}](#maven--matrixjobos--build-maven), [Unit Test ${{ matrix.os }}](#unit-test--matrixos--unit-tests), [Coveralls](#coveralls-coveralls), [Codecov](#codecov-codecov), [Sonar](#sonar-sonar)
+**Jobs:**
+
+- [Precheck](#precheck-precheck-4)
+- [CLI ${{ matrix.job.os }}](#cli--matrixjobos--build-cli)
+- [Tool ${{ matrix.job.os }}](#tool--matrixjobos--build-tool)
+- [Ant ${{ matrix.job.os }}](#ant--matrixjobos--build-ant)
+- [Gradle ${{ matrix.job.os }}](#gradle--matrixjobos--build-gradle)
+- [Maven ${{ matrix.job.os }}](#maven--matrixjobos--build-maven)
+- [Unit Test ${{ matrix.os }}](#unit-test--matrixos--unit-tests)
+- [Coveralls](#coveralls-coveralls)
+- [Codecov](#codecov-codecov)
+- [Sonar](#sonar-sonar)
 
 ## Event filters
 

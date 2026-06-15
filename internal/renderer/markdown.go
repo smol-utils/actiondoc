@@ -135,8 +135,23 @@ func renderJobMiniTOC(b *strings.Builder, jobs []model.Job, anchors []string) {
 	for i := range jobs {
 		parts[i] = fmt.Sprintf("[%s](#%s)", mdLinkLabel(jobMiniLabel(&jobs[i])), slugs[i])
 	}
+	// A compact comma-joined line stays scannable for a handful of jobs, but past this
+	// threshold it becomes an unscannable wall of links right above the headings it mirrors,
+	// so switch to a vertical bulleted list (one job per line). Same anchors, same labels.
+	if len(jobs) > jobMiniTOCInlineMax {
+		b.WriteString("**Jobs:**\n\n")
+		for _, p := range parts {
+			fmt.Fprintf(b, "- %s\n", p)
+		}
+		b.WriteString("\n")
+		return
+	}
 	fmt.Fprintf(b, "**Jobs:** %s\n\n", strings.Join(parts, ", "))
 }
+
+// jobMiniTOCInlineMax is the largest job count rendered as a single inline comma-joined
+// mini-TOC line; above it, the roster becomes a vertical bulleted list for scannability.
+const jobMiniTOCInlineMax = 8
 
 // JobHeadingText returns the visible text of a job's heading: the basis for its GitHub anchor
 // slug. It mirrors renderJob's heading construction so a mini-TOC link resolves to the

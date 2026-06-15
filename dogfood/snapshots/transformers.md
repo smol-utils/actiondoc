@@ -2571,7 +2571,18 @@ External workflows referenced: `huggingface/transformers-test-ci/.github/workflo
 | File | `self-comment-ci.yml` |
 | Default runs-on | `ubuntu-22.04` |
 
-**Jobs:** [Get PR number](#get-pr-number-get-pr-number-1), [Get PR commit SHA](#get-pr-commit-sha-get-pr-info-1), [Check timestamps (security check)](#check-timestamps-security-check-check-timestamps), [`get-tests`](#get-tests), [Report error earlier](#report-error-earlier-report_error_earlier), [Reply to the comment](#reply-to-the-comment-reply_to_comment-1), [Create run](#create-run-create_run-1), [Model CI](#model-ci-model-ci-3), [Quantization CI](#quantization-ci-quantization-ci-1), [Check & Report](#check--report-report)
+**Jobs:**
+
+- [Get PR number](#get-pr-number-get-pr-number-1)
+- [Get PR commit SHA](#get-pr-commit-sha-get-pr-info-1)
+- [Check timestamps (security check)](#check-timestamps-security-check-check-timestamps)
+- [`get-tests`](#get-tests)
+- [Report error earlier](#report-error-earlier-report_error_earlier)
+- [Reply to the comment](#reply-to-the-comment-reply_to_comment-1)
+- [Create run](#create-run-create_run-1)
+- [Model CI](#model-ci-model-ci-3)
+- [Quantization CI](#quantization-ci-quantization-ci-1)
+- [Check & Report](#check--report-report)
 
 ## Event filters
 
@@ -5338,7 +5349,19 @@ External workflows referenced: `huggingface/doc-builder/.github/workflows/upload
 | File | `self-scheduled.yml` |
 | Default runs-on | `group: ${{ matrix.machine_type }}` |
 
-**Jobs:** [Setup](#setup-setup-4), [`run_models_gpu`](#run_models_gpu-2), [`run_trainer_and_fsdp_gpu`](#run_trainer_and_fsdp_gpu), [PyTorch pipelines](#pytorch-pipelines-run_pipelines_torch_gpu), [Examples directory](#examples-directory-run_examples_gpu), [Torch CUDA extension tests](#torch-cuda-extension-tests-run_torch_cuda_extensions_gpu), [`run_quantization_torch_gpu`](#run_quantization_torch_gpu), [Kernel tests](#kernel-tests-run_kernels_gpu), [Extract warnings in CI artifacts](#extract-warnings-in-ci-artifacts-run_extract_warnings), [Slack Report](#slack-report-send_results), [Check new failures](#check-new-failures-check_new_failures)
+**Jobs:**
+
+- [Setup](#setup-setup-4)
+- [`run_models_gpu`](#run_models_gpu-2)
+- [`run_trainer_and_fsdp_gpu`](#run_trainer_and_fsdp_gpu)
+- [PyTorch pipelines](#pytorch-pipelines-run_pipelines_torch_gpu)
+- [Examples directory](#examples-directory-run_examples_gpu)
+- [Torch CUDA extension tests](#torch-cuda-extension-tests-run_torch_cuda_extensions_gpu)
+- [`run_quantization_torch_gpu`](#run_quantization_torch_gpu)
+- [Kernel tests](#kernel-tests-run_kernels_gpu)
+- [Extract warnings in CI artifacts](#extract-warnings-in-ci-artifacts-run_extract_warnings)
+- [Slack Report](#slack-report-send_results)
+- [Check new failures](#check-new-failures-check_new_failures)
 
 ## Workflow call API
 

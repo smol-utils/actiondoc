@@ -415,7 +415,17 @@ Inputs for the `workflow_dispatch` event.
 | File | `release.yml` |
 | Default runs-on | `${{ vars.UBUNTU_SMALL \|\| 'ubuntu-latest' }}` |
 
-**Jobs:** [Build and Stage Release](#build-and-stage-release-build-and-stage-release), [Verify](#verify-verify-1), [Sync to Maven Central](#sync-to-maven-central-sync-to-maven-central), [Promote Release](#promote-release-promote-release), [Publish Gradle Plugin](#publish-gradle-plugin-publish-gradle-plugin), [Publish to SDKMAN!](#publish-to-sdkman-publish-to-sdkman), [Update Homebrew Tap](#update-homebrew-tap-update-homebrew-tap), [Trigger Docs Build](#trigger-docs-build-trigger-docs-build-1), [Create GitHub Release](#create-github-release-create-github-release)
+**Jobs:**
+
+- [Build and Stage Release](#build-and-stage-release-build-and-stage-release)
+- [Verify](#verify-verify-1)
+- [Sync to Maven Central](#sync-to-maven-central-sync-to-maven-central)
+- [Promote Release](#promote-release-promote-release)
+- [Publish Gradle Plugin](#publish-gradle-plugin-publish-gradle-plugin)
+- [Publish to SDKMAN!](#publish-to-sdkman-publish-to-sdkman)
+- [Update Homebrew Tap](#update-homebrew-tap-update-homebrew-tap)
+- [Trigger Docs Build](#trigger-docs-build-trigger-docs-build-1)
+- [Create GitHub Release](#create-github-release-create-github-release)
 
 ## Event filters
 
