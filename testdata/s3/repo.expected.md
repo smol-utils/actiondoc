@@ -1,7 +1,19 @@
-# Contents
+# repo
 
-- [CI](#ci)
+1 workflow, 1 reusable workflow, 1 composite action
+
+## Contents
+
+**Workflows**
+
+- [CI - push](#ci)
+
+**Reusable workflows**
+
 - [Reusable Build](#reusable-build)
+
+**Composite actions**
+
 - [Deploy](#deploy)
 
 # CI

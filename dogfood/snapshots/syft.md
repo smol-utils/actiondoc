@@ -1,9 +1,18 @@
-# Contents
+# syft
 
-- [CodeQL](#codeql)
-- [Release](#release)
-- [Validate GitHub Actions](#validate-github-actions)
-- [Validations](#validations)
+4 workflows, 1 composite action
+
+## Contents
+
+**Workflows**
+
+- [CodeQL - push, pull_request, schedule](#codeql)
+- [Release - workflow_dispatch](#release)
+- [Validate GitHub Actions - workflow_dispatch, pull_request, push](#validate-github-actions)
+- [Validations - workflow_dispatch, pull_request, push](#validations)
+
+**Composite actions**
+
 - [Bootstrap](#bootstrap)
 
 # CodeQL

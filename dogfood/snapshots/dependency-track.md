@@ -1,14 +1,23 @@
-# Contents
+# dependency-track
+
+8 workflows, 1 reusable workflow
+
+## Contents
+
+**Workflows**
+
+- [Build CI - push, pull_request, workflow_dispatch](#build-ci)
+- [PR Template Check - pull_request](#pr-template-check)
+- [Publish CI - push, workflow_dispatch](#publish-ci)
+- [Release CI - workflow_dispatch](#release-ci)
+- [Report PR Test Coverage - workflow_run](#report-pr-test-coverage)
+- [Tests CI - push, pull_request, workflow_dispatch](#tests-ci)
+- [Dependency Review - pull_request](#dependency-review)
+- [Lock Threads - schedule](#lock-threads)
+
+**Reusable workflows**
 
 - [_meta-build.yaml](#_meta-buildyaml)
-- [Build CI](#build-ci)
-- [PR Template Check](#pr-template-check)
-- [Publish CI](#publish-ci)
-- [Release CI](#release-ci)
-- [Report PR Test Coverage](#report-pr-test-coverage)
-- [Tests CI](#tests-ci)
-- [Dependency Review](#dependency-review)
-- [Lock Threads](#lock-threads)
 
 # _meta-build.yaml
 

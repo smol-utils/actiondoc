@@ -177,20 +177,79 @@ func writeRefTable(b *strings.Builder, label string, refs []model.Reference) {
 	b.WriteString("\n")
 }
 
-// RenderTOC builds a table of contents linking each top-level heading title to its anchor,
-// for navigating a single-file render of many workflows/actions. Returns "" for fewer than
-// two entries. Duplicate titles get GitHub's `-N` anchor suffixes in document order, via
-// the same AssignAnchors pass that cross-links use.
-func RenderTOC(titles []string) string {
-	if len(titles) < 2 {
+// TOCEntry is one link in the table of contents: a fully-formed visible label (already
+// carrying any trigger annotation or duplicate-name disambiguation) and the anchor slug it
+// links to.
+type TOCEntry struct {
+	Label  string
+	Anchor string
+}
+
+// TOCGroup is a labelled run of TOC entries (e.g. "Workflows"). Empty groups are skipped
+// when rendered.
+type TOCGroup struct {
+	Heading string
+	Entries []TOCEntry
+}
+
+// RenderTOC builds a grouped table of contents for navigating a single-file render of many
+// workflows/actions. Each non-empty group is rendered under its bold heading in the order
+// given. Returns "" when fewer than two entries exist across all groups (a lone document
+// needs no contents list). Entry labels are escaped for use as Markdown link text; anchors
+// are taken as-is from the caller's AssignAnchors pass so they agree with cross-links.
+func RenderTOC(groups []TOCGroup) string {
+	total := 0
+	for _, g := range groups {
+		total += len(g.Entries)
+	}
+	if total < 2 {
 		return ""
 	}
 	var b strings.Builder
-	b.WriteString("# Contents\n\n")
-	slugs := AssignAnchors(titles)
-	for i, t := range titles {
-		fmt.Fprintf(&b, "- [%s](#%s)\n", mdLinkLabel(t), slugs[i])
+	b.WriteString("## Contents\n\n")
+	for _, g := range groups {
+		if len(g.Entries) == 0 {
+			continue
+		}
+		fmt.Fprintf(&b, "**%s**\n\n", g.Heading)
+		for _, e := range g.Entries {
+			fmt.Fprintf(&b, "- [%s](#%s)\n", mdLinkLabel(e.Label), e.Anchor)
+		}
+		b.WriteString("\n")
 	}
-	b.WriteString("\n")
 	return b.String()
+}
+
+// RenderDocumentHeader emits the document's H1 title and a one-line inventory of what it
+// documents. Counts that are zero are omitted; the rest are pluralized. It returns "" when
+// title is empty so callers can suppress the header for single-document output.
+func RenderDocumentHeader(title string, workflows, reusable, composites int) string {
+	if title == "" {
+		return ""
+	}
+	var b strings.Builder
+	fmt.Fprintf(&b, "# %s\n\n", title)
+	var parts []string
+	if workflows > 0 {
+		parts = append(parts, pluralize(workflows, "workflow", "workflows"))
+	}
+	if reusable > 0 {
+		parts = append(parts, pluralize(reusable, "reusable workflow", "reusable workflows"))
+	}
+	if composites > 0 {
+		parts = append(parts, pluralize(composites, "composite action", "composite actions"))
+	}
+	if len(parts) > 0 {
+		b.WriteString(strings.Join(parts, ", "))
+		b.WriteString("\n\n")
+	}
+	return b.String()
+}
+
+// pluralize formats a count with its singular or plural noun.
+func pluralize(n int, singular, plural string) string {
+	if n == 1 {
+		return fmt.Sprintf("%d %s", n, singular)
+	}
+	return fmt.Sprintf("%d %s", n, plural)
 }

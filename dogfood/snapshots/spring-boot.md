@@ -1,15 +1,27 @@
-# Contents
+# spring-boot
 
-- [Build and Deploy Snapshot](#build-and-deploy-snapshot)
-- [Build Pull Request](#build-pull-request)
-- [CI](#ci)
-- [Distribute](#distribute)
-- [Release Milestone](#release-milestone)
-- [Release](#release)
-- [Run CodeQL Analysis](#run-codeql-analysis)
-- [Run System Tests](#run-system-tests)
-- [Trigger Docs Build](#trigger-docs-build)
+9 workflows, 1 reusable workflow, 10 composite actions
+
+## Contents
+
+**Workflows**
+
+- [Build and Deploy Snapshot - workflow_dispatch, push](#build-and-deploy-snapshot)
+- [Build Pull Request - pull_request](#build-pull-request)
+- [CI - push](#ci)
+- [Distribute - workflow_dispatch](#distribute)
+- [Release Milestone - push](#release-milestone)
+- [Release - push](#release)
+- [Run CodeQL Analysis - push, pull_request, workflow_dispatch](#run-codeql-analysis)
+- [Run System Tests - push](#run-system-tests)
+- [Trigger Docs Build - push, workflow_dispatch](#trigger-docs-build)
+
+**Reusable workflows**
+
 - [Verify](#verify)
+
+**Composite actions**
+
 - [Await HTTP Resource](#await-http-resource)
 - [Build](#build)
 - [Create GitHub Release](#create-github-release)

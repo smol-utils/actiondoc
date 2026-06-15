@@ -1,22 +1,28 @@
-# Contents
+# cosign
 
-- [CI-Container-Build](#ci-container-build)
-- [CodeQL](#codeql)
-- [Conformance Tests Nightly](#conformance-tests-nightly)
-- [Conformance Tests](#conformance-tests)
-- [Cut Release](#cut-release)
-- [Dependency Review](#dependency-review)
-- [Do Not Submit](#do-not-submit)
-- [e2e-tests](#e2e-tests)
-- [e2e-with-binary](#e2e-with-binary)
-- [Test GitHub OIDC](#test-github-oidc)
-- [golangci-lint](#golangci-lint)
-- [Test attest / verify-attestation](#test-attest--verify-attestation)
-- [Scorecards supply-chain security](#scorecards-supply-chain-security)
-- [CI-Tests](#ci-tests)
-- [CI-Validate-Release-Job](#ci-validate-release-job)
-- [Docgen](#docgen)
-- [Whitespace](#whitespace)
+17 workflows
+
+## Contents
+
+**Workflows**
+
+- [CI-Container-Build - push](#ci-container-build)
+- [CodeQL - push](#codeql)
+- [Conformance Tests Nightly - schedule, workflow_dispatch](#conformance-tests-nightly)
+- [Conformance Tests - push, pull_request](#conformance-tests)
+- [Cut Release - workflow_dispatch](#cut-release)
+- [Dependency Review - pull_request](#dependency-review)
+- [Do Not Submit - pull_request](#do-not-submit)
+- [e2e-tests - push, pull_request, workflow_dispatch](#e2e-tests)
+- [e2e-with-binary - push, workflow_dispatch](#e2e-with-binary)
+- [Test GitHub OIDC - push, schedule, workflow_dispatch](#test-github-oidc)
+- [golangci-lint - push, pull_request](#golangci-lint)
+- [Test attest / verify-attestation - pull_request, workflow_dispatch](#test-attest--verify-attestation)
+- [Scorecards supply-chain security - branch_protection_rule, schedule, push](#scorecards-supply-chain-security)
+- [CI-Tests - workflow_dispatch, push, pull_request](#ci-tests)
+- [CI-Validate-Release-Job - pull_request](#ci-validate-release-job)
+- [Docgen - workflow_dispatch, push, pull_request](#docgen)
+- [Whitespace - pull_request](#whitespace)
 
 # CI-Container-Build
 

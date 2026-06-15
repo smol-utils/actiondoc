@@ -154,27 +154,58 @@ func TestRenderStepDetails(t *testing.T) {
 	}
 }
 
-// TestRenderTOC covers the contents listing, the under-two-entries suppression, and
-// duplicate-title anchor disambiguation.
+// TestRenderTOC covers the grouped contents listing, the under-two-entries suppression,
+// group headings, and that only non-empty groups render.
 func TestRenderTOC(t *testing.T) {
-	if got := RenderTOC([]string{"Only One"}); got != "" {
+	if got := RenderTOC([]TOCGroup{{Heading: "Workflows", Entries: []TOCEntry{{Label: "Only One", Anchor: "only-one"}}}}); got != "" {
 		t.Errorf("single-entry TOC = %q, want empty", got)
 	}
 	if got := RenderTOC(nil); got != "" {
 		t.Errorf("empty TOC = %q, want empty", got)
 	}
 
-	got := RenderTOC([]string{"CI Pipeline", "Release", "CI Pipeline"})
+	got := RenderTOC([]TOCGroup{
+		{Heading: "Workflows", Entries: []TOCEntry{
+			{Label: "CI Pipeline", Anchor: "ci-pipeline"},
+			{Label: "Release - workflow_dispatch, push", Anchor: "release"},
+		}},
+		{Heading: "Reusable workflows"}, // empty: must not render
+		{Heading: "Composite actions", Entries: []TOCEntry{
+			{Label: "Setup", Anchor: "setup"},
+		}},
+	})
 	checks := []string{
-		"# Contents",
+		"## Contents",
+		"**Workflows**\n\n",
 		"- [CI Pipeline](#ci-pipeline)\n",
-		"- [Release](#release)\n",
-		"- [CI Pipeline](#ci-pipeline-1)\n", // duplicate title gets the -1 anchor suffix
+		"- [Release - workflow_dispatch, push](#release)\n",
+		"**Composite actions**\n\n",
+		"- [Setup](#setup)\n",
 	}
 	for _, want := range checks {
 		if !strings.Contains(got, want) {
 			t.Errorf("TOC missing %q\n\nFull output:\n%s", want, got)
 		}
+	}
+	if strings.Contains(got, "Reusable workflows") {
+		t.Errorf("empty group should not render:\n%s", got)
+	}
+}
+
+// TestRenderDocumentHeader covers title emission, zero-count omission, and pluralization.
+func TestRenderDocumentHeader(t *testing.T) {
+	got := RenderDocumentHeader("airflow", 12, 0, 1)
+	if !strings.Contains(got, "# airflow\n\n") {
+		t.Errorf("missing title:\n%s", got)
+	}
+	if !strings.Contains(got, "12 workflows, 1 composite action\n") {
+		t.Errorf("inventory wrong (zero omitted, plural/singular):\n%s", got)
+	}
+	if strings.Contains(got, "reusable") {
+		t.Errorf("zero count should be omitted:\n%s", got)
+	}
+	if got := RenderDocumentHeader("", 1, 0, 0); got != "" {
+		t.Errorf("empty title should suppress header, got %q", got)
 	}
 }
 

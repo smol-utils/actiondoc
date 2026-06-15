@@ -92,7 +92,7 @@ func TestGenerateNoWorkflowName(t *testing.T) {
 	}
 	b, _ := os.ReadFile(out)
 	md := string(b)
-	for _, want := range []string{"# ci.yml", "# release.yml", "[ci.yml](#ciyml)", "[release.yml](#releaseyml)"} {
+	for _, want := range []string{"# ci.yml", "# release.yml", "[ci.yml - push](#ciyml)", "[release.yml - push](#releaseyml)"} {
 		if !strings.Contains(md, want) {
 			t.Errorf("output missing %q (empty name not backfilled?)\n%s", want, md)
 		}
@@ -150,8 +150,9 @@ jobs:
 	if !strings.Contains(md, "[model jobs](#model-jobs-1)") {
 		t.Errorf("caller link must point at the disambiguated anchor #model-jobs-1:\n%s", md)
 	}
-	// The TOC must contain both anchors.
-	for _, want := range []string{"- [model jobs](#model-jobs)\n", "- [model jobs](#model-jobs-1)\n"} {
+	// The TOC must contain both anchors. Identical visible labels are disambiguated with
+	// the source filename, so each "model jobs" entry names its file.
+	for _, want := range []string{"- [model jobs (model_jobs.yml)](#model-jobs)\n", "- [model jobs (model_jobs_gaudi.yml)](#model-jobs-1)\n"} {
 		if !strings.Contains(md, want) {
 			t.Errorf("TOC missing %q", want)
 		}
@@ -378,7 +379,7 @@ runs:
 	}
 	b, _ := os.ReadFile(out)
 	md := string(b)
-	for _, want := range []string{"- [Deploy](#deploy)\n", "- [Deploy](#deploy-1)\n"} {
+	for _, want := range []string{"- [Deploy - push](#deploy)\n", "- [Deploy](#deploy-1)\n"} {
 		if !strings.Contains(md, want) {
 			t.Errorf("TOC missing %q:\n%s", want, md)
 		}

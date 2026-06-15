@@ -1,24 +1,33 @@
-# Contents
+# scala3
+
+11 workflows, 9 reusable workflows
+
+## Contents
+
+**Workflows**
+
+- [Scala 3 - push, pull_request, merge_group, workflow_dispatch](#scala-3)
+- [Scala CLA - pull_request](#scala-cla)
+- [Update Dependency Graph - push](#update-dependency-graph)
+- [Language reference documentation - push, pull_request, workflow_dispatch](#language-reference-documentation)
+- [Add to backporting project - push](#add-to-backporting-project)
+- [Nightly Release of Scala 3 - workflow_dispatch, schedule](#nightly-release-of-scala-3)
+- [Official release of Scala - workflow_dispatch](#official-release-of-scala)
+- [scaladoc - push, pull_request, merge_group](#scaladoc)
+- [Specification - push, pull_request, merge_group, workflow_dispatch](#specification)
+- [Compile Full Standard Library - push, pull_request, workflow_call](#compile-full-standard-library)
+- [Test CLI Launchers on all the platforms - pull_request, workflow_dispatch](#test-cli-launchers-on-all-the-platforms)
+
+**Reusable workflows**
 
 - [Build 'scala' Chocolatey Package](#build-scala-chocolatey-package)
 - [Build the MSI Package](#build-the-msi-package)
 - [Build Scala Launchers](#build-scala-launchers)
-- [Scala 3](#scala-3)
-- [Scala CLA](#scala-cla)
-- [Update Dependency Graph](#update-dependency-graph)
-- [Language reference documentation](#language-reference-documentation)
-- [Add to backporting project](#add-to-backporting-project)
 - [Publish Scala to Chocolatey](#publish-scala-to-chocolatey)
 - [Publish Scala to SDKMAN!](#publish-scala-to-sdkman)
 - [Publish Scala to winget](#publish-scala-to-winget)
 - [Release Artifacts to Maven](#release-artifacts-to-maven)
-- [Nightly Release of Scala 3](#nightly-release-of-scala-3)
-- [Official release of Scala](#official-release-of-scala)
-- [scaladoc](#scaladoc)
-- [Specification](#specification)
-- [Compile Full Standard Library](#compile-full-standard-library)
 - [Test 'scala' Chocolatey Package](#test-scala-chocolatey-package)
-- [Test CLI Launchers on all the platforms](#test-cli-launchers-on-all-the-platforms)
 - [Test 'scala' MSI Package](#test-scala-msi-package)
 
 # Build 'scala' Chocolatey Package

@@ -1,19 +1,25 @@
-# Contents
+# slsa-verifier
 
-- [CodeQL](#codeql)
-- [Dependency Review](#dependency-review)
-- [Schedule cli](#schedule-cli)
-- [verifier action](#verifier-action)
-- [PR Title](#pr-title)
-- [Actions pre submits](#actions-pre-submits)
-- [Pre submits cli](#pre-submits-cli)
-- [Pre submits e2e](#pre-submits-e2e)
-- [LFS Warning](#lfs-warning)
-- [Pre submits Lint](#pre-submits-lint)
-- [References pre submits](#references-pre-submits)
-- [Verifier releaser](#verifier-releaser)
-- [Scorecards supply-chain security](#scorecards-supply-chain-security)
-- [Update actions dist post-commit](#update-actions-dist-post-commit)
+14 workflows
+
+## Contents
+
+**Workflows**
+
+- [CodeQL - push, pull_request, schedule](#codeql)
+- [Dependency Review - pull_request](#dependency-review)
+- [Schedule cli - workflow_run](#schedule-cli)
+- [verifier action - schedule, workflow_dispatch](#verifier-action)
+- [PR Title - pull_request](#pr-title)
+- [Actions pre submits - pull_request, workflow_dispatch](#actions-pre-submits)
+- [Pre submits cli - pull_request, workflow_dispatch, schedule](#pre-submits-cli)
+- [Pre submits e2e - pull_request, workflow_dispatch](#pre-submits-e2e)
+- [LFS Warning - pull_request](#lfs-warning)
+- [Pre submits Lint - pull_request](#pre-submits-lint)
+- [References pre submits - pull_request](#references-pre-submits)
+- [Verifier releaser - workflow_dispatch, push, schedule](#verifier-releaser)
+- [Scorecards supply-chain security - branch_protection_rule, schedule, push](#scorecards-supply-chain-security)
+- [Update actions dist post-commit - workflow_dispatch](#update-actions-dist-post-commit)
 
 # CodeQL
 

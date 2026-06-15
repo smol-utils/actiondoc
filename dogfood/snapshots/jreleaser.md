@@ -1,20 +1,29 @@
-# Contents
+# jreleaser
 
-- [Build](#build)
-- [Clear cache](#clear-cache)
-- [CodeQL](#codeql)
-- [EarlyAccess](#earlyaccess)
-- [Lint](#lint)
-- [OpenSSF Scorecard](#openssf-scorecard)
-- [Release](#release)
-- [SmokeTests](#smoketests)
+9 workflows, 6 reusable workflows
+
+## Contents
+
+**Workflows**
+
+- [Build - pull_request](#build)
+- [Clear cache - schedule, workflow_dispatch](#clear-cache)
+- [CodeQL - workflow_dispatch, push, pull_request](#codeql)
+- [EarlyAccess - push](#earlyaccess)
+- [Lint - push](#lint)
+- [OpenSSF Scorecard - branch_protection_rule, schedule, push, workflow_dispatch](#openssf-scorecard)
+- [Release - workflow_dispatch](#release)
+- [SmokeTests - push](#smoketests)
+- [Trigger Early Access - workflow_dispatch](#trigger-early-access)
+
+**Reusable workflows**
+
 - [X-Jlink](#x-jlink)
 - [X-JPackage](#x-jpackage)
 - [X-NativeImage](#x-nativeimage)
 - [X-Precheck](#x-precheck)
 - [X-BachInfo](#x-bachinfo)
 - [X-UpdateWiki](#x-updatewiki)
-- [Trigger Early Access](#trigger-early-access)
 
 # Build
 
