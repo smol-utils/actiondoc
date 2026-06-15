@@ -107,7 +107,8 @@ Permissions declared across the chain: `actions: write`, `contents: read`
 | Runs on | `${{ vars.UBUNTU_MEDIUM \|\| 'ubuntu-latest' }}` |
 | Condition | `${{ github.repository == 'spring-projects/spring-boot' \|\| github.repository == 'spring-projects/spring-boot-commercial' }}` |
 
-#### Steps
+<details>
+<summary>Steps (4)</summary>
 
 1. **Check Out Code**
    - Uses: `actions/checkout@v6`
@@ -125,7 +126,7 @@ Permissions declared across the chain: `actions: write`, `contents: read`
      - `publish`: `true` - Whether to publish artifacts ready for deployment to Artifactory
 
 3. **Deploy**
-   - Uses: `spring-io/artifactory-deploy-action@926d7f7cc810569395346bf3a4d91b380b3e355b` (v0.0.4)
+   - Uses: `spring-io/artifactory-deploy-action@v0.0.4`
    - With:
      - `build-name`: `${{ vars.COMMERCIAL && format('spring-boot-commercial-{0}', '4.1.x') || format('spring-boot-{0}', '4.1.x') }}`
      - `folder`: `deployment-repository`
@@ -147,6 +148,8 @@ Permissions declared across the chain: `actions: write`, `contents: read`
      - `status`: `${{ job.status }}` - Status of the job (required)
      - `webhook-url`: `${{ secrets.GOOGLE_CHAT_WEBHOOK_URL }}` - Google Chat Webhook URL (required)
 
+</details>
+
 ### Trigger Docs Build (`trigger-docs-build`)
 
 | Property | Value |
@@ -158,11 +161,14 @@ Permissions declared across the chain: `actions: write`, `contents: read`
 
 - `actions`: `write`
 
-#### Steps
+<details>
+<summary>Steps (1)</summary>
 
 1. **Run Deploy Docs Workflow**
    - Env:
      - `GH_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
+
+</details>
 
 ### Verify (`verify`)
 
@@ -219,7 +225,8 @@ Permissions declared across the chain: `contents: read`
 | Runs on | `${{ vars.UBUNTU_MEDIUM \|\| 'ubuntu-latest' }}` |
 | Condition | `${{ github.repository == 'spring-projects/spring-boot' }}` |
 
-#### Steps
+<details>
+<summary>Steps (4)</summary>
 
 1. **Check Out Code**
    - Uses: `actions/checkout@v6`
@@ -238,6 +245,8 @@ Permissions declared across the chain: `contents: read`
    - With:
      - `name`: `build-reports`
      - `path`: `**/build/reports/`
+
+</details>
 
 [Back to top](#contents)
 
@@ -302,7 +311,8 @@ Permissions declared across the chain: `contents: read`
 | Matrix | `os.id`: ${{ vars.UBUNTU_MEDIUM \|\| 'ubuntu-latest' }}, windows-latest; `os.name`: Linux, Windows; `java.version`: 17, 21, 25, 26; `java.toolchain`: true, false (combinations adjusted by include/exclude) |
 | Condition | `${{ github.repository == 'spring-projects/spring-boot' \|\| github.repository == 'spring-projects/spring-boot-commercial' }}` |
 
-#### Steps
+<details>
+<summary>Steps (4)</summary>
 
 1. **Prepare Windows runner**
    - Condition: `${{ runner.os == 'Windows' }}`
@@ -333,6 +343,8 @@ Permissions declared across the chain: `contents: read`
      - `run-name`: `${{ format('{0} | {1} | Java {2}', github.ref_name, matrix.os.name, matrix.java.version) }}` - Name of the run to include in the notification
      - `status`: `${{ job.status }}` - Status of the job (required)
      - `webhook-url`: `${{ secrets.GOOGLE_CHAT_WEBHOOK_URL }}` - Google Chat Webhook URL (required)
+
+</details>
 
 [Back to top](#contents)
 
@@ -381,7 +393,8 @@ Inputs for the `workflow_dispatch` event.
 |----------|-------|
 | Runs on | `${{ vars.UBUNTU_SMALL \|\| 'ubuntu-latest' }}` |
 
-#### Steps
+<details>
+<summary>Steps (3)</summary>
 
 1. **Create Bundle**
    - Condition: `${{ vars.COMMERCIAL && inputs.create-bundle }}`
@@ -392,6 +405,8 @@ Inputs for the `workflow_dispatch` event.
 3. **Distribute Bundle**
    - Condition: `${{ vars.COMMERCIAL }}`
 
+</details>
+
 [Back to top](#contents)
 
 # Release Milestone
@@ -401,6 +416,7 @@ Inputs for the `workflow_dispatch` event.
 | Property | Value |
 |----------|-------|
 | File | `release-milestone.yml` |
+| Default runs-on | `${{ vars.UBUNTU_SMALL \|\| 'ubuntu-latest' }}` |
 
 **Jobs:** [Build and Stage Release](#build-and-stage-release-build-and-stage-release), [Verify](#verify-verify-1), [Sync to Maven Central](#sync-to-maven-central-sync-to-maven-central), [Promote Release](#promote-release-promote-release), [Publish Gradle Plugin](#publish-gradle-plugin-publish-gradle-plugin), [Trigger Docs Build](#trigger-docs-build-trigger-docs-build-1), [Create GitHub Release](#create-github-release-create-github-release)
 
@@ -472,7 +488,8 @@ Permissions declared across the chain: `actions: write`, `contents: read`
 | Runs on | `${{ vars.UBUNTU_MEDIUM \|\| 'ubuntu-latest' }}` |
 | Condition | `${{ github.repository == 'spring-projects/spring-boot' }}` |
 
-#### Steps
+<details>
+<summary>Steps (3)</summary>
 
 1. **Check Out Code**
    - Uses: `actions/checkout@v6`
@@ -486,7 +503,7 @@ Permissions declared across the chain: `actions: write`, `contents: read`
      - `publish`: `true` - Whether to publish artifacts ready for deployment to Artifactory
 
 3. **Stage Release**
-   - Uses: `spring-io/artifactory-deploy-action@926d7f7cc810569395346bf3a4d91b380b3e355b` (v0.0.4)
+   - Uses: `spring-io/artifactory-deploy-action@v0.0.4`
    - With:
      - `build-name`: `${{ format('spring-boot-{0}', steps.build-and-publish.outputs.version)}}`
      - `folder`: `deployment-repository`
@@ -497,6 +514,8 @@ Permissions declared across the chain: `actions: write`, `contents: read`
      - `threads`: `8`
      - `uri`: `https://repo.spring.io`
      - `username`: `${{ secrets.ARTIFACTORY_USERNAME }}`
+
+</details>
 
 ### Verify (`verify`)
 
@@ -523,11 +542,11 @@ Permissions declared across the chain: `actions: write`, `contents: read`
 
 | Property | Value |
 |----------|-------|
-| Runs on | `${{ vars.UBUNTU_SMALL \|\| 'ubuntu-latest' }}` |
 | Depends on | `build-and-stage-release`, `verify` |
 | Condition | `${{ !vars.COMMERCIAL }}` |
 
-#### Steps
+<details>
+<summary>Steps (2)</summary>
 
 1. **Check Out Code**
    - Uses: `actions/checkout@v6`
@@ -540,31 +559,35 @@ Permissions declared across the chain: `actions: write`, `contents: read`
      - `jfrog-cli-config-token`: `${{ secrets.JF_ARTIFACTORY_SPRING }}` - Config token for the JFrog CLI (required)
      - `spring-boot-version`: `${{ needs.build-and-stage-release.outputs.version }}` - Version of Spring Boot that is being synced to Central (required)
 
+</details>
+
 ### Promote Release (`promote-release`)
 
 | Property | Value |
 |----------|-------|
-| Runs on | `${{ vars.UBUNTU_SMALL \|\| 'ubuntu-latest' }}` |
 | Depends on | `build-and-stage-release`, `sync-to-maven-central` |
 
-#### Steps
+<details>
+<summary>Steps (2)</summary>
 
 1. **Set up JFrog CLI**
-   - Uses: `jfrog/setup-jfrog-cli@1641575d87647fb969c0545f0b6a76873e328b7c` (v5.0.0)
+   - Uses: `jfrog/setup-jfrog-cli@v5.0.0`
    - Env:
      - `JF_ENV_SPRING`: `${{ secrets.JF_ARTIFACTORY_SPRING }}`
 
 2. **Promote build**
 
+</details>
+
 ### Publish Gradle Plugin (`publish-gradle-plugin`)
 
 | Property | Value |
 |----------|-------|
-| Runs on | `${{ vars.UBUNTU_SMALL \|\| 'ubuntu-latest' }}` |
 | Depends on | `build-and-stage-release`, `sync-to-maven-central` |
 | Condition | `${{ !vars.COMMERCIAL }}` |
 
-#### Steps
+<details>
+<summary>Steps (2)</summary>
 
 1. **Check Out Code**
    - Uses: `actions/checkout@v6`
@@ -577,6 +600,8 @@ Permissions declared across the chain: `actions: write`, `contents: read`
      - `jfrog-cli-config-token`: `${{ secrets.JF_ARTIFACTORY_SPRING }}` - Config token for the JFrog CLI (required)
      - `plugin-version`: `${{ needs.build-and-stage-release.outputs.version }}` - Version of the plugin (required)
 
+</details>
+
 ### Trigger Docs Build (`trigger-docs-build`)
 
 | Property | Value |
@@ -588,20 +613,23 @@ Permissions declared across the chain: `actions: write`, `contents: read`
 
 - `actions`: `write`
 
-#### Steps
+<details>
+<summary>Steps (1)</summary>
 
 1. **Run Deploy Docs Workflow**
    - Env:
      - `GH_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
 
+</details>
+
 ### Create GitHub Release (`create-github-release`)
 
 | Property | Value |
 |----------|-------|
-| Runs on | `${{ vars.UBUNTU_SMALL \|\| 'ubuntu-latest' }}` |
 | Depends on | `build-and-stage-release`, `promote-release`, `publish-gradle-plugin`, `trigger-docs-build` |
 
-#### Steps
+<details>
+<summary>Steps (2)</summary>
 
 1. **Check Out Code**
    - Uses: `actions/checkout@v6`
@@ -614,6 +642,8 @@ Permissions declared across the chain: `actions: write`, `contents: read`
      - `pre-release`: `true` - Whether the release is a pre-release (a milestone or release candidate)
      - `token`: `${{ secrets.GH_ACTIONS_REPO_TOKEN }}` - Token to use for authentication with GitHub (required)
 
+</details>
+
 [Back to top](#contents)
 
 # Release
@@ -623,6 +653,7 @@ Permissions declared across the chain: `actions: write`, `contents: read`
 | Property | Value |
 |----------|-------|
 | File | `release.yml` |
+| Default runs-on | `${{ vars.UBUNTU_SMALL \|\| 'ubuntu-latest' }}` |
 
 **Jobs:** [Build and Stage Release](#build-and-stage-release-build-and-stage-release-1), [Verify](#verify-verify-2), [Sync to Maven Central](#sync-to-maven-central-sync-to-maven-central-1), [Promote Release](#promote-release-promote-release-1), [Publish Gradle Plugin](#publish-gradle-plugin-publish-gradle-plugin-1), [Publish to SDKMAN!](#publish-to-sdkman-publish-to-sdkman), [Update Homebrew Tap](#update-homebrew-tap-update-homebrew-tap), [Trigger Docs Build](#trigger-docs-build-trigger-docs-build-2), [Create GitHub Release](#create-github-release-create-github-release-1)
 
@@ -703,7 +734,8 @@ Permissions declared across the chain: `actions: write`, `contents: read`
 | Runs on | `${{ vars.UBUNTU_MEDIUM \|\| 'ubuntu-latest' }}` |
 | Condition | `${{ github.repository == 'spring-projects/spring-boot' \|\| github.repository == 'spring-projects/spring-boot-commercial' }}` |
 
-#### Steps
+<details>
+<summary>Steps (4)</summary>
 
 1. **Check Out Code**
    - Uses: `actions/checkout@v6`
@@ -721,7 +753,7 @@ Permissions declared across the chain: `actions: write`, `contents: read`
      - `publish`: `true` - Whether to publish artifacts ready for deployment to Artifactory
 
 3. **Stage Release**
-   - Uses: `spring-io/artifactory-deploy-action@926d7f7cc810569395346bf3a4d91b380b3e355b` (v0.0.4)
+   - Uses: `spring-io/artifactory-deploy-action@v0.0.4`
    - With:
      - `build-name`: `${{ vars.COMMERCIAL && format('spring-boot-commercial-{0}', steps.build-and-publish.outputs.version) || format('spring-boot-{0}', steps.build-and-publish.outputs.version) }}`
      - `folder`: `deployment-repository`
@@ -741,6 +773,8 @@ Permissions declared across the chain: `actions: write`, `contents: read`
      - `run-name`: `${{ format('{0} | Release Staging | {1}', github.ref_name, inputs.version) }}` - Name of the run to include in the notification
      - `status`: `${{ job.status }}` - Status of the job (required)
      - `webhook-url`: `${{ secrets.GOOGLE_CHAT_WEBHOOK_URL }}` - Google Chat Webhook URL (required)
+
+</details>
 
 ### Verify (`verify`)
 
@@ -767,11 +801,11 @@ Permissions declared across the chain: `actions: write`, `contents: read`
 
 | Property | Value |
 |----------|-------|
-| Runs on | `${{ vars.UBUNTU_SMALL \|\| 'ubuntu-latest' }}` |
 | Depends on | `build-and-stage-release`, `verify` |
 | Condition | `${{ !vars.COMMERCIAL }}` |
 
-#### Steps
+<details>
+<summary>Steps (2)</summary>
 
 1. **Check Out Code**
    - Uses: `actions/checkout@v6`
@@ -784,17 +818,19 @@ Permissions declared across the chain: `actions: write`, `contents: read`
      - `jfrog-cli-config-token`: `${{ secrets.JF_ARTIFACTORY_SPRING }}` - Config token for the JFrog CLI (required)
      - `spring-boot-version`: `${{ needs.build-and-stage-release.outputs.version }}` - Version of Spring Boot that is being synced to Central (required)
 
+</details>
+
 ### Promote Release (`promote-release`)
 
 | Property | Value |
 |----------|-------|
-| Runs on | `${{ vars.UBUNTU_SMALL \|\| 'ubuntu-latest' }}` |
 | Depends on | `build-and-stage-release`, `sync-to-maven-central` |
 
-#### Steps
+<details>
+<summary>Steps (3)</summary>
 
 1. **Set up JFrog CLI**
-   - Uses: `jfrog/setup-jfrog-cli@1641575d87647fb969c0545f0b6a76873e328b7c` (v5.0.0)
+   - Uses: `jfrog/setup-jfrog-cli@v5.0.0`
    - Env:
      - `JF_ENV_SPRING`: `${{ vars.COMMERCIAL && secrets.COMMERCIAL_JF_ARTIFACTORY_SPRING || secrets.JF_ARTIFACTORY_SPRING }}`
 
@@ -804,15 +840,17 @@ Permissions declared across the chain: `actions: write`, `contents: read`
 3. **Promote commercial build**
    - Condition: `${{ vars.COMMERCIAL }}`
 
+</details>
+
 ### Publish Gradle Plugin (`publish-gradle-plugin`)
 
 | Property | Value |
 |----------|-------|
-| Runs on | `${{ vars.UBUNTU_SMALL \|\| 'ubuntu-latest' }}` |
 | Depends on | `build-and-stage-release`, `sync-to-maven-central` |
 | Condition | `${{ !vars.COMMERCIAL }}` |
 
-#### Steps
+<details>
+<summary>Steps (2)</summary>
 
 1. **Check Out Code**
    - Uses: `actions/checkout@v6`
@@ -825,15 +863,17 @@ Permissions declared across the chain: `actions: write`, `contents: read`
      - `jfrog-cli-config-token`: `${{ secrets.JF_ARTIFACTORY_SPRING }}` - Config token for the JFrog CLI (required)
      - `plugin-version`: `${{ needs.build-and-stage-release.outputs.version }}` - Version of the plugin (required)
 
+</details>
+
 ### Publish to SDKMAN! (`publish-to-sdkman`)
 
 | Property | Value |
 |----------|-------|
-| Runs on | `${{ vars.UBUNTU_SMALL \|\| 'ubuntu-latest' }}` |
 | Depends on | `build-and-stage-release`, `sync-to-maven-central` |
 | Condition | `${{ !vars.COMMERCIAL }}` |
 
-#### Steps
+<details>
+<summary>Steps (2)</summary>
 
 1. **Check Out Code**
    - Uses: `actions/checkout@v6`
@@ -846,14 +886,16 @@ Permissions declared across the chain: `actions: write`, `contents: read`
      - `sdkman-consumer-token`: `${{ secrets.SDKMAN_CONSUMER_TOKEN }}` - Token for publishing to SDKMAN! (required)
      - `spring-boot-version`: `${{ needs.build-and-stage-release.outputs.version }}` - Version to publish (required)
 
+</details>
+
 ### Update Homebrew Tap (`update-homebrew-tap`)
 
 | Property | Value |
 |----------|-------|
-| Runs on | `${{ vars.UBUNTU_SMALL \|\| 'ubuntu-latest' }}` |
 | Depends on | `build-and-stage-release`, `sync-to-maven-central` |
 
-#### Steps
+<details>
+<summary>Steps (2)</summary>
 
 1. **Check Out Code**
    - Uses: `actions/checkout@v6`
@@ -863,6 +905,8 @@ Permissions declared across the chain: `actions: write`, `contents: read`
    - With:
      - `spring-boot-version`: `${{ needs.build-and-stage-release.outputs.version }}` - The version to publish (required)
      - `token`: `${{ secrets.GH_ACTIONS_REPO_TOKEN }}` - Token to use for GitHub authentication (required)
+
+</details>
 
 ### Trigger Docs Build (`trigger-docs-build`)
 
@@ -875,20 +919,23 @@ Permissions declared across the chain: `actions: write`, `contents: read`
 
 - `actions`: `write`
 
-#### Steps
+<details>
+<summary>Steps (1)</summary>
 
 1. **Run Deploy Docs Workflow**
    - Env:
      - `GH_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
 
+</details>
+
 ### Create GitHub Release (`create-github-release`)
 
 | Property | Value |
 |----------|-------|
-| Runs on | `${{ vars.UBUNTU_SMALL \|\| 'ubuntu-latest' }}` |
 | Depends on | `build-and-stage-release`, `promote-release`, `publish-gradle-plugin`, `publish-to-sdkman`, `trigger-docs-build`, `update-homebrew-tap` |
 
-#### Steps
+<details>
+<summary>Steps (2)</summary>
 
 1. **Check Out Code**
    - Uses: `actions/checkout@v6`
@@ -899,6 +946,8 @@ Permissions declared across the chain: `actions: write`, `contents: read`
      - `commercial`: `${{ vars.COMMERCIAL }}` - Whether to generate the changelog for the commercial release (required)
      - `milestone`: `${{ needs.build-and-stage-release.outputs.version }}` - Name of the GitHub milestone for which a release will be created (required)
      - `token`: `${{ secrets.GH_ACTIONS_REPO_TOKEN }}` - Token to use for authentication with GitHub (required)
+
+</details>
 
 [Back to top](#contents)
 
@@ -993,7 +1042,8 @@ Permissions declared across the chain: `contents: read`
 | Matrix | `java.version`: 17, 21; `java.toolchain`: true |
 | Condition | `${{ github.repository == 'spring-projects/spring-boot' }}` |
 
-#### Steps
+<details>
+<summary>Steps (7)</summary>
 
 1. **Switch Docker to Overlay2**
 
@@ -1024,6 +1074,8 @@ Permissions declared across the chain: `contents: read`
      - `run-name`: `${{ format('{0} | System Tests | Java {1}', github.ref_name, matrix.java.version) }}` - Name of the run to include in the notification
      - `status`: `${{ job.status }}` - Status of the job (required)
      - `webhook-url`: `${{ secrets.GOOGLE_CHAT_WEBHOOK_URL }}` - Google Chat Webhook URL (required)
+
+</details>
 
 [Back to top](#contents)
 
@@ -1076,7 +1128,8 @@ Inputs for the `workflow_dispatch` event.
 
 - `actions`: `write`
 
-#### Steps
+<details>
+<summary>Steps (2)</summary>
 
 1. **Check Out**
    - Uses: `actions/checkout@v6`
@@ -1086,6 +1139,8 @@ Inputs for the `workflow_dispatch` event.
 2. **Trigger Workflow**
    - Env:
      - `GH_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
+
+</details>
 
 [Back to top](#contents)
 
@@ -1098,8 +1153,6 @@ Inputs for the `workflow_dispatch` event.
 | File | `verify.yml` |
 
 ## Workflow call API
-
-This workflow is reusable via `workflow_call`.
 
 **Inputs:**
 
@@ -1159,7 +1212,8 @@ verify.yml
 |----------|-------|
 | Runs on | `${{ vars.UBUNTU_SMALL \|\| 'ubuntu-latest' }}` |
 
-#### Steps
+<details>
+<summary>Steps (9)</summary>
 
 1. **Check Out Release Verification Tests**
    - Uses: `actions/checkout@v6`
@@ -1187,7 +1241,7 @@ verify.yml
      - `stable`: `true`
 
 5. **Set Up Gradle**
-   - Uses: `gradle/actions/setup-gradle@0723195856401067f7a2779048b490ace7a47d7c` (v5.0.2)
+   - Uses: `gradle/actions/setup-gradle@v5.0.2`
    - With:
      - `cache-read-only`: `false`
 
@@ -1217,6 +1271,8 @@ verify.yml
      - `run-name`: `${{ format('{0} | Verification | {1}', github.ref_name, inputs.version) }}`
      - `status`: `${{ job.status }}`
      - `webhook-url`: `${{ secrets.google-chat-webhook-url }}`
+
+</details>
 
 [Back to top](#contents)
 

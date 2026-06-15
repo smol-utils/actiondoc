@@ -175,18 +175,16 @@ External workflows referenced: `anchore/workflows/.github/workflows/check-gate.y
 
 **Deploys to environment:** `release` [gated]
 
-> Environment protection rules (required reviewers, wait timers, branch policies) are configured in the repository's Settings -> Environments and are not represented here.
-
 **Permissions:**
 
 - `contents`: `write` - required for creating the GitHub release and pushing the version tag
 - `packages`: `write` - required for publishing release artifacts to GitHub packages
 - `id-token`: `write` (OIDC) - required for keyless signing (cosign/sigstore OIDC)
 
-#### Steps
+<details>
+<summary>Steps (6)</summary>
 
 1. **actions/checkout@v6.0.2**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
    - With:
      - `fetch-depth`: `0`
      - `persist-credentials`: `true`
@@ -195,13 +193,13 @@ External workflows referenced: `anchore/workflows/.github/workflows/check-gate.y
    - Uses: `./.github/actions/bootstrap`
 
 3. **Login to Docker Hub**
-   - Uses: `docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121` (v4.1.0)
+   - Uses: `docker/login-action@v4.1.0`
    - With:
      - `username`: `${{ secrets.ANCHOREOSSWRITE_DH_USERNAME }}`
      - `password`: `${{ secrets.ANCHOREOSSWRITE_DH_PAT }}`
 
 4. **Login to GitHub Container Registry**
-   - Uses: `docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121` (v4.1.0)
+   - Uses: `docker/login-action@v4.1.0`
    - With:
      - `registry`: `ghcr.io`
      - `username`: `${{ github.actor }}`
@@ -220,10 +218,11 @@ External workflows referenced: `anchore/workflows/.github/workflows/check-gate.y
      - `GITHUB_BREW_TOKEN`: `${{ secrets.ANCHOREOPS_GITHUB_OSS_WRITE_TOKEN }}`
 
 6. **anchore/sbom-action@v0.24.0** `[continue-on-error]`
-   - Uses: `anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610` (v0.24.0)
    - With:
      - `file`: `go.mod`
      - `artifact-name`: `sbom.spdx.json`
+
+</details>
 
 ### `release-install-script`
 
@@ -282,18 +281,20 @@ No permissions granted (`permissions: {}` -- default-deny).
 - `contents`: `read`
 - `security-events`: `write` - for uploading SARIF results
 
-#### Steps
+<details>
+<summary>Steps (2)</summary>
 
 1. **actions/checkout@v6.0.2**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
    - With:
      - `persist-credentials`: `false`
 
 2. **Run zizmor**
-   - Uses: `zizmorcore/zizmor-action@a16621b09c6db4281f81a93cb393b05dcd7b7165` (v0.5.5)
+   - Uses: `zizmorcore/zizmor-action@v0.5.5`
    - With:
      - `advanced-security`: `true`
      - `inputs`: `.github`
+
+</details>
 
 [Back to top](#contents)
 
@@ -304,6 +305,7 @@ No permissions granted (`permissions: {}` -- default-deny).
 | Property | Value |
 |----------|-------|
 | File | `validations.yaml` |
+| Default runs-on | `runs-on=${{ github.run_id }}/cpu=4+8/ram=32+128/family=r5+r6+r7+r8+m4+m5+m6+m7+m8/spot=price-capacity-optimized/extras=tmpfs` |
 
 **Jobs:** [Static analysis](#static-analysis-static-analysis), [Unit tests](#unit-tests-unit-test), [Integration tests](#integration-tests-integration-test), [Build snapshot artifacts](#build-snapshot-artifacts-build-snapshot-artifacts), [Acceptance tests (Linux)](#acceptance-tests-linux-acceptance-linux), [Acceptance tests (Mac)](#acceptance-tests-mac-acceptance-mac), [CLI tests (Linux)](#cli-tests-linux-cli-linux)
 
@@ -339,18 +341,14 @@ Permissions declared across the chain: `contents: read`
 
 ### Static analysis (`Static-Analysis`)
 
-| Property | Value |
-|----------|-------|
-| Runs on | `runs-on=${{ github.run_id }}/cpu=4+8/ram=32+128/family=r5+r6+r7+r8+m4+m5+m6+m7+m8/spot=price-capacity-optimized/extras=tmpfs` |
-
 **Permissions:**
 
 - `contents`: `read`
 
-#### Steps
+<details>
+<summary>Steps (3)</summary>
 
 1. **actions/checkout@v6.0.2**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
    - With:
      - `persist-credentials`: `false`
 
@@ -361,20 +359,18 @@ Permissions declared across the chain: `contents: read`
 
 3. **Run static analysis**
 
-### Unit tests (`Unit-Test`)
+</details>
 
-| Property | Value |
-|----------|-------|
-| Runs on | `runs-on=${{ github.run_id }}/cpu=4+8/ram=32+128/family=r5+r6+r7+r8+m4+m5+m6+m7+m8/spot=price-capacity-optimized/extras=tmpfs` |
+### Unit tests (`Unit-Test`)
 
 **Permissions:**
 
 - `contents`: `read`
 
-#### Steps
+<details>
+<summary>Steps (4)</summary>
 
 1. **actions/checkout@v6.0.2**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
    - With:
      - `persist-credentials`: `false`
 
@@ -387,20 +383,18 @@ Permissions declared across the chain: `contents: read`
 
 4. **Check for capability drift**
 
-### Integration tests (`Integration-Test`)
+</details>
 
-| Property | Value |
-|----------|-------|
-| Runs on | `runs-on=${{ github.run_id }}/cpu=4+8/ram=32+128/family=r5+r6+r7+r8+m4+m5+m6+m7+m8/spot=price-capacity-optimized/extras=tmpfs` |
+### Integration tests (`Integration-Test`)
 
 **Permissions:**
 
 - `contents`: `read`
 
-#### Steps
+<details>
+<summary>Steps (4)</summary>
 
 1. **actions/checkout@v6.0.2**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
    - With:
      - `persist-credentials`: `false`
 
@@ -413,6 +407,8 @@ Permissions declared across the chain: `contents: read`
 
 4. **Run integration tests**
 
+</details>
+
 ### Build snapshot artifacts (`Build-Snapshot-Artifacts`)
 
 | Property | Value |
@@ -423,10 +419,10 @@ Permissions declared across the chain: `contents: read`
 
 - `contents`: `read`
 
-#### Steps
+<details>
+<summary>Steps (5)</summary>
 
 1. **actions/checkout@v6.0.2**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
    - With:
      - `persist-credentials`: `false`
 
@@ -440,27 +436,28 @@ Permissions declared across the chain: `contents: read`
 4. **Smoke test snapshot build**
 
 5. **Upload snapshot artifacts**
-   - Uses: `actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a` (v7.0.1)
+   - Uses: `actions/upload-artifact@v7.0.1`
    - With:
      - `name`: `snapshot`
      - `path`: `snapshot/`
      - `retention-days`: `30`
 
+</details>
+
 ### Acceptance tests (Linux) (`Acceptance-Linux`)
 
 | Property | Value |
 |----------|-------|
-| Runs on | `runs-on=${{ github.run_id }}/cpu=4+8/ram=32+128/family=r5+r6+r7+r8+m4+m5+m6+m7+m8/spot=price-capacity-optimized/extras=tmpfs` |
 | Depends on | `Build-Snapshot-Artifacts` |
 
 **Permissions:**
 
 - `contents`: `read`
 
-#### Steps
+<details>
+<summary>Steps (8)</summary>
 
 1. **actions/checkout@v6.0.2**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
    - With:
      - `persist-credentials`: `false`
 
@@ -470,7 +467,7 @@ Permissions declared across the chain: `contents: read`
      - `download-test-fixture-cache`: `true` - Download test fixture cache from OCI and github actions (required)
 
 3. **Download snapshot artifacts**
-   - Uses: `actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c` (v8.0.1)
+   - Uses: `actions/download-artifact@v8.0.1`
    - With:
      - `name`: `snapshot`
      - `path`: `snapshot`
@@ -487,6 +484,8 @@ Permissions declared across the chain: `contents: read`
 8. **(cache-miss) Create test image cache**
    - Condition: `steps.install-test-image-cache.outputs.cache-hit != 'true'`
 
+</details>
+
 ### Acceptance tests (Mac) (`Acceptance-Mac`)
 
 | Property | Value |
@@ -498,13 +497,13 @@ Permissions declared across the chain: `contents: read`
 
 - `contents`: `read`
 
-#### Steps
+<details>
+<summary>Steps (7)</summary>
 
 1. **Install Cosign**
-   - Uses: `sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6` (v4.1.2)
+   - Uses: `sigstore/cosign-installer@v4.1.2`
 
 2. **actions/checkout@v6.0.2**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
    - With:
      - `persist-credentials`: `false`
 
@@ -516,7 +515,7 @@ Permissions declared across the chain: `contents: read`
      - `download-test-fixture-cache`: `true` - Download test fixture cache from OCI and github actions (required)
 
 4. **Download snapshot artifacts**
-   - Uses: `actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c` (v8.0.1)
+   - Uses: `actions/download-artifact@v8.0.1`
    - With:
      - `name`: `snapshot`
      - `path`: `snapshot`
@@ -527,21 +526,22 @@ Permissions declared across the chain: `contents: read`
 
 7. **Run install.sh tests (Mac)**
 
+</details>
+
 ### CLI tests (Linux) (`Cli-Linux`)
 
 | Property | Value |
 |----------|-------|
-| Runs on | `runs-on=${{ github.run_id }}/cpu=4+8/ram=32+128/family=r5+r6+r7+r8+m4+m5+m6+m7+m8/spot=price-capacity-optimized/extras=tmpfs` |
 | Depends on | `Build-Snapshot-Artifacts` |
 
 **Permissions:**
 
 - `contents`: `read`
 
-#### Steps
+<details>
+<summary>Steps (5)</summary>
 
 1. **actions/checkout@v6.0.2**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
    - With:
      - `persist-credentials`: `false`
 
@@ -551,7 +551,7 @@ Permissions declared across the chain: `contents: read`
      - `download-test-fixture-cache`: `true` - Download test fixture cache from OCI and github actions (required)
 
 3. **Download snapshot artifacts**
-   - Uses: `actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c` (v8.0.1)
+   - Uses: `actions/download-artifact@v8.0.1`
    - With:
      - `name`: `snapshot`
      - `path`: `snapshot`
@@ -559,6 +559,8 @@ Permissions declared across the chain: `contents: read`
 4. **Restore binary permissions**
 
 5. **Run CLI Tests (Linux)**
+
+</details>
 
 [Back to top](#contents)
 

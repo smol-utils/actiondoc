@@ -146,11 +146,28 @@ func TestRenderStepDetails(t *testing.T) {
 		}
 	}
 
-	// SHA-pinned uses gets its version annotation on the detail line.
+	// An unnamed SHA-pinned step is titled by its collapsed ref@version, so the redundant
+	// full-SHA Uses: detail line is dropped entirely (the title already carries the version).
 	var b2 strings.Builder
 	renderStep(&b2, &model.Step{Uses: "actions/checkout@" + shaPin, UsesVersion: "v4.1.1"}, 1)
-	if !strings.Contains(b2.String(), "`actions/checkout@"+shaPin+"` (v4.1.1)") {
-		t.Errorf("missing version annotation on uses detail line:\n%s", b2.String())
+	if got := b2.String(); !strings.Contains(got, "**actions/checkout@v4.1.1**") || strings.Contains(got, shaPin) {
+		t.Errorf("unnamed SHA pin should title as ref@version with no redundant Uses line:\n%s", got)
+	}
+
+	// A named SHA-pinned step keeps the Uses: line (so the action it runs is visible) but
+	// collapses to ref@version -- the 40-char SHA is dropped when a version is known.
+	var b3 strings.Builder
+	renderStep(&b3, &model.Step{Name: "Checkout", Uses: "actions/checkout@" + shaPin, UsesVersion: "v4.1.1"}, 1)
+	if got := b3.String(); !strings.Contains(got, "   - Uses: `actions/checkout@v4.1.1`\n") || strings.Contains(got, shaPin) {
+		t.Errorf("named SHA pin should show collapsed ref@version on the Uses line:\n%s", got)
+	}
+
+	// A bare SHA pin (no known version) keeps its full ref on the Uses line so nothing is
+	// lost: the title collapses to the bare ref, so the SHA only survives on the detail line.
+	var b4 strings.Builder
+	renderStep(&b4, &model.Step{Uses: "actions/checkout@" + shaPin}, 1)
+	if got := b4.String(); !strings.Contains(got, "   - Uses: `actions/checkout@"+shaPin+"`\n") {
+		t.Errorf("bare SHA pin should keep its full SHA on the Uses line:\n%s", got)
 	}
 }
 

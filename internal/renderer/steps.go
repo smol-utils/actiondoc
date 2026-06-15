@@ -26,7 +26,12 @@ func renderStep(b *strings.Builder, step *model.Step, num int) {
 		fmt.Fprintf(b, "   - ID: `%s`\n", step.ID)
 	}
 	if step.Uses != "" {
-		fmt.Fprintf(b, "   - Uses: `%s`%s\n", step.Uses, usesSuffix(step.Uses, step.UsesVersion))
+		if disp := usesDisplay(step.Uses, step.UsesVersion); disp != stepTitle(step, num) {
+			// Skip the Uses: line only when the bold title already shows exactly this ref
+			// (an unnamed step titled by its collapsed pin). A named/id'd step keeps the
+			// line so the action it runs is never hidden.
+			fmt.Fprintf(b, "   - Uses: `%s`\n", disp)
+		}
 	}
 	if step.If != "" {
 		fmt.Fprintf(b, "   - Condition: %s\n", codeSpan(oneLine(step.If)))
@@ -102,16 +107,16 @@ func stepTitle(step *model.Step, num int) string {
 	return fmt.Sprintf("Step %d", num)
 }
 
-// usesSuffix returns the parenthetical version annotation shown after a SHA-pinned uses:
-// ref on its detail line, so the exact commit pin stays visible alongside the version.
-func usesSuffix(uses, version string) string {
-	if version == "" {
-		return ""
+// usesDisplay is the ref shown on a step's Uses: line. A SHA pin with a known
+// human-readable version collapses to `owner/repo@version` -- the 40-character commit SHA
+// adds no signal a reader uses, and the version is already the title's form. A bare SHA pin
+// (no version) keeps its full `owner/repo@sha` so the exact pin is never lost. Tags,
+// branches, and local paths pass through unchanged.
+func usesDisplay(uses, version string) string {
+	if at := strings.LastIndex(uses, "@"); at >= 0 && model.IsSHA(uses[at+1:]) && version != "" {
+		return uses[:at] + "@" + version
 	}
-	if at := strings.LastIndex(uses, "@"); at >= 0 && model.IsSHA(uses[at+1:]) {
-		return " (" + version + ")"
-	}
-	return ""
+	return uses
 }
 
 // firstRunLine returns the first non-blank, non-comment line of a run: script that

@@ -43,22 +43,21 @@ Exercises step rendering, matrix job names, runs-on normalization, and secret ag
 | Runs on | `self-hosted, linux, x64` |
 | Matrix | `java`: 17, 21, 24 |
 
-#### Steps
+<details>
+<summary>Steps (5)</summary>
 
 1. **Checkout**
-   - Uses: `actions/checkout@8f4b7f84864484a7bf31766abe9204da3cbe65b3` (v4.1.1)
+   - Uses: `actions/checkout@v4.1.1`
    - With:
      - `fetch-depth`: `0`
      - `token`: `${{ secrets.CHECKOUT_TOKEN }}`
 
 2. **actions/setup-java@v4.2.0**
-   - Uses: `actions/setup-java@5896cecc08fd8a1fbdfaf517e29b571164b031f7` (v4.2.0)
    - With:
      - `distribution`: `temurin`
      - `java-version`: `${{ matrix.java }}`
 
 3. **actions/cache@v4**
-   - Uses: `actions/cache@v4`
    - With:
      - `path`: `~/.m2`
      - `key`: `maven-${{ hashFiles('**/pom.xml') }}`
@@ -67,6 +66,8 @@ Exercises step rendering, matrix job names, runs-on normalization, and secret ag
 
 5. **upload**
    - ID: `upload`
+
+</details>
 
 ### Deploy ${{ matrix.target.env }} (`deploy`)
 
@@ -77,7 +78,8 @@ Exercises step rendering, matrix job names, runs-on normalization, and secret ag
 | Depends on | `build` |
 | Condition | `github.event_name == 'push' &&<br>startsWith(github.ref, 'refs/heads/main')` |
 
-#### Steps
+<details>
+<summary>Steps (4)</summary>
 
 1. **Push image**
    - Env:
@@ -95,6 +97,8 @@ Exercises step rendering, matrix job names, runs-on normalization, and secret ag
      - `script`: `` const env = `${{ matrix.target.env }}`; github.rest.issues.createComment({ body: `Deployed to ${env}` }); ``
      - `result-encoding`: -
 
+</details>
+
 ### Verify ${{ matrix.case }} (`verify`)
 
 | Property | Value |
@@ -102,7 +106,10 @@ Exercises step rendering, matrix job names, runs-on normalization, and secret ag
 | Runs on | `ubuntu-latest` |
 | Matrix | `case`: a, b, c (combinations adjusted by include/exclude) |
 
-#### Steps
+<details>
+<summary>Steps (1)</summary>
 
 1. **Run checks**
+
+</details>
 

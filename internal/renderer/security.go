@@ -38,8 +38,9 @@ func renderPermissions(b *strings.Builder, p *model.Permissions, heading string)
 }
 
 // renderEnvironment writes a job's GitHub Environments binding -- the deploy gate. The
-// binding is marked [gated] and followed by a pointer to the protection rules, which live
-// in repository settings rather than the workflow YAML.
+// binding is marked [gated]; the actual data (environment name and URL) is kept, while the
+// boilerplate paragraph about where protection rules are configured (identical on every
+// gated job) is omitted -- the [gated] marker already signals that the gate exists.
 func renderEnvironment(b *strings.Builder, e *model.Environment) {
 	if e == nil {
 		return
@@ -49,6 +50,4 @@ func renderEnvironment(b *strings.Builder, e *model.Environment) {
 		fmt.Fprintf(b, " (`%s`)", e.URL)
 	}
 	b.WriteString(" [gated]\n\n")
-	b.WriteString("> Environment protection rules (required reviewers, wait timers, branch policies) " +
-		"are configured in the repository's Settings -> Environments and are not represented here.\n\n")
 }

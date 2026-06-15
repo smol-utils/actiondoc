@@ -19,7 +19,10 @@
 |----------|-------|
 | Runs on | `ubuntu-latest` |
 
-#### Steps
+<details>
+<summary>Steps (1)</summary>
 
 1. **make build**
+
+</details>
 

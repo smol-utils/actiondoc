@@ -42,8 +42,6 @@ THIS IS A REUSABLE WORKFLOW TO BUILD SCALA WITH CHOCOLATEY HOW TO USE: NOTE:
 
 ## Workflow call API
 
-This workflow is reusable via `workflow_call`.
-
 **Inputs:**
 
 | Name | Type | Required | Default | Description |
@@ -68,10 +66,10 @@ build-chocolatey.yml
 |----------|-------|
 | Runs on | `windows-latest` |
 
-#### Steps
+<details>
+<summary>Steps (6)</summary>
 
 1. **actions/checkout@v6**
-   - Uses: `actions/checkout@v6`
 
 2. **Replace the version placeholder**
    - Uses: `richardrigutins/replace-in-files@v3`
@@ -103,6 +101,8 @@ build-chocolatey.yml
      - `path`: `./pkgs/chocolatey/scala.${{ inputs.version }}.nupkg`
      - `if-no-files-found`: `error`
 
+</details>
+
 [Back to top](#contents)
 
 # Build the MSI Package
@@ -116,8 +116,6 @@ THIS IS A REUSABLE WORKFLOW TO BUILD SCALA MSI HOW TO USE: - THE RELEASE WORKFLO
 | File | `build-msi.yml` |
 
 ## Workflow call API
-
-This workflow is reusable via `workflow_call`.
 
 **Outputs:**
 
@@ -146,13 +144,12 @@ build-msi.yml
 |----------|-------|
 | Runs on | `windows-latest` |
 
-#### Steps
+<details>
+<summary>Steps (5)</summary>
 
 1. **actions/checkout@v6**
-   - Uses: `actions/checkout@v6`
 
 2. **actions/setup-java@v5**
-   - Uses: `actions/setup-java@v5`
    - With:
      - `distribution`: `adopt`
      - `java-version`: `17`
@@ -169,6 +166,8 @@ build-msi.yml
      - `name`: `scala.msi`
      - `path`: `./dist/win-x86_64/target/windows/scala.msi`
 
+</details>
+
 [Back to top](#contents)
 
 # Build Scala Launchers
@@ -182,8 +181,6 @@ THIS IS A REUSABLE WORKFLOW TO BUILD THE SCALA LAUNCHERS HOW TO USE: - THSI WORK
 | File | `build-sdk.yml` |
 
 ## Workflow call API
-
-This workflow is reusable via `workflow_call`.
 
 **Inputs:**
 
@@ -226,20 +223,18 @@ build-sdk.yml
 |----------|-------|
 | Runs on | `ubuntu-latest` |
 
-#### Steps
+<details>
+<summary>Steps (16)</summary>
 
 1. **actions/checkout@v6**
-   - Uses: `actions/checkout@v6`
 
 2. **actions/setup-java@v5**
-   - Uses: `actions/setup-java@v5`
    - With:
      - `distribution`: `temurin`
      - `java-version`: `${{ inputs.java-version }}`
      - `cache`: `sbt`
 
 3. **sbt/setup-sbt@v1**
-   - Uses: `sbt/setup-sbt@v1`
 
 4. **Build and pack the SDK (universal)**
 
@@ -297,6 +292,8 @@ build-sdk.yml
 
 16. **Compute SHA256 of the uploaded artifact (win x86-64)**
    - ID: `win-x86_64-digest`
+
+</details>
 
 [Back to top](#contents)
 
@@ -374,7 +371,8 @@ Permissions declared across the chain: `contents: read`, `contents: write`
 | Runs on | `self-hosted, Windows` |
 | Condition | `github.event_name == 'schedule' && github.repository == 'scala/scala3' \|\| github.event_name == 'push' \|\| ( github.event_name == 'pull_request' && !contains(github.event.pull_request.body, '[skip ci]') && contains(github.event.pull_request.body, '[test_windows_full]') )` |
 
-#### Steps
+<details>
+<summary>Steps (3)</summary>
 
 1. **Reset existing repo**
 
@@ -382,6 +380,8 @@ Permissions declared across the chain: `contents: read`, `contents: write`
    - Uses: `actions/checkout@v6`
 
 3. **Test**
+
+</details>
 
 ### `publish_release`
 
@@ -405,7 +405,8 @@ Permissions declared across the chain: `contents: read`, `contents: write`
 | `SONATYPE_PW` | `${{ secrets.SONATYPE_PW_ORGSCALALANG }}` |
 | `SONATYPE_USER` | `${{ secrets.SONATYPE_USER_ORGSCALALANG }}` |
 
-#### Steps
+<details>
+<summary>Steps (15)</summary>
 
 1. **Set JDK 17 as default**
 
@@ -447,6 +448,8 @@ Permissions declared across the chain: `contents: read`, `contents: write`
 14. **Publish Release (org.scala-lang)**
 
 15. **Publish Release (org.scala-js)**
+
+</details>
 
 ### `build-msi-package`
 
@@ -510,20 +513,20 @@ Permissions declared across the chain: `contents: read`, `contents: write`
 |----------|-------|
 | Runs on | `ubuntu-latest` |
 
-#### Steps
+<details>
+<summary>Steps (4)</summary>
 
 1. **actions/checkout@v6**
-   - Uses: `actions/checkout@v6`
    - With:
      - `fetch-depth`: `0`
 
 2. **coursier/cache-action@v8**
-   - Uses: `coursier/cache-action@v8`
 
 3. **VirtusLab/scala-cli-setup@v1.14**
-   - Uses: `VirtusLab/scala-cli-setup@v1.14`
 
 4. **scala-cli format --check**
+
+</details>
 
 [Back to top](#contents)
 
@@ -549,12 +552,15 @@ Permissions declared across the chain: `contents: read`, `contents: write`
 | Runs on | `ubuntu-latest` |
 | Condition | `github.event.pull_request.user.login != 'dependabot'` |
 
-#### Steps
+<details>
+<summary>Steps (1)</summary>
 
 1. **Verify CLA**
    - Uses: `scala/cla-checker@v1`
    - With:
      - `author`: `${{ github.event.pull_request.user.login }}`
+
+</details>
 
 [Back to top](#contents)
 
@@ -579,16 +585,16 @@ Permissions declared across the chain: `contents: read`, `contents: write`
 |----------|-------|
 | Runs on | `ubuntu-latest` |
 
-#### Steps
+<details>
+<summary>Steps (3)</summary>
 
 1. **actions/checkout@v6**
-   - Uses: `actions/checkout@v6`
 
 2. **sbt/setup-sbt@v1**
-   - Uses: `sbt/setup-sbt@v1`
 
 3. **scalacenter/sbt-dependency-submission@v3**
-   - Uses: `scalacenter/sbt-dependency-submission@v3`
+
+</details>
 
 [Back to top](#contents)
 
@@ -632,7 +638,8 @@ Permissions declared across the chain: `contents: read`, `contents: write`
 
 - `contents`: `write` - for Git to git push
 
-#### Steps
+<details>
+<summary>Steps (7)</summary>
 
 1. **Get current date**
    - ID: `date`
@@ -652,7 +659,6 @@ Permissions declared across the chain: `contents: read`, `contents: write`
      - `cache`: `sbt`
 
 4. **sbt/setup-sbt@v1**
-   - Uses: `sbt/setup-sbt@v1`
 
 5. **Generate reference documentation and test links**
 
@@ -668,6 +674,8 @@ Permissions declared across the chain: `contents: read`, `contents: write`
 
 7. **\cp -a dotty/scaladoc/output/reference/. scala3-reference...**
    - Condition: `github.event_name == 'push'`
+
+</details>
 
 [Back to top](#contents)
 
@@ -702,7 +710,8 @@ Permissions declared across the chain: `contents: read`, `contents: write`
 | Runs on | `ubuntu-latest` |
 | Condition | `!contains(github.event.push.head_commit.message, '[Next only]') && github.repository == 'scala/scala3'` |
 
-#### Steps
+<details>
+<summary>Steps (5)</summary>
 
 1. **Generate GitHub App Token**
    - ID: `app-token`
@@ -713,19 +722,18 @@ Permissions declared across the chain: `contents: read`, `contents: write`
      - `owner`: `scala`
 
 2. **actions/checkout@v6**
-   - Uses: `actions/checkout@v6`
    - With:
      - `fetch-depth`: `0`
 
 3. **coursier/cache-action@v8**
-   - Uses: `coursier/cache-action@v8`
 
 4. **VirtusLab/scala-cli-setup@v1.14**
-   - Uses: `VirtusLab/scala-cli-setup@v1.14`
 
 5. **scala-cli ./project/scripts/addToBackportingProject.scala...**
    - Env:
      - `GRAPHQL_API_TOKEN`: `${{ steps.app-token.outputs.token }}`
+
+</details>
 
 [Back to top](#contents)
 
@@ -740,8 +748,6 @@ THIS IS A REUSABLE WORKFLOW TO PUBLISH SCALA TO CHOCOLATEY HOW TO USE: - THE REL
 | File | `publish-chocolatey.yml` |
 
 ## Workflow call API
-
-This workflow is reusable via `workflow_call`.
 
 **Inputs:**
 
@@ -778,7 +784,8 @@ publish-chocolatey.yml
 |----------|-------|
 | Runs on | `windows-latest` |
 
-#### Steps
+<details>
+<summary>Steps (2)</summary>
 
 1. **Fetch the Chocolatey package from GitHub**
    - Uses: `actions/download-artifact@v8`
@@ -789,6 +796,8 @@ publish-chocolatey.yml
    - Env:
      - `VERSION`: `${{ inputs.version }}`
      - `KEY`: `${{ secrets.API-KEY }}`
+
+</details>
 
 [Back to top](#contents)
 
@@ -801,12 +810,11 @@ THIS IS A REUSABLE WORKFLOW TO PUBLISH SCALA TO SDKMAN! HOW TO USE: - THE RELEAS
 | Property | Value |
 |----------|-------|
 | File | `publish-sdkman.yml` |
+| Default runs-on | `ubuntu-latest` |
 
 **Jobs:** [`publish`](#publish-1), [`default`](#default)
 
 ## Workflow call API
-
-This workflow is reusable via `workflow_call`.
 
 **Inputs:**
 
@@ -849,10 +857,10 @@ publish-sdkman.yml
 
 | Property | Value |
 |----------|-------|
-| Runs on | `ubuntu-latest` |
 | Matrix | `platform`: LINUX_64, LINUX_ARM64, MAC_OSX, MAC_ARM64, WINDOWS_64; `archive`: scala3-${{ inputs.version }}-x86_64-pc-linux.zip, scala3-${{ inputs.version }}-aarch64-pc-linux.zip, scala3-${{ inputs.version }}-x86_64-apple-darwin.zip, scala3-${{ inputs.version }}-aarch64-apple-darwin.zip, scala3-${{ inputs.version }}-x86_64-pc-win32.zip (combinations adjusted by include/exclude) |
 
-#### Steps
+<details>
+<summary>Steps (1)</summary>
 
 1. **sdkman/sdkman-release-action**
    - Uses: `sdkman/sdkman-release-action@f93e93c50d5c60902d0bf87b58aaa58c027094da`
@@ -864,14 +872,16 @@ publish-sdkman.yml
      - `URL`: `${{ env.RELEASE-URL }}/${{ matrix.archive }}`
      - `PLATFORM`: `${{ matrix.platform }}`
 
+</details>
+
 ### `default`
 
 | Property | Value |
 |----------|-------|
-| Runs on | `ubuntu-latest` |
 | Depends on | `publish` |
 
-#### Steps
+<details>
+<summary>Steps (1)</summary>
 
 1. **sdkman/sdkman-default-action**
    - Uses: `sdkman/sdkman-default-action@b3f991bd109e40155af1b13a4c6fc8e8ccada65e`
@@ -880,6 +890,8 @@ publish-sdkman.yml
      - `CONSUMER-TOKEN`: `${{ secrets.CONSUMER-TOKEN }}`
      - `CANDIDATE`: `scala`
      - `VERSION`: `${{ inputs.version }}`
+
+</details>
 
 [Back to top](#contents)
 
@@ -894,8 +906,6 @@ THIS IS A REUSABLE WORKFLOW TO PUBLISH SCALA TO WINGET HOW TO USE: - THE RELEASE
 | File | `publish-winget.yml` |
 
 ## Workflow call API
-
-This workflow is reusable via `workflow_call`.
 
 **Inputs:**
 
@@ -932,7 +942,8 @@ publish-winget.yml
 |----------|-------|
 | Runs on | `windows-latest` |
 
-#### Steps
+<details>
+<summary>Steps (1)</summary>
 
 1. **vedantmgoyal9/winget-releaser**
    - Uses: `vedantmgoyal9/winget-releaser@4ffc7888bffd451b357355dc214d43bb9f23917e`
@@ -944,6 +955,8 @@ publish-winget.yml
      - `fork-user`: `dottybot`
      - `token`: `${{ secrets.DOTTYBOT-TOKEN }}`
 
+</details>
+
 [Back to top](#contents)
 
 # Release Artifacts to Maven
@@ -953,12 +966,11 @@ publish-winget.yml
 | Property | Value |
 |----------|-------|
 | File | `release-maven-artifacts.yml` |
+| Default runs-on | `ubuntu-latest` |
 
 **Jobs:** [`release-maven-artifacts`](#release-maven-artifacts), [`release-maven-lts-artifacts`](#release-maven-lts-artifacts)
 
 ## Workflow call API
-
-This workflow is reusable via `workflow_call`.
 
 **Inputs:**
 
@@ -1001,13 +1013,7 @@ release-maven-artifacts.yml
 
 ### `release-maven-artifacts`
 
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-latest` |
-
 **Deploys to environment:** `${{ inputs.environment }}` [gated]
-
-> Environment protection rules (required reviewers, wait timers, branch policies) are configured in the repository's Settings -> Environments and are not represented here.
 
 **Environment (`env`):**
 
@@ -1019,20 +1025,18 @@ release-maven-artifacts.yml
 | `NEWNIGHTLY` | `${{ vars.NEWNIGHTLY }}` |
 | `NIGHTLYBUILD` | `${{ vars.NIGHTLYBUILD }}` |
 
-#### Steps
+<details>
+<summary>Steps (7)</summary>
 
 1. **actions/checkout@v6**
-   - Uses: `actions/checkout@v6`
 
 2. **actions/setup-java@v5**
-   - Uses: `actions/setup-java@v5`
    - With:
      - `distribution`: `adopt`
      - `java-version`: `17`
      - `cache`: `sbt`
 
 3. **sbt/setup-sbt@v1**
-   - Uses: `sbt/setup-sbt@v1`
 
 4. **Import Scala PGP Key**
    - Uses: `crazy-max/ghaction-import-gpg@v7`
@@ -1052,15 +1056,11 @@ release-maven-artifacts.yml
      - `MAVEN_REPOSITORY_USER`: `${{ secrets.MAVEN_REPOSITORY_USER }}`
      - `MAVEN_REPOSITORY_TOKEN`: `${{ secrets.MAVEN_REPOSITORY_TOKEN }}`
 
+</details>
+
 ### `release-maven-lts-artifacts`
 
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-latest` |
-
 **Deploys to environment:** `${{ inputs.environment }}` [gated]
-
-> Environment protection rules (required reviewers, wait timers, branch policies) are configured in the repository's Settings -> Environments and are not represented here.
 
 **Environment (`env`):**
 
@@ -1072,23 +1072,21 @@ release-maven-artifacts.yml
 | `NEWNIGHTLY` | `${{ vars.NEWNIGHTLY }}` |
 | `NIGHTLYBUILD` | `${{ vars.NIGHTLYBUILD }}` |
 
-#### Steps
+<details>
+<summary>Steps (9)</summary>
 
 1. **actions/checkout@v6**
-   - Uses: `actions/checkout@v6`
    - With:
      - `repository`: `scala/scala3-lts`
      - `ref`: `lts-3.3`
 
 2. **actions/setup-java@v5**
-   - Uses: `actions/setup-java@v5`
    - With:
      - `distribution`: `temurin`
      - `java-version`: `8`
      - `cache`: `sbt`
 
 3. **sbt/setup-sbt@v1**
-   - Uses: `sbt/setup-sbt@v1`
 
 4. **Setup PGP Key**
    - Env:
@@ -1112,6 +1110,8 @@ release-maven-artifacts.yml
      - `SONATYPE_PW`: `${{ secrets.MAVEN_REPOSITORY_TOKEN }}`
      - `PGP_PW`: `${{ secrets.PGP_PW }}`
      - `PGP_SECRET`: `${{ secrets.PGP_SECRET }}`
+
+</details>
 
 [Back to top](#contents)
 
@@ -1196,28 +1196,24 @@ Permissions declared across the chain: `contents: read`
 
 **Deploys to environment:** `release-nightly` [gated]
 
-> Environment protection rules (required reviewers, wait timers, branch policies) are configured in the repository's Settings -> Environments and are not represented here.
-
 **Environment (`env`):**
 
 | Variable | Value |
 |----------|-------|
 | `NIGHTLYBUILD` | `${{ vars.NIGHTLYBUILD }}` |
 
-#### Steps
+<details>
+<summary>Steps (6)</summary>
 
 1. **actions/checkout@v6**
-   - Uses: `actions/checkout@v6`
 
 2. **actions/setup-java@v5**
-   - Uses: `actions/setup-java@v5`
    - With:
      - `distribution`: `adopt`
      - `java-version`: `17`
      - `cache`: `sbt`
 
 3. **sbt/setup-sbt@v1**
-   - Uses: `sbt/setup-sbt@v1`
 
 4. **Generate The Website**
 
@@ -1237,6 +1233,8 @@ Permissions declared across the chain: `contents: read`
      - `publish_dir`: `scaladoc/output/scala3`
      - `external_repository`: `scala/nightly.scala-lang.org`
      - `publish_branch`: `main`
+
+</details>
 
 [Back to top](#contents)
 
@@ -1324,12 +1322,15 @@ Secrets referenced (literal names): `API-KEY`, `CHOCOLATEY_KEY`, `CONSUMER-KEY`,
 |----------|-------|
 | Runs on | `ubuntu-latest` |
 
-#### Steps
+<details>
+<summary>Steps (1)</summary>
 
 1. **Compute the SHA256 of scala3-${{ inputs.version }}-x86\_64-pc-win32.zip in GitHub Release**
    - ID: `digest`
    - Env:
      - `VERSION`: `${{ inputs.version }}`
+
+</details>
 
 ### `build-chocolatey`
 
@@ -1380,6 +1381,7 @@ Secrets referenced (literal names): `API-KEY`, `CHOCOLATEY_KEY`, `CONSUMER-KEY`,
 | Property | Value |
 |----------|-------|
 | File | `scaladoc.yaml` |
+| Default runs-on | `ubuntu-latest` |
 
 **Jobs:** [`build`](#build-3), [`validate-docs`](#validate-docs), [`validate-generated-docs`](#validate-generated-docs), [`stdlib-sourcelinks-test`](#stdlib-sourcelinks-test), [`check-error-code-snippets`](#check-error-code-snippets)
 
@@ -1400,10 +1402,10 @@ Secrets referenced (literal names): `API-KEY`, `CHOCOLATEY_KEY`, `CONSUMER-KEY`,
 
 | Property | Value |
 |----------|-------|
-| Runs on | `ubuntu-latest` |
 | Condition | `github.event_name == 'merge_group' \|\| (    github.event_name == 'pull_request' && !contains(github.event.pull_request.body, '[skip ci]') && !contains(github.event.pull_request.body, '[skip docs]') ) \|\| contains(github.event.ref, 'scaladoc') \|\| contains(github.event.ref, 'main')` |
 
-#### Steps
+<details>
+<summary>Steps (11)</summary>
 
 1. **Git Checkout**
    - Uses: `actions/checkout@v6`
@@ -1416,7 +1418,6 @@ Secrets referenced (literal names): `API-KEY`, `CHOCOLATEY_KEY`, `CONSUMER-KEY`,
      - `cache`: `sbt`
 
 3. **sbt/setup-sbt@v1**
-   - Uses: `sbt/setup-sbt@v1`
 
 4. **Compile and test scala3doc-js**
 
@@ -1438,33 +1439,32 @@ Secrets referenced (literal names): `API-KEY`, `CHOCOLATEY_KEY`, `CONSUMER-KEY`,
      - `name`: `scaladoc-output`
      - `path`: `scaladoc/output/scala3`
 
+</details>
+
 ### `validate-docs`
 
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-latest` |
-
-#### Steps
+<details>
+<summary>Steps (4)</summary>
 
 1. **Git Checkout**
    - Uses: `actions/checkout@v6`
 
 2. **coursier/cache-action@v8**
-   - Uses: `coursier/cache-action@v8`
 
 3. **VirtusLab/scala-cli-setup@v1.14**
-   - Uses: `VirtusLab/scala-cli-setup@v1.14`
 
 4. **Validate docs sidebars**
+
+</details>
 
 ### `validate-generated-docs`
 
 | Property | Value |
 |----------|-------|
-| Runs on | `ubuntu-latest` |
 | Depends on | `build` |
 
-#### Steps
+<details>
+<summary>Steps (6)</summary>
 
 1. **Git Checkout**
    - Uses: `actions/checkout@v6`
@@ -1489,14 +1489,16 @@ Secrets referenced (literal names): `API-KEY`, `CHOCOLATEY_KEY`, `CONSUMER-KEY`,
 
 6. **Validate documentation links**
 
+</details>
+
 ### `stdlib-sourcelinks-test`
 
 | Property | Value |
 |----------|-------|
-| Runs on | `ubuntu-latest` |
 | Condition | `false && ((    github.event_name == 'pull_request' && !contains(github.event.pull_request.body, '[skip ci]') && !contains(github.event.pull_request.body, '[skip docs]') ) \|\| contains(github.event.ref, 'scaladoc') \|\| contains(github.event.ref, 'scala3doc') \|\| contains(github.event.ref, 'main'))` |
 
-#### Steps
+<details>
+<summary>Steps (3)</summary>
 
 1. **Git Checkout**
    - Uses: `actions/checkout@v6`
@@ -1509,22 +1511,18 @@ Secrets referenced (literal names): `API-KEY`, `CHOCOLATEY_KEY`, `CONSUMER-KEY`,
 
 3. **Test sourcelinks to stdlib**
 
+</details>
+
 ### `check-error-code-snippets`
 
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-latest` |
-
-#### Steps
+<details>
+<summary>Steps (6)</summary>
 
 1. **actions/checkout@v6**
-   - Uses: `actions/checkout@v6`
 
 2. **coursier/cache-action@v8**
-   - Uses: `coursier/cache-action@v8`
 
 3. **VirtusLab/scala-cli-setup@v1.14**
-   - Uses: `VirtusLab/scala-cli-setup@v1.14`
    - With:
      - `jvm`: `temurin:17`
      - `apps`: `sbt`
@@ -1535,6 +1533,8 @@ Secrets referenced (literal names): `API-KEY`, `CHOCOLATEY_KEY`, `CONSUMER-KEY`,
 
 6. **[On failure] Print reproduction/fix steps**
    - Condition: `failure()`
+
+</details>
 
 [Back to top](#contents)
 
@@ -1581,13 +1581,12 @@ Secrets referenced (literal names): `API-KEY`, `CHOCOLATEY_KEY`, `CONSUMER-KEY`,
 
 **Defaults:** working-directory `./docs/_spec`
 
-#### Steps
+<details>
+<summary>Steps (5)</summary>
 
 1. **actions/checkout@v6**
-   - Uses: `actions/checkout@v6`
 
 2. **ruby/setup-ruby@v1**
-   - Uses: `ruby/setup-ruby@v1`
    - With:
      - `ruby-version`: `2.7`
 
@@ -1609,6 +1608,8 @@ Secrets referenced (literal names): `API-KEY`, `CHOCOLATEY_KEY`, `CONSUMER-KEY`,
    - Env:
      - `USER_FOR_TEST`: `${{ secrets.SPEC_DEPLOY_USER }}`
 
+</details>
+
 [Back to top](#contents)
 
 # Compile Full Standard Library
@@ -1618,12 +1619,9 @@ Secrets referenced (literal names): `API-KEY`, `CHOCOLATEY_KEY`, `CONSUMER-KEY`,
 | Property | Value |
 |----------|-------|
 | File | `stdlib.yaml` |
+| Default runs-on | `ubuntu-latest` |
 
 **Jobs:** [Non-Bootstrapped Library Unit Tests](#non-bootstrapped-library-unit-tests-test-scala-library-nonbootstrapped), [Bootstrapped Library Unit Tests](#bootstrapped-library-unit-tests-test-scala-library-bootstrapped), [`mima-scala-library-nonbootstrapped`](#mima-scala-library-nonbootstrapped), [`mima-scala3-interfaces`](#mima-scala3-interfaces), [`mima-tasty-core-nonbootstrapped`](#mima-tasty-core-nonbootstrapped), [`static-analysis-scala-library-bootstrapped`](#static-analysis-scala-library-bootstrapped), [`mima-tasty-core-bootstrapped`](#mima-tasty-core-bootstrapped), [`mima-scala-library-sjs`](#mima-scala-library-sjs), [`test-scala3-compiler-nonbootstrapped`](#test-scala3-compiler-nonbootstrapped), [`test-scala3-compiler-bootstrapped`](#test-scala3-compiler-bootstrapped), [`test-scala3-bootstrapped-compilation-coverage`](#test-scala3-bootstrapped-compilation-coverage), [`test-scala3-sbt-bridge-nonbootstrapped`](#test-scala3-sbt-bridge-nonbootstrapped), [`test-scala3-sbt-bridge-bootstrapped`](#test-scala3-sbt-bridge-bootstrapped), [`test-tasty-core-nonbootstrapped`](#test-tasty-core-nonbootstrapped), [`test-tasty-core-bootstrapped`](#test-tasty-core-bootstrapped), [`test-scala-js`](#test-scala-js), [`test-repl`](#test-repl), [`test-presentation-compiler`](#test-presentation-compiler), [`test-language-server`](#test-language-server), [`scripted-tests`](#scripted-tests), [`community_build_a`](#community_build_a), [`community_build_b`](#community_build_b), [`community_build_c`](#community_build_c), [`scala-library-docs`](#scala-library-docs)
-
-## Workflow call API
-
-This workflow is reusable via `workflow_call`.
 
 ## Event filters
 
@@ -1652,58 +1650,50 @@ stdlib.yaml
 
 ### Non-Bootstrapped Library Unit Tests (`test-scala-library-nonbootstrapped`)
 
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-latest` |
-
-#### Steps
+<details>
+<summary>Steps (4)</summary>
 
 1. **actions/checkout@v6**
-   - Uses: `actions/checkout@v6`
 
 2. **actions/setup-java@v5**
-   - Uses: `actions/setup-java@v5`
    - With:
      - `distribution`: `temurin`
      - `java-version`: `17`
      - `cache`: `sbt`
 
 3. **sbt/setup-sbt@v1**
-   - Uses: `sbt/setup-sbt@v1`
 
 4. **./project/scripts/sbt scala-library-nonbootstrapped/test**
 
+</details>
+
 ### Bootstrapped Library Unit Tests (`test-scala-library-bootstrapped`)
 
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-latest` |
-
-#### Steps
+<details>
+<summary>Steps (4)</summary>
 
 1. **actions/checkout@v6**
-   - Uses: `actions/checkout@v6`
 
 2. **actions/setup-java@v5**
-   - Uses: `actions/setup-java@v5`
    - With:
      - `distribution`: `temurin`
      - `java-version`: `17`
      - `cache`: `sbt`
 
 3. **sbt/setup-sbt@v1**
-   - Uses: `sbt/setup-sbt@v1`
 
 4. **./project/scripts/sbt scala-library-bootstrapped/test**
+
+</details>
 
 ### `mima-scala-library-nonbootstrapped`
 
 | Property | Value |
 |----------|-------|
-| Runs on | `ubuntu-latest` |
 | Condition | `false` |
 
-#### Steps
+<details>
+<summary>Steps (4)</summary>
 
 1. **Git Checkout**
    - Uses: `actions/checkout@v6`
@@ -1716,17 +1706,15 @@ stdlib.yaml
      - `cache`: `sbt`
 
 3. **sbt/setup-sbt@v1**
-   - Uses: `sbt/setup-sbt@v1`
 
 4. **Report MiMa issues in \`scala-library-nonbootstrapped\`**
 
+</details>
+
 ### `mima-scala3-interfaces`
 
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-latest` |
-
-#### Steps
+<details>
+<summary>Steps (4)</summary>
 
 1. **Git Checkout**
    - Uses: `actions/checkout@v6`
@@ -1739,17 +1727,15 @@ stdlib.yaml
      - `cache`: `sbt`
 
 3. **sbt/setup-sbt@v1**
-   - Uses: `sbt/setup-sbt@v1`
 
 4. **Report MiMa issues in \`scala3-interfaces\`**
 
+</details>
+
 ### `mima-tasty-core-nonbootstrapped`
 
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-latest` |
-
-#### Steps
+<details>
+<summary>Steps (4)</summary>
 
 1. **Git Checkout**
    - Uses: `actions/checkout@v6`
@@ -1762,17 +1748,15 @@ stdlib.yaml
      - `cache`: `sbt`
 
 3. **sbt/setup-sbt@v1**
-   - Uses: `sbt/setup-sbt@v1`
 
 4. **Report MiMa issues in \`tasty-core-nonbootstrapped\`**
 
+</details>
+
 ### `static-analysis-scala-library-bootstrapped`
 
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-latest` |
-
-#### Steps
+<details>
+<summary>Steps (5)</summary>
 
 1. **Git Checkout**
    - Uses: `actions/checkout@v6`
@@ -1785,19 +1769,17 @@ stdlib.yaml
      - `cache`: `sbt`
 
 3. **sbt/setup-sbt@v1**
-   - Uses: `sbt/setup-sbt@v1`
 
 4. **Report MiMa issues in \`scala-library-bootstrapped\`**
 
 5. **Report missingLink checks**
 
+</details>
+
 ### `mima-tasty-core-bootstrapped`
 
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-latest` |
-
-#### Steps
+<details>
+<summary>Steps (4)</summary>
 
 1. **Git Checkout**
    - Uses: `actions/checkout@v6`
@@ -1810,17 +1792,15 @@ stdlib.yaml
      - `cache`: `sbt`
 
 3. **sbt/setup-sbt@v1**
-   - Uses: `sbt/setup-sbt@v1`
 
 4. **Report MiMa issues in \`tasty-core-bootstrapped\`**
 
+</details>
+
 ### `mima-scala-library-sjs`
 
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-latest` |
-
-#### Steps
+<details>
+<summary>Steps (4)</summary>
 
 1. **Git Checkout**
    - Uses: `actions/checkout@v6`
@@ -1833,17 +1813,15 @@ stdlib.yaml
      - `cache`: `sbt`
 
 3. **sbt/setup-sbt@v1**
-   - Uses: `sbt/setup-sbt@v1`
 
 4. **Report MiMa issues in \`scala-library-sjs\`**
 
+</details>
+
 ### `test-scala3-compiler-nonbootstrapped`
 
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-latest` |
-
-#### Steps
+<details>
+<summary>Steps (5)</summary>
 
 1. **Git Checkout**
    - Uses: `actions/checkout@v6`
@@ -1856,19 +1834,17 @@ stdlib.yaml
      - `cache`: `sbt`
 
 3. **sbt/setup-sbt@v1**
-   - Uses: `sbt/setup-sbt@v1`
 
 4. **Test \`scala3-compiler-nonbootstrapped\`**
 
 5. **Cmd Tests**
 
+</details>
+
 ### `test-scala3-compiler-bootstrapped`
 
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-latest` |
-
-#### Steps
+<details>
+<summary>Steps (5)</summary>
 
 1. **Git Checkout**
    - Uses: `actions/checkout@v6`
@@ -1881,19 +1857,17 @@ stdlib.yaml
      - `cache`: `sbt`
 
 3. **sbt/setup-sbt@v1**
-   - Uses: `sbt/setup-sbt@v1`
 
 4. **Test \`scala3-compiler-bootstrapped\`**
 
 5. **Cmd Tests**
 
+</details>
+
 ### `test-scala3-bootstrapped-compilation-coverage`
 
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-latest` |
-
-#### Steps
+<details>
+<summary>Steps (4)</summary>
 
 1. **Git Checkout**
    - Uses: `actions/checkout@v6`
@@ -1906,17 +1880,15 @@ stdlib.yaml
      - `cache`: `sbt`
 
 3. **sbt/setup-sbt@v1**
-   - Uses: `sbt/setup-sbt@v1`
 
 4. **Run \`scala3-bootstrapped/testCompilation --enable-coverage-phase\`**
 
+</details>
+
 ### `test-scala3-sbt-bridge-nonbootstrapped`
 
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-latest` |
-
-#### Steps
+<details>
+<summary>Steps (4)</summary>
 
 1. **Git Checkout**
    - Uses: `actions/checkout@v6`
@@ -1929,17 +1901,15 @@ stdlib.yaml
      - `cache`: `sbt`
 
 3. **sbt/setup-sbt@v1**
-   - Uses: `sbt/setup-sbt@v1`
 
 4. **Test \`scala3-sbt-bridge-nonbootstrapped\`**
 
+</details>
+
 ### `test-scala3-sbt-bridge-bootstrapped`
 
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-latest` |
-
-#### Steps
+<details>
+<summary>Steps (4)</summary>
 
 1. **Git Checkout**
    - Uses: `actions/checkout@v6`
@@ -1952,17 +1922,15 @@ stdlib.yaml
      - `cache`: `sbt`
 
 3. **sbt/setup-sbt@v1**
-   - Uses: `sbt/setup-sbt@v1`
 
 4. **Test \`scala3-sbt-bridge-bootstrapped\`**
 
+</details>
+
 ### `test-tasty-core-nonbootstrapped`
 
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-latest` |
-
-#### Steps
+<details>
+<summary>Steps (4)</summary>
 
 1. **Git Checkout**
    - Uses: `actions/checkout@v6`
@@ -1975,17 +1943,15 @@ stdlib.yaml
      - `cache`: `sbt`
 
 3. **sbt/setup-sbt@v1**
-   - Uses: `sbt/setup-sbt@v1`
 
 4. **Test \`tasty-core-nonbootstrapped\`**
 
+</details>
+
 ### `test-tasty-core-bootstrapped`
 
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-latest` |
-
-#### Steps
+<details>
+<summary>Steps (4)</summary>
 
 1. **Git Checkout**
    - Uses: `actions/checkout@v6`
@@ -1998,17 +1964,15 @@ stdlib.yaml
      - `cache`: `sbt`
 
 3. **sbt/setup-sbt@v1**
-   - Uses: `sbt/setup-sbt@v1`
 
 4. **Test \`tasty-core-bootstrapped\`**
 
+</details>
+
 ### `test-scala-js`
 
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-latest` |
-
-#### Steps
+<details>
+<summary>Steps (9)</summary>
 
 1. **Git Checkout**
    - Uses: `actions/checkout@v6`
@@ -2021,12 +1985,10 @@ stdlib.yaml
      - `cache`: `sbt`
 
 3. **actions/setup-node@v6**
-   - Uses: `actions/setup-node@v6`
    - With:
      - `node-version`: `24.x`
 
 4. **sbt/setup-sbt@v1**
-   - Uses: `sbt/setup-sbt@v1`
 
 5. **Scala.js compiler tests**
 
@@ -2038,13 +2000,12 @@ stdlib.yaml
 
 9. **Scala.js JUnit tests with WebAssembly**
 
+</details>
+
 ### `test-repl`
 
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-latest` |
-
-#### Steps
+<details>
+<summary>Steps (4)</summary>
 
 1. **Git Checkout**
    - Uses: `actions/checkout@v6`
@@ -2057,17 +2018,15 @@ stdlib.yaml
      - `cache`: `sbt`
 
 3. **sbt/setup-sbt@v1**
-   - Uses: `sbt/setup-sbt@v1`
 
 4. **Test REPL**
 
+</details>
+
 ### `test-presentation-compiler`
 
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-latest` |
-
-#### Steps
+<details>
+<summary>Steps (4)</summary>
 
 1. **Git Checkout**
    - Uses: `actions/checkout@v6`
@@ -2080,17 +2039,15 @@ stdlib.yaml
      - `cache`: `sbt`
 
 3. **sbt/setup-sbt@v1**
-   - Uses: `sbt/setup-sbt@v1`
 
 4. **Test Presentation Compiler**
 
+</details>
+
 ### `test-language-server`
 
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-latest` |
-
-#### Steps
+<details>
+<summary>Steps (4)</summary>
 
 1. **Git Checkout**
    - Uses: `actions/checkout@v6`
@@ -2103,17 +2060,15 @@ stdlib.yaml
      - `cache`: `sbt`
 
 3. **sbt/setup-sbt@v1**
-   - Uses: `sbt/setup-sbt@v1`
 
 4. **Test Language Server**
 
+</details>
+
 ### `scripted-tests`
 
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-latest` |
-
-#### Steps
+<details>
+<summary>Steps (4)</summary>
 
 1. **Git Checkout**
    - Uses: `actions/checkout@v6`
@@ -2126,17 +2081,15 @@ stdlib.yaml
      - `cache`: `sbt`
 
 3. **sbt/setup-sbt@v1**
-   - Uses: `sbt/setup-sbt@v1`
 
 4. **Run SBT scripted tests**
 
+</details>
+
 ### `community_build_a`
 
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-latest` |
-
-#### Steps
+<details>
+<summary>Steps (4)</summary>
 
 1. **Checkout cleanup script**
    - Uses: `actions/checkout@v6`
@@ -2151,17 +2104,15 @@ stdlib.yaml
      - `cache`: `sbt`
 
 3. **sbt/setup-sbt@v1**
-   - Uses: `sbt/setup-sbt@v1`
 
 4. **Run Community Build A**
 
+</details>
+
 ### `community_build_b`
 
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-latest` |
-
-#### Steps
+<details>
+<summary>Steps (4)</summary>
 
 1. **Checkout cleanup script**
    - Uses: `actions/checkout@v6`
@@ -2176,17 +2127,15 @@ stdlib.yaml
      - `cache`: `sbt`
 
 3. **sbt/setup-sbt@v1**
-   - Uses: `sbt/setup-sbt@v1`
 
 4. **Run Community Build B**
 
+</details>
+
 ### `community_build_c`
 
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-latest` |
-
-#### Steps
+<details>
+<summary>Steps (4)</summary>
 
 1. **Checkout cleanup script**
    - Uses: `actions/checkout@v6`
@@ -2201,17 +2150,15 @@ stdlib.yaml
      - `cache`: `sbt`
 
 3. **sbt/setup-sbt@v1**
-   - Uses: `sbt/setup-sbt@v1`
 
 4. **Run Community Build C**
 
+</details>
+
 ### `scala-library-docs`
 
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-latest` |
-
-#### Steps
+<details>
+<summary>Steps (4)</summary>
 
 1. **Git Checkout**
    - Uses: `actions/checkout@v6`
@@ -2224,9 +2171,10 @@ stdlib.yaml
      - `cache`: `sbt`
 
 3. **sbt/setup-sbt@v1**
-   - Uses: `sbt/setup-sbt@v1`
 
 4. **Generate Documentation of the Standard Library**
+
+</details>
 
 [Back to top](#contents)
 
@@ -2241,8 +2189,6 @@ THIS IS A REUSABLE WORKFLOW TO TEST SCALA WITH CHOCOLATEY HOW TO USE: NOTE:
 | File | `test-chocolatey.yml` |
 
 ## Workflow call API
-
-This workflow is reusable via `workflow_call`.
 
 **Inputs:**
 
@@ -2282,10 +2228,10 @@ test-chocolatey.yml
 |----------|-------|
 | Runs on | `windows-latest` |
 
-#### Steps
+<details>
+<summary>Steps (7)</summary>
 
 1. **actions/setup-java@v5**
-   - Uses: `actions/setup-java@v5`
    - With:
      - `distribution`: `temurin`
      - `java-version`: `${{ inputs.java-version }}`
@@ -2305,6 +2251,8 @@ test-chocolatey.yml
 6. **Test the \`scaladoc\` command**
 
 7. **Uninstall the \`scala\` package**
+
+</details>
 
 [Back to top](#contents)
 
@@ -2327,10 +2275,10 @@ test-chocolatey.yml
 | Runs on | `ubuntu-latest` |
 | Condition | `(github.event_name == 'pull_request' && !contains(github.event.pull_request.body, '[skip ci]') ) \|\| (github.event_name == 'workflow_dispatch' && github.repository == 'scala/scala3' )` |
 
-#### Steps
+<details>
+<summary>Steps (4)</summary>
 
 1. **actions/checkout@v6**
-   - Uses: `actions/checkout@v6`
 
 2. **Set up JDK 17**
    - Uses: `actions/setup-java@v5`
@@ -2340,11 +2288,12 @@ test-chocolatey.yml
      - `cache`: `sbt`
 
 3. **sbt/setup-sbt@v1**
-   - Uses: `sbt/setup-sbt@v1`
 
 4. **Build and test launcher command**
    - Env:
      - `LAUNCHER_EXPECTED_PROJECT`: `dist-linux-x86_64`
+
+</details>
 
 ### Deploy and Test on Linux ARM64 architecture (`linux-aarch64`)
 
@@ -2352,10 +2301,10 @@ test-chocolatey.yml
 |----------|-------|
 | Runs on | `ubuntu-24.04-arm` |
 
-#### Steps
+<details>
+<summary>Steps (4)</summary>
 
 1. **actions/checkout@v6**
-   - Uses: `actions/checkout@v6`
 
 2. **Set up JDK 17**
    - Uses: `actions/setup-java@v5`
@@ -2365,11 +2314,12 @@ test-chocolatey.yml
      - `cache`: `sbt`
 
 3. **sbt/setup-sbt@v1**
-   - Uses: `sbt/setup-sbt@v1`
 
 4. **Build and test launcher command**
    - Env:
      - `LAUNCHER_EXPECTED_PROJECT`: `dist-linux-aarch64`
+
+</details>
 
 ### Deploy and Test on Mac x64 architecture (`mac-x86_64`)
 
@@ -2378,10 +2328,10 @@ test-chocolatey.yml
 | Runs on | `macos-15-intel` |
 | Condition | `(github.event_name == 'pull_request' && !contains(github.event.pull_request.body, '[skip ci]') ) \|\| (github.event_name == 'workflow_dispatch' && github.repository == 'scala/scala3' )` |
 
-#### Steps
+<details>
+<summary>Steps (4)</summary>
 
 1. **actions/checkout@v6**
-   - Uses: `actions/checkout@v6`
 
 2. **Set up JDK 17**
    - Uses: `actions/setup-java@v5`
@@ -2391,11 +2341,12 @@ test-chocolatey.yml
      - `cache`: `sbt`
 
 3. **sbt/setup-sbt@v1**
-   - Uses: `sbt/setup-sbt@v1`
 
 4. **Build and test launcher command**
    - Env:
      - `LAUNCHER_EXPECTED_PROJECT`: `dist-mac-x86_64`
+
+</details>
 
 ### Deploy and Test on Mac ARM64 architecture (`mac-aarch64`)
 
@@ -2404,10 +2355,10 @@ test-chocolatey.yml
 | Runs on | `macos-latest` |
 | Condition | `(github.event_name == 'pull_request' && !contains(github.event.pull_request.body, '[skip ci]') ) \|\| (github.event_name == 'workflow_dispatch' && github.repository == 'scala/scala3' )` |
 
-#### Steps
+<details>
+<summary>Steps (4)</summary>
 
 1. **actions/checkout@v6**
-   - Uses: `actions/checkout@v6`
 
 2. **Set up JDK 17**
    - Uses: `actions/setup-java@v5`
@@ -2417,11 +2368,12 @@ test-chocolatey.yml
      - `cache`: `sbt`
 
 3. **sbt/setup-sbt@v1**
-   - Uses: `sbt/setup-sbt@v1`
 
 4. **Build and test launcher command**
    - Env:
      - `LAUNCHER_EXPECTED_PROJECT`: `dist-mac-aarch64`
+
+</details>
 
 ### Deploy and Test on Windows x64 architecture (`win-x86_64`)
 
@@ -2430,10 +2382,10 @@ test-chocolatey.yml
 | Runs on | `windows-latest` |
 | Condition | `(github.event_name == 'pull_request' && !contains(github.event.pull_request.body, '[skip ci]') ) \|\| (github.event_name == 'workflow_dispatch' && github.repository == 'scala/scala3' )` |
 
-#### Steps
+<details>
+<summary>Steps (5)</summary>
 
 1. **actions/checkout@v6**
-   - Uses: `actions/checkout@v6`
 
 2. **Set up JDK 17**
    - Uses: `actions/setup-java@v5`
@@ -2443,11 +2395,12 @@ test-chocolatey.yml
      - `cache`: `sbt`
 
 3. **sbt/setup-sbt@v1**
-   - Uses: `sbt/setup-sbt@v1`
 
 4. **Build the launcher command**
 
 5. **Run the launcher command tests**
+
+</details>
 
 [Back to top](#contents)
 
@@ -2462,8 +2415,6 @@ THIS IS A REUSABLE WORKFLOW TO TEST SCALA WITH MSI RUNNER HOW TO USE: Provide op
 | File | `test-msi.yml` |
 
 ## Workflow call API
-
-This workflow is reusable via `workflow_call`.
 
 **Inputs:**
 
@@ -2493,10 +2444,10 @@ test-msi.yml
 |----------|-------|
 | `VERSION` | `${{ inputs.version }}` |
 
-#### Steps
+<details>
+<summary>Steps (9)</summary>
 
 1. **actions/setup-java@v5**
-   - Uses: `actions/setup-java@v5`
    - With:
      - `distribution`: `temurin`
      - `java-version`: `${{ inputs.java-version }}`
@@ -2520,6 +2471,8 @@ test-msi.yml
 8. **Smoke test - compile and run**
 
 9. **Uninstall the \`scala\` package**
+
+</details>
 
 [Back to top](#contents)
 

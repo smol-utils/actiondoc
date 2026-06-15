@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/smol-utils/actiondoc/internal/callgraph"
@@ -235,6 +236,7 @@ func renderCalledBy(b *strings.Builder, g *callgraph.Graph, id string) {
 	for _, e := range callers {
 		root.children = append(root.children, calledByNode(g, e, path))
 	}
+	dedupSubtrees(&root)
 
 	b.WriteString("## Called by\n\n")
 	b.WriteString("```\n")
@@ -415,6 +417,74 @@ func collectSecretNames(n *callgraph.Node, set map[string]bool) {
 type treeNode struct {
 	label    string
 	children []treeNode
+}
+
+// dedupSubtrees collapses repeated caller subtrees in a "called by" tree. Many distinct
+// calling jobs reach this workflow through the very same upstream entry-point set (e.g. six
+// jobs each ultimately triggered by ci-amd.yml + ci-arm.yml); rendering that identical set
+// under every caller is pure repetition. When a node's children block exactly matches one
+// already emitted earlier in document order, its children are replaced by a single note so
+// the shared set is stated once and the duplicates point back to it. No data is dropped: a
+// collapsed block is byte-identical to the first occurrence shown above it.
+func dedupSubtrees(root *treeNode) {
+	seen := map[string]bool{}
+	var walk func(n *treeNode)
+	walk = func(n *treeNode) {
+		for i := range n.children {
+			c := &n.children[i]
+			key := childrenKey(c.children)
+			if key != "" && seen[key] {
+				note := "(same callers as above)"
+				if allEntryPoints(c.children) {
+					note = "(same entry points as above)"
+				}
+				c.children = []treeNode{{label: note}}
+				continue
+			}
+			if key != "" {
+				seen[key] = true
+			}
+			walk(c)
+		}
+	}
+	walk(root)
+}
+
+// childrenKey serializes a node's full descendant structure (depth + label per line),
+// ignoring the node's own label, so two caller nodes whose upstream chains are identical
+// share a key regardless of their own differing job names.
+func childrenKey(children []treeNode) string {
+	if len(children) == 0 {
+		return ""
+	}
+	var sb strings.Builder
+	var walk func(ns []treeNode, depth int)
+	walk = func(ns []treeNode, depth int) {
+		for _, n := range ns {
+			sb.WriteString(strconv.Itoa(depth))
+			sb.WriteByte(':')
+			sb.WriteString(n.label)
+			sb.WriteByte('\n')
+			walk(n.children, depth+1)
+		}
+	}
+	walk(children, 0)
+	return sb.String()
+}
+
+// allEntryPoints reports whether every leaf in a subtree is an entry-point caller, so the
+// collapse note can name the set precisely ("entry points" vs the general "callers").
+func allEntryPoints(children []treeNode) bool {
+	for _, c := range children {
+		if len(c.children) == 0 {
+			if !strings.HasSuffix(c.label, "<- entry point") {
+				return false
+			}
+		} else if !allEntryPoints(c.children) {
+			return false
+		}
+	}
+	return true
 }
 
 // renderTree writes an ASCII tree: the root label on its own line, then each child under

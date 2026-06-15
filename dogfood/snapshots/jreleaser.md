@@ -48,21 +48,23 @@
 | Runs on | `${{ matrix.os }}` |
 | Matrix | `os`: ubuntu-latest, macos-15-intel, windows-latest |
 
-#### Steps
+<details>
+<summary>Steps (3)</summary>
 
 1. **actions/checkout@v6.0.2**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
    - With:
      - `persist-credentials`: `false`
 
 2. **Setup Java**
-   - Uses: `actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654` (v5.2.0)
+   - Uses: `actions/setup-java@v5.2.0`
    - With:
      - `java-version`: `21`
      - `distribution`: `zulu`
      - `cache`: `gradle`
 
 3. **Build**
+
+</details>
 
 [Back to top](#contents)
 
@@ -86,10 +88,13 @@
 |----------|-------|
 | Runs on | `ubuntu-latest` |
 
-#### Steps
+<details>
+<summary>Steps (1)</summary>
 
 1. **Clear caches**
    - Uses: `easimon/wipe-cache@e7ab82e64c328fd39c2e96933d426cd72ac2beba`
+
+</details>
 
 [Back to top](#contents)
 
@@ -157,26 +162,27 @@ Permissions declared across the chain: `actions: read`, `contents: read`, `secur
 | Depends on | `precheck` |
 | Condition | `${{ endsWith(needs.precheck.outputs.version, '-SNAPSHOT') }}` |
 
-#### Steps
+<details>
+<summary>Steps (6)</summary>
 
 1. **Checkout repository**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
 
 2. **Cancel previous run**
-   - Uses: `styfle/cancel-workflow-action@d07a454dad7609a92316b57b23c9ccfd4f59af66` (v0.13.1)
+   - Uses: `styfle/cancel-workflow-action@v0.13.1`
    - With:
      - `access_token`: `${{ secrets.GITHUB_TOKEN }}`
 
 3. **Initialize CodeQL**
-   - Uses: `github/codeql-action/init@c10b8064de6f491fea524254123dbe5e09572f13` (v4.35.1)
+   - Uses: `github/codeql-action/init@v4.35.1`
    - With:
      - `languages`: `java`
      - `build-mode`: `manual`
 
 4. **Setup Java**
-   - Uses: `actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654` (v5.2.0)
+   - Uses: `actions/setup-java@v5.2.0`
    - With:
      - `java-version`: `21`
      - `distribution`: `zulu`
@@ -185,9 +191,11 @@ Permissions declared across the chain: `actions: read`, `contents: read`, `secur
 5. **Build**
 
 6. **Perform CodeQL Analysis**
-   - Uses: `github/codeql-action/analyze@c10b8064de6f491fea524254123dbe5e09572f13` (v4.35.1)
+   - Uses: `github/codeql-action/analyze@v4.35.1`
    - With:
      - `category`: `/language:java`
+
+</details>
 
 [Back to top](#contents)
 
@@ -323,48 +331,49 @@ External workflows referenced: `slsa-framework/slsa-github-generator/.github/wor
 - `contents`: `read`
 - `attestations`: `write`
 
-#### Steps
+<details>
+<summary>Steps (9)</summary>
 
 1. **Checkout**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
      - `fetch-depth`: `0`
 
 2. **Download artifacts**
-   - Uses: `actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c` (v8.0.1)
+   - Uses: `actions/download-artifact@v8.0.1`
    - With:
      - `name`: `artifacts`
      - `path`: `plugins`
 
 3. **Download java-archive**
-   - Uses: `actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c` (v8.0.1)
+   - Uses: `actions/download-artifact@v8.0.1`
    - With:
      - `name`: `java-archive`
      - `path`: `out/jreleaser/assemble/jreleaser/java-archive`
 
 4. **Download jlink**
-   - Uses: `actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c` (v8.0.1)
+   - Uses: `actions/download-artifact@v8.0.1`
    - With:
      - `name`: `jlink`
      - `path`: `out/jreleaser/assemble/jreleaser-standalone/jlink`
 
 5. **Download jpackage**
-   - Uses: `actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c` (v8.0.1)
+   - Uses: `actions/download-artifact@v8.0.1`
    - With:
      - `pattern`: `jpackage-*`
      - `merge-multiple`: `true`
      - `path`: `out/jreleaser/assemble/jreleaser-installer/jpackage`
 
 6. **Download native-image**
-   - Uses: `actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c` (v8.0.1)
+   - Uses: `actions/download-artifact@v8.0.1`
    - With:
      - `pattern`: `native-image-*`
      - `merge-multiple`: `true`
      - `path`: `out/jreleaser/assemble/jreleaser-native/native-image`
 
 7. **Release**
-   - Uses: `jreleaser/release-action@90ac653bb9c79d11179e65d81499f3f34527dcd5` (v2.5.0)
+   - Uses: `jreleaser/release-action@v2.5.0`
    - With:
      - `version`: `early-access`
      - `arguments`: `full-release`
@@ -377,7 +386,7 @@ External workflows referenced: `slsa-framework/slsa-github-generator/.github/wor
      - `JRELEASER_DOCKER_DEFAULT_PASSWORD`: `${{ secrets.JRELEASER_DOCKER_PASSWORD }}`
 
 8. **JReleaser release output**
-   - Uses: `actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f` (v7.0.0)
+   - Uses: `actions/upload-artifact@v7.0.0`
    - Condition: `always()`
    - With:
      - `name`: `jreleaser-release`
@@ -385,6 +394,8 @@ External workflows referenced: `slsa-framework/slsa-github-generator/.github/wor
 
 9. **SLSA**
    - ID: `slsa`
+
+</details>
 
 ### Provenance (`provenance`)
 
@@ -444,16 +455,18 @@ External workflows referenced: `slsa-framework/slsa-github-generator/.github/wor
 |----------|-------|
 | Runs on | `ubuntu-latest` |
 
-#### Steps
+<details>
+<summary>Steps (2)</summary>
 
 1. **actions/checkout@v6.0.2**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
    - With:
      - `persist-credentials`: `false`
 
 2. **actionlint**
    - ID: `actionlint`
-   - Uses: `raven-actions/actionlint@205b530c5d9fa8f44ae9ed59f341a0db994aa6f8` (v2.1.2)
+   - Uses: `raven-actions/actionlint@v2.1.2`
+
+</details>
 
 [Back to top](#contents)
 
@@ -528,31 +541,34 @@ Permissions declared across the chain: `actions: read`, `contents: read`, `id-to
 - `actions`: `read`
 - `contents`: `read`
 
-#### Steps
+<details>
+<summary>Steps (4)</summary>
 
 1. **Checkout code**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
 
 2. **Run analysis**
-   - Uses: `ossf/scorecard-action@4eaacf0543bb3f2c246792bd56e8cdeffafb205a` (v2.4.3)
+   - Uses: `ossf/scorecard-action@v2.4.3`
    - With:
      - `results_file`: `results.sarif`
      - `results_format`: `sarif`
      - `publish_results`: `true`
 
 3. **Upload artifact**
-   - Uses: `actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f` (v7.0.0)
+   - Uses: `actions/upload-artifact@v7.0.0`
    - With:
      - `name`: `SARIF file`
      - `path`: `results.sarif`
      - `retention-days`: `5`
 
 4. **Upload to code-scanning**
-   - Uses: `github/codeql-action/upload-sarif@c10b8064de6f491fea524254123dbe5e09572f13` (v4.35.1)
+   - Uses: `github/codeql-action/upload-sarif@v4.35.1`
    - With:
      - `sarif_file`: `results.sarif`
+
+</details>
 
 [Back to top](#contents)
 
@@ -563,6 +579,7 @@ Permissions declared across the chain: `actions: read`, `contents: read`, `id-to
 | Property | Value |
 |----------|-------|
 | File | `release.yml` |
+| Default runs-on | `ubuntu-latest` |
 
 **Jobs:** [Precheck](#precheck-precheck-3), [Jlink](#jlink-jlink-1), [JPackage](#jpackage-jpackage-1), [Native Image](#native-image-native-image-1), [Release](#release-release-1), [Provenance](#provenance-provenance-1), [Update Wiki](#update-wiki-update-wiki-1), [Update Website](#update-website-update-website)
 
@@ -632,14 +649,11 @@ External workflows referenced: `slsa-framework/slsa-github-generator/.github/wor
 
 ### Precheck (`precheck`)
 
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-latest` |
-
-#### Steps
+<details>
+<summary>Steps (3)</summary>
 
 1. **Checkout**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `true`
 
@@ -647,6 +661,8 @@ External workflows referenced: `slsa-framework/slsa-github-generator/.github/wor
    - ID: `version`
 
 3. **Commit version**
+
+</details>
 
 ### Jlink (`jlink`)
 
@@ -695,52 +711,52 @@ External workflows referenced: `slsa-framework/slsa-github-generator/.github/wor
 
 | Property | Value |
 |----------|-------|
-| Runs on | `ubuntu-latest` |
 | Depends on | `precheck`, `jlink`, `jpackage`, `native-image` |
 
-#### Steps
+<details>
+<summary>Steps (13)</summary>
 
 1. **Checkout**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `true`
      - `ref`: `main`
      - `fetch-depth`: `0`
 
 2. **Download artifacts**
-   - Uses: `actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c` (v8.0.1)
+   - Uses: `actions/download-artifact@v8.0.1`
    - With:
      - `name`: `artifacts`
      - `path`: `plugins`
 
 3. **Download java-archive**
-   - Uses: `actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c` (v8.0.1)
+   - Uses: `actions/download-artifact@v8.0.1`
    - With:
      - `name`: `java-archive`
      - `path`: `out/jreleaser/assemble/jreleaser/java-archive`
 
 4. **Download jlink**
-   - Uses: `actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c` (v8.0.1)
+   - Uses: `actions/download-artifact@v8.0.1`
    - With:
      - `name`: `jlink`
      - `path`: `out/jreleaser/assemble/jreleaser-standalone/jlink`
 
 5. **Download jpackage**
-   - Uses: `actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c` (v8.0.1)
+   - Uses: `actions/download-artifact@v8.0.1`
    - With:
      - `pattern`: `jpackage-*`
      - `merge-multiple`: `true`
      - `path`: `out/jreleaser/assemble/jreleaser-installer/jpackage`
 
 6. **Download native-image**
-   - Uses: `actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c` (v8.0.1)
+   - Uses: `actions/download-artifact@v8.0.1`
    - With:
      - `pattern`: `native-image-*`
      - `merge-multiple`: `true`
      - `path`: `out/jreleaser/assemble/jreleaser-native/native-image`
 
 7. **Setup Java**
-   - Uses: `actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654` (v5.2.0)
+   - Uses: `actions/setup-java@v5.2.0`
    - With:
      - `java-version`: `${{ vars.JAVA_VERSION }}`
      - `distribution`: `${{ vars.JAVA_DISTRO }}`
@@ -752,14 +768,14 @@ External workflows referenced: `slsa-framework/slsa-github-generator/.github/wor
      - `GRADLE_PUBLISH_SECRET`: `${{ secrets.GRADLE_PUBLISH_SECRET }}`
 
 9. **Upload deploy artifacts**
-   - Uses: `actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f` (v7.0.0)
+   - Uses: `actions/upload-artifact@v7.0.0`
    - With:
      - `retention-days`: `7`
      - `name`: `deploy`
      - `path`: `build/repos/local/release/`
 
 10. **Release**
-   - Uses: `jreleaser/release-action@90ac653bb9c79d11179e65d81499f3f34527dcd5` (v2.5.0)
+   - Uses: `jreleaser/release-action@v2.5.0`
    - With:
      - `version`: `early-access`
      - `arguments`: `full-release`
@@ -782,7 +798,7 @@ External workflows referenced: `slsa-framework/slsa-github-generator/.github/wor
      - `JRELEASER_BLUESKY_PASSWORD`: `${{ secrets.BLUESKY_PASSWORD }}`
 
 11. **JReleaser release output**
-   - Uses: `actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f` (v7.0.0)
+   - Uses: `actions/upload-artifact@v7.0.0`
    - Condition: `always()`
    - With:
      - `name`: `jreleaser-release`
@@ -792,6 +808,8 @@ External workflows referenced: `slsa-framework/slsa-github-generator/.github/wor
    - ID: `slsa`
 
 13. **Bump version**
+
+</details>
 
 ### Provenance (`provenance`)
 
@@ -829,13 +847,13 @@ External workflows referenced: `slsa-framework/slsa-github-generator/.github/wor
 
 | Property | Value |
 |----------|-------|
-| Runs on | `ubuntu-latest` |
 | Depends on | `precheck`, `release` |
 
-#### Steps
+<details>
+<summary>Steps (4)</summary>
 
 1. **Checkout**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `true`
      - `repository`: `jreleaser/jreleaser.github.io`
@@ -844,7 +862,7 @@ External workflows referenced: `slsa-framework/slsa-github-generator/.github/wor
      - `token`: `${{ secrets.GIT_ACCESS_TOKEN }}`
 
 2. **Setup Java**
-   - Uses: `actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654` (v5.2.0)
+   - Uses: `actions/setup-java@v5.2.0`
    - With:
      - `java-version`: `${{ vars.JAVA_VERSION }}`
      - `distribution`: `${{ vars.JAVA_DISTRO }}`
@@ -861,6 +879,8 @@ External workflows referenced: `slsa-framework/slsa-github-generator/.github/wor
      - `NEXT_VERSION`: `${{ needs.precheck.outputs.next-version }}`
      - `COMMIT_EMAIL`: `${{ vars.COMMIT_EMAIL }}`
 
+</details>
+
 [Back to top](#contents)
 
 # SmokeTests
@@ -870,6 +890,7 @@ External workflows referenced: `slsa-framework/slsa-github-generator/.github/wor
 | Property | Value |
 |----------|-------|
 | File | `smoke-tests.yml` |
+| Default runs-on | `${{ matrix.job.os }}` |
 
 **Jobs:** [Precheck](#precheck-precheck-4), [CLI ${{ matrix.job.os }}](#cli--matrixjobos--build-cli), [Tool ${{ matrix.job.os }}](#tool--matrixjobos--build-tool), [Ant ${{ matrix.job.os }}](#ant--matrixjobos--build-ant), [Gradle ${{ matrix.job.os }}](#gradle--matrixjobos--build-gradle), [Maven ${{ matrix.job.os }}](#maven--matrixjobos--build-maven), [Unit Test ${{ matrix.os }}](#unit-test--matrixos--unit-tests), [Coveralls](#coveralls-coveralls), [Codecov](#codecov-codecov), [Sonar](#sonar-sonar)
 
@@ -942,15 +963,15 @@ Permissions declared across the chain: `contents: read`
 
 | Property | Value |
 |----------|-------|
-| Runs on | `${{ matrix.job.os }}` |
 | Matrix | `job.os`: macos-15-intel, ubuntu-latest, windows-latest; `job.args`: -xp docker,  |
 | Depends on | `precheck` |
 | Condition | `${{ endsWith(needs.precheck.outputs.version, '-SNAPSHOT') }}` |
 
-#### Steps
+<details>
+<summary>Steps (12)</summary>
 
 1. **Checkout**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
      - `fetch-depth`: `0`
@@ -958,14 +979,14 @@ Permissions declared across the chain: `contents: read`
 2. **Decrypt secrets**
 
 3. **Setup Graal**
-   - Uses: `graalvm/setup-graalvm@f744c72a42b1995d7b0cbc314bde4bace7ac1fe1` (v1.5.0)
+   - Uses: `graalvm/setup-graalvm@v1.5.0`
    - With:
      - `java-version`: `${{ vars.GRAAL_JAVA_VERSION }}`
      - `github-token`: `${{ secrets.GIT_ACCESS_TOKEN }}`
      - `distribution`: `graalvm-community`
 
 4. **Setup Java**
-   - Uses: `actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654` (v5.2.0)
+   - Uses: `actions/setup-java@v5.2.0`
    - With:
      - `java-version`: `${{ vars.JAVA_VERSION }}`
      - `distribution`: `${{ vars.JAVA_DISTRO }}`
@@ -974,7 +995,7 @@ Permissions declared across the chain: `contents: read`
 5. **Build**
 
 6. **Checkout smoketests repository**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
      - `repository`: `jreleaser/smoketests-jreleaser`
@@ -983,7 +1004,7 @@ Permissions declared across the chain: `contents: read`
      - `token`: `${{ secrets.GIT_ACCESS_TOKEN }}`
 
 7. **Cache Maven packages**
-   - Uses: `actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306` (v5.0.3)
+   - Uses: `actions/cache@v5.0.3`
    - With:
      - `path`: `~/.m2/repository`
      - `key`: `setup-java-${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}`
@@ -1003,7 +1024,7 @@ Permissions declared across the chain: `contents: read`
      - `JAVA_OPTS`: `-javaagent:jacoco/jacocoagent.jar=includes=*jreleaser*,destfile=jreleaser-cli-${{ runner.os }}.exec`
 
 10. **JReleaser output**
-   - Uses: `actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f` (v7.0.0)
+   - Uses: `actions/upload-artifact@v7.0.0`
    - Condition: `always()`
    - With:
      - `retention-days`: `7`
@@ -1011,7 +1032,7 @@ Permissions declared across the chain: `contents: read`
      - `path`: `smoketests-jreleaser/out/jreleaser/trace.log smoketests-jreleaser/out/jreleaser/output.properties smoketests-jreleaser/out/jreleaser/release/CHANGELOG.md smoketests-jreleaser/out/jreleaser/prepare`
 
 11. **JaCoCo upload**
-   - Uses: `actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f` (v7.0.0)
+   - Uses: `actions/upload-artifact@v7.0.0`
    - Condition: `always()`
    - With:
      - `retention-days`: `1`
@@ -1021,19 +1042,21 @@ Permissions declared across the chain: `contents: read`
 12. **Cleanup**
    - Condition: `always()`
 
+</details>
+
 ### Tool ${{ matrix.job.os }} (`build-tool`)
 
 | Property | Value |
 |----------|-------|
-| Runs on | `${{ matrix.job.os }}` |
 | Matrix | `job.os`: macos-15-intel, ubuntu-latest, windows-latest; `job.args`: -xp docker,  |
 | Depends on | `precheck` |
 | Condition | `${{ endsWith(needs.precheck.outputs.version, '-SNAPSHOT') }}` |
 
-#### Steps
+<details>
+<summary>Steps (12)</summary>
 
 1. **Checkout**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
      - `fetch-depth`: `0`
@@ -1041,14 +1064,14 @@ Permissions declared across the chain: `contents: read`
 2. **Decrypt secrets**
 
 3. **Setup Graal**
-   - Uses: `graalvm/setup-graalvm@f744c72a42b1995d7b0cbc314bde4bace7ac1fe1` (v1.5.0)
+   - Uses: `graalvm/setup-graalvm@v1.5.0`
    - With:
      - `java-version`: `${{ vars.GRAAL_JAVA_VERSION }}`
      - `github-token`: `${{ secrets.GIT_ACCESS_TOKEN }}`
      - `distribution`: `graalvm-community`
 
 4. **Setup Java**
-   - Uses: `actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654` (v5.2.0)
+   - Uses: `actions/setup-java@v5.2.0`
    - With:
      - `java-version`: `${{ vars.JAVA_VERSION }}`
      - `distribution`: `${{ vars.JAVA_DISTRO }}`
@@ -1057,7 +1080,7 @@ Permissions declared across the chain: `contents: read`
 5. **Build**
 
 6. **Checkout smoketests repository**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
      - `repository`: `jreleaser/smoketests-jreleaser`
@@ -1066,7 +1089,7 @@ Permissions declared across the chain: `contents: read`
      - `token`: `${{ secrets.GIT_ACCESS_TOKEN }}`
 
 7. **Cache Maven packages**
-   - Uses: `actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306` (v5.0.3)
+   - Uses: `actions/cache@v5.0.3`
    - With:
      - `path`: `~/.m2/repository`
      - `key`: `setup-java-${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}`
@@ -1086,7 +1109,7 @@ Permissions declared across the chain: `contents: read`
      - `JAVA_OPTS`: `-javaagent:jacoco/jacocoagent.jar=includes=*jreleaser*,destfile=jreleaser-tool-${{ runner.os }}.exec`
 
 10. **JReleaser output**
-   - Uses: `actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f` (v7.0.0)
+   - Uses: `actions/upload-artifact@v7.0.0`
    - Condition: `always()`
    - With:
      - `retention-days`: `7`
@@ -1094,7 +1117,7 @@ Permissions declared across the chain: `contents: read`
      - `path`: `smoketests-jreleaser/out/jreleaser/trace.log smoketests-jreleaser/out/jreleaser/output.properties smoketests-jreleaser/out/jreleaser/release/CHANGELOG.md smoketests-jreleaser/out/jreleaser/prepare`
 
 11. **JaCoCo upload**
-   - Uses: `actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f` (v7.0.0)
+   - Uses: `actions/upload-artifact@v7.0.0`
    - Condition: `always()`
    - With:
      - `retention-days`: `1`
@@ -1104,19 +1127,21 @@ Permissions declared across the chain: `contents: read`
 12. **Cleanup**
    - Condition: `always()`
 
+</details>
+
 ### Ant ${{ matrix.job.os }} (`build-ant`)
 
 | Property | Value |
 |----------|-------|
-| Runs on | `${{ matrix.job.os }}` |
 | Matrix | `job.os`: macos-15-intel, ubuntu-latest, windows-latest; `job.args`: -Djreleaser.excluded.packagers=docker,  |
 | Depends on | `precheck` |
 | Condition | `${{ endsWith(needs.precheck.outputs.version, '-SNAPSHOT') }}` |
 
-#### Steps
+<details>
+<summary>Steps (12)</summary>
 
 1. **Checkout**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
      - `fetch-depth`: `0`
@@ -1124,14 +1149,14 @@ Permissions declared across the chain: `contents: read`
 2. **Decrypt secrets**
 
 3. **Setup Graal**
-   - Uses: `graalvm/setup-graalvm@f744c72a42b1995d7b0cbc314bde4bace7ac1fe1` (v1.5.0)
+   - Uses: `graalvm/setup-graalvm@v1.5.0`
    - With:
      - `java-version`: `${{ vars.GRAAL_JAVA_VERSION }}`
      - `github-token`: `${{ secrets.GIT_ACCESS_TOKEN }}`
      - `distribution`: `graalvm-community`
 
 4. **Setup Java**
-   - Uses: `actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654` (v5.2.0)
+   - Uses: `actions/setup-java@v5.2.0`
    - With:
      - `java-version`: `${{ vars.JAVA_VERSION }}`
      - `distribution`: `${{ vars.JAVA_DISTRO }}`
@@ -1140,7 +1165,7 @@ Permissions declared across the chain: `contents: read`
 5. **Build**
 
 6. **Checkout smoketests repository**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
      - `repository`: `jreleaser/smoketests-jreleaser`
@@ -1149,7 +1174,7 @@ Permissions declared across the chain: `contents: read`
      - `token`: `${{ secrets.GIT_ACCESS_TOKEN }}`
 
 7. **Cache Maven packages**
-   - Uses: `actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306` (v5.0.3)
+   - Uses: `actions/cache@v5.0.3`
    - With:
      - `path`: `~/.m2/repository`
      - `key`: `setup-java-${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}`
@@ -1169,7 +1194,7 @@ Permissions declared across the chain: `contents: read`
      - `ANT_OPTS`: `-javaagent:jacoco/jacocoagent.jar=includes=*jreleaser*,destfile=jreleaser-ant-${{ runner.os }}.exec`
 
 10. **JReleaser output**
-   - Uses: `actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f` (v7.0.0)
+   - Uses: `actions/upload-artifact@v7.0.0`
    - Condition: `always()`
    - With:
      - `retention-days`: `7`
@@ -1177,7 +1202,7 @@ Permissions declared across the chain: `contents: read`
      - `path`: `smoketests-jreleaser/build/jreleaser/trace.log smoketests-jreleaser/build/jreleaser/output.properties smoketests-jreleaser/build/jreleaser/release/CHANGELOG.md smoketests-jreleaser/build/jreleaser/prepare`
 
 11. **JaCoCo upload**
-   - Uses: `actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f` (v7.0.0)
+   - Uses: `actions/upload-artifact@v7.0.0`
    - Condition: `always()`
    - With:
      - `retention-days`: `1`
@@ -1187,19 +1212,21 @@ Permissions declared across the chain: `contents: read`
 12. **Cleanup**
    - Condition: `always()`
 
+</details>
+
 ### Gradle ${{ matrix.job.os }} (`build-gradle`)
 
 | Property | Value |
 |----------|-------|
-| Runs on | `${{ matrix.job.os }}` |
 | Matrix | `job.os`: macos-15-intel, ubuntu-latest, windows-latest; `job.args`: --exclude-packager docker,  |
 | Depends on | `precheck` |
 | Condition | `${{ endsWith(needs.precheck.outputs.version, '-SNAPSHOT') }}` |
 
-#### Steps
+<details>
+<summary>Steps (13)</summary>
 
 1. **Checkout**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
      - `fetch-depth`: `0`
@@ -1207,14 +1234,14 @@ Permissions declared across the chain: `contents: read`
 2. **Decrypt secrets**
 
 3. **Setup Graal**
-   - Uses: `graalvm/setup-graalvm@f744c72a42b1995d7b0cbc314bde4bace7ac1fe1` (v1.5.0)
+   - Uses: `graalvm/setup-graalvm@v1.5.0`
    - With:
      - `java-version`: `${{ vars.GRAAL_JAVA_VERSION }}`
      - `github-token`: `${{ secrets.GIT_ACCESS_TOKEN }}`
      - `distribution`: `graalvm-community`
 
 4. **Setup Java**
-   - Uses: `actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654` (v5.2.0)
+   - Uses: `actions/setup-java@v5.2.0`
    - With:
      - `java-version`: `${{ vars.JAVA_VERSION }}`
      - `distribution`: `${{ vars.JAVA_DISTRO }}`
@@ -1223,7 +1250,7 @@ Permissions declared across the chain: `contents: read`
 5. **Build**
 
 6. **Checkout smoketests repository**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
      - `repository`: `jreleaser/smoketests-jreleaser`
@@ -1232,7 +1259,7 @@ Permissions declared across the chain: `contents: read`
      - `token`: `${{ secrets.GIT_ACCESS_TOKEN }}`
 
 7. **Cache Maven packages**
-   - Uses: `actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306` (v5.0.3)
+   - Uses: `actions/cache@v5.0.3`
    - With:
      - `path`: `~/.m2/repository`
      - `key`: `setup-java-${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}`
@@ -1252,7 +1279,7 @@ Permissions declared across the chain: `contents: read`
      - `JAVA_OPTS`: `-javaagent:jacoco/jacocoagent.jar=includes=*jreleaser*,destfile=jreleaser-gradle-${{ runner.os }}.exec`
 
 10. **JReleaser output**
-   - Uses: `actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f` (v7.0.0)
+   - Uses: `actions/upload-artifact@v7.0.0`
    - Condition: `always()`
    - With:
      - `retention-days`: `7`
@@ -1260,7 +1287,7 @@ Permissions declared across the chain: `contents: read`
      - `path`: `smoketests-jreleaser/build/jreleaser/trace.log smoketests-jreleaser/build/jreleaser/output.properties smoketests-jreleaser/build/jreleaser/release/CHANGELOG.md smoketests-jreleaser/build/jreleaser/prepare`
 
 11. **JaCoCo upload**
-   - Uses: `actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f` (v7.0.0)
+   - Uses: `actions/upload-artifact@v7.0.0`
    - Condition: `always()`
    - With:
      - `retention-days`: `1`
@@ -1279,19 +1306,21 @@ Permissions declared across the chain: `contents: read`
 13. **Cleanup**
    - Condition: `always()`
 
+</details>
+
 ### Maven ${{ matrix.job.os }} (`build-maven`)
 
 | Property | Value |
 |----------|-------|
-| Runs on | `${{ matrix.job.os }}` |
 | Matrix | `job.os`: macos-15-intel, ubuntu-latest, windows-latest; `job.args`: -Djreleaser.excluded.packagers=docker,  |
 | Depends on | `precheck` |
 | Condition | `${{ endsWith(needs.precheck.outputs.version, '-SNAPSHOT') }}` |
 
-#### Steps
+<details>
+<summary>Steps (12)</summary>
 
 1. **Checkout**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
      - `fetch-depth`: `0`
@@ -1299,14 +1328,14 @@ Permissions declared across the chain: `contents: read`
 2. **Decrypt secrets**
 
 3. **Setup Graal**
-   - Uses: `graalvm/setup-graalvm@f744c72a42b1995d7b0cbc314bde4bace7ac1fe1` (v1.5.0)
+   - Uses: `graalvm/setup-graalvm@v1.5.0`
    - With:
      - `java-version`: `${{ vars.GRAAL_JAVA_VERSION }}`
      - `github-token`: `${{ secrets.GIT_ACCESS_TOKEN }}`
      - `distribution`: `graalvm-community`
 
 4. **Setup Java**
-   - Uses: `actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654` (v5.2.0)
+   - Uses: `actions/setup-java@v5.2.0`
    - With:
      - `java-version`: `${{ vars.JAVA_VERSION }}`
      - `distribution`: `${{ vars.JAVA_DISTRO }}`
@@ -1315,7 +1344,7 @@ Permissions declared across the chain: `contents: read`
 5. **Build**
 
 6. **Checkout smoketests repository**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
      - `repository`: `jreleaser/smoketests-jreleaser`
@@ -1324,7 +1353,7 @@ Permissions declared across the chain: `contents: read`
      - `token`: `${{ secrets.GIT_ACCESS_TOKEN }}`
 
 7. **Cache Maven packages**
-   - Uses: `actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306` (v5.0.3)
+   - Uses: `actions/cache@v5.0.3`
    - With:
      - `path`: `~/.m2/repository`
      - `key`: `setup-java-${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}`
@@ -1344,7 +1373,7 @@ Permissions declared across the chain: `contents: read`
      - `MAVEN_OPTS`: `-javaagent:jacoco/jacocoagent.jar=includes=*jreleaser*,destfile=jreleaser-maven-${{ runner.os }}.exec`
 
 10. **JReleaser output**
-   - Uses: `actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f` (v7.0.0)
+   - Uses: `actions/upload-artifact@v7.0.0`
    - Condition: `always()`
    - With:
      - `retention-days`: `7`
@@ -1352,7 +1381,7 @@ Permissions declared across the chain: `contents: read`
      - `path`: `smoketests-jreleaser/target/jreleaser/trace.log smoketests-jreleaser/target/jreleaser/output.properties smoketests-jreleaser/target/jreleaser/release/CHANGELOG.md smoketests-jreleaser/target/jreleaser/prepare`
 
 11. **JaCoCo upload**
-   - Uses: `actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f` (v7.0.0)
+   - Uses: `actions/upload-artifact@v7.0.0`
    - Condition: `always()`
    - With:
      - `retention-days`: `1`
@@ -1361,6 +1390,8 @@ Permissions declared across the chain: `contents: read`
 
 12. **Cleanup**
    - Condition: `always()`
+
+</details>
 
 ### Unit Test ${{ matrix.os }} (`unit-tests`)
 
@@ -1371,17 +1402,17 @@ Permissions declared across the chain: `contents: read`
 | Depends on | `precheck` |
 | Condition | `${{ endsWith(needs.precheck.outputs.version, '-SNAPSHOT') }}` |
 
-#### Steps
+<details>
+<summary>Steps (7)</summary>
 
 1. **actions/checkout@v6.0.2**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
    - With:
      - `persist-credentials`: `false`
 
 2. **Decrypt secrets**
 
 3. **Setup Java**
-   - Uses: `actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654` (v5.2.0)
+   - Uses: `actions/setup-java@v5.2.0`
    - With:
      - `java-version`: `${{ vars.JAVA_VERSION }}`
      - `distribution`: `${{ vars.JAVA_DISTRO }}`
@@ -1392,7 +1423,7 @@ Permissions declared across the chain: `contents: read`
 5. **Rename JaCoCo execution data**
 
 6. **JaCoCo upload**
-   - Uses: `actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f` (v7.0.0)
+   - Uses: `actions/upload-artifact@v7.0.0`
    - Condition: `always()`
    - With:
      - `retention-days`: `1`
@@ -1402,6 +1433,8 @@ Permissions declared across the chain: `contents: read`
 7. **Cleanup**
    - Condition: `always()`
 
+</details>
+
 ### Coveralls (`coveralls`)
 
 | Property | Value |
@@ -1410,10 +1443,11 @@ Permissions declared across the chain: `contents: read`
 | Depends on | `precheck`, `build-cli`, `build-tool`, `build-ant`, `build-gradle`, `build-maven`, `unit-tests` |
 | Condition | `${{ endsWith(needs.precheck.outputs.version, '-SNAPSHOT') }}` |
 
-#### Steps
+<details>
+<summary>Steps (9)</summary>
 
 1. **Checkout**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
      - `fetch-depth`: `0`
@@ -1421,7 +1455,7 @@ Permissions declared across the chain: `contents: read`
 2. **Decrypt secrets**
 
 3. **Setup Java**
-   - Uses: `actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654` (v5.2.0)
+   - Uses: `actions/setup-java@v5.2.0`
    - With:
      - `java-version`: `${{ vars.JAVA_VERSION }}`
      - `distribution`: `${{ vars.JAVA_DISTRO }}`
@@ -1430,7 +1464,7 @@ Permissions declared across the chain: `contents: read`
 4. **Build**
 
 5. **Download JaCoCo execution data**
-   - Uses: `actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c` (v8.0.1)
+   - Uses: `actions/download-artifact@v8.0.1`
    - With:
      - `pattern`: `jacoco-*`
      - `merge-multiple`: `true`
@@ -1447,6 +1481,8 @@ Permissions declared across the chain: `contents: read`
 9. **Cleanup**
    - Condition: `always()`
 
+</details>
+
 ### Codecov (`codecov`)
 
 | Property | Value |
@@ -1455,10 +1491,11 @@ Permissions declared across the chain: `contents: read`
 | Depends on | `precheck`, `build-cli`, `build-tool`, `build-ant`, `build-gradle`, `build-maven`, `unit-tests` |
 | Condition | `${{ endsWith(needs.precheck.outputs.version, '-SNAPSHOT') }}` |
 
-#### Steps
+<details>
+<summary>Steps (9)</summary>
 
 1. **Checkout**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
      - `fetch-depth`: `0`
@@ -1466,7 +1503,7 @@ Permissions declared across the chain: `contents: read`
 2. **Decrypt secrets**
 
 3. **Setup Java**
-   - Uses: `actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654` (v5.2.0)
+   - Uses: `actions/setup-java@v5.2.0`
    - With:
      - `java-version`: `${{ vars.JAVA_VERSION }}`
      - `distribution`: `${{ vars.JAVA_DISTRO }}`
@@ -1475,7 +1512,7 @@ Permissions declared across the chain: `contents: read`
 4. **Build**
 
 5. **Download JaCoCo execution data**
-   - Uses: `actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c` (v8.0.1)
+   - Uses: `actions/download-artifact@v8.0.1`
    - With:
      - `pattern`: `jacoco-*`
      - `merge-multiple`: `true`
@@ -1486,7 +1523,7 @@ Permissions declared across the chain: `contents: read`
 7. **JaCoCo report**
 
 8. **Upload coverage to Codecov**
-   - Uses: `codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de` (v5.5.2)
+   - Uses: `codecov/codecov-action@v5.5.2`
    - With:
      - `token`: `${{ secrets.CODECOV_TOKEN }}`
      - `files`: `build/reports/jacoco/aggregate/jacocoTestReport.xml`
@@ -1498,6 +1535,8 @@ Permissions declared across the chain: `contents: read`
 9. **Cleanup**
    - Condition: `always()`
 
+</details>
+
 ### Sonar (`sonar`)
 
 | Property | Value |
@@ -1506,10 +1545,11 @@ Permissions declared across the chain: `contents: read`
 | Depends on | `precheck`, `build-cli`, `build-tool`, `build-ant`, `build-gradle`, `build-maven`, `unit-tests` |
 | Condition | `${{ endsWith(needs.precheck.outputs.version, '-SNAPSHOT') }}` |
 
-#### Steps
+<details>
+<summary>Steps (9)</summary>
 
 1. **Checkout**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
      - `fetch-depth`: `0`
@@ -1517,7 +1557,7 @@ Permissions declared across the chain: `contents: read`
 2. **Decrypt secrets**
 
 3. **Setup Java**
-   - Uses: `actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654` (v5.2.0)
+   - Uses: `actions/setup-java@v5.2.0`
    - With:
      - `java-version`: `${{ vars.JAVA_VERSION }}`
      - `distribution`: `${{ vars.JAVA_DISTRO }}`
@@ -1526,7 +1566,7 @@ Permissions declared across the chain: `contents: read`
 4. **Build**
 
 5. **Download JaCoCo execution data**
-   - Uses: `actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c` (v8.0.1)
+   - Uses: `actions/download-artifact@v8.0.1`
    - With:
      - `pattern`: `jacoco-*`
      - `merge-multiple`: `true`
@@ -1541,6 +1581,8 @@ Permissions declared across the chain: `contents: read`
 9. **Cleanup**
    - Condition: `always()`
 
+</details>
+
 [Back to top](#contents)
 
 # X-Jlink
@@ -1552,8 +1594,6 @@ Permissions declared across the chain: `contents: read`
 | File | `step-jlink.yml` |
 
 ## Workflow call API
-
-This workflow is reusable via `workflow_call`.
 
 **Inputs:**
 
@@ -1610,10 +1650,11 @@ step-jlink.yml
 |----------|-------|
 | `CI` | `true` |
 
-#### Steps
+<details>
+<summary>Steps (15)</summary>
 
 1. **Checkout**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
      - `ref`: `main`
@@ -1623,7 +1664,7 @@ step-jlink.yml
      - `GPG_PASSPHRASE`: `${{ secrets.gpg-passphrase }}`
 
 3. **Setup Java**
-   - Uses: `actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654` (v5.2.0)
+   - Uses: `actions/setup-java@v5.2.0`
    - With:
      - `java-version`: `${{ vars.JAVA_VERSION }}`
      - `distribution`: `${{ vars.JAVA_DISTRO }}`
@@ -1641,7 +1682,7 @@ step-jlink.yml
 6. **Clear space**
 
 7. **Java Archive**
-   - Uses: `jreleaser/release-action@90ac653bb9c79d11179e65d81499f3f34527dcd5` (v2.5.0)
+   - Uses: `jreleaser/release-action@v2.5.0`
    - With:
      - `version`: `early-access`
      - `arguments`: `assemble --assembler java-archive`
@@ -1650,7 +1691,7 @@ step-jlink.yml
      - `JRELEASER_PROJECT_VERSION`: `${{ inputs.project-version }}`
 
 8. **Jlink**
-   - Uses: `jreleaser/release-action@90ac653bb9c79d11179e65d81499f3f34527dcd5` (v2.5.0)
+   - Uses: `jreleaser/release-action@v2.5.0`
    - With:
      - `version`: `early-access`
      - `arguments`: `assemble --assembler jlink`
@@ -1659,7 +1700,7 @@ step-jlink.yml
      - `JRELEASER_PROJECT_VERSION`: `${{ inputs.project-version }}`
 
 9. **JReleaser output**
-   - Uses: `actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f` (v7.0.0)
+   - Uses: `actions/upload-artifact@v7.0.0`
    - Condition: `always()`
    - With:
      - `name`: `jreleaser-jlink`
@@ -1668,21 +1709,21 @@ step-jlink.yml
 10. **Dependencies**
 
 11. **Upload artifacts**
-   - Uses: `actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f` (v7.0.0)
+   - Uses: `actions/upload-artifact@v7.0.0`
    - With:
      - `retention-days`: `1`
      - `name`: `artifacts`
      - `path`: `plugins/jreleaser/build/libs/ plugins/jreleaser/build/dependencies/ plugins/jreleaser/build/distributions/ plugins/jreleaser-tool-provider/build/libs/*.jar plugins/jreleaser-ant-tasks/build/distributions/*.zip`
 
 12. **Upload java-archive**
-   - Uses: `actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f` (v7.0.0)
+   - Uses: `actions/upload-artifact@v7.0.0`
    - With:
      - `retention-days`: `1`
      - `name`: `java-archive`
      - `path`: `out/jreleaser/assemble/jreleaser/java-archive/*.zip out/jreleaser/assemble/jreleaser/java-archive/*.tar`
 
 13. **Upload jlink**
-   - Uses: `actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f` (v7.0.0)
+   - Uses: `actions/upload-artifact@v7.0.0`
    - With:
      - `retention-days`: `1`
      - `name`: `jlink`
@@ -1691,6 +1732,8 @@ step-jlink.yml
 14. **Stop Gradle daemon**
 
 15. **Delete JDK caches**
+
+</details>
 
 [Back to top](#contents)
 
@@ -1703,8 +1746,6 @@ step-jlink.yml
 | File | `step-jpackage.yml` |
 
 ## Workflow call API
-
-This workflow is reusable via `workflow_call`.
 
 **Inputs:**
 
@@ -1743,22 +1784,23 @@ step-jpackage.yml
 | Runs on | `${{ matrix.job.runner }}` |
 | Matrix | `job.runner`: ubuntu-latest, ubuntu-22.04-arm, macos-15-intel, macos-15, windows-latest; `job.platform`: linux-x86_64, linux-aarch_64, osx-x86_64, osx-aarch_64, windows-x86_64; `job.platformReplaced`: linux-x86_64, linux-aarch64, osx-x86_64, osx-aarch64, windows-x86_64; `job.jdkOs`: Linux, LinuxArm, Osx, OsxArm, Windows |
 
-#### Steps
+<details>
+<summary>Steps (12)</summary>
 
 1. **Checkout**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
      - `ref`: `main`
 
 2. **Download artifacts**
-   - Uses: `actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c` (v8.0.1)
+   - Uses: `actions/download-artifact@v8.0.1`
    - With:
      - `name`: `artifacts`
      - `path`: `plugins`
 
 3. **Download jlink**
-   - Uses: `actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c` (v8.0.1)
+   - Uses: `actions/download-artifact@v8.0.1`
    - With:
      - `name`: `jlink`
      - `path`: `out/jreleaser/assemble/jreleaser-standalone/jlink`
@@ -1768,7 +1810,7 @@ step-jpackage.yml
      - `PROJECT_EFFECTIVE_VERSION`: `${{ inputs.project-effective-version }}`
 
 5. **Setup Java**
-   - Uses: `actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654` (v5.2.0)
+   - Uses: `actions/setup-java@v5.2.0`
    - With:
      - `java-version`: `${{ vars.JAVA_VERSION }}`
      - `distribution`: `${{ vars.JAVA_DISTRO }}`
@@ -1782,11 +1824,11 @@ step-jpackage.yml
 7. **Jdks**
 
 8. **Add msbuild to PATH**
-   - Uses: `microsoft/setup-msbuild@30375c66a4eea26614e0d39710365f22f8b0af57` (v3)
+   - Uses: `microsoft/setup-msbuild@v3`
    - Condition: `runner.os == 'Windows'`
 
 9. **Jpackage**
-   - Uses: `jreleaser/release-action@90ac653bb9c79d11179e65d81499f3f34527dcd5` (v2.5.0)
+   - Uses: `jreleaser/release-action@v2.5.0`
    - With:
      - `version`: `early-access`
      - `arguments`: `assemble --assembler jpackage --select-current-platform`
@@ -1795,20 +1837,22 @@ step-jpackage.yml
      - `JRELEASER_PROJECT_VERSION`: `${{ inputs.project-version }}`
 
 10. **JReleaser output**
-   - Uses: `actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f` (v7.0.0)
+   - Uses: `actions/upload-artifact@v7.0.0`
    - Condition: `always()`
    - With:
      - `name`: `jreleaser-jpackage-${{ runner.os }}-${{ runner.arch }}`
      - `path`: `out/jreleaser/trace.log out/jreleaser/output.properties`
 
 11. **Upload jpackage**
-   - Uses: `actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f` (v7.0.0)
+   - Uses: `actions/upload-artifact@v7.0.0`
    - With:
      - `retention-days`: `1`
      - `name`: `jpackage-${{ runner.os }}-${{ runner.arch }}`
      - `path`: `out/jreleaser/assemble/jreleaser-installer/jpackage/*.pkg out/jreleaser/assemble/jreleaser-installer/jpackage/*.msi out/jreleaser/assemble/jreleaser-installer/jpackage/*.exe out/jreleaser/assemble/jreleaser-installer/jpackage/*.deb out/jreleaser/assemble/jreleaser-installer/jpackage/*.rpm`
 
 12. **Stop Gradle daemon**
+
+</details>
 
 [Back to top](#contents)
 
@@ -1821,8 +1865,6 @@ step-jpackage.yml
 | File | `step-native-image.yml` |
 
 ## Workflow call API
-
-This workflow is reusable via `workflow_call`.
 
 **Inputs:**
 
@@ -1873,29 +1915,30 @@ step-native-image.yml
 | Runs on | `${{ matrix.job.runner }}` |
 | Matrix | `job.runner`: ubuntu-latest, ubuntu-22.04-arm, macos-15-intel, macos-15, windows-latest; `job.jdkOs`: Linux, LinuxArm, Osx, OsxArm, Windows |
 
-#### Steps
+<details>
+<summary>Steps (10)</summary>
 
 1. **Checkout**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
      - `ref`: `main`
 
 2. **Download artifacts**
-   - Uses: `actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c` (v8.0.1)
+   - Uses: `actions/download-artifact@v8.0.1`
    - With:
      - `name`: `artifacts`
      - `path`: `plugins`
 
 3. **Setup Graal**
-   - Uses: `graalvm/setup-graalvm@f744c72a42b1995d7b0cbc314bde4bace7ac1fe1` (v1.5.0)
+   - Uses: `graalvm/setup-graalvm@v1.5.0`
    - With:
      - `java-version`: `${{ vars.GRAAL_JAVA_VERSION }}`
      - `github-token`: `${{ secrets.GITHUB_TOKEN }}`
      - `distribution`: `graalvm`
 
 4. **Setup Java**
-   - Uses: `actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654` (v5.2.0)
+   - Uses: `actions/setup-java@v5.2.0`
    - With:
      - `java-version`: `${{ vars.JAVA_VERSION }}`
      - `distribution`: `${{ vars.JAVA_DISTRO }}`
@@ -1909,7 +1952,7 @@ step-native-image.yml
 6. **Jdks**
 
 7. **NativeImage**
-   - Uses: `jreleaser/release-action@90ac653bb9c79d11179e65d81499f3f34527dcd5` (v2.5.0)
+   - Uses: `jreleaser/release-action@v2.5.0`
    - With:
      - `version`: `early-access`
      - `arguments`: `assemble --assembler native-image --select-current-platform`
@@ -1918,20 +1961,22 @@ step-native-image.yml
      - `JRELEASER_PROJECT_VERSION`: `${{ inputs.project-version }}`
 
 8. **JReleaser output**
-   - Uses: `actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f` (v7.0.0)
+   - Uses: `actions/upload-artifact@v7.0.0`
    - Condition: `always()`
    - With:
      - `name`: `jreleaser-native-image-${{ runner.os }}-${{ runner.arch }}`
      - `path`: `out/jreleaser/trace.log out/jreleaser/output.properties`
 
 9. **Upload native-image**
-   - Uses: `actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f` (v7.0.0)
+   - Uses: `actions/upload-artifact@v7.0.0`
    - With:
      - `retention-days`: `1`
      - `name`: `native-image-${{ runner.os }}-${{ runner.arch }}`
      - `path`: `out/jreleaser/assemble/jreleaser-native/native-image/*.zip`
 
 10. **Stop Gradle daemon**
+
+</details>
 
 [Back to top](#contents)
 
@@ -1944,8 +1989,6 @@ step-native-image.yml
 | File | `step-precheck.yml` |
 
 ## Workflow call API
-
-This workflow is reusable via `workflow_call`.
 
 **Outputs:**
 
@@ -1990,20 +2033,23 @@ step-precheck.yml
 | Runs on | `ubuntu-latest` |
 | Condition | `github.repository == 'jreleaser/jreleaser' && startsWith(github.event.head_commit.message, 'Releasing version') != true` |
 
-#### Steps
+<details>
+<summary>Steps (3)</summary>
 
 1. **Checkout**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
 
 2. **Cancel previous run**
-   - Uses: `styfle/cancel-workflow-action@d07a454dad7609a92316b57b23c9ccfd4f59af66` (v0.13.1)
+   - Uses: `styfle/cancel-workflow-action@v0.13.1`
    - With:
      - `access_token`: `${{ secrets.github-token }}`
 
 3. **Version**
    - ID: `vars`
+
+</details>
 
 [Back to top](#contents)
 
@@ -2016,8 +2062,6 @@ step-precheck.yml
 | File | `step-update-bach-info.yml` |
 
 ## Workflow call API
-
-This workflow is reusable via `workflow_call`.
 
 **Inputs:**
 
@@ -2060,10 +2104,11 @@ This workflow is reusable via `workflow_call`.
 |----------|-------|
 | Runs on | `ubuntu-latest` |
 
-#### Steps
+<details>
+<summary>Steps (3)</summary>
 
 1. **Checkout**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `true`
      - `repository`: `jreleaser/bach-info`
@@ -2079,6 +2124,8 @@ This workflow is reusable via `workflow_call`.
      - `VERSION`: `${{ inputs.project-version }}`
      - `COMMIT_EMAIL`: `${{ vars.COMMIT_EMAIL }}`
 
+</details>
+
 [Back to top](#contents)
 
 # X-UpdateWiki
@@ -2090,8 +2137,6 @@ This workflow is reusable via `workflow_call`.
 | File | `step-update-wiki.yml` |
 
 ## Workflow call API
-
-This workflow is reusable via `workflow_call`.
 
 **Inputs:**
 
@@ -2138,16 +2183,17 @@ step-update-wiki.yml
 |----------|-------|
 | Runs on | `ubuntu-latest` |
 
-#### Steps
+<details>
+<summary>Steps (5)</summary>
 
 1. **Checkout**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `true`
      - `fetch-depth`: `0`
 
 2. **Checkout wiki**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `true`
      - `repository`: `jreleaser/jreleaser.wiki`
@@ -2159,7 +2205,7 @@ step-update-wiki.yml
      - `JRELEASER_PROJECT_TAG`: `${{ inputs.project-tag }}`
 
 4. **Generate wiki page**
-   - Uses: `jreleaser/release-action@90ac653bb9c79d11179e65d81499f3f34527dcd5` (v2.5.0)
+   - Uses: `jreleaser/release-action@v2.5.0`
    - With:
      - `version`: `early-access`
      - `arguments`: `template eval --changelog --input-file src/jreleaser/templates/wiki-release-page.md.tpl --target-directory wiki/Releases ${TEMPLATE_PARAMS}`
@@ -2173,6 +2219,8 @@ step-update-wiki.yml
      - `TAG`: `${{ inputs.project-tag }}`
      - `VERSION`: `${{ inputs.project-version }}`
      - `COMMIT_EMAIL`: `${{ inputs.commit-email }}`
+
+</details>
 
 [Back to top](#contents)
 
@@ -2211,15 +2259,15 @@ step-update-wiki.yml
 |----------|-------|
 | Runs on | `ubuntu-latest` |
 
-#### Steps
+<details>
+<summary>Steps (5)</summary>
 
 1. **actions/checkout@v6.0.2**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
    - With:
      - `persist-credentials`: `false`
 
 2. **Setup Java**
-   - Uses: `actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654` (v5.2.0)
+   - Uses: `actions/setup-java@v5.2.0`
    - With:
      - `java-version`: `${{ vars.JAVA_VERSION }}`
      - `distribution`: `${{ vars.JAVA_DISTRO }}`
@@ -2229,7 +2277,7 @@ step-update-wiki.yml
 4. **Rename artifacts**
 
 5. **Release early-access artifacts**
-   - Uses: `softprops/action-gh-release@153bb8e04406b158c6c84fc1615b65b24149a1fe` (v2.6.1)
+   - Uses: `softprops/action-gh-release@v2.6.1`
    - With:
      - `generate_release_notes`: `false`
      - `tag_name`: `early-access`
@@ -2237,6 +2285,8 @@ step-update-wiki.yml
      - `prerelease`: `true`
      - `name`: `JReleaser Early-Access`
      - `files`: `early-access/*`
+
+</details>
 
 [Back to top](#contents)
 

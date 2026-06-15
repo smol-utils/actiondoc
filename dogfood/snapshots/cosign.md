@@ -66,30 +66,27 @@ No permissions granted (`permissions: {}` -- default-deny).
 - `contents`: `read`
 - `packages`: `write`
 
-#### Steps
+<details>
+<summary>Steps (9)</summary>
 
 1. **actions/checkout@v6.0.2**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
    - With:
      - `persist-credentials`: `false`
 
 2. **sigstore/cosign-installer@v4.1.2**
-   - Uses: `sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6` (v4.1.2)
 
 3. **Extract version of Go to use**
 
 4. **actions/setup-go@v6.4.0**
-   - Uses: `actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c` (v6.4.0)
    - With:
      - `go-version`: `${{ env.GOVERSION }}`
      - `check-latest`: `true`
      - `cache`: `false`
 
 5. **ko-build/setup-ko@v0.9**
-   - Uses: `ko-build/setup-ko@d006021bd0c28d1ce33a07e7943d48b079944c8d` (v0.9)
 
 6. **Set up Cloud SDK**
-   - Uses: `google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093` (v3.0.0)
+   - Uses: `google-github-actions/auth@v3.0.0`
    - With:
      - `workload_identity_provider`: `projects/498091336538/locations/global/workloadIdentityPools/githubactions/providers/sigstore-cosign`
      - `service_account`: `github-actions@projectsigstore.iam.gserviceaccount.com`
@@ -97,7 +94,7 @@ No permissions granted (`permissions: {}` -- default-deny).
 7. **creds**
 
 8. **Login to GitHub Container Registry**
-   - Uses: `docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121` (v4.1.0)
+   - Uses: `docker/login-action@v4.1.0`
    - With:
      - `registry`: `ghcr.io`
      - `username`: `${{ github.actor }}`
@@ -107,6 +104,8 @@ No permissions granted (`permissions: {}` -- default-deny).
    - Env:
      - `KO_PREFIX`: `ghcr.io/sigstore/cosign/cosign/ci`
      - `COSIGN_PASSWORD`: `${{secrets.COSIGN_PASSWORD}}`
+
+</details>
 
 [Back to top](#contents)
 
@@ -150,15 +149,16 @@ No permissions granted (`permissions: {}` -- default-deny).
 - `actions`: `read`
 - `contents`: `read`
 
-#### Steps
+<details>
+<summary>Steps (7)</summary>
 
 1. **Checkout repository**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
 
 2. **Utilize Go Module Cache**
-   - Uses: `actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae` (v5.0.5)
+   - Uses: `actions/cache@v5.0.5`
    - With:
      - `path`: `~/go/pkg/mod ~/.cache/go-build`
      - `key`: `${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}`
@@ -167,21 +167,22 @@ No permissions granted (`permissions: {}` -- default-deny).
 3. **Extract version of Go to use**
 
 4. **actions/setup-go@v6.4.0**
-   - Uses: `actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c` (v6.4.0)
    - With:
      - `go-version`: `${{ env.GOVERSION }}`
      - `check-latest`: `true`
      - `cache`: `false`
 
 5. **Initialize CodeQL**
-   - Uses: `github/codeql-action/init@65c74964a9ed8c44ed9f19d4bbc5757a6a8e9ab9` (v2.16.1)
+   - Uses: `github/codeql-action/init@v2.16.1`
    - With:
      - `languages`: `${{ matrix.language }}`
 
 6. **Build cosign for CodeQL**
 
 7. **Perform CodeQL Analysis**
-   - Uses: `github/codeql-action/analyze@65c74964a9ed8c44ed9f19d4bbc5757a6a8e9ab9` (v2.16.1)
+   - Uses: `github/codeql-action/analyze@v2.16.1`
+
+</details>
 
 [Back to top](#contents)
 
@@ -218,17 +219,16 @@ No permissions granted (`permissions: {}` -- default-deny).
 |----------|-------|
 | Runs on | `ubuntu-latest` |
 
-#### Steps
+<details>
+<summary>Steps (6)</summary>
 
 1. **actions/checkout@v6.0.2**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
    - With:
      - `persist-credentials`: `false`
 
 2. **Extract version of Go to use**
 
 3. **actions/setup-go@v6.4.0**
-   - Uses: `actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c` (v6.4.0)
    - With:
      - `go-version`: `${{ env.GOVERSION }}`
      - `check-latest`: `true`
@@ -237,17 +237,18 @@ No permissions granted (`permissions: {}` -- default-deny).
 4. **make cosign conformance**
 
 5. **sigstore/sigstore-conformance@main**
-   - Uses: `sigstore/sigstore-conformance@main`
    - With:
      - `entrypoint`: `${{ github.workspace }}/conformance`
      - `xfail`: `test_verify*PATH-message-digest-mismatch_fail]`
 
 6. **Create Issue on Failure**
-   - Uses: `actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd` (v8.0.0)
+   - Uses: `actions/github-script@v8.0.0`
    - Condition: `failure()`
    - With:
      - `github-token`: `${{ secrets.GITHUB_TOKEN }}`
      - `script`: `` const { owner, repo } = context.repo; const runId = context.runId; const issueTitle = 'Conformance Tests Failed'; const issueBody = `The nightly conformance tests have failed. Please check the logs for more details.\n\nWorkflow run: https://github.com/${owner}/${repo}/actions/runs/${runId}\n\ncc @sigstore/security-response-team @sigstore/cosign-codeowners`; const issueLabel = 'bug';  const existingIssues = await github.rest.issues.listForRepo({   owner,   repo,   state: 'open',   labels: issueLabel, });  const issueExists = existingIssues.data.some(issue => issue.title === issueTitle);  if (!issueExists) {   await github.rest.issues.create({     owner,     repo,     title: issueTitle,     body: issueBody,     labels: [issueLabel],   }); } ``
+
+</details>
 
 [Back to top](#contents)
 
@@ -278,17 +279,16 @@ No permissions granted (`permissions: {}` -- default-deny).
 |----------|-------|
 | Runs on | `ubuntu-latest` |
 
-#### Steps
+<details>
+<summary>Steps (5)</summary>
 
 1. **actions/checkout@v6.0.2**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
    - With:
      - `persist-credentials`: `false`
 
 2. **Extract version of Go to use**
 
 3. **actions/setup-go@v6.4.0**
-   - Uses: `actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c` (v6.4.0)
    - With:
      - `go-version`: `${{ env.GOVERSION }}`
      - `check-latest`: `true`
@@ -297,10 +297,11 @@ No permissions granted (`permissions: {}` -- default-deny).
 4. **make cosign conformance**
 
 5. **sigstore/sigstore-conformance@v0.0.27**
-   - Uses: `sigstore/sigstore-conformance@4d66ba3cb0c9c95f705c757c0f5e226d3f4d5151` (v0.0.27)
    - With:
      - `entrypoint`: `${{ github.workspace }}/conformance`
      - `xfail`: `test_verify*PATH-message-digest-mismatch_fail]`
+
+</details>
 
 [Back to top](#contents)
 
@@ -431,15 +432,18 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 - `contents`: `read`
 
-#### Steps
+<details>
+<summary>Steps (2)</summary>
 
 1. **Check out code**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v2.4.0)
+   - Uses: `actions/checkout@v2.4.0`
    - With:
      - `persist-credentials`: `false`
 
 2. **Do Not Submit**
-   - Uses: `chainguard-dev/actions/donotsubmit@c69a264ec2a5934c3186c618f368fc1c86f16cff` (v1.6.19)
+   - Uses: `chainguard-dev/actions/donotsubmit@v1.6.19`
+
+</details>
 
 [Back to top](#contents)
 
@@ -450,6 +454,7 @@ No permissions granted (`permissions: {}` -- default-deny).
 | Property | Value |
 |----------|-------|
 | File | `e2e-tests.yml` |
+| Default runs-on | `ubuntu-latest` |
 
 **Jobs:** [`e2e-cross`](#e2e-cross), [`e2e-test-pkcs11`](#e2e-test-pkcs11), [`e2e-kms`](#e2e-kms), [`e2e-registry`](#e2e-registry)
 
@@ -468,17 +473,16 @@ No permissions granted (`permissions: {}` -- default-deny).
 | Runs on | `${{ matrix.os }}` |
 | Matrix | `os`: macos-latest, ubuntu-latest |
 
-#### Steps
+<details>
+<summary>Steps (4)</summary>
 
 1. **actions/checkout@v6.0.2**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
    - With:
      - `persist-credentials`: `false`
 
 2. **Extract version of Go to use**
 
 3. **actions/setup-go@v6.4.0**
-   - Uses: `actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c` (v6.4.0)
    - With:
      - `go-version`: `${{ env.GOVERSION }}`
      - `check-latest`: `true`
@@ -486,23 +490,20 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 4. **Run cross platform e2e tests**
 
+</details>
+
 ### `e2e-test-pkcs11`
 
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-latest` |
-
-#### Steps
+<details>
+<summary>Steps (4)</summary>
 
 1. **actions/checkout@v6.0.2**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
    - With:
      - `persist-credentials`: `false`
 
 2. **Extract version of Go to use**
 
 3. **actions/setup-go@v6.4.0**
-   - Uses: `actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c` (v6.4.0)
    - With:
      - `go-version`: `${{ env.GOVERSION }}`
      - `check-latest`: `true`
@@ -510,11 +511,9 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 4. **Run pkcs11 end-to-end tests**
 
-### `e2e-kms`
+</details>
 
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-latest` |
+### `e2e-kms`
 
 **Environment (`env`):**
 
@@ -525,27 +524,26 @@ No permissions granted (`permissions: {}` -- default-deny).
 | `COSIGN_YES` | `true` |
 | `SCAFFOLDING_RELEASE_VERSION` | `v0.7.24` |
 
-#### Steps
+<details>
+<summary>Steps (8)</summary>
 
 1. **Checkout**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
 
 2. **setup vault**
-   - Uses: `cpanato/vault-installer@fe568170412f5d81202ec528148f05176efbecc1` (v1.4.0)
+   - Uses: `cpanato/vault-installer@v1.4.0`
 
 3. **Extract version of Go to use**
 
 4. **actions/setup-go@v6.4.0**
-   - Uses: `actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c` (v6.4.0)
    - With:
      - `go-version`: `${{ env.GOVERSION }}`
      - `check-latest`: `true`
      - `cache`: `false`
 
 5. **imjasonh/setup-crane@v0.5**
-   - Uses: `imjasonh/setup-crane@6da1ae018866400525525ce74ff892880c099987` (v0.5)
 
 6. **Install cluster + sigstore**
    - Uses: `sigstore/scaffolding/actions/setup@main`
@@ -556,11 +554,9 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 8. **Acceptance Tests**
 
-### `e2e-registry`
+</details>
 
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-latest` |
+### `e2e-registry`
 
 **Environment (`env`):**
 
@@ -568,24 +564,23 @@ No permissions granted (`permissions: {}` -- default-deny).
 |----------|-------|
 | `SCAFFOLDING_RELEASE_VERSION` | `v0.7.24` |
 
-#### Steps
+<details>
+<summary>Steps (12)</summary>
 
 1. **actions/checkout@v6.0.2**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
    - With:
      - `persist-credentials`: `false`
 
 2. **Extract version of Go to use**
 
 3. **actions/setup-go@v6.4.0**
-   - Uses: `actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c` (v6.4.0)
    - With:
      - `go-version`: `${{ env.GOVERSION }}`
      - `check-latest`: `true`
      - `cache`: `false`
 
 4. **Setup mirror**
-   - Uses: `chainguard-dev/actions/setup-mirror@c69a264ec2a5934c3186c618f368fc1c86f16cff` (v1.6.19)
+   - Uses: `chainguard-dev/actions/setup-mirror@v1.6.19`
    - With:
      - `mirror`: `mirror.gcr.io`
 
@@ -627,8 +622,10 @@ No permissions granted (`permissions: {}` -- default-deny).
      - `TUF_ROOT_JSON`: `${{ github.workspace }}/root.json`
 
 12. **Collect diagnostics**
-   - Uses: `chainguard-dev/actions/kind-diag@c69a264ec2a5934c3186c618f368fc1c86f16cff` (v1.6.19)
+   - Uses: `chainguard-dev/actions/kind-diag@v1.6.19`
    - Condition: `${{ failure() }}`
+
+</details>
 
 [Back to top](#contents)
 
@@ -671,23 +668,24 @@ No permissions granted (`permissions: {}` -- default-deny).
 |----------|-------|
 | `COSIGN_YES` | `true` |
 
-#### Steps
+<details>
+<summary>Steps (4)</summary>
 
 1. **actions/checkout@v6.0.2**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
    - With:
      - `persist-credentials`: `false`
 
 2. **Extract version of Go to use**
 
 3. **actions/setup-go@v6.4.0**
-   - Uses: `actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c` (v6.4.0)
    - With:
      - `go-version`: `${{ env.GOVERSION }}`
      - `check-latest`: `true`
      - `cache`: `false`
 
 4. **build cosign and check sign-blob and verify-blob**
+
+</details>
 
 [Back to top](#contents)
 
@@ -738,28 +736,28 @@ No permissions granted (`permissions: {}` -- default-deny).
 | `GITHUB_RUN_ATTEMPT` | `${{ github.run_attempt }}` |
 | `KO_PREFIX` | `ghcr.io/${{ github.repository }}` |
 
-#### Steps
+<details>
+<summary>Steps (6)</summary>
 
 1. **actions/checkout@v6.0.2**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
    - With:
      - `persist-credentials`: `false`
 
 2. **Extract version of Go to use**
 
 3. **actions/setup-go@v6.4.0**
-   - Uses: `actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c` (v6.4.0)
    - With:
      - `go-version`: `${{ env.GOVERSION }}`
      - `check-latest`: `true`
      - `cache`: `false`
 
 4. **ko-build/setup-ko@v0.9**
-   - Uses: `ko-build/setup-ko@d006021bd0c28d1ce33a07e7943d48b079944c8d` (v0.9)
 
 5. **build cosign from the HEAD**
 
 6. **Build and sign a container image**
+
+</details>
 
 [Back to top](#contents)
 
@@ -770,6 +768,7 @@ No permissions granted (`permissions: {}` -- default-deny).
 | Property | Value |
 |----------|-------|
 | File | `golangci-lint.yml` |
+| Default runs-on | `ubuntu-latest` |
 
 **Jobs:** [lint](#lint-golangci), [lint-test-e2e](#lint-test-e2e-golangci-test-e2e)
 
@@ -786,66 +785,60 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 ### lint (`golangci`)
 
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-latest` |
-
 **Permissions:**
 
 - `contents`: `read`
 
-#### Steps
+<details>
+<summary>Steps (4)</summary>
 
 1. **actions/checkout@v6.0.2**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
    - With:
      - `persist-credentials`: `false`
 
 2. **Extract version of Go to use**
 
 3. **actions/setup-go@v6.4.0**
-   - Uses: `actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c` (v6.4.0)
    - With:
      - `go-version`: `${{ env.GOVERSION }}`
      - `check-latest`: `true`
      - `cache`: `false`
 
 4. **golangci-lint**
-   - Uses: `golangci/golangci-lint-action@1e7e51e771db61008b38414a730f564565cf7c20` (v9.2.0)
+   - Uses: `golangci/golangci-lint-action@v9.2.0`
    - With:
      - `version`: `v2.12`
 
-### lint-test-e2e (`golangci-test-e2e`)
+</details>
 
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-latest` |
+### lint-test-e2e (`golangci-test-e2e`)
 
 **Permissions:**
 
 - `contents`: `read`
 
-#### Steps
+<details>
+<summary>Steps (4)</summary>
 
 1. **actions/checkout@v6.0.2**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
    - With:
      - `persist-credentials`: `false`
 
 2. **Extract version of Go to use**
 
 3. **actions/setup-go@v6.4.0**
-   - Uses: `actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c` (v6.4.0)
    - With:
      - `go-version`: `${{ env.GOVERSION }}`
      - `check-latest`: `true`
      - `cache`: `false`
 
 4. **golangci-lint**
-   - Uses: `golangci/golangci-lint-action@1e7e51e771db61008b38414a730f564565cf7c20` (v9.2.0)
+   - Uses: `golangci/golangci-lint-action@v9.2.0`
    - With:
      - `version`: `v2.9`
      - `args`: `--build-tags e2e ./test`
+
+</details>
 
 [Back to top](#contents)
 
@@ -892,27 +885,25 @@ No permissions granted (`permissions: {}` -- default-deny).
 | `KOCACHE` | `~/ko` |
 | `COSIGN_YES` | `true` |
 
-#### Steps
+<details>
+<summary>Steps (24)</summary>
 
 1. **actions/checkout@v6.0.2**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
    - With:
      - `persist-credentials`: `false`
 
 2. **Extract version of Go to use**
 
 3. **actions/setup-go@v6.4.0**
-   - Uses: `actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c` (v6.4.0)
    - With:
      - `go-version`: `${{ env.GOVERSION }}`
      - `check-latest`: `true`
      - `cache`: `false`
 
 4. **ko-build/setup-ko@v0.9**
-   - Uses: `ko-build/setup-ko@d006021bd0c28d1ce33a07e7943d48b079944c8d` (v0.9)
 
 5. **Install yq**
-   - Uses: `mikefarah/yq@751d8ad57b84f1794661bc70c0afb92a22ad7b3c` (v4.53.2)
+   - Uses: `mikefarah/yq@v4.53.2`
 
 6. **build cosign**
 
@@ -952,7 +943,7 @@ No permissions granted (`permissions: {}` -- default-deny).
 20. **Verify a blob**
 
 21. **Collect diagnostics**
-   - Uses: `chainguard-dev/actions/kind-diag@c69a264ec2a5934c3186c618f368fc1c86f16cff` (v1.6.19)
+   - Uses: `chainguard-dev/actions/kind-diag@v1.6.19`
    - Condition: `${{ failure() }}`
 
 22. **Create vuln attestation for it**
@@ -960,6 +951,8 @@ No permissions granted (`permissions: {}` -- default-deny).
 23. **Verify vuln attestation with cosign, works**
 
 24. **Verify vuln attestation with cosign, fails**
+
+</details>
 
 [Back to top](#contents)
 
@@ -1008,15 +1001,16 @@ No permissions granted (`permissions: {}` -- default-deny).
 - `contents`: `read`
 - `id-token`: `write` (OIDC)
 
-#### Steps
+<details>
+<summary>Steps (4)</summary>
 
 1. **Checkout code**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
 
 2. **Run analysis**
-   - Uses: `ossf/scorecard-action@4eaacf0543bb3f2c246792bd56e8cdeffafb205a` (v2.4.3)
+   - Uses: `ossf/scorecard-action@v2.4.3`
    - With:
      - `results_file`: `results.sarif`
      - `results_format`: `sarif`
@@ -1024,16 +1018,18 @@ No permissions granted (`permissions: {}` -- default-deny).
      - `publish_results`: `true`
 
 3. **Upload artifact**
-   - Uses: `actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a` (v7.0.1)
+   - Uses: `actions/upload-artifact@v7.0.1`
    - With:
      - `name`: `SARIF file`
      - `path`: `results.sarif`
      - `retention-days`: `5`
 
 4. **Upload to code-scanning**
-   - Uses: `github/codeql-action/upload-sarif@65c74964a9ed8c44ed9f19d4bbc5757a6a8e9ab9` (v2.16.1)
+   - Uses: `github/codeql-action/upload-sarif@v2.16.1`
    - With:
      - `sarif_file`: `results.sarif`
+
+</details>
 
 [Back to top](#contents)
 
@@ -1044,6 +1040,7 @@ No permissions granted (`permissions: {}` -- default-deny).
 | Property | Value |
 |----------|-------|
 | File | `tests.yaml` |
+| Default runs-on | `ubuntu-latest` |
 
 **Jobs:** [Run unit tests](#run-unit-tests-unit-tests), [Run e2e tests](#run-e2e-tests-e2e-tests), [Run PowerShell E2E tests](#run-powershell-e2e-tests-e2e-windows-powershell-tests), [license boilerplate check](#license-boilerplate-check-license-check)
 
@@ -1072,15 +1069,14 @@ No permissions granted (`permissions: {}` -- default-deny).
 |----------|-------|
 | `OS` | `${{ matrix.os }}` |
 
-#### Steps
+<details>
+<summary>Steps (7)</summary>
 
 1. **actions/checkout@v6.0.2**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
    - With:
      - `persist-credentials`: `false`
 
 2. **actions/cache@v5.0.5**
-   - Uses: `actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae` (v5.0.5)
    - With:
      - `path`: `~/go/pkg/mod ~/.cache/go-build ~/Library/Caches/go-build %LocalAppData%\go-build`
      - `key`: `${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}`
@@ -1089,7 +1085,6 @@ No permissions granted (`permissions: {}` -- default-deny).
 3. **Extract version of Go to use**
 
 4. **actions/setup-go@v6.4.0**
-   - Uses: `actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c` (v6.4.0)
    - With:
      - `go-version`: `${{ env.GOVERSION }}`
      - `check-latest`: `true`
@@ -1098,27 +1093,25 @@ No permissions granted (`permissions: {}` -- default-deny).
 5. **Run Go tests**
 
 6. **Upload Coverage Report**
-   - Uses: `codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2` (v6.0.0)
+   - Uses: `codecov/codecov-action@v6.0.0`
    - With:
      - `env_vars`: `OS`
 
 7. **Run Go tests w/ \`-race\`**
    - Condition: `${{ runner.os == 'Linux' }}`
 
-### Run e2e tests (`e2e-tests`)
+</details>
 
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-latest` |
+### Run e2e tests (`e2e-tests`)
 
 **Permissions:**
 
 - `contents`: `read`
 
-#### Steps
+<details>
+<summary>Steps (10)</summary>
 
 1. **actions/checkout@v6.0.2**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
    - With:
      - `persist-credentials`: `false`
 
@@ -1127,7 +1120,6 @@ No permissions granted (`permissions: {}` -- default-deny).
 3. **check disk space**
 
 4. **actions/cache@v5.0.5**
-   - Uses: `actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae` (v5.0.5)
    - With:
      - `path`: `~/go/pkg/mod ~/.cache/go-build ~/Library/Caches/go-build %LocalAppData%\go-build`
      - `key`: `${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}`
@@ -1136,22 +1128,22 @@ No permissions granted (`permissions: {}` -- default-deny).
 5. **Extract version of Go to use**
 
 6. **actions/setup-go@v6.4.0**
-   - Uses: `actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c` (v6.4.0)
    - With:
      - `go-version`: `${{ env.GOVERSION }}`
      - `check-latest`: `true`
      - `cache`: `false`
 
 7. **ko-build/setup-ko@v0.9**
-   - Uses: `ko-build/setup-ko@d006021bd0c28d1ce33a07e7943d48b079944c8d` (v0.9)
 
 8. **setup kind cluster**
 
 9. **Run end-to-end tests**
 
 10. **Collect diagnostics**
-   - Uses: `chainguard-dev/actions/kind-diag@c69a264ec2a5934c3186c618f368fc1c86f16cff` (v1.6.19)
+   - Uses: `chainguard-dev/actions/kind-diag@v1.6.19`
    - Condition: `${{ failure() }}`
+
+</details>
 
 ### Run PowerShell E2E tests (`e2e-windows-powershell-tests`)
 
@@ -1163,24 +1155,22 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 - `contents`: `read`
 
-#### Steps
+<details>
+<summary>Steps (5)</summary>
 
 1. **actions/checkout@v6.0.2**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
    - With:
      - `persist-credentials`: `false`
 
 2. **Extract version of Go to use**
 
 3. **actions/setup-go@v6.4.0**
-   - Uses: `actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c` (v6.4.0)
    - With:
      - `go-version`: `${{ env.GOVERSION }}`
      - `check-latest`: `true`
      - `cache`: `false`
 
 4. **actions/cache@v5.0.5**
-   - Uses: `actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae` (v5.0.5)
    - With:
      - `path`: `~/go/pkg/mod %LocalAppData%\go-build`
      - `key`: `${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}`
@@ -1188,27 +1178,24 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 5. **Run e2e\_test.ps1**
 
-### license boilerplate check (`license-check`)
+</details>
 
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-latest` |
+### license boilerplate check (`license-check`)
 
 **Permissions:**
 
 - `contents`: `read`
 
-#### Steps
+<details>
+<summary>Steps (5)</summary>
 
 1. **actions/checkout@v6.0.2**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
    - With:
      - `persist-credentials`: `false`
 
 2. **Extract version of Go to use**
 
 3. **actions/setup-go@v6.4.0**
-   - Uses: `actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c` (v6.4.0)
    - With:
      - `go-version`: `${{ env.GOVERSION }}`
      - `check-latest`: `true`
@@ -1217,6 +1204,8 @@ No permissions granted (`permissions: {}` -- default-deny).
 4. **Install addlicense**
 
 5. **Check license headers**
+
+</details>
 
 [Back to top](#contents)
 
@@ -1227,6 +1216,7 @@ No permissions granted (`permissions: {}` -- default-deny).
 | Property | Value |
 |----------|-------|
 | File | `validate-release.yml` |
+| Default runs-on | `ubuntu-latest` |
 
 **Jobs:** [`check-signature`](#check-signature), [`validate-release-job`](#validate-release-job)
 
@@ -1243,35 +1233,33 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 ### `check-signature`
 
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-latest` |
-
 **Permissions:**
 
 - `contents`: `read`
 
-#### Steps
+<details>
+<summary>Steps (1)</summary>
 
 1. **Check Signature**
    - Env:
      - `TUF_ROOT`: `/tmp`
 
+</details>
+
 ### `validate-release-job`
 
 | Property | Value |
 |----------|-------|
-| Runs on | `ubuntu-latest` |
 | Depends on | `check-signature` |
 
 **Permissions:**
 
 - `contents`: `read`
 
-#### Steps
+<details>
+<summary>Steps (6)</summary>
 
 1. **actions/checkout@v6.0.2**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
    - With:
      - `persist-credentials`: `false`
 
@@ -1287,6 +1275,8 @@ No permissions granted (`permissions: {}` -- default-deny).
      - `RUNTIME_IMAGE`: `gcr.io/distroless/static-debian13:nonroot`
 
 6. **check binaries**
+
+</details>
 
 [Back to top](#contents)
 
@@ -1319,25 +1309,26 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 - `contents`: `read`
 
-#### Steps
+<details>
+<summary>Steps (5)</summary>
 
 1. **deps**
 
 2. **actions/checkout@v6.0.2**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
    - With:
      - `persist-credentials`: `false`
 
 3. **Extract version of Go to use**
 
 4. **actions/setup-go@v6.4.0**
-   - Uses: `actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c` (v6.4.0)
    - With:
      - `go-version`: `${{ env.GOVERSION }}`
      - `check-latest`: `true`
      - `cache`: `false`
 
 5. **./cmd/help/verify.sh**
+
+</details>
 
 [Back to top](#contents)
 
@@ -1370,20 +1361,21 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 - `contents`: `read`
 
-#### Steps
+<details>
+<summary>Steps (3)</summary>
 
 1. **Check out code**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
 
 2. **chainguard-dev/actions/trailing-space@v1.6.19**
-   - Uses: `chainguard-dev/actions/trailing-space@c69a264ec2a5934c3186c618f368fc1c86f16cff` (v1.6.19)
    - Condition: `${{ always() }}`
 
 3. **chainguard-dev/actions/eof-newline@v1.6.19**
-   - Uses: `chainguard-dev/actions/eof-newline@c69a264ec2a5934c3186c618f368fc1c86f16cff` (v1.6.19)
    - Condition: `${{ always() }}`
+
+</details>
 
 [Back to top](#contents)
 

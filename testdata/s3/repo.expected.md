@@ -78,13 +78,16 @@ Permissions declared across the chain: `contents: read`, `id-token: write (OIDC)
 | Runs on | `ubuntu-latest` |
 | Depends on | `build` |
 
-#### Steps
+<details>
+<summary>Steps (1)</summary>
 
 1. **Deploy to staging** `[continue-on-error]`
    - Uses: `./.github/actions/deploy`
    - With:
      - `environment`: `staging` - Target environment name (required)
      - `token`: `${{ secrets.DEPLOY_TOKEN }}` - Deployment token
+
+</details>
 
 [Back to top](#contents)
 
@@ -97,8 +100,6 @@ Permissions declared across the chain: `contents: read`, `id-token: write (OIDC)
 | File | `reusable.yml` |
 
 ## Workflow call API
-
-This workflow is reusable via `workflow_call`.
 
 **Inputs:**
 
@@ -127,9 +128,12 @@ reusable.yml
 |----------|-------|
 | Runs on | `ubuntu-latest` |
 
-#### Steps
+<details>
+<summary>Steps (1)</summary>
 
 1. **Build**
+
+</details>
 
 [Back to top](#contents)
 

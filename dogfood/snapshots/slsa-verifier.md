@@ -61,27 +61,30 @@ All scopes: `read-all`.
 - `contents`: `read`
 - `security-events`: `write`
 
-#### Steps
+<details>
+<summary>Steps (5)</summary>
 
 1. **Checkout repository**
-   - Uses: `actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683` (v4.2.2)
+   - Uses: `actions/checkout@v4.2.2`
 
 2. **setup-go**
-   - Uses: `actions/setup-go@f111f3307d8850f501ac008e886eec1fd1932a34` (v5.3.0)
+   - Uses: `actions/setup-go@v5.3.0`
    - With:
      - `go-version-file`: `go.mod`
      - `cache`: `false`
 
 3. **Initialize CodeQL**
-   - Uses: `github/codeql-action/init@b6a472f63d85b9c78a3ac5e89422239fc15e9b3c` (v3.28.1)
+   - Uses: `github/codeql-action/init@v3.28.1`
    - With:
      - `languages`: `${{ matrix.language }}`
 
 4. **Autobuild**
-   - Uses: `github/codeql-action/autobuild@b6a472f63d85b9c78a3ac5e89422239fc15e9b3c` (v3.28.1)
+   - Uses: `github/codeql-action/autobuild@v3.28.1`
 
 5. **Perform CodeQL Analysis**
-   - Uses: `github/codeql-action/analyze@b6a472f63d85b9c78a3ac5e89422239fc15e9b3c` (v3.28.1)
+   - Uses: `github/codeql-action/analyze@v3.28.1`
+
+</details>
 
 [Back to top](#contents)
 
@@ -105,13 +108,16 @@ All scopes: `read-all`.
 |----------|-------|
 | Runs on | `ubuntu-latest` |
 
-#### Steps
+<details>
+<summary>Steps (2)</summary>
 
 1. **Checkout Repository**
-   - Uses: `actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683` (v4.2.2)
+   - Uses: `actions/checkout@v4.2.2`
 
 2. **Dependency Review**
-   - Uses: `actions/dependency-review-action@3b139cfc5fae8b618d3eae3675e383bb1769c019` (v4.5.0)
+   - Uses: `actions/dependency-review-action@v4.5.0`
+
+</details>
 
 [Back to top](#contents)
 
@@ -149,10 +155,10 @@ All scopes: `read-all`.
 |----------|-------|
 | Runs on | `ubuntu-latest` |
 
-#### Steps
+<details>
+<summary>Steps (5)</summary>
 
 1. **actions/download-artifact@v4.1.8**
-   - Uses: `actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16` (v4.1.8)
    - With:
      - `name`: `event_name`
 
@@ -160,7 +166,6 @@ All scopes: `read-all`.
    - ID: `name`
 
 3. **actions/checkout@v4.2.2**
-   - Uses: `actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683` (v4.2.2)
    - Condition: `steps.name.outputs.continue == 'true'`
    - With:
      - `ref`: `main`
@@ -172,6 +177,8 @@ All scopes: `read-all`.
 5. **./.github/workflows/scripts/e2e-report-success.sh**
    - Condition: `steps.name.outputs.continue == 'true' && github.event.workflow_run.conclusion == 'success'`
 
+</details>
+
 [Back to top](#contents)
 
 # verifier action
@@ -181,6 +188,7 @@ All scopes: `read-all`.
 | Property | Value |
 |----------|-------|
 | File | `e2e.schedule.installer.yml` |
+| Default runs-on | `ubuntu-latest` |
 
 **Jobs:** [`list-verifiers`](#list-verifiers), [`verifier-run`](#verifier-run), [`if-succeed`](#if-succeed), [`if-failed`](#if-failed-1)
 
@@ -223,20 +231,17 @@ e2e.schedule.installer.yml [schedule, workflow_dispatch]
 
 ### `list-verifiers`
 
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-latest` |
-
-#### Steps
+<details>
+<summary>Steps (5)</summary>
 
 1. **Checkout**
-   - Uses: `actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683` (v4.2.2)
+   - Uses: `actions/checkout@v4.2.2`
    - With:
      - `repository`: `slsa-framework/example-package`
      - `ref`: `main`
 
 2. **Checkout**
-   - Uses: `actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683` (v4.2.2)
+   - Uses: `actions/checkout@v4.2.2`
    - With:
      - `path`: `__THIS_REPO__`
 
@@ -256,22 +261,24 @@ e2e.schedule.installer.yml [schedule, workflow_dispatch]
      - `PRE_RELEASE_VERSION`: `${{ steps.generate-prerelease.outputs.version }}`
      - `LIST_VERSION`: `${{ steps.generate-list.outputs.version }}`
 
+</details>
+
 ### `verifier-run`
 
 | Property | Value |
 |----------|-------|
-| Runs on | `ubuntu-latest` |
 | Matrix | `version`: ${{ fromJson(needs.list-verifiers.outputs.version) }} |
 | Depends on | `list-verifiers` |
 
-#### Steps
+<details>
+<summary>Steps (15)</summary>
 
 1. **Debug**
    - Env:
      - `VERSION`: `${{ matrix.version }}`
 
 2. **Checkout this repository**
-   - Uses: `actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683` (v4.2.2)
+   - Uses: `actions/checkout@v4.2.2`
    - Condition: `${{ inputs.version != '' || ! contains(matrix.version, '-rc' ) }}`
    - With:
      - `ref`: `${{ matrix.version }}`
@@ -343,11 +350,12 @@ e2e.schedule.installer.yml [schedule, workflow_dispatch]
    - Env:
      - `SUCCESS`: `${{ steps.empty-tag.outcome == 'failure' }}`
 
+</details>
+
 ### `if-succeed`
 
 | Property | Value |
 |----------|-------|
-| Runs on | `ubuntu-latest` |
 | Depends on | `verifier-run`, `list-verifiers` |
 | Condition | `inputs.version == '' && needs.verifier-run.result != 'failure' && needs.list-verifiers.result != 'failure'` |
 
@@ -356,21 +364,22 @@ e2e.schedule.installer.yml [schedule, workflow_dispatch]
 - `contents`: `read`
 - `issues`: `write`
 
-#### Steps
+<details>
+<summary>Steps (2)</summary>
 
 1. **actions/checkout@v4.2.2**
-   - Uses: `actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683` (v4.2.2)
    - With:
      - `repository`: `slsa-framework/example-package`
      - `ref`: `main`
 
 2. **./.github/workflows/scripts/e2e-report-success.sh**
 
+</details>
+
 ### `if-failed`
 
 | Property | Value |
 |----------|-------|
-| Runs on | `ubuntu-latest` |
 | Depends on | `verifier-run`, `list-verifiers` |
 | Condition | `always() && inputs.version == '' && (needs.verifier-run.result == 'failure' \|\| needs.list-verifiers.result == 'failure')` |
 
@@ -379,15 +388,17 @@ e2e.schedule.installer.yml [schedule, workflow_dispatch]
 - `contents`: `read`
 - `issues`: `write`
 
-#### Steps
+<details>
+<summary>Steps (2)</summary>
 
 1. **actions/checkout@v4.2.2**
-   - Uses: `actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683` (v4.2.2)
    - With:
      - `repository`: `slsa-framework/example-package`
      - `ref`: `main`
 
 2. **./.github/workflows/scripts/e2e-report-failure.sh**
+
+</details>
 
 [Back to top](#contents)
 
@@ -424,13 +435,15 @@ All scopes: `read-all`.
 |----------|-------|
 | Runs on | `ubuntu-latest` |
 
-#### Steps
+<details>
+<summary>Steps (1)</summary>
 
 1. **thehanimo/pr-title-checker@v1.4.3**
-   - Uses: `thehanimo/pr-title-checker@7fbfe05602bdd86f926d3fb3bccb6f3aed43bc70` (v1.4.3)
    - With:
      - `GITHUB_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
      - `configuration_path`: `.github/pr-title-checker-config.json`
+
+</details>
 
 [Back to top](#contents)
 
@@ -459,13 +472,13 @@ All scopes: `read-all`.
 |----------|-------|
 | Runs on | `ubuntu-latest` |
 
-#### Steps
+<details>
+<summary>Steps (5)</summary>
 
 1. **actions/checkout@v4.2.2**
-   - Uses: `actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683` (v4.2.2)
 
 2. **Set Node.js 20**
-   - Uses: `actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af` (v4.1.0)
+   - Uses: `actions/setup-node@v4.1.0`
    - With:
      - `node-version`: `20`
 
@@ -475,11 +488,12 @@ All scopes: `read-all`.
    - ID: `diff`
 
 5. **actions/upload-artifact@v4.6.0**
-   - Uses: `actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08` (v4.6.0)
    - Condition: `${{ failure() && steps.diff.conclusion == 'failure' }}`
    - With:
      - `name`: `dist`
      - `path`: `dist/`
+
+</details>
 
 [Back to top](#contents)
 
@@ -512,13 +526,14 @@ All scopes: `read-all`.
 |----------|-------|
 | Runs on | `ubuntu-latest` |
 
-#### Steps
+<details>
+<summary>Steps (5)</summary>
 
 1. **Checkout**
-   - Uses: `actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683` (v4.2.2)
+   - Uses: `actions/checkout@v4.2.2`
 
 2. **setup-go**
-   - Uses: `actions/setup-go@f111f3307d8850f501ac008e886eec1fd1932a34` (v5.3.0)
+   - Uses: `actions/setup-go@v5.3.0`
    - With:
      - `go-version-file`: `go.mod`
      - `cache`: `false`
@@ -528,12 +543,13 @@ All scopes: `read-all`.
      - `EVENT_NAME`: `${{ github.event_name }}`
 
 4. **actions/upload-artifact@v4.6.0**
-   - Uses: `actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08` (v4.6.0)
    - With:
      - `name`: `event_name`
      - `path`: `./event_name.txt`
 
 5. **Run tests for verifier**
+
+</details>
 
 [Back to top](#contents)
 
@@ -570,15 +586,16 @@ All scopes: `read-all`.
 |----------|-------|
 | Runs on | `ubuntu-latest` |
 
-#### Steps
+<details>
+<summary>Steps (5)</summary>
 
 1. **Checkout**
-   - Uses: `actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683` (v4.2.2)
+   - Uses: `actions/checkout@v4.2.2`
    - With:
      - `path`: `__THIS_REPO__`
 
 2. **setup-go**
-   - Uses: `actions/setup-go@f111f3307d8850f501ac008e886eec1fd1932a34` (v5.3.0)
+   - Uses: `actions/setup-go@v5.3.0`
    - With:
      - `go-version-file`: `__THIS_REPO__/go.mod`
      - `cache`: `false`
@@ -586,7 +603,7 @@ All scopes: `read-all`.
 3. **Build verifier at HEAD**
 
 4. **Checkout e2e verification script**
-   - Uses: `actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683` (v4.2.2)
+   - Uses: `actions/checkout@v4.2.2`
    - With:
      - `path`: `__EXAMPLE_PACKAGE__`
      - `repository`: `slsa-framework/example-package`
@@ -595,6 +612,8 @@ All scopes: `read-all`.
    - Env:
      - `SLSA_VERIFIER_TESTING`: `true`
      - `GH_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
+
+</details>
 
 [Back to top](#contents)
 
@@ -631,18 +650,20 @@ All scopes: `read-all`.
 |----------|-------|
 | Runs on | `ubuntu-latest` |
 
-#### Steps
+<details>
+<summary>Steps (2)</summary>
 
 1. **Checkout**
-   - Uses: `actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683` (v4.2.2)
+   - Uses: `actions/checkout@v4.2.2`
 
 2. **actionsdesk/lfs-warning@v3.3**
-   - Uses: `actionsdesk/lfs-warning@4b98a8a5e6c429c23c34eee02d71553bca216425` (v3.3)
    - With:
      - `token`: `${{ secrets.GITHUB_TOKEN }}`
      - `filesizelimit`: `10MB`
      - `labelName`: `lfs-warning`
      - `exclusionPatterns`: `cli/slsa-verifier/testdata/**`
+
+</details>
 
 [Back to top](#contents)
 
@@ -653,6 +674,7 @@ All scopes: `read-all`.
 | Property | Value |
 |----------|-------|
 | File | `pre-submit.lint.yml` |
+| Default runs-on | `ubuntu-latest` |
 
 **Jobs:** [`golangci-lint`](#golangci-lint), [`yamllint`](#yamllint), [`eslint`](#eslint), [`renovate-config-validator`](#renovate-config-validator)
 
@@ -664,74 +686,63 @@ All scopes: `read-all`.
 
 ### `golangci-lint`
 
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-latest` |
-
-#### Steps
+<details>
+<summary>Steps (3)</summary>
 
 1. **actions/checkout@v4.2.2**
-   - Uses: `actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683` (v4.2.2)
 
 2. **actions/setup-go@v5.3.0**
-   - Uses: `actions/setup-go@f111f3307d8850f501ac008e886eec1fd1932a34` (v5.3.0)
    - With:
      - `go-version-file`: `go.mod`
      - `cache`: `false`
 
 3. **golangci-lint**
-   - Uses: `golangci/golangci-lint-action@ec5d18412c0aeab7936cb16880d708ba2a64e1ae` (v6.2.0)
+   - Uses: `golangci/golangci-lint-action@v6.2.0`
    - With:
      - `version`: `v1.61.0`
 
+</details>
+
 ### `yamllint`
 
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-latest` |
-
-#### Steps
+<details>
+<summary>Steps (2)</summary>
 
 1. **actions/checkout@v4.2.2**
-   - Uses: `actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683` (v4.2.2)
 
 2. **set -euo pipefail**
 
+</details>
+
 ### `eslint`
 
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-latest` |
-
-#### Steps
+<details>
+<summary>Steps (3)</summary>
 
 1. **actions/checkout@v4.2.2**
-   - Uses: `actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683` (v4.2.2)
 
 2. **actions/setup-node@v4.1.0**
-   - Uses: `actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af` (v4.1.0)
    - With:
      - `node-version`: `20`
 
 3. **make eslint**
 
+</details>
+
 ### `renovate-config-validator`
 
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-latest` |
-
-#### Steps
+<details>
+<summary>Steps (3)</summary>
 
 1. **actions/checkout@v4.2.2**
-   - Uses: `actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683` (v4.2.2)
 
 2. **actions/setup-node@v4.1.0**
-   - Uses: `actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af` (v4.1.0)
    - With:
      - `node-version`: `20`
 
 3. **make renovate-config-validator**
+
+</details>
 
 [Back to top](#contents)
 
@@ -767,12 +778,14 @@ All scopes: `read-all`.
 |----------|-------|
 | `BODY` | `${{ github.event.pull_request.body }}` |
 
-#### Steps
+<details>
+<summary>Steps (2)</summary>
 
 1. **actions/checkout@v4.2.2**
-   - Uses: `actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683` (v4.2.2)
 
 2. **Check documentation is up-to-date**
+
+</details>
 
 [Back to top](#contents)
 
@@ -783,6 +796,7 @@ All scopes: `read-all`.
 | Property | Value |
 |----------|-------|
 | File | `release.yml` |
+| Default runs-on | `ubuntu-latest` |
 
 **Jobs:** [`args`](#args), [builder-${{matrix.os}}-${{matrix.arch}}](#builder-matrixos-matrixarch-builder), [`verification`](#verification), [`if-succeed`](#if-succeed-1), [`if-failed`](#if-failed-2)
 
@@ -834,20 +848,19 @@ External workflows referenced: `slsa-framework/slsa-github-generator/.github/wor
 
 ### `args`
 
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-latest` |
-
-#### Steps
+<details>
+<summary>Steps (2)</summary>
 
 1. **checkout**
    - ID: `checkout`
-   - Uses: `actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683` (v4.2.2)
+   - Uses: `actions/checkout@v4.2.2`
    - With:
      - `fetch-depth`: `0`
 
 2. **ldflags**
    - ID: `ldflags`
+
+</details>
 
 ### builder-${{matrix.os}}-${{matrix.arch}} (`builder`)
 
@@ -874,7 +887,6 @@ External workflows referenced: `slsa-framework/slsa-github-generator/.github/wor
 
 | Property | Value |
 |----------|-------|
-| Runs on | `ubuntu-latest` |
 | Depends on | `builder` |
 | Condition | `github.event_name != 'schedule' && github.event_name != 'workflow_dispatch'` |
 
@@ -882,10 +894,11 @@ External workflows referenced: `slsa-framework/slsa-github-generator/.github/wor
 
 All scopes: `read-all`.
 
-#### Steps
+<details>
+<summary>Steps (3)</summary>
 
 1. **Install the verifier**
-   - Uses: `slsa-framework/slsa-verifier/actions/installer@3714a2a4684014deb874a0e737dffa0ee02dd647` (v2.6.0)
+   - Uses: `slsa-framework/slsa-verifier/actions/installer@v2.6.0`
 
 2. **Download assets**
    - Env:
@@ -898,11 +911,12 @@ All scopes: `read-all`.
      - `ARTIFACT`: `${{ needs.builder.outputs.go-binary-name }}`
      - `ATT_FILE_NAME`: `${{ needs.builder.outputs.go-binary-name }}.intoto.jsonl`
 
+</details>
+
 ### `if-succeed`
 
 | Property | Value |
 |----------|-------|
-| Runs on | `ubuntu-latest` |
 | Depends on | `args`, `builder` |
 | Condition | `github.event_name == 'schedule' && needs.args.result != 'failure' && needs.builder.result != 'failure'` |
 
@@ -911,21 +925,22 @@ All scopes: `read-all`.
 - `contents`: `read`
 - `issues`: `write`
 
-#### Steps
+<details>
+<summary>Steps (2)</summary>
 
 1. **actions/checkout@v4.2.2**
-   - Uses: `actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683` (v4.2.2)
    - With:
      - `repository`: `slsa-framework/example-package`
      - `ref`: `main`
 
 2. **./.github/workflows/scripts/e2e-report-success.sh**
 
+</details>
+
 ### `if-failed`
 
 | Property | Value |
 |----------|-------|
-| Runs on | `ubuntu-latest` |
 | Depends on | `args`, `builder` |
 | Condition | `always() && github.event_name == 'schedule' && (needs.args.result == 'failure' \|\| needs.builder.result == 'failure')` |
 
@@ -934,15 +949,17 @@ All scopes: `read-all`.
 - `contents`: `read`
 - `issues`: `write`
 
-#### Steps
+<details>
+<summary>Steps (2)</summary>
 
 1. **actions/checkout@v4.2.2**
-   - Uses: `actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683` (v4.2.2)
    - With:
      - `repository`: `slsa-framework/example-package`
      - `ref`: `main`
 
 2. **./.github/workflows/scripts/e2e-report-failure.sh**
+
+</details>
 
 [Back to top](#contents)
 
@@ -982,31 +999,34 @@ All scopes: `read-all`.
 - `contents`: `read`
 - `actions`: `read`
 
-#### Steps
+<details>
+<summary>Steps (4)</summary>
 
 1. **Checkout code**
-   - Uses: `actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683` (v4.2.2)
+   - Uses: `actions/checkout@v4.2.2`
    - With:
      - `persist-credentials`: `false`
 
 2. **Run analysis**
-   - Uses: `ossf/scorecard-action@62b2cac7ed8198b15735ed49ab1e5cf35480ba46` (v2.4.0)
+   - Uses: `ossf/scorecard-action@v2.4.0`
    - With:
      - `results_file`: `results.sarif`
      - `results_format`: `sarif`
      - `publish_results`: `true`
 
 3. **Upload artifact**
-   - Uses: `actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08` (v4.6.0)
+   - Uses: `actions/upload-artifact@v4.6.0`
    - With:
      - `name`: `SARIF file`
      - `path`: `results.sarif`
      - `retention-days`: `5`
 
 4. **Upload to code-scanning**
-   - Uses: `github/codeql-action/upload-sarif@b6a472f63d85b9c78a3ac5e89422239fc15e9b3c` (v3.28.1)
+   - Uses: `github/codeql-action/upload-sarif@v3.28.1`
    - With:
      - `sarif_file`: `results.sarif`
+
+</details>
 
 [Back to top](#contents)
 
@@ -1019,6 +1039,7 @@ A workflow to run against renovate-bot's PRs, such as `make package` after it up
 | Property | Value |
 |----------|-------|
 | File | `update-actions-dist-post-commit.yml` |
+| Default runs-on | `ubuntu-latest` |
 
 **Jobs:** [`diff`](#diff), [`push`](#push)
 
@@ -1038,18 +1059,15 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 ### `diff`
 
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-latest` |
-
 **Permissions:**
 
 - `pull-requests`: `read`
 
-#### Steps
+<details>
+<summary>Steps (5)</summary>
 
 1. **checkout**
-   - Uses: `actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683` (v4.2.2)
+   - Uses: `actions/checkout@v4.2.2`
    - With:
      - `repository`: `${{ github.repository }}`
      - `persist-credentials`: `false`
@@ -1065,16 +1083,17 @@ No permissions granted (`permissions: {}` -- default-deny).
    - ID: `diff`
 
 5. **upload**
-   - Uses: `actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08` (v4.6.0)
+   - Uses: `actions/upload-artifact@v4.6.0`
    - With:
      - `name`: `changes.patch`
      - `path`: `changes.patch`
+
+</details>
 
 ### `push`
 
 | Property | Value |
 |----------|-------|
-| Runs on | `ubuntu-latest` |
 | Depends on | `diff` |
 | Condition | `needs.diff.outputs.patch_not_empty == 'true'` |
 
@@ -1083,10 +1102,11 @@ No permissions granted (`permissions: {}` -- default-deny).
 - `pull-requests`: `read`
 - `contents`: `write`
 
-#### Steps
+<details>
+<summary>Steps (5)</summary>
 
 1. **checkout**
-   - Uses: `actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683` (v4.2.2)
+   - Uses: `actions/checkout@v4.2.2`
 
 2. **checkout-pr**
    - Env:
@@ -1094,7 +1114,7 @@ No permissions granted (`permissions: {}` -- default-deny).
      - `PR_NUMBER`: `${{ inputs.pr_number }}`
 
 3. **download-patch**
-   - Uses: `actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16` (v4.1.8)
+   - Uses: `actions/download-artifact@v4.1.8`
    - With:
      - `name`: `changes.patch`
 
@@ -1102,6 +1122,8 @@ No permissions granted (`permissions: {}` -- default-deny).
    - ID: `apply`
 
 5. **push**
+
+</details>
 
 [Back to top](#contents)
 

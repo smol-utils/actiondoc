@@ -46,6 +46,13 @@ func RenderMarkdownGraph(w *model.Workflow, g *callgraph.Graph, id string) strin
 	b.WriteString("| Property | Value |\n")
 	b.WriteString("|----------|-------|\n")
 	fmt.Fprintf(&b, "| File | `%s` |\n", w.File)
+	// The runs-on value shared by most jobs is stated once here; per-job tables then show
+	// runs-on only where a job departs from it, instead of repeating the same (often long)
+	// runner string on every job.
+	defaultRunsOn := commonRunsOn(w.Jobs)
+	if defaultRunsOn != "" {
+		fmt.Fprintf(&b, "| Default runs-on | `%s` |\n", escapeCell(defaultRunsOn))
+	}
 	if w.Tags.Since != "" {
 		fmt.Fprintf(&b, "| Since | %s |\n", w.Tags.Since)
 	}
@@ -89,7 +96,7 @@ func RenderMarkdownGraph(w *model.Workflow, g *callgraph.Graph, id string) strin
 	if len(w.Jobs) > 0 {
 		b.WriteString("## Jobs\n\n")
 		for i := range w.Jobs {
-			renderJob(&b, &w.Jobs[i], g, id)
+			renderJob(&b, &w.Jobs[i], g, id, defaultRunsOn)
 		}
 	}
 
@@ -151,7 +158,36 @@ func jobMiniLabel(job *model.Job) string {
 	return "`" + job.ID + "`"
 }
 
-func renderJob(b *strings.Builder, job *model.Job, g *callgraph.Graph, fromID string) {
+// commonRunsOn returns the runs-on value shared by the most jobs (the workflow's de facto
+// default), or "" when no value is shared by at least two jobs. Caller jobs (uses:) carry
+// no runs-on and are skipped. Ties are broken by first appearance so the choice is
+// deterministic for a given job order.
+func commonRunsOn(jobs []model.Job) string {
+	counts := map[string]int{}
+	var order []string
+	for i := range jobs {
+		r := jobs[i].RunsOn
+		if r == "" {
+			continue
+		}
+		if counts[r] == 0 {
+			order = append(order, r)
+		}
+		counts[r]++
+	}
+	best, bestN := "", 0
+	for _, r := range order {
+		if counts[r] > bestN {
+			best, bestN = r, counts[r]
+		}
+	}
+	if bestN < 2 {
+		return ""
+	}
+	return best
+}
+
+func renderJob(b *strings.Builder, job *model.Job, g *callgraph.Graph, fromID, defaultRunsOn string) {
 	// Job heading. The name renders as written -- placeholders like ${{ matrix.X }} are
 	// never expanded into joined value lists (GitHub creates one job per matrix
 	// combination; "Java 17, 21" is a job name that never exists). The Matrix property
@@ -180,12 +216,15 @@ func renderJob(b *strings.Builder, job *model.Job, g *callgraph.Graph, fromID st
 		return
 	}
 
-	// Properties table
-	hasProps := job.RunsOn != "" || len(job.Needs) > 0 || job.If != "" || len(job.Matrix) > 0
+	// Properties table. The runs-on row is shown only when this job departs from the
+	// workflow's stated default (or when there is no default to hoist), so the common runner
+	// string is not repeated on every job.
+	showRunsOn := job.RunsOn != "" && job.RunsOn != defaultRunsOn
+	hasProps := showRunsOn || len(job.Needs) > 0 || job.If != "" || len(job.Matrix) > 0
 	if hasProps {
 		b.WriteString("| Property | Value |\n")
 		b.WriteString("|----------|-------|\n")
-		if job.RunsOn != "" {
+		if showRunsOn {
 			fmt.Fprintf(b, "| Runs on | `%s` |\n", escapeCell(job.RunsOn))
 		}
 		if len(job.Matrix) > 0 {
@@ -205,12 +244,16 @@ func renderJob(b *strings.Builder, job *model.Job, g *callgraph.Graph, fromID st
 	renderJobSurface(b, job)
 	renderJobTags(b, job)
 
-	// Steps
+	// Steps. The per-step detail is the bulkiest, least-scanned part of a job, so it is
+	// folded behind a <details> whose summary states the step count. GitHub renders the
+	// Markdown inside only when a blank line follows the summary, so that blank line is
+	// load-bearing.
 	if len(job.Steps) > 0 {
-		b.WriteString("#### Steps\n\n")
+		fmt.Fprintf(b, "<details>\n<summary>Steps (%d)</summary>\n\n", len(job.Steps))
 		for i, step := range job.Steps {
 			renderStep(b, &step, i+1)
 		}
+		b.WriteString("</details>\n\n")
 	}
 }
 

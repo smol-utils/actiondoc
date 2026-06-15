@@ -84,12 +84,15 @@ Tag the release commit.
 | Runs on | `ubuntu-latest` |
 | Depends on | `publish` |
 
-#### Steps
+<details>
+<summary>Steps (2)</summary>
 
 1. **Checkout**
    - Uses: `actions/checkout@v4`
 
 2. **Tag**
+
+</details>
 
 # Build and Publish
 
@@ -104,8 +107,6 @@ Builds the artifacts for every architecture and publishes them.
 **Jobs:** [`build-matrix`](#build-matrix), [`publish`](#publish)
 
 ## Workflow call API
-
-This workflow is reusable via `workflow_call`.
 
 **Inputs:**
 
@@ -144,7 +145,8 @@ Upload the built artifacts to the package registry.
 | Runs on | `ubuntu-latest` |
 | Depends on | `build-matrix` |
 
-#### Steps
+<details>
+<summary>Steps (3)</summary>
 
 1. **Checkout**
    - Uses: `actions/checkout@v4`
@@ -153,6 +155,8 @@ Upload the built artifacts to the package registry.
    - Uses: `./actions/setup`
 
 3. **Publish**
+
+</details>
 
 # Build
 
@@ -165,8 +169,6 @@ Compiles the project for a set of architectures.
 | File | `build.yml` |
 
 ## Workflow call API
-
-This workflow is reusable via `workflow_call`.
 
 **Inputs:**
 
@@ -198,7 +200,8 @@ Compile and sign the artifacts.
 |----------|-------|
 | Runs on | `ubuntu-latest` |
 
-#### Steps
+<details>
+<summary>Steps (3)</summary>
 
 1. **Checkout**
    - Uses: `actions/checkout@v4`
@@ -206,6 +209,8 @@ Compile and sign the artifacts.
 2. **Compile**
 
 3. **Sign**
+
+</details>
 
 # Setup Toolchain
 
