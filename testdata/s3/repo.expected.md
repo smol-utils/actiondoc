@@ -61,8 +61,8 @@ Permissions declared across the chain: `contents: read`, `id-token: write (OIDC)
 
 | Name | Used by |
 |------|---------|
-| `CI_BUILD_TOKEN` | job `build` secrets `BUILD_TOKEN` |
-| `DEPLOY_TOKEN` | job `deploy` step `Deploy to staging` with `token` |
+| `CI_BUILD_TOKEN` | `build`: (`BUILD_TOKEN`) |
+| `DEPLOY_TOKEN` | `deploy`: Deploy to staging (`token`) |
 
 ## Jobs
 

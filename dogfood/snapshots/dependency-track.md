@@ -80,8 +80,8 @@ Permissions declared across the chain: `security-events: write`
 
 | Name | Used by |
 |------|---------|
-| `HUB_USERNAME` | job `call-build` secrets `registry-0-usr` |
-| `HUB_ACCESSS_TOKEN` | job `call-build` secrets `registry-0-psw` |
+| `HUB_USERNAME` | `call-build`: (`registry-0-usr`) |
+| `HUB_ACCESSS_TOKEN` | `call-build`: (`registry-0-psw`) |
 
 ## Jobs
 
@@ -276,9 +276,9 @@ Permissions declared across the chain: `contents: write`, `security-events: writ
 
 | Name | Used by |
 |------|---------|
-| `HUB_USERNAME` | job `call-build` secrets `registry-0-usr` |
-| `HUB_ACCESSS_TOKEN` | job `call-build` secrets `registry-0-psw` |
-| `GITHUB_TOKEN` | job `update-github-release` step `Update Release` env `GITHUB_TOKEN`; job `update-github-release` step `Publish Release` env `GITHUB_TOKEN` |
+| `HUB_USERNAME` | `call-build`: (`registry-0-usr`) |
+| `HUB_ACCESSS_TOKEN` | `call-build`: (`registry-0-psw`) |
+| `GITHUB_TOKEN` | `update-github-release`: Update Release (`GITHUB_TOKEN`), Publish Release (`GITHUB_TOKEN`) |
 
 ## Jobs
 
@@ -390,7 +390,7 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 | Name | Used by |
 |------|---------|
-| `BOT_RELEASE_GITHUB_TOKEN` | job `create-release` step `Checkout Repository` with `token`; job `create-release` step `Create GitHub Release` env `GITHUB_TOKEN` |
+| `BOT_RELEASE_GITHUB_TOKEN` | `create-release`: Checkout Repository (`token`), Create GitHub Release (`GITHUB_TOKEN`) |
 
 ## Jobs
 
@@ -511,8 +511,8 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | job `publish` step `Download PR test coverage report` with `github-token` |
-| `CODACY_PROJECT_TOKEN` | job `publish` step `Report Coverage to Codacy` env `CODACY_PROJECT_TOKEN` |
+| `GITHUB_TOKEN` | `publish`: Download PR test coverage report (`github-token`) |
+| `CODACY_PROJECT_TOKEN` | `publish`: Report Coverage to Codacy (`CODACY_PROJECT_TOKEN`) |
 
 ## Jobs
 
@@ -571,7 +571,7 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 | Name | Used by |
 |------|---------|
-| `CODACY_PROJECT_TOKEN` | job `test` step `Publish test coverage` with `project-token` |
+| `CODACY_PROJECT_TOKEN` | `test`: Publish test coverage (`project-token`) |
 
 ## Jobs
 
@@ -665,8 +665,8 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 | Name | Used by |
 |------|---------|
-| `registry-0-usr` | job `build-container` step `Login to Docker.io` with `username` |
-| `registry-0-psw` | job `build-container` step `Login to Docker.io` with `password` |
+| `registry-0-usr` | `build-container`: Login to Docker.io (`username`) |
+| `registry-0-psw` | `build-container`: Login to Docker.io (`password`) |
 
 ## Jobs
 

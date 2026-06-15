@@ -147,21 +147,21 @@ External workflows referenced: `anchore/workflows/.github/workflows/check-gate.y
 
 | Name | Used by |
 |------|---------|
-| `ANCHOREOSSWRITE_DH_USERNAME` | job `release` step `Login to Docker Hub` with `username` |
-| `ANCHOREOSSWRITE_DH_PAT` | job `release` step `Login to Docker Hub` with `password` |
-| `GITHUB_TOKEN` | job `release` step `Login to GitHub Container Registry` with `password`; job `release` step `Build & publish release artifacts` env `GITHUB_TOKEN` |
-| `DEPLOY_KEY` | job `release` step `Build & publish release artifacts` env `DEPLOY_KEY` |
-| `ANCHORE_APPLE_DEVELOPER_ID_CERT_CHAIN` | job `release` step `Build & publish release artifacts` env `QUILL_SIGN_P12` |
-| `ANCHORE_APPLE_DEVELOPER_ID_CERT_PASS` | job `release` step `Build & publish release artifacts` env `QUILL_SIGN_PASSWORD` |
-| `APPLE_NOTARY_ISSUER` | job `release` step `Build & publish release artifacts` env `QUILL_NOTARY_ISSUER` |
-| `APPLE_NOTARY_KEY_ID` | job `release` step `Build & publish release artifacts` env `QUILL_NOTARY_KEY_ID` |
-| `APPLE_NOTARY_KEY` | job `release` step `Build & publish release artifacts` env `QUILL_NOTARY_KEY` |
-| `ANCHOREOPS_GITHUB_OSS_WRITE_TOKEN` | job `release` step `Build & publish release artifacts` env `GITHUB_BREW_TOKEN` |
-| `OSS_R2_INSTALL_ACCESS_KEY_ID` | job `release-install-script` secrets `R2_INSTALL_ACCESS_KEY_ID` |
-| `OSS_R2_INSTALL_SECRET_ACCESS_KEY` | job `release-install-script` secrets `R2_INSTALL_SECRET_ACCESS_KEY` |
-| `TOOLBOX_CLOUDFLARE_R2_ENDPOINT` | job `release-install-script` secrets `R2_ENDPOINT` |
-| `TOOLBOX_AWS_ACCESS_KEY_ID` | job `release-install-script` secrets `S3_INSTALL_AWS_ACCESS_KEY_ID` |
-| `TOOLBOX_AWS_SECRET_ACCESS_KEY` | job `release-install-script` secrets `S3_INSTALL_AWS_SECRET_ACCESS_KEY` |
+| `ANCHOREOSSWRITE_DH_USERNAME` | `release`: Login to Docker Hub (`username`) |
+| `ANCHOREOSSWRITE_DH_PAT` | `release`: Login to Docker Hub (`password`) |
+| `GITHUB_TOKEN` | `release`: Login to GitHub Container Registry (`password`), Build & publish release artifacts (`GITHUB_TOKEN`) |
+| `DEPLOY_KEY` | `release`: Build & publish release artifacts (`DEPLOY_KEY`) |
+| `ANCHORE_APPLE_DEVELOPER_ID_CERT_CHAIN` | `release`: Build & publish release artifacts (`QUILL_SIGN_P12`) |
+| `ANCHORE_APPLE_DEVELOPER_ID_CERT_PASS` | `release`: Build & publish release artifacts (`QUILL_SIGN_PASSWORD`) |
+| `APPLE_NOTARY_ISSUER` | `release`: Build & publish release artifacts (`QUILL_NOTARY_ISSUER`) |
+| `APPLE_NOTARY_KEY_ID` | `release`: Build & publish release artifacts (`QUILL_NOTARY_KEY_ID`) |
+| `APPLE_NOTARY_KEY` | `release`: Build & publish release artifacts (`QUILL_NOTARY_KEY`) |
+| `ANCHOREOPS_GITHUB_OSS_WRITE_TOKEN` | `release`: Build & publish release artifacts (`GITHUB_BREW_TOKEN`) |
+| `OSS_R2_INSTALL_ACCESS_KEY_ID` | `release-install-script`: (`R2_INSTALL_ACCESS_KEY_ID`) |
+| `OSS_R2_INSTALL_SECRET_ACCESS_KEY` | `release-install-script`: (`R2_INSTALL_SECRET_ACCESS_KEY`) |
+| `TOOLBOX_CLOUDFLARE_R2_ENDPOINT` | `release-install-script`: (`R2_ENDPOINT`) |
+| `TOOLBOX_AWS_ACCESS_KEY_ID` | `release-install-script`: (`S3_INSTALL_AWS_ACCESS_KEY_ID`) |
+| `TOOLBOX_AWS_SECRET_ACCESS_KEY` | `release-install-script`: (`S3_INSTALL_AWS_SECRET_ACCESS_KEY`) |
 
 ## Jobs
 

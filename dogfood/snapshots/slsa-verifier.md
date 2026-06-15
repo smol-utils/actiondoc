@@ -213,7 +213,7 @@ All scopes: `read-all`.
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | job `large-file-check` step `actionsdesk/lfs-warning@v3.3` with `token` |
+| `GITHUB_TOKEN` | `large-file-check`: actionsdesk/lfs-warning@v3.3 (`token`) |
 
 ## Jobs
 
@@ -263,7 +263,7 @@ All scopes: `read-all`.
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | job `validate` step `thehanimo/pr-title-checker@v1.4.3` with `GITHUB_TOKEN` |
+| `GITHUB_TOKEN` | `validate`: thehanimo/pr-title-checker@v1.4.3 (`GITHUB_TOKEN`) |
 
 ## Jobs
 
@@ -364,7 +364,7 @@ All scopes: `read-all`.
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | job `pre-submit` step `Run verification script with testdata and slsa-verifier HEAD` env `GH_TOKEN` |
+| `GITHUB_TOKEN` | `pre-submit`: Run verification script with testdata and slsa-verifier HEAD (`GH_TOKEN`) |
 
 ## Jobs
 
@@ -1024,7 +1024,7 @@ External workflows referenced: `slsa-framework/slsa-github-generator/.github/wor
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | workflow env `GH_TOKEN`; job `verification` step `Download assets` env `GH_TOKEN` |
+| `GITHUB_TOKEN` | workflow env: (`GH_TOKEN`)<br>`verification`: Download assets (`GH_TOKEN`) |
 
 ## Jobs
 

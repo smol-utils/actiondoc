@@ -39,7 +39,7 @@ External workflows referenced: `external-org/notifications/.github/workflows/not
 
 | Name | Used by |
 |------|---------|
-| `RELEASE_GPG_KEY` | job `publish` secrets `GPG_KEY` |
+| `RELEASE_GPG_KEY` | `publish`: (`GPG_KEY`) |
 
 ## Jobs
 

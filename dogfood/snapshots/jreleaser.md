@@ -194,7 +194,7 @@ Permissions declared across the chain: `actions: read`, `contents: read`, `secur
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | job `precheck` secrets `github-token`; job `codeql` step `Cancel previous run` with `access_token` |
+| `GITHUB_TOKEN` | `precheck`: (`github-token`)<br>`codeql`: Cancel previous run (`access_token`) |
 
 ## Jobs
 
@@ -299,19 +299,19 @@ External workflows referenced: `slsa-framework/slsa-github-generator/.github/wor
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | job `precheck` secrets `github-token` |
-| `GPG_PASSPHRASE` | job `jlink` secrets `gpg-passphrase`; job `release` step `Release` env `JRELEASER_GPG_PASSPHRASE` |
-| `JRELEASER_OCI_COMPARTMENTID` | job `jlink` secrets `oci-compartment-id` |
-| `GIT_ACCESS_TOKEN` | job `native-image` secrets `gh-access-token`; job `release` step `Release` env `JRELEASER_GITHUB_TOKEN`; job `update-wiki` secrets `gh-access-token` |
-| `GPG_PUBLIC_KEY` | job `release` step `Release` env `JRELEASER_GPG_PUBLIC_KEY` |
-| `GPG_SECRET_KEY` | job `release` step `Release` env `JRELEASER_GPG_SECRET_KEY` |
-| `JRELEASER_DOCKER_PASSWORD` | job `release` step `Release` env `JRELEASER_DOCKER_DEFAULT_PASSWORD` |
+| `GITHUB_TOKEN` | `precheck`: (`github-token`) |
+| `GPG_PASSPHRASE` | `jlink`: (`gpg-passphrase`)<br>`release`: Release (`JRELEASER_GPG_PASSPHRASE`) |
+| `JRELEASER_OCI_COMPARTMENTID` | `jlink`: (`oci-compartment-id`) |
+| `GIT_ACCESS_TOKEN` | `native-image`: (`gh-access-token`)<br>`release`: Release (`JRELEASER_GITHUB_TOKEN`)<br>`update-wiki`: (`gh-access-token`) |
+| `GPG_PUBLIC_KEY` | `release`: Release (`JRELEASER_GPG_PUBLIC_KEY`) |
+| `GPG_SECRET_KEY` | `release`: Release (`JRELEASER_GPG_SECRET_KEY`) |
+| `JRELEASER_DOCKER_PASSWORD` | `release`: Release (`JRELEASER_DOCKER_DEFAULT_PASSWORD`) |
 
 **Variables:**
 
 | Name | Used by |
 |------|---------|
-| `GH_BOT_EMAIL` | job `update-wiki` with `commit-email` |
+| `GH_BOT_EMAIL` | `update-wiki`: (`commit-email`) |
 
 ## Jobs
 
@@ -562,7 +562,7 @@ Permissions declared across the chain: `actions: read`, `contents: read`, `id-to
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | job `precheck` secrets `github-token` |
+| `GITHUB_TOKEN` | `precheck`: (`github-token`) |
 
 ## Jobs
 
@@ -663,34 +663,34 @@ External workflows referenced: `slsa-framework/slsa-github-generator/.github/wor
 
 | Name | Used by |
 |------|---------|
-| `COMMIT_EMAIL` | job `precheck` step `Commit version` (run); job `release` step `Bump version` (run) |
-| `GPG_PASSPHRASE` | job `jlink` secrets `gpg-passphrase`; job `release` step `Release` env `JRELEASER_GPG_PASSPHRASE` |
-| `JRELEASER_OCI_COMPARTMENTID` | job `jlink` secrets `oci-compartment-id` |
-| `GIT_ACCESS_TOKEN` | job `native-image` secrets `gh-access-token`; job `release` step `Release` env `JRELEASER_GITHUB_TOKEN`; job `update-wiki` secrets `gh-access-token`; job `update-website` step `Checkout` with `token` |
-| `GRADLE_PUBLISH_KEY` | job `release` step `Deploy` env `GRADLE_PUBLISH_KEY` |
-| `GRADLE_PUBLISH_SECRET` | job `release` step `Deploy` env `GRADLE_PUBLISH_SECRET` |
-| `GPG_PUBLIC_KEY` | job `release` step `Release` env `JRELEASER_GPG_PUBLIC_KEY` |
-| `GPG_SECRET_KEY` | job `release` step `Release` env `JRELEASER_GPG_SECRET_KEY` |
-| `JRELEASER_DOCKER_PASSWORD` | job `release` step `Release` env `JRELEASER_DOCKER_DEFAULT_PASSWORD` |
-| `SDKMAN_CONSUMER_KEY` | job `release` step `Release` env `JRELEASER_SDKMAN_CONSUMER_KEY` |
-| `SDKMAN_CONSUMER_TOKEN` | job `release` step `Release` env `JRELEASER_SDKMAN_CONSUMER_TOKEN` |
-| `MASTODON_ACCESS_TOKEN` | job `release` step `Release` env `JRELEASER_MASTODON_ACCESS_TOKEN` |
-| `SONATYPE_USERNAME` | job `release` step `Release` env `JRELEASER_MAVENCENTRAL_USERNAME` |
-| `SONATYPE_PASSWORD` | job `release` step `Release` env `JRELEASER_MAVENCENTRAL_PASSWORD` |
-| `NOTICEABLE_APIKEY` | job `release` step `Release` env `JRELEASER_HTTP_NOTICEABLE_PASSWORD` |
-| `OPENCOLLECTIVE_TOKEN` | job `release` step `Release` env `JRELEASER_OPENCOLLECTIVE_TOKEN` |
-| `BLUESKY_HOST` | job `release` step `Release` env `JRELEASER_BLUESKY_HOST` |
-| `BLUESKY_HANDLE` | job `release` step `Release` env `JRELEASER_BLUESKY_HANDLE` |
-| `BLUESKY_PASSWORD` | job `release` step `Release` env `JRELEASER_BLUESKY_PASSWORD` |
+| `COMMIT_EMAIL` | `precheck`: Commit version (`run`)<br>`release`: Bump version (`run`) |
+| `GPG_PASSPHRASE` | `jlink`: (`gpg-passphrase`)<br>`release`: Release (`JRELEASER_GPG_PASSPHRASE`) |
+| `JRELEASER_OCI_COMPARTMENTID` | `jlink`: (`oci-compartment-id`) |
+| `GIT_ACCESS_TOKEN` | `native-image`: (`gh-access-token`)<br>`release`: Release (`JRELEASER_GITHUB_TOKEN`)<br>`update-wiki`: (`gh-access-token`)<br>`update-website`: Checkout (`token`) |
+| `GRADLE_PUBLISH_KEY` | `release`: Deploy (`GRADLE_PUBLISH_KEY`) |
+| `GRADLE_PUBLISH_SECRET` | `release`: Deploy (`GRADLE_PUBLISH_SECRET`) |
+| `GPG_PUBLIC_KEY` | `release`: Release (`JRELEASER_GPG_PUBLIC_KEY`) |
+| `GPG_SECRET_KEY` | `release`: Release (`JRELEASER_GPG_SECRET_KEY`) |
+| `JRELEASER_DOCKER_PASSWORD` | `release`: Release (`JRELEASER_DOCKER_DEFAULT_PASSWORD`) |
+| `SDKMAN_CONSUMER_KEY` | `release`: Release (`JRELEASER_SDKMAN_CONSUMER_KEY`) |
+| `SDKMAN_CONSUMER_TOKEN` | `release`: Release (`JRELEASER_SDKMAN_CONSUMER_TOKEN`) |
+| `MASTODON_ACCESS_TOKEN` | `release`: Release (`JRELEASER_MASTODON_ACCESS_TOKEN`) |
+| `SONATYPE_USERNAME` | `release`: Release (`JRELEASER_MAVENCENTRAL_USERNAME`) |
+| `SONATYPE_PASSWORD` | `release`: Release (`JRELEASER_MAVENCENTRAL_PASSWORD`) |
+| `NOTICEABLE_APIKEY` | `release`: Release (`JRELEASER_HTTP_NOTICEABLE_PASSWORD`) |
+| `OPENCOLLECTIVE_TOKEN` | `release`: Release (`JRELEASER_OPENCOLLECTIVE_TOKEN`) |
+| `BLUESKY_HOST` | `release`: Release (`JRELEASER_BLUESKY_HOST`) |
+| `BLUESKY_HANDLE` | `release`: Release (`JRELEASER_BLUESKY_HANDLE`) |
+| `BLUESKY_PASSWORD` | `release`: Release (`JRELEASER_BLUESKY_PASSWORD`) |
 
 **Variables:**
 
 | Name | Used by |
 |------|---------|
-| `JAVA_VERSION` | job `release` step `Setup Java` with `java-version`; job `update-website` step `Setup Java` with `java-version` |
-| `JAVA_DISTRO` | job `release` step `Setup Java` with `distribution`; job `update-website` step `Setup Java` with `distribution` |
-| `GH_BOT_EMAIL` | job `update-wiki` with `commit-email` |
-| `COMMIT_EMAIL` | job `update-website` step `Commit` env `COMMIT_EMAIL` |
+| `JAVA_VERSION` | `release`: Setup Java (`java-version`)<br>`update-website`: Setup Java (`java-version`) |
+| `JAVA_DISTRO` | `release`: Setup Java (`distribution`)<br>`update-website`: Setup Java (`distribution`) |
+| `GH_BOT_EMAIL` | `update-wiki`: (`commit-email`) |
+| `COMMIT_EMAIL` | `update-website`: Commit (`COMMIT_EMAIL`) |
 
 ## Jobs
 
@@ -983,24 +983,24 @@ Permissions declared across the chain: `contents: read`
 
 | Name | Used by |
 |------|---------|
-| `GPG_PASSPHRASE` | workflow env `GPG_PASSPHRASE`; job `build-cli` step `JReleaser` env `JRELEASER_GPG_PASSPHRASE`; job `build-tool` step `JReleaser` env `JRELEASER_GPG_PASSPHRASE`; job `build-ant` step `JReleaser` env `JRELEASER_GPG_PASSPHRASE`; job `build-gradle` step `JReleaser` env `JRELEASER_GPG_PASSPHRASE`; job `build-gradle` step `Clean` env `JRELEASER_GPG_PASSPHRASE`; job `build-maven` step `JReleaser` env `JRELEASER_GPG_PASSPHRASE` |
-| `JRELEASER_OCI_COMPARTMENTID` | workflow env `JRELEASER_OCI_COMPARTMENTID` |
-| `GITHUB_TOKEN` | job `precheck` secrets `github-token` |
-| `GIT_ACCESS_TOKEN` | job `build-cli` step `Setup Graal` with `github-token`; job `build-cli` step `Checkout smoketests repository` with `token`; job `build-tool` step `Setup Graal` with `github-token`; job `build-tool` step `Checkout smoketests repository` with `token`; job `build-ant` step `Setup Graal` with `github-token`; job `build-ant` step `Checkout smoketests repository` with `token`; job `build-gradle` step `Setup Graal` with `github-token`; job `build-gradle` step `Checkout smoketests repository` with `token`; job `build-maven` step `Setup Graal` with `github-token`; job `build-maven` step `Checkout smoketests repository` with `token` |
-| `GIT_PAT_TOKEN` | job `build-cli` step `JReleaser` env `JRELEASER_GITHUB_TOKEN`; job `build-tool` step `JReleaser` env `JRELEASER_GITHUB_TOKEN`; job `build-ant` step `JReleaser` env `JRELEASER_GITHUB_TOKEN`; job `build-gradle` step `JReleaser` env `JRELEASER_GITHUB_TOKEN`; job `build-gradle` step `Clean` env `JRELEASER_GITHUB_TOKEN`; job `build-maven` step `JReleaser` env `JRELEASER_GITHUB_TOKEN` |
-| `GPG_PUBLIC_KEY` | job `build-cli` step `JReleaser` env `JRELEASER_GPG_PUBLIC_KEY`; job `build-tool` step `JReleaser` env `JRELEASER_GPG_PUBLIC_KEY`; job `build-ant` step `JReleaser` env `JRELEASER_GPG_PUBLIC_KEY`; job `build-gradle` step `JReleaser` env `JRELEASER_GPG_PUBLIC_KEY`; job `build-gradle` step `Clean` env `JRELEASER_GPG_PUBLIC_KEY`; job `build-maven` step `JReleaser` env `JRELEASER_GPG_PUBLIC_KEY` |
-| `GPG_SECRET_KEY` | job `build-cli` step `JReleaser` env `JRELEASER_GPG_SECRET_KEY`; job `build-tool` step `JReleaser` env `JRELEASER_GPG_SECRET_KEY`; job `build-ant` step `JReleaser` env `JRELEASER_GPG_SECRET_KEY`; job `build-gradle` step `JReleaser` env `JRELEASER_GPG_SECRET_KEY`; job `build-gradle` step `Clean` env `JRELEASER_GPG_SECRET_KEY`; job `build-maven` step `JReleaser` env `JRELEASER_GPG_SECRET_KEY` |
-| `COVERALLS_TOKEN` | job `coveralls` step `Upload coverage to Coveralls` env `COVERALLS_REPO_TOKEN` |
-| `CODECOV_TOKEN` | job `codecov` step `Upload coverage to Codecov` with `token` |
-| `SONARCLOUD_TOKEN` | job `sonar` step `Sonar` (run) |
+| `GPG_PASSPHRASE` | workflow env: (`GPG_PASSPHRASE`)<br>`build-cli`: JReleaser (`JRELEASER_GPG_PASSPHRASE`)<br>`build-tool`: JReleaser (`JRELEASER_GPG_PASSPHRASE`)<br>`build-ant`: JReleaser (`JRELEASER_GPG_PASSPHRASE`)<br>`build-gradle`: JReleaser (`JRELEASER_GPG_PASSPHRASE`), Clean (`JRELEASER_GPG_PASSPHRASE`)<br>`build-maven`: JReleaser (`JRELEASER_GPG_PASSPHRASE`) |
+| `JRELEASER_OCI_COMPARTMENTID` | workflow env: (`JRELEASER_OCI_COMPARTMENTID`) |
+| `GITHUB_TOKEN` | `precheck`: (`github-token`) |
+| `GIT_ACCESS_TOKEN` | `build-cli`: Setup Graal (`github-token`), Checkout smoketests repository (`token`)<br>`build-tool`: Setup Graal (`github-token`), Checkout smoketests repository (`token`)<br>`build-ant`: Setup Graal (`github-token`), Checkout smoketests repository (`token`)<br>`build-gradle`: Setup Graal (`github-token`), Checkout smoketests repository (`token`)<br>`build-maven`: Setup Graal (`github-token`), Checkout smoketests repository (`token`) |
+| `GIT_PAT_TOKEN` | `build-cli`: JReleaser (`JRELEASER_GITHUB_TOKEN`)<br>`build-tool`: JReleaser (`JRELEASER_GITHUB_TOKEN`)<br>`build-ant`: JReleaser (`JRELEASER_GITHUB_TOKEN`)<br>`build-gradle`: JReleaser (`JRELEASER_GITHUB_TOKEN`), Clean (`JRELEASER_GITHUB_TOKEN`)<br>`build-maven`: JReleaser (`JRELEASER_GITHUB_TOKEN`) |
+| `GPG_PUBLIC_KEY` | `build-cli`: JReleaser (`JRELEASER_GPG_PUBLIC_KEY`)<br>`build-tool`: JReleaser (`JRELEASER_GPG_PUBLIC_KEY`)<br>`build-ant`: JReleaser (`JRELEASER_GPG_PUBLIC_KEY`)<br>`build-gradle`: JReleaser (`JRELEASER_GPG_PUBLIC_KEY`), Clean (`JRELEASER_GPG_PUBLIC_KEY`)<br>`build-maven`: JReleaser (`JRELEASER_GPG_PUBLIC_KEY`) |
+| `GPG_SECRET_KEY` | `build-cli`: JReleaser (`JRELEASER_GPG_SECRET_KEY`)<br>`build-tool`: JReleaser (`JRELEASER_GPG_SECRET_KEY`)<br>`build-ant`: JReleaser (`JRELEASER_GPG_SECRET_KEY`)<br>`build-gradle`: JReleaser (`JRELEASER_GPG_SECRET_KEY`), Clean (`JRELEASER_GPG_SECRET_KEY`)<br>`build-maven`: JReleaser (`JRELEASER_GPG_SECRET_KEY`) |
+| `COVERALLS_TOKEN` | `coveralls`: Upload coverage to Coveralls (`COVERALLS_REPO_TOKEN`) |
+| `CODECOV_TOKEN` | `codecov`: Upload coverage to Codecov (`token`) |
+| `SONARCLOUD_TOKEN` | `sonar`: Sonar (`run`) |
 
 **Variables:**
 
 | Name | Used by |
 |------|---------|
-| `GRAAL_JAVA_VERSION` | job `build-cli` step `Setup Graal` with `java-version`; job `build-tool` step `Setup Graal` with `java-version`; job `build-ant` step `Setup Graal` with `java-version`; job `build-gradle` step `Setup Graal` with `java-version`; job `build-maven` step `Setup Graal` with `java-version` |
-| `JAVA_VERSION` | job `build-cli` step `Setup Java` with `java-version`; job `build-tool` step `Setup Java` with `java-version`; job `build-ant` step `Setup Java` with `java-version`; job `build-gradle` step `Setup Java` with `java-version`; job `build-maven` step `Setup Java` with `java-version`; job `unit-tests` step `Setup Java` with `java-version`; job `coveralls` step `Setup Java` with `java-version`; job `codecov` step `Setup Java` with `java-version`; job `sonar` step `Setup Java` with `java-version` |
-| `JAVA_DISTRO` | job `build-cli` step `Setup Java` with `distribution`; job `build-tool` step `Setup Java` with `distribution`; job `build-ant` step `Setup Java` with `distribution`; job `build-gradle` step `Setup Java` with `distribution`; job `build-maven` step `Setup Java` with `distribution`; job `unit-tests` step `Setup Java` with `distribution`; job `coveralls` step `Setup Java` with `distribution`; job `codecov` step `Setup Java` with `distribution`; job `sonar` step `Setup Java` with `distribution` |
+| `GRAAL_JAVA_VERSION` | `build-cli`: Setup Graal (`java-version`)<br>`build-tool`: Setup Graal (`java-version`)<br>`build-ant`: Setup Graal (`java-version`)<br>`build-gradle`: Setup Graal (`java-version`)<br>`build-maven`: Setup Graal (`java-version`) |
+| `JAVA_VERSION` | `build-cli`: Setup Java (`java-version`)<br>`build-tool`: Setup Java (`java-version`)<br>`build-ant`: Setup Java (`java-version`)<br>`build-gradle`: Setup Java (`java-version`)<br>`build-maven`: Setup Java (`java-version`)<br>`unit-tests`: Setup Java (`java-version`)<br>`coveralls`: Setup Java (`java-version`)<br>`codecov`: Setup Java (`java-version`)<br>`sonar`: Setup Java (`java-version`) |
+| `JAVA_DISTRO` | `build-cli`: Setup Java (`distribution`)<br>`build-tool`: Setup Java (`distribution`)<br>`build-ant`: Setup Java (`distribution`)<br>`build-gradle`: Setup Java (`distribution`)<br>`build-maven`: Setup Java (`distribution`)<br>`unit-tests`: Setup Java (`distribution`)<br>`coveralls`: Setup Java (`distribution`)<br>`codecov`: Setup Java (`distribution`)<br>`sonar`: Setup Java (`distribution`) |
 
 ## Jobs
 
@@ -1658,14 +1658,14 @@ Permissions declared across the chain: `contents: read`
 
 | Name | Used by |
 |------|---------|
-| `GIT_ACCESS_TOKEN` | job `earlyaccess` step `Release early-access artifacts` with `token` |
+| `GIT_ACCESS_TOKEN` | `earlyaccess`: Release early-access artifacts (`token`) |
 
 **Variables:**
 
 | Name | Used by |
 |------|---------|
-| `JAVA_VERSION` | job `earlyaccess` step `Setup Java` with `java-version` |
-| `JAVA_DISTRO` | job `earlyaccess` step `Setup Java` with `distribution` |
+| `JAVA_VERSION` | `earlyaccess`: Setup Java (`java-version`) |
+| `JAVA_DISTRO` | `earlyaccess`: Setup Java (`distribution`) |
 
 ## Jobs
 
@@ -1741,13 +1741,13 @@ Permissions declared across the chain: `contents: read`
 
 | Name | Used by |
 |------|---------|
-| `gh-access-token` | job `update-bach-info` step `Checkout` with `token` |
+| `gh-access-token` | `update-bach-info`: Checkout (`token`) |
 
 **Variables:**
 
 | Name | Used by |
 |------|---------|
-| `COMMIT_EMAIL` | job `update-bach-info` step `Commit` env `COMMIT_EMAIL` |
+| `COMMIT_EMAIL` | `update-bach-info`: Commit (`COMMIT_EMAIL`) |
 
 ## Jobs
 
@@ -1821,15 +1821,15 @@ Permissions declared across the chain: `contents: read`
 
 | Name | Used by |
 |------|---------|
-| `gpg-passphrase` | job `jlink` step `Decrypt secrets` env `GPG_PASSPHRASE` |
-| `oci-compartment-id` | job `jlink` step `Build` env `JRELEASER_OCI_COMPARTMENTID` |
+| `gpg-passphrase` | `jlink`: Decrypt secrets (`GPG_PASSPHRASE`) |
+| `oci-compartment-id` | `jlink`: Build (`JRELEASER_OCI_COMPARTMENTID`) |
 
 **Variables:**
 
 | Name | Used by |
 |------|---------|
-| `JAVA_VERSION` | job `jlink` step `Setup Java` with `java-version` |
-| `JAVA_DISTRO` | job `jlink` step `Setup Java` with `distribution` |
+| `JAVA_VERSION` | `jlink`: Setup Java (`java-version`) |
+| `JAVA_DISTRO` | `jlink`: Setup Java (`distribution`) |
 
 ## Jobs
 
@@ -1966,8 +1966,8 @@ Permissions declared across the chain: `contents: read`
 
 | Name | Used by |
 |------|---------|
-| `JAVA_VERSION` | job `jpackage` step `Setup Java` with `java-version` |
-| `JAVA_DISTRO` | job `jpackage` step `Setup Java` with `distribution` |
+| `JAVA_VERSION` | `jpackage`: Setup Java (`java-version`) |
+| `JAVA_DISTRO` | `jpackage`: Setup Java (`distribution`) |
 
 ## Jobs
 
@@ -2089,15 +2089,15 @@ Permissions declared across the chain: `contents: read`
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | job `native-image` step `Setup Graal` with `github-token` |
+| `GITHUB_TOKEN` | `native-image`: Setup Graal (`github-token`) |
 
 **Variables:**
 
 | Name | Used by |
 |------|---------|
-| `GRAAL_JAVA_VERSION` | job `native-image` step `Setup Graal` with `java-version` |
-| `JAVA_VERSION` | job `native-image` step `Setup Java` with `java-version` |
-| `JAVA_DISTRO` | job `native-image` step `Setup Java` with `distribution` |
+| `GRAAL_JAVA_VERSION` | `native-image`: Setup Graal (`java-version`) |
+| `JAVA_VERSION` | `native-image`: Setup Java (`java-version`) |
+| `JAVA_DISTRO` | `native-image`: Setup Java (`distribution`) |
 
 ## Jobs
 
@@ -2214,7 +2214,7 @@ Permissions declared across the chain: `contents: read`
 
 | Name | Used by |
 |------|---------|
-| `github-token` | job `precheck` step `Cancel previous run` with `access_token` |
+| `github-token` | `precheck`: Cancel previous run (`access_token`) |
 
 ## Jobs
 
@@ -2289,7 +2289,7 @@ Permissions declared across the chain: `contents: read`
 
 | Name | Used by |
 |------|---------|
-| `gh-access-token` | job `update-wiki` step `Checkout wiki` with `token`; job `update-wiki` step `Generate wiki page` env `JRELEASER_GITHUB_TOKEN` |
+| `gh-access-token` | `update-wiki`: Checkout wiki (`token`), Generate wiki page (`JRELEASER_GITHUB_TOKEN`) |
 
 ## Jobs
 

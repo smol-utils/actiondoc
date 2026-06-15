@@ -306,3 +306,42 @@ func TestStepTitleSkipsPunctuationLines(t *testing.T) {
 		t.Errorf("stepTitle = %q, want a line with a non-ASCII letter kept", got)
 	}
 }
+
+// TestUsedByCellGroupsByJob covers the "Used by" cell layout: usage sites group one line per
+// job (joined with <br>), in first-seen job order; within a job the sites keep source order.
+// A secret used across two jobs and two steps each must produce exactly two lines, each with
+// its two `<step> (<name>)` entries. Job-level (no step), run/if, and workflow-env variants
+// must render in their reduced forms.
+func TestUsedByCellGroupsByJob(t *testing.T) {
+	// A secret used by 2 jobs x 2 steps -> 2 lines, each with 2 entries in source order.
+	sites := []model.Site{
+		{Job: "build-cli", Step: "Setup Graal", Name: "github-token"},
+		{Job: "build-cli", Step: "Checkout smoketests repository", Name: "token"},
+		{Job: "build-tool", Step: "Setup Graal", Name: "github-token"},
+		{Job: "build-tool", Step: "Checkout smoketests repository", Name: "token"},
+	}
+	want := "`build-cli`: Setup Graal (`github-token`), Checkout smoketests repository (`token`)" +
+		"<br>`build-tool`: Setup Graal (`github-token`), Checkout smoketests repository (`token`)"
+	if got := usedByCell(sites); got != want {
+		t.Errorf("two-job/two-step cell:\n got = %q\nwant = %q", got, want)
+	}
+
+	// A job-level env site (no step) renders as just `(<name>)` under the job.
+	if got := usedByCell([]model.Site{{Job: "release", Name: "API_KEY"}}); got != "`release`: (`API_KEY`)" {
+		t.Errorf("job-level site = %q, want `release`: (`API_KEY`)", got)
+	}
+
+	// run/if sites carry the verb as the parenthesized name.
+	runIf := []model.Site{
+		{Job: "deploy", Step: "Sign", Name: "run"},
+		{Job: "deploy", Step: "Gate", Name: "if"},
+	}
+	if got := usedByCell(runIf); got != "`deploy`: Sign (`run`), Gate (`if`)" {
+		t.Errorf("run/if cell = %q", got)
+	}
+
+	// A workflow-level env site groups under a leading `workflow env` line.
+	if got := usedByCell([]model.Site{{Name: "GLOBAL_TOKEN"}}); got != "workflow env: (`GLOBAL_TOKEN`)" {
+		t.Errorf("workflow-env site = %q, want workflow env: (`GLOBAL_TOKEN`)", got)
+	}
+}

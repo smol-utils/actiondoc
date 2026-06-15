@@ -21,18 +21,18 @@ Exercises step rendering, matrix job names, runs-on normalization, and secret ag
 
 | Name | Used by |
 |------|---------|
-| `CHECKOUT_TOKEN` | job `build` step `Checkout` with `token` |
-| `REGISTRY_PASSWORD` | job `deploy` step `Push image` (run) |
-| `IMAGE_SIGNING_KEY` | job `deploy` step `Push image` env `IMAGE_SIGNING_KEY` |
-| `SLACK_WEBHOOK` | job `deploy` step `Notify` (if); job `deploy` step `Notify` (run) |
+| `CHECKOUT_TOKEN` | `build`: Checkout (`token`) |
+| `REGISTRY_PASSWORD` | `deploy`: Push image (`run`) |
+| `IMAGE_SIGNING_KEY` | `deploy`: Push image (`IMAGE_SIGNING_KEY`) |
+| `SLACK_WEBHOOK` | `deploy`: Notify (`if`), Notify (`run`) |
 
 **Variables:**
 
 | Name | Used by |
 |------|---------|
-| `UPLOAD_BUCKET` | job `build` step `upload` (run) |
-| `REGISTRY_USER` | job `deploy` step `Push image` (run) |
-| `NOTIFY_CHANNEL` | job `deploy` step `Notify` (if) |
+| `UPLOAD_BUCKET` | `build`: upload (`run`) |
+| `REGISTRY_USER` | `deploy`: Push image (`run`) |
+| `NOTIFY_CHANNEL` | `deploy`: Notify (`if`) |
 
 ## Jobs
 

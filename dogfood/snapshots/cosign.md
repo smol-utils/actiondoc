@@ -68,8 +68,8 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | job `build` step `Login to GitHub Container Registry` with `password` |
-| `COSIGN_PASSWORD` | job `build` step `containers-cosign` env `COSIGN_PASSWORD` |
+| `GITHUB_TOKEN` | `build`: Login to GitHub Container Registry (`password`) |
+| `COSIGN_PASSWORD` | `build`: containers-cosign (`COSIGN_PASSWORD`) |
 
 ## Jobs
 
@@ -529,7 +529,7 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | job `conformance` step `Create Issue on Failure` with `github-token` |
+| `GITHUB_TOKEN` | `conformance`: Create Issue on Failure (`github-token`) |
 
 ## Jobs
 
@@ -1114,7 +1114,7 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 | Name | Used by |
 |------|---------|
-| `SCORECARD_TOKEN` | job `analysis` step `Run analysis` with `repo_token` |
+| `SCORECARD_TOKEN` | `analysis`: Run analysis (`repo_token`) |
 
 ## Jobs
 

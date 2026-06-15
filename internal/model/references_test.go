@@ -51,7 +51,7 @@ func TestScanReferences(t *testing.T) {
 
 	refs := ScanReferences(w)
 
-	gotSecrets := map[string][]string{}
+	gotSecrets := map[string][]Site{}
 	var secretOrder []string
 	for _, r := range refs.Secrets {
 		gotSecrets[r.Name] = r.Sites
@@ -67,12 +67,12 @@ func TestScanReferences(t *testing.T) {
 	if sites := gotSecrets["GPG_KEY"]; len(sites) != 2 {
 		t.Errorf("GPG_KEY sites = %v, want 2 sites", sites)
 	}
-	// Forwarded secret site labels the forwarding key.
-	if sites := gotSecrets["SDKMAN_KEY"]; len(sites) != 1 || !strings.Contains(sites[0], "CONSUMER-KEY") {
-		t.Errorf("SDKMAN_KEY sites = %v, want forwarding-key site", sites)
+	// Forwarded secret site is a job-level site (no step) bound to the forwarding key.
+	if sites := gotSecrets["SDKMAN_KEY"]; len(sites) != 1 || sites[0] != (Site{Job: "publish", Name: "CONSUMER-KEY"}) {
+		t.Errorf("SDKMAN_KEY sites = %v, want one publish job site bound to CONSUMER-KEY", sites)
 	}
-	// Step-env-only secret is collected and its site labels the env key.
-	if sites := gotSecrets["COSIGN_PASSWORD"]; len(sites) != 1 || !strings.Contains(sites[0], "env `COSIGN_PASSWORD`") {
+	// Step-env-only secret is collected and its site is bound to the env key under its step.
+	if sites := gotSecrets["COSIGN_PASSWORD"]; len(sites) != 1 || sites[0] != (Site{Job: "build", Step: "Sign image", Name: "COSIGN_PASSWORD"}) {
 		t.Errorf("COSIGN_PASSWORD sites = %v, want a step env site", sites)
 	}
 
@@ -110,20 +110,22 @@ func TestScanReferencesEnv(t *testing.T) {
 	}
 
 	refs := ScanReferences(w)
-	got := map[string][]string{}
+	got := map[string][]Site{}
 	for _, r := range refs.Secrets {
 		got[r.Name] = r.Sites
 	}
 
+	// Workflow-level env site has no job and no step, bound to the env key.
 	if sites, ok := got["NPM_TOKEN"]; !ok {
 		t.Error("workflow-level env reference NPM_TOKEN was not collected")
-	} else if len(sites) != 1 || !strings.Contains(sites[0], "workflow env") {
+	} else if len(sites) != 1 || sites[0] != (Site{Name: "GLOBAL_TOKEN"}) {
 		t.Errorf("NPM_TOKEN sites = %v, want a workflow env site", sites)
 	}
 
+	// Job-level env site has a job but no step, bound to the env key.
 	if sites, ok := got["SERVICE_KEY"]; !ok {
 		t.Error("job-level env reference SERVICE_KEY was not collected")
-	} else if len(sites) != 1 || !strings.Contains(sites[0], "env `API_KEY`") {
+	} else if len(sites) != 1 || sites[0] != (Site{Job: "build", Name: "API_KEY"}) {
 		t.Errorf("SERVICE_KEY sites = %v, want a job env site", sites)
 	}
 }
@@ -218,10 +220,10 @@ func TestStepRefLabelCollapsesPins(t *testing.T) {
 		t.Fatalf("secrets = %+v, want 1", refs.Secrets)
 	}
 	site := refs.Secrets[0].Sites[0]
-	if !strings.Contains(site, "actions/labeler@v6") {
-		t.Errorf("site = %q, want the collapsed actions/labeler@v6 form", site)
+	if site.Step != "actions/labeler@v6" {
+		t.Errorf("site step = %q, want the collapsed actions/labeler@v6 form", site.Step)
 	}
-	if strings.Contains(site, sha) {
-		t.Errorf("site = %q must not contain the raw SHA", site)
+	if strings.Contains(site.Step, sha) {
+		t.Errorf("site step = %q must not contain the raw SHA", site.Step)
 	}
 }
