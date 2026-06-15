@@ -402,7 +402,7 @@ Inputs for the `workflow_dispatch` event.
 |----------|-------|
 | File | `release-milestone.yml` |
 
-**Jobs:** [Build and Stage Release](#build-and-stage-release-build-and-stage-release), [Verify](#verify-verify), [Sync to Maven Central](#sync-to-maven-central-sync-to-maven-central), [Promote Release](#promote-release-promote-release), [Publish Gradle Plugin](#publish-gradle-plugin-publish-gradle-plugin), [Trigger Docs Build](#trigger-docs-build-trigger-docs-build), [Create GitHub Release](#create-github-release-create-github-release)
+**Jobs:** [Build and Stage Release](#build-and-stage-release-build-and-stage-release), [Verify](#verify-verify-1), [Sync to Maven Central](#sync-to-maven-central-sync-to-maven-central), [Promote Release](#promote-release-promote-release), [Publish Gradle Plugin](#publish-gradle-plugin-publish-gradle-plugin), [Trigger Docs Build](#trigger-docs-build-trigger-docs-build-1), [Create GitHub Release](#create-github-release-create-github-release)
 
 ## Event filters
 
@@ -624,7 +624,7 @@ Permissions declared across the chain: `actions: write`, `contents: read`
 |----------|-------|
 | File | `release.yml` |
 
-**Jobs:** [Build and Stage Release](#build-and-stage-release-build-and-stage-release), [Verify](#verify-verify), [Sync to Maven Central](#sync-to-maven-central-sync-to-maven-central), [Promote Release](#promote-release-promote-release), [Publish Gradle Plugin](#publish-gradle-plugin-publish-gradle-plugin), [Publish to SDKMAN!](#publish-to-sdkman-publish-to-sdkman), [Update Homebrew Tap](#update-homebrew-tap-update-homebrew-tap), [Trigger Docs Build](#trigger-docs-build-trigger-docs-build), [Create GitHub Release](#create-github-release-create-github-release)
+**Jobs:** [Build and Stage Release](#build-and-stage-release-build-and-stage-release-1), [Verify](#verify-verify-2), [Sync to Maven Central](#sync-to-maven-central-sync-to-maven-central-1), [Promote Release](#promote-release-promote-release-1), [Publish Gradle Plugin](#publish-gradle-plugin-publish-gradle-plugin-1), [Publish to SDKMAN!](#publish-to-sdkman-publish-to-sdkman), [Update Homebrew Tap](#update-homebrew-tap-update-homebrew-tap), [Trigger Docs Build](#trigger-docs-build-trigger-docs-build-2), [Create GitHub Release](#create-github-release-create-github-release-1)
 
 ## Event filters
 

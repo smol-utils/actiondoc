@@ -167,6 +167,36 @@ func renderMarkdownOutput(sources []callgraph.Source, graph *callgraph.Graph, in
 		}
 	}
 
+	// Job heading anchors are assigned the same way section anchors are: document-wide.
+	// GitHub disambiguates repeated heading slugs across the whole rendered document, so a
+	// job heading text that recurs in a later workflow must carry the running "-N" suffix.
+	// Collect every job heading in document order (source order, then job order within each
+	// workflow) -- using the renderer's own JobHeadingText so the slug input matches the
+	// rendered "### ..." heading exactly -- run one AssignAnchors pass, then store each
+	// workflow's slice on its graph node for renderJobMiniTOC to use.
+	var jobTexts []string
+	type jobSpan struct {
+		path  string
+		start int
+		count int
+	}
+	var spans []jobSpan
+	for _, s := range sources {
+		if s.Workflow == nil {
+			continue
+		}
+		spans = append(spans, jobSpan{path: s.Path, start: len(jobTexts), count: len(s.Workflow.Jobs)})
+		for i := range s.Workflow.Jobs {
+			jobTexts = append(jobTexts, renderer.JobHeadingText(&s.Workflow.Jobs[i]))
+		}
+	}
+	jobSlugs := renderer.AssignAnchors(jobTexts)
+	for _, sp := range spans {
+		if n := graph.Nodes[sp.path]; n != nil {
+			n.JobAnchors = jobSlugs[sp.start : sp.start+sp.count]
+		}
+	}
+
 	// Workflows render with graph context so cross-links and call-graph sections
 	// appear; actions render standalone.
 	var sections []string

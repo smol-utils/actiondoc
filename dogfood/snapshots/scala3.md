@@ -802,7 +802,7 @@ THIS IS A REUSABLE WORKFLOW TO PUBLISH SCALA TO SDKMAN! HOW TO USE: - THE RELEAS
 |----------|-------|
 | File | `publish-sdkman.yml` |
 
-**Jobs:** [`publish`](#publish), [`default`](#default)
+**Jobs:** [`publish`](#publish-1), [`default`](#default)
 
 ## Workflow call API
 
@@ -1123,7 +1123,7 @@ release-maven-artifacts.yml
 |----------|-------|
 | File | `release-nightly.yml` |
 
-**Jobs:** [`stdlib-tests`](#stdlib-tests), [`release-maven-artifacts`](#release-maven-artifacts), [`release-documentation`](#release-documentation)
+**Jobs:** [`stdlib-tests`](#stdlib-tests-1), [`release-maven-artifacts`](#release-maven-artifacts-1), [`release-documentation`](#release-documentation)
 
 ## Schedule
 
@@ -1381,7 +1381,7 @@ Secrets referenced (literal names): `API-KEY`, `CHOCOLATEY_KEY`, `CONSUMER-KEY`,
 |----------|-------|
 | File | `scaladoc.yaml` |
 
-**Jobs:** [`build`](#build), [`validate-docs`](#validate-docs), [`validate-generated-docs`](#validate-generated-docs), [`stdlib-sourcelinks-test`](#stdlib-sourcelinks-test), [`check-error-code-snippets`](#check-error-code-snippets)
+**Jobs:** [`build`](#build-3), [`validate-docs`](#validate-docs), [`validate-generated-docs`](#validate-generated-docs), [`stdlib-sourcelinks-test`](#stdlib-sourcelinks-test), [`check-error-code-snippets`](#check-error-code-snippets)
 
 ## Event filters
 

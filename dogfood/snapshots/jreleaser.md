@@ -199,7 +199,7 @@ Permissions declared across the chain: `actions: read`, `contents: read`, `secur
 |----------|-------|
 | File | `early-access.yml` |
 
-**Jobs:** [Precheck](#precheck-precheck), [Jlink](#jlink-jlink), [JPackage](#jpackage-jpackage), [Native Image](#native-image-native-image), [Release](#release-release), [Provenance](#provenance-provenance), [Update Wiki](#update-wiki-update-wiki)
+**Jobs:** [Precheck](#precheck-precheck-1), [Jlink](#jlink-jlink), [JPackage](#jpackage-jpackage), [Native Image](#native-image-native-image), [Release](#release-release), [Provenance](#provenance-provenance), [Update Wiki](#update-wiki-update-wiki)
 
 ## Event filters
 
@@ -465,7 +465,7 @@ External workflows referenced: `slsa-framework/slsa-github-generator/.github/wor
 |----------|-------|
 | File | `openssf-scorecard.yml` |
 
-**Jobs:** [Precheck](#precheck-precheck), [Scorecards analysis](#scorecards-analysis-analysis)
+**Jobs:** [Precheck](#precheck-precheck-2), [Scorecards analysis](#scorecards-analysis-analysis)
 
 ## Schedule
 
@@ -564,7 +564,7 @@ Permissions declared across the chain: `actions: read`, `contents: read`, `id-to
 |----------|-------|
 | File | `release.yml` |
 
-**Jobs:** [Precheck](#precheck-precheck), [Jlink](#jlink-jlink), [JPackage](#jpackage-jpackage), [Native Image](#native-image-native-image), [Release](#release-release), [Provenance](#provenance-provenance), [Update Wiki](#update-wiki-update-wiki), [Update Website](#update-website-update-website)
+**Jobs:** [Precheck](#precheck-precheck-3), [Jlink](#jlink-jlink-1), [JPackage](#jpackage-jpackage-1), [Native Image](#native-image-native-image-1), [Release](#release-release-1), [Provenance](#provenance-provenance-1), [Update Wiki](#update-wiki-update-wiki-1), [Update Website](#update-website-update-website)
 
 ## Permissions
 
@@ -871,7 +871,7 @@ External workflows referenced: `slsa-framework/slsa-github-generator/.github/wor
 |----------|-------|
 | File | `smoke-tests.yml` |
 
-**Jobs:** [Precheck](#precheck-precheck), [CLI ${{ matrix.job.os }}](#cli--matrixjobos--build-cli), [Tool ${{ matrix.job.os }}](#tool--matrixjobos--build-tool), [Ant ${{ matrix.job.os }}](#ant--matrixjobos--build-ant), [Gradle ${{ matrix.job.os }}](#gradle--matrixjobos--build-gradle), [Maven ${{ matrix.job.os }}](#maven--matrixjobos--build-maven), [Unit Test ${{ matrix.os }}](#unit-test--matrixos--unit-tests), [Coveralls](#coveralls-coveralls), [Codecov](#codecov-codecov), [Sonar](#sonar-sonar)
+**Jobs:** [Precheck](#precheck-precheck-4), [CLI ${{ matrix.job.os }}](#cli--matrixjobos--build-cli), [Tool ${{ matrix.job.os }}](#tool--matrixjobos--build-tool), [Ant ${{ matrix.job.os }}](#ant--matrixjobos--build-ant), [Gradle ${{ matrix.job.os }}](#gradle--matrixjobos--build-gradle), [Maven ${{ matrix.job.os }}](#maven--matrixjobos--build-maven), [Unit Test ${{ matrix.os }}](#unit-test--matrixos--unit-tests), [Coveralls](#coveralls-coveralls), [Codecov](#codecov-codecov), [Sonar](#sonar-sonar)
 
 ## Event filters
 

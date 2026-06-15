@@ -55,7 +55,15 @@ func RenderMarkdownGraph(w *model.Workflow, g *callgraph.Graph, id string) strin
 
 	// Job roster: a compact, scannable list of this workflow's jobs linking into the Jobs
 	// section below, placed before the deep content so the reader sees the roster up front.
-	renderJobMiniTOC(&b, w.Jobs)
+	// Job heading anchors are assigned document-wide by the assembler (stored on this node);
+	// nil with no graph context falls back to local slugging in renderJobMiniTOC.
+	var jobAnchors []string
+	if g != nil {
+		if n := g.Nodes[id]; n != nil {
+			jobAnchors = n.JobAnchors
+		}
+	}
+	renderJobMiniTOC(&b, w.Jobs, jobAnchors)
 
 	renderWorkflowSurface(&b, w)
 
@@ -89,19 +97,33 @@ func RenderMarkdownGraph(w *model.Workflow, g *callgraph.Graph, id string) strin
 }
 
 // renderJobMiniTOC writes a one-line roster of a workflow's jobs, each linking to its job
-// heading, so a reader sees the job list without scrolling down to the Jobs section. Anchors
-// come from AssignAnchors over the job heading texts, applying the same GitHub-style slug and
-// duplicate "-N" disambiguation the headings themselves resolve to, so the links stay
-// correct. A lone job needs no roster, so the line is emitted only for two or more jobs.
-func renderJobMiniTOC(b *strings.Builder, jobs []model.Job) {
+// heading, so a reader sees the job list without scrolling down to the Jobs section. A lone
+// job needs no roster, so the line is emitted only for two or more jobs.
+//
+// anchors carries the job heading slugs assigned DOCUMENT-WIDE by the assembler (one per
+// job, in job order): GitHub disambiguates repeated heading slugs across the whole rendered
+// document, so a job heading text that recurs in a later workflow must keep the running "-N"
+// suffix. Assigning per-workflow would restart the count and point a later workflow's link at
+// the first occurrence in another workflow. When anchors is nil (single-file rendering, no
+// assembly) the whole document is this one workflow, so per-workflow disambiguation equals
+// document-wide and we slug the local jobs directly.
+//
+// Residual edge: GitHub numbers ALL same-slug headings together regardless of kind (job,
+// section, H1, "#### Steps"). This unifies job-vs-job collisions only; a job slug that also
+// collides with a non-job heading slug is not reconciled. That cross-kind case is rare and
+// covering it would require threading every heading through one global pass.
+func renderJobMiniTOC(b *strings.Builder, jobs []model.Job, anchors []string) {
 	if len(jobs) < 2 {
 		return
 	}
-	texts := make([]string, len(jobs))
-	for i := range jobs {
-		texts[i] = jobHeadingText(&jobs[i])
+	slugs := anchors
+	if slugs == nil {
+		texts := make([]string, len(jobs))
+		for i := range jobs {
+			texts[i] = JobHeadingText(&jobs[i])
+		}
+		slugs = AssignAnchors(texts)
 	}
-	slugs := AssignAnchors(texts)
 	parts := make([]string, len(jobs))
 	for i := range jobs {
 		parts[i] = fmt.Sprintf("[%s](#%s)", mdLinkLabel(jobMiniLabel(&jobs[i])), slugs[i])
@@ -109,10 +131,11 @@ func renderJobMiniTOC(b *strings.Builder, jobs []model.Job) {
 	fmt.Fprintf(b, "**Jobs:** %s\n\n", strings.Join(parts, ", "))
 }
 
-// jobHeadingText returns the visible text of a job's heading: the basis for its GitHub anchor
+// JobHeadingText returns the visible text of a job's heading: the basis for its GitHub anchor
 // slug. It mirrors renderJob's heading construction so a mini-TOC link resolves to the
 // heading GitHub actually emits (backticks and parentheses drop out of the slug either way).
-func jobHeadingText(job *model.Job) string {
+// Exported so the assembler can feed the exact same text into its document-wide anchor pass.
+func JobHeadingText(job *model.Job) string {
 	if job.Name != job.ID {
 		return job.Name + " (" + job.ID + ")"
 	}

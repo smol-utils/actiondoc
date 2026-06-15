@@ -285,7 +285,7 @@ This workflow is responsible to build and publish a release build It triggers on
 |----------|-------|
 | File | `ci-publish.yaml` |
 
-**Jobs:** [`read-version`](#read-version), [`call-build`](#call-build), [`update-github-release`](#update-github-release)
+**Jobs:** [`read-version`](#read-version), [`call-build`](#call-build-1), [`update-github-release`](#update-github-release)
 
 ## Event filters
 

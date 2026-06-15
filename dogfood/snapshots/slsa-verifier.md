@@ -182,7 +182,7 @@ All scopes: `read-all`.
 |----------|-------|
 | File | `e2e.schedule.installer.yml` |
 
-**Jobs:** [`list-verifiers`](#list-verifiers), [`verifier-run`](#verifier-run), [`if-succeed`](#if-succeed), [`if-failed`](#if-failed)
+**Jobs:** [`list-verifiers`](#list-verifiers), [`verifier-run`](#verifier-run), [`if-succeed`](#if-succeed), [`if-failed`](#if-failed-1)
 
 ## Manual trigger inputs
 
@@ -784,7 +784,7 @@ All scopes: `read-all`.
 |----------|-------|
 | File | `release.yml` |
 
-**Jobs:** [`args`](#args), [builder-${{matrix.os}}-${{matrix.arch}}](#builder-matrixos-matrixarch-builder), [`verification`](#verification), [`if-succeed`](#if-succeed), [`if-failed`](#if-failed)
+**Jobs:** [`args`](#args), [builder-${{matrix.os}}-${{matrix.arch}}](#builder-matrixos-matrixarch-builder), [`verification`](#verification), [`if-succeed`](#if-succeed-1), [`if-failed`](#if-failed-2)
 
 ## Schedule
 

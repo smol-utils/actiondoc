@@ -1174,7 +1174,7 @@ build-nightly-ci-docker-images.yml
 |----------|-------|
 | File | `build_documentation.yml` |
 
-**Jobs:** [`build`](#build), [`build_other_lang`](#build_other_lang)
+**Jobs:** [`build`](#build-1), [`build_other_lang`](#build_other_lang)
 
 ## Event filters
 
@@ -1260,7 +1260,7 @@ External workflows referenced: `huggingface/doc-builder/.github/workflows/build_
 |----------|-------|
 | File | `build_pr_documentation.yml` |
 
-**Jobs:** [`build`](#build), [`skip_merge_queue`](#skip_merge_queue), [`doc_build_status_check`](#doc_build_status_check)
+**Jobs:** [`build`](#build-2), [`skip_merge_queue`](#skip_merge_queue), [`doc_build_status_check`](#doc_build_status_check)
 
 ## Permissions
 
@@ -2506,7 +2506,7 @@ get-pr-number.yml
 |----------|-------|
 | File | `model_jobs.yml` |
 
-**Jobs:** [`run_models_gpu`](#run_models_gpu), [Collated Reports](#collated-reports-collated_reports)
+**Jobs:** [`run_models_gpu`](#run_models_gpu), [Collated Reports](#collated-reports-collated_reports-1)
 
 ## Workflow call API
 
@@ -2964,7 +2964,7 @@ External workflows referenced: `huggingface/transformers-test-ci/.github/workflo
 |----------|-------|
 | File | `pr-repo-consistency-bot.yml` |
 
-**Jobs:** [Get PR number](#get-pr-number-get-pr-number), [Get PR commit SHA](#get-pr-commit-sha-get-pr-info), [Check timestamps (security check)](#check-timestamps-security-check-check-timestamps), [Init Comment on PR](#init-comment-on-pr-init_comment_with_url), [`run-repo-consistency-checks`](#run-repo-consistency-checks), [`commit-and-comment`](#commit-and-comment)
+**Jobs:** [Get PR number](#get-pr-number-get-pr-number-1), [Get PR commit SHA](#get-pr-commit-sha-get-pr-info), [Check timestamps (security check)](#check-timestamps-security-check-check-timestamps), [Init Comment on PR](#init-comment-on-pr-init_comment_with_url), [`run-repo-consistency-checks`](#run-repo-consistency-checks), [`commit-and-comment`](#commit-and-comment)
 
 ## Event filters
 
@@ -3170,7 +3170,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pul
 |----------|-------|
 | File | `pr_build_doc_with_comment.yml` |
 
-**Jobs:** [Get PR number](#get-pr-number-get-pr-number), [Get PR commit SHA](#get-pr-commit-sha-get-pr-info), [Verity PR commit corresponds to a specific event by comparing timestamps](#verity-pr-commit-corresponds-to-a-specific-event-by-comparing-timestamps-verity_pr_commit), [Create run](#create-run-create_run), [Reply to the comment](#reply-to-the-comment-reply_to_comment), [Build doc](#build-doc-build-doc), [Update Check Run Status](#update-check-run-status-update_run_status)
+**Jobs:** [Get PR number](#get-pr-number-get-pr-number-2), [Get PR commit SHA](#get-pr-commit-sha-get-pr-info-1), [Verity PR commit corresponds to a specific event by comparing timestamps](#verity-pr-commit-corresponds-to-a-specific-event-by-comparing-timestamps-verity_pr_commit), [Create run](#create-run-create_run), [Reply to the comment](#reply-to-the-comment-reply_to_comment), [Build doc](#build-doc-build-doc), [Update Check Run Status](#update-check-run-status-update_run_status)
 
 ## Event filters
 
@@ -3344,7 +3344,7 @@ External workflows referenced: `huggingface/doc-builder/.github/workflows/build_
 |----------|-------|
 | File | `pr_slow_ci_suggestion.yml` |
 
-**Jobs:** [Get PR number](#get-pr-number-get-pr-number), [Get PR commit SHA](#get-pr-commit-sha-get-pr-info), [Get test files to run](#get-test-files-to-run-get-jobs), [Send a comment to suggest jobs to run](#send-a-comment-to-suggest-jobs-to-run-send_comment)
+**Jobs:** [Get PR number](#get-pr-number-get-pr-number-3), [Get PR commit SHA](#get-pr-commit-sha-get-pr-info-2), [Get test files to run](#get-test-files-to-run-get-jobs), [Send a comment to suggest jobs to run](#send-a-comment-to-suggest-jobs-to-run-send_comment)
 
 ## Event filters
 
@@ -3713,7 +3713,7 @@ Permissions declared across the chain: `contents: read`
 |----------|-------|
 | File | `self-comment-ci.yml` |
 
-**Jobs:** [Get PR number](#get-pr-number-get-pr-number), [Get PR commit SHA](#get-pr-commit-sha-get-pr-info), [Check timestamps (security check)](#check-timestamps-security-check-check-timestamps), [`get-tests`](#get-tests), [Report error earlier](#report-error-earlier-report_error_earlier), [Reply to the comment](#reply-to-the-comment-reply_to_comment), [Create run](#create-run-create_run), [Model CI](#model-ci-model-ci), [Quantization CI](#quantization-ci-quantization-ci), [Check & Report](#check--report-report)
+**Jobs:** [Get PR number](#get-pr-number-get-pr-number-4), [Get PR commit SHA](#get-pr-commit-sha-get-pr-info-3), [Check timestamps (security check)](#check-timestamps-security-check-check-timestamps-1), [`get-tests`](#get-tests), [Report error earlier](#report-error-earlier-report_error_earlier), [Reply to the comment](#reply-to-the-comment-reply_to_comment-1), [Create run](#create-run-create_run-1), [Model CI](#model-ci-model-ci-1), [Quantization CI](#quantization-ci-quantization-ci), [Check & Report](#check--report-report)
 
 ## Event filters
 
@@ -4011,7 +4011,7 @@ Permissions declared across the chain: `contents: read`, `pull-requests: write`,
 |----------|-------|
 | File | `self-nightly-caller.yml` |
 
-**Jobs:** [Build CI Docker Images with nightly torch](#build-ci-docker-images-with-nightly-torch-build_nightly_torch_ci_images), [Setup](#setup-setup), [Model CI](#model-ci-model-ci)
+**Jobs:** [Build CI Docker Images with nightly torch](#build-ci-docker-images-with-nightly-torch-build_nightly_torch_ci_images), [Setup](#setup-setup-1), [Model CI](#model-ci-model-ci-2)
 
 ## Event filters
 
@@ -4400,7 +4400,7 @@ Permissions declared across the chain: `contents: read`
 |----------|-------|
 | File | `self-past-caller.yml` |
 
-**Jobs:** [Model CI](#model-ci-model-ci), [DeepSpeed CI](#deepspeed-ci-deepspeed-ci)
+**Jobs:** [Model CI](#model-ci-model-ci-3), [DeepSpeed CI](#deepspeed-ci-deepspeed-ci)
 
 ## Workflow call API
 
@@ -4510,7 +4510,7 @@ self-past-caller.yml
 |----------|-------|
 | File | `self-scheduled-amd-mi250-caller.yml` |
 
-**Jobs:** [Model CI](#model-ci-model-ci), [Torch pipeline CI](#torch-pipeline-ci-torch-pipeline), [Example CI](#example-ci-example-ci), [DeepSpeed CI](#deepspeed-ci-deepspeed-ci)
+**Jobs:** [Model CI](#model-ci-model-ci-4), [Torch pipeline CI](#torch-pipeline-ci-torch-pipeline), [Example CI](#example-ci-example-ci), [DeepSpeed CI](#deepspeed-ci-deepspeed-ci-1)
 
 ## Event filters
 
@@ -4629,7 +4629,7 @@ External workflows referenced: `huggingface/hf-workflows/.github/workflows/trans
 |----------|-------|
 | File | `self-scheduled-amd-mi325-caller.yml` |
 
-**Jobs:** [Model CI](#model-ci-model-ci), [Torch pipeline CI](#torch-pipeline-ci-torch-pipeline), [Example CI](#example-ci-example-ci), [DeepSpeed CI](#deepspeed-ci-deepspeed-ci)
+**Jobs:** [Model CI](#model-ci-model-ci-5), [Torch pipeline CI](#torch-pipeline-ci-torch-pipeline-1), [Example CI](#example-ci-example-ci-1), [DeepSpeed CI](#deepspeed-ci-deepspeed-ci-2)
 
 ## Event filters
 
@@ -4752,7 +4752,7 @@ External workflows referenced: `huggingface/hf-workflows/.github/workflows/trans
 |----------|-------|
 | File | `self-scheduled-amd-mi355-caller.yml` |
 
-**Jobs:** [Model CI](#model-ci-model-ci), [Torch pipeline CI](#torch-pipeline-ci-torch-pipeline), [Example CI](#example-ci-example-ci), [DeepSpeed CI](#deepspeed-ci-deepspeed-ci)
+**Jobs:** [Model CI](#model-ci-model-ci-6), [Torch pipeline CI](#torch-pipeline-ci-torch-pipeline-2), [Example CI](#example-ci-example-ci-2), [DeepSpeed CI](#deepspeed-ci-deepspeed-ci-3)
 
 ## Event filters
 
@@ -4871,7 +4871,7 @@ External workflows referenced: `huggingface/hf-workflows/.github/workflows/trans
 |----------|-------|
 | File | `self-scheduled-caller.yml` |
 
-**Jobs:** [Setup](#setup-setup), [Model CI](#model-ci-model-ci), [Torch pipeline CI](#torch-pipeline-ci-torch-pipeline), [Example CI](#example-ci-example-ci), [Trainer/FSDP CI](#trainerfsdp-ci-trainer-fsdp-ci), [DeepSpeed CI](#deepspeed-ci-deepspeed-ci), [Quantization CI](#quantization-ci-quantization-ci), [Kernels CI](#kernels-ci-kernels-ci)
+**Jobs:** [Setup](#setup-setup-2), [Model CI](#model-ci-model-ci-7), [Torch pipeline CI](#torch-pipeline-ci-torch-pipeline-3), [Example CI](#example-ci-example-ci-3), [Trainer/FSDP CI](#trainerfsdp-ci-trainer-fsdp-ci), [DeepSpeed CI](#deepspeed-ci-deepspeed-ci-4), [Quantization CI](#quantization-ci-quantization-ci-1), [Kernels CI](#kernels-ci-kernels-ci)
 
 ## Manual trigger inputs
 
@@ -5130,7 +5130,7 @@ Permissions declared across the chain: `contents: read`
 |----------|-------|
 | File | `self-scheduled-flash-attn-caller.yml` |
 
-**Jobs:** [Setup](#setup-setup), [Model CI](#model-ci-model-ci)
+**Jobs:** [Setup](#setup-setup-3), [Model CI](#model-ci-model-ci-8)
 
 ## Manual trigger inputs
 
@@ -5232,7 +5232,7 @@ Permissions declared across the chain: `contents: read`
 |----------|-------|
 | File | `self-scheduled-intel-gaudi.yml` |
 
-**Jobs:** [Setup](#setup-setup), [`run_models_gpu`](#run_models_gpu), [`run_trainer_and_fsdp_gpu`](#run_trainer_and_fsdp_gpu), [Pipelines](#pipelines-run_pipelines_torch_gpu), [Examples directory](#examples-directory-run_examples_gpu), [Intel Gaudi deepspeed tests](#intel-gaudi-deepspeed-tests-run_torch_cuda_extensions_gpu), [Slack Report](#slack-report-send_results)
+**Jobs:** [Setup](#setup-setup-4), [`run_models_gpu`](#run_models_gpu-2), [`run_trainer_and_fsdp_gpu`](#run_trainer_and_fsdp_gpu), [Pipelines](#pipelines-run_pipelines_torch_gpu), [Examples directory](#examples-directory-run_examples_gpu), [Intel Gaudi deepspeed tests](#intel-gaudi-deepspeed-tests-run_torch_cuda_extensions_gpu), [Slack Report](#slack-report-send_results)
 
 ## Workflow call API
 
@@ -5502,7 +5502,7 @@ self-scheduled-intel-gaudi.yml
 |----------|-------|
 | File | `self-scheduled-intel-gaudi3-caller.yml` |
 
-**Jobs:** [Model CI](#model-ci-model-ci), [Pipeline CI](#pipeline-ci-pipeline-ci), [Example CI](#example-ci-example-ci), [DeepSpeed CI](#deepspeed-ci-deepspeed-ci), [Trainer/FSDP CI](#trainerfsdp-ci-trainer-fsdp-ci)
+**Jobs:** [Model CI](#model-ci-model-ci-9), [Pipeline CI](#pipeline-ci-pipeline-ci), [Example CI](#example-ci-example-ci-4), [DeepSpeed CI](#deepspeed-ci-deepspeed-ci-5), [Trainer/FSDP CI](#trainerfsdp-ci-trainer-fsdp-ci-1)
 
 ## Schedule
 
@@ -5646,7 +5646,7 @@ Permissions declared across the chain: `contents: read`
 |----------|-------|
 | File | `self-scheduled.yml` |
 
-**Jobs:** [Setup](#setup-setup), [`run_models_gpu`](#run_models_gpu), [`run_trainer_and_fsdp_gpu`](#run_trainer_and_fsdp_gpu), [PyTorch pipelines](#pytorch-pipelines-run_pipelines_torch_gpu), [Examples directory](#examples-directory-run_examples_gpu), [Torch CUDA extension tests](#torch-cuda-extension-tests-run_torch_cuda_extensions_gpu), [`run_quantization_torch_gpu`](#run_quantization_torch_gpu), [Kernel tests](#kernel-tests-run_kernels_gpu), [Extract warnings in CI artifacts](#extract-warnings-in-ci-artifacts-run_extract_warnings), [Slack Report](#slack-report-send_results), [Check new failures](#check-new-failures-check_new_failures)
+**Jobs:** [Setup](#setup-setup-5), [`run_models_gpu`](#run_models_gpu-3), [`run_trainer_and_fsdp_gpu`](#run_trainer_and_fsdp_gpu-1), [PyTorch pipelines](#pytorch-pipelines-run_pipelines_torch_gpu), [Examples directory](#examples-directory-run_examples_gpu-1), [Torch CUDA extension tests](#torch-cuda-extension-tests-run_torch_cuda_extensions_gpu), [`run_quantization_torch_gpu`](#run_quantization_torch_gpu), [Kernel tests](#kernel-tests-run_kernels_gpu), [Extract warnings in CI artifacts](#extract-warnings-in-ci-artifacts-run_extract_warnings), [Slack Report](#slack-report-send_results-1), [Check new failures](#check-new-failures-check_new_failures)
 
 ## Workflow call API
 

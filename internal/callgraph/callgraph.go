@@ -38,6 +38,14 @@ type Node struct {
 	// cross-links use it when set, so links always agree with the table of contents;
 	// when empty (single-file rendering, no assembly), links fall back to slugging Name.
 	Anchor string
+
+	// JobAnchors holds this workflow's per-job heading anchor slugs in job order, assigned
+	// document-wide by the same assembler that owns section anchors. GitHub disambiguates
+	// repeated heading slugs across the whole document, so a job heading text recurring in a
+	// later workflow must keep the running "-N" suffix; a per-workflow pass would restart the
+	// count and link to the wrong workflow's job. nil for single-file rendering (no assembly),
+	// where the mini-TOC falls back to slugging the workflow's own jobs.
+	JobAnchors []string
 }
 
 // Edge is a `uses:` relationship from a caller to a target node.
