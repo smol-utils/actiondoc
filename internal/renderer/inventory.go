@@ -2,6 +2,7 @@ package renderer
 
 import (
 	"fmt"
+	"path/filepath"
 	"sort"
 	"strings"
 
@@ -109,13 +110,21 @@ func buildInventoryRefs(byName map[string]map[string]bool, g *callgraph.Graph) [
 	}
 	sort.Strings(names)
 
+	ambiguous := ambiguousWorkflowNames(g)
 	out := make([]inventoryRef, 0, len(names))
 	for _, name := range names {
 		var wfs []inventoryWorkflow
 		for id := range byName[name] {
 			wf := inventoryWorkflow{name: id, anchor: anchor(id)}
 			if n := g.Nodes[id]; n != nil {
+				// Disambiguate the visible label when another workflow shares this
+				// display name: bare names would render identical link text against
+				// distinct anchors (e.g. #model-jobs vs #model-jobs-1), so append the
+				// filename the way the table of contents does.
 				wf.name = n.Name
+				if ambiguous[n.Name] {
+					wf.name += " (" + filepath.Base(n.Path) + ")"
+				}
 				wf.anchor = nodeAnchor(n)
 			}
 			wfs = append(wfs, wf)
@@ -127,6 +136,27 @@ func buildInventoryRefs(byName map[string]map[string]bool, g *callgraph.Graph) [
 			return wfs[i].name < wfs[j].name
 		})
 		out = append(out, inventoryRef{name: name, usedBy: wfs})
+	}
+	return out
+}
+
+// ambiguousWorkflowNames returns the set of workflow display names shared by more than one
+// workflow node in the graph. Such names need a filename suffix in cross-links so their
+// otherwise-identical link text stays distinguishable. Action nodes are excluded: they never
+// appear in the secrets/variables "Used by" lists this set guards.
+func ambiguousWorkflowNames(g *callgraph.Graph) map[string]bool {
+	counts := map[string]int{}
+	for _, n := range g.Nodes {
+		if n.IsAction {
+			continue
+		}
+		counts[n.Name]++
+	}
+	out := map[string]bool{}
+	for name, c := range counts {
+		if c > 1 {
+			out[name] = true
+		}
 	}
 	return out
 }

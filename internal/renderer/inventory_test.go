@@ -83,6 +83,30 @@ func TestRenderDocumentInventory(t *testing.T) {
 	}
 }
 
+// TestRenderDocumentInventoryDuplicateNames verifies that when two workflows share a display
+// name, their "Used by" link labels are disambiguated with the filename so the otherwise
+// identical link text (against distinct anchors) stays distinguishable.
+func TestRenderDocumentInventoryDuplicateNames(t *testing.T) {
+	mk := func(file string) *model.Workflow {
+		return &model.Workflow{
+			File: file, Name: "Release", On: []string{"push"},
+			Jobs: []model.Job{{ID: "build", RunsOn: "ubuntu-latest",
+				Steps: []model.Step{{Name: "Run", Run: `echo "${{ secrets.TOKEN }}"`}}}},
+		}
+	}
+	sources := []callgraph.Source{
+		{Path: ".github/workflows/a.yml", Workflow: mk("a.yml")},
+		{Path: ".github/workflows/b.yml", Workflow: mk("b.yml")},
+	}
+	out := RenderDocumentInventory(sources, callgraph.Build(sources))
+
+	for _, want := range []string{"[Release (a.yml)]", "[Release (b.yml)]"} {
+		if !strings.Contains(out, want) {
+			t.Errorf("missing disambiguated link label %q\n\n%s", want, out)
+		}
+	}
+}
+
 // TestRenderDocumentInventoryEmpty verifies the whole section is suppressed when there are no
 // secrets, no variables, and no permissions to report.
 func TestRenderDocumentInventoryEmpty(t *testing.T) {
