@@ -6,14 +6,16 @@
 
 **Workflows**
 
+- [\[main\] Scheduled CI upgrade check - schedule, workflow_dispatch](#main-scheduled-ci-upgrade-check)
+- [\[v3-2-test\] Scheduled CI upgrade check - schedule, workflow_dispatch](#v3-2-test-scheduled-ci-upgrade-check)
 - [Airflow E2E Tests - workflow_dispatch, workflow_call](#airflow-e2e-tests)
 - [ASF Allowlist Check - pull_request, push](#asf-allowlist-check)
 - [Automatic Backport - push](#automatic-backport)
 - [Backport Commit - workflow_dispatch, workflow_call](#backport-commit)
+- [Build & Publish Registry - workflow_dispatch, workflow_call](#build--publish-registry)
 - [Check newsfragment PR number - pull_request](#check-newsfragment-pr-number)
-- [Tests (AMD) - schedule, pull_request, push, workflow_dispatch](#tests-amd)
-- [Tests (ARM) - schedule, push, workflow_dispatch](#tests-arm)
 - [CI Notification - schedule, workflow_dispatch](#ci-notification)
+- [Close stale PRs & Issues - schedule](#close-stale-prs--issues)
 - [CodeQL - pull_request, push, schedule](#codeql)
 - [E2E Flaky Tests Report - schedule, workflow_dispatch](#e2e-flaky-tests-report)
 - [Milestone Tag Assistant - push](#milestone-tag-assistant)
@@ -21,92 +23,78 @@
 - [Publish Docs to S3 - workflow_dispatch](#publish-docs-to-s3)
 - [Recheck old bug reports - schedule](#recheck-old-bug-reports)
 - [Registry Backfill - workflow_dispatch](#registry-backfill)
-- [Build & Publish Registry - workflow_dispatch, workflow_call](#build--publish-registry)
 - [Registry Tests - pull_request, push](#registry-tests)
 - [Release PROD images - workflow_dispatch](#release-prod-images)
-- [\[main\] Scheduled CI upgrade check - schedule, workflow_dispatch](#main-scheduled-ci-upgrade-check)
-- [\[v3-2-test\] Scheduled CI upgrade check - schedule, workflow_dispatch](#v3-2-test-scheduled-ci-upgrade-check)
 - [Scheduled verify release calendar - schedule, workflow_dispatch](#scheduled-verify-release-calendar)
-- [Close stale PRs & Issues - schedule](#close-stale-prs--issues)
+- [Tests (AMD) - schedule, pull_request, push, workflow_dispatch](#tests-amd)
+- [Tests (ARM) - schedule, push, workflow_dispatch](#tests-arm)
 - [UI End-to-End Tests - workflow_dispatch, workflow_call](#ui-end-to-end-tests)
-- [Update constraints on push for stable branch (always) - push](#update-constraints-on-push-for-stable-branch-always)
 - [Update constraints on push for main (only when uv.lock changes) - push](#update-constraints-on-push-for-main-only-when-uvlock-changes)
+- [Update constraints on push for stable branch (always) - push](#update-constraints-on-push-for-stable-branch-always)
 
 **Reusable workflows**
 
 - [Additional CI image checks](#additional-ci-image-checks)
 - [Additional PROD image tests](#additional-prod-image-tests)
-- [Non-core Distribution tests](#non-core-distribution-tests)
 - [Basic tests](#basic-tests)
 - [Build CI images](#build-ci-images)
+- [Build PROD images](#build-prod-images)
 - [CI Image Checks](#ci-image-checks)
 - [Finalize tests](#finalize-tests)
 - [Generate constraints](#generate-constraints)
 - [Helm tests](#helm-tests)
 - [Integration and system tests](#integration-and-system-tests)
 - [K8s tests](#k8s-tests)
-- [Build PROD images](#build-prod-images)
+- [Non-core Distribution tests](#non-core-distribution-tests)
 - [PROD images extra checks](#prod-images-extra-checks)
+- [Provider tests](#provider-tests)
 - [Push image cache](#push-image-cache)
 - [Release single PROD image](#release-single-prod-image)
-- [Unit tests](#unit-tests)
 - [Special tests](#special-tests)
-- [Provider tests](#provider-tests)
+- [Unit tests](#unit-tests)
 - [Upgrade check](#upgrade-check)
 
 **Composite actions**
 
-- [Setup Breeze](#setup-breeze)
 - [Install prek](#install-prek)
-- [Run migration tests](#run-migration-tests)
 - [Post tests on failure](#post-tests-on-failure)
 - [Post tests on success](#post-tests-on-success)
 - [Prepare all CI images](#prepare-all-ci-images)
 - [Prepare breeze && current image (CI or PROD)](#prepare-breeze--current-image-ci-or-prod)
 - [Prepare single CI image](#prepare-single-ci-image)
+- [Run migration tests](#run-migration-tests)
+- [Setup Breeze](#setup-breeze)
 
-# Additional CI image checks
+# [main] Scheduled CI upgrade check
 
-**Triggers:** `workflow_call`
+**Triggers:** `schedule`, `workflow_dispatch`
 
 | Property | Value |
 |----------|-------|
-| File | `additional-ci-image-checks.yml` |
+| File | `scheduled-upgrade-check-main.yml` |
 
-**Jobs:** [Push Early Image Cache](#push-early-image-cache-push-early-buildx-cache-to-github-registry), [Check that image builds quickly](#check-that-image-builds-quickly-check-that-image-builds-quickly)
+## Schedule
 
-## Workflow call API
-
-**Inputs:**
-
-| Name | Type | Required | Default | Description |
-|------|------|----------|---------|-------------|
-| `runners` | string | Yes | - | The array of labels (in json form) determining runners. |
-| `platform` | string | Yes | - | Platform for the build - 'linux/amd64' or 'linux/arm64' |
-| `python-versions` | string | Yes | - | The list of python versions (stringified JSON array) to run the tests on. |
-| `branch` | string | Yes | - | Branch used to run the CI jobs in (main/v*_*_test). |
-| `constraints-branch` | string | Yes | - | Branch used to get constraints from |
-| `default-python-version` | string | Yes | - | Which version of python should be used by default |
-| `upgrade-to-newer-dependencies` | string | Yes | - | Whether to upgrade to newer dependencies (true/false) |
-| `skip-prek-hooks` | string | Yes | - | Whether to skip prek hooks (true/false) |
-| `docker-cache` | string | Yes | - | Docker cache specification to build the image (registry, local, disabled). |
-| `disable-airflow-repo-cache` | string | Yes | - | Disable airflow repo cache read from main. |
-| `canary-run` | string | Yes | - | Whether this is a canary run (true/false) |
-| `latest-versions-only` | string | Yes | - | Whether to run only latest versions (true/false) |
-| `include-success-outputs` | string | Yes | - | Whether to include success outputs (true/false) |
-| `debug-resources` | string | Yes | - | Whether to debug resources (true/false) |
-| `use-uv` | string | Yes | - | Whether to use uv to build the image (true/false) |
+- `0 6 * * 1,3,5`
 
 ## Permissions
 
-- `contents`: `read`
+- `contents`: `write`
+- `pull-requests`: `write`
 
-## Called by
+## Call graph (rooted at this workflow)
 
-`additional-ci-image-checks.yml`
+`scheduled-upgrade-check-main.yml` [schedule, workflow_dispatch]
 
-- [ci-amd.yml](#additional-ci-image-checks-additional-ci-image-checks) (job: `additional-ci-image-checks`) - entry point
-- [ci-arm.yml](#additional-ci-image-checks-additional-ci-image-checks-1) (job: `additional-ci-image-checks`) - entry point
+- `upgrade-main` uses [upgrade-check.yml](#upgrade-check)
+  - `createupgrade-check / [${{ inputs.target-branch }}] Install Breeze` uses [./.github/actions/breeze](#setup-breeze)
+  - `createupgrade-check / [${{ inputs.target-branch }}] Install prek` uses [./.github/actions/install-prek](#install-prek)
+
+## Transitive requirements (from full call graph)
+
+Secrets referenced (literal names): `GITHUB_TOKEN`, `SLACK_BOT_TOKEN`
+
+Permissions declared across the chain: `contents: write`, `pull-requests: write`
 
 ## Referenced secrets and variables
 
@@ -114,121 +102,56 @@
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | job `check-that-image-builds-quickly` env `GITHUB_TOKEN` |
+| `SLACK_BOT_TOKEN` | job `upgrade-main` secrets `SLACK_BOT_TOKEN` |
 
 ## Jobs
 
-### Push Early Image Cache (`push-early-buildx-cache-to-github-registry`)
+### [main] Upgrade (`upgrade-main`)
 
 | Property | Value |
 |----------|-------|
-| Uses workflow | [Push image cache](#push-image-cache) |
-| Condition | `inputs.canary-run == 'true' && (github.event_name == 'schedule' \|\| github.event_name == 'workflow_dispatch')` |
-
-**Permissions:**
-
-- `contents`: `read`
-- `packages`: `write`
+| Uses workflow | [Upgrade check](#upgrade-check) |
 
 #### Inputs forwarded
 
-- `runners`: `${{ inputs.runners }}`
-- `cache-type`: `Early`
-- `include-prod-images`: `false`
-- `push-latest-images`: `false`
-- `platform`: `${{ inputs.platform }}`
-- `python-versions`: `${{ inputs.python-versions }}`
-- `branch`: `${{ inputs.branch }}`
-- `constraints-branch`: `${{ inputs.constraints-branch }}`
-- `use-uv`: `${{ inputs.use-uv }}`
-- `include-success-outputs`: `${{ inputs.include-success-outputs }}`
-- `docker-cache`: `${{ inputs.docker-cache }}`
-- `disable-airflow-repo-cache`: `${{ inputs.disable-airflow-repo-cache }}`
+- `target-branch`: `main`
 
-### Check that image builds quickly (`check-that-image-builds-quickly`)
+#### Secrets forwarded
 
-| Property | Value |
-|----------|-------|
-| Runs on | `${{ fromJSON(inputs.runners) }}` |
-| Condition | `inputs.branch == 'main'` |
-
-**Environment (`env`):**
-
-| Variable | Value |
-|----------|-------|
-| `UPGRADE_TO_NEWER_DEPENDENCIES` | `false` |
-| `PYTHON_MAJOR_MINOR_VERSION` | `${{ inputs.default-python-version }}` |
-| `PYTHON_VERSION` | `${{ inputs.default-python-version }}` |
-| `GITHUB_REPOSITORY` | `${{ github.repository }}` |
-| `GITHUB_TOKEN` | `${{ secrets.GITHUB_TOKEN }}` |
-| `GITHUB_USERNAME` | `${{ github.actor }}` |
-| `VERBOSE` | `true` |
-| `PLATFORM` | `${{ inputs.platform }}` |
-
-<details>
-<summary>Steps (4)</summary>
-
-1. **Cleanup repo**
-
-2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@v6.0.2`
-   - With:
-     - `persist-credentials`: `false`
-
-3. **Install Breeze**
-   - Uses: `./.github/actions/breeze`
-
-4. **Check that image builds quickly**
-
-</details>
+- `SLACK_BOT_TOKEN`: `${{ secrets.SLACK_BOT_TOKEN }}`
 
 [Back to top](#contents)
 
-# Additional PROD image tests
+# [v3-2-test] Scheduled CI upgrade check
 
-**Triggers:** `workflow_call`
+**Triggers:** `schedule`, `workflow_dispatch`
 
 | Property | Value |
 |----------|-------|
-| File | `additional-prod-image-tests.yml` |
-| Default runs-on | `${{ fromJSON(inputs.runners) }}` |
+| File | `scheduled-upgrade-check-v3-2-test.yml` |
 
-**Jobs:** [PROD image extra checks (main)](#prod-image-extra-checks-main-prod-image-extra-checks-main), [PROD image extra checks (release)](#prod-image-extra-checks-release-prod-image-extra-checks-release-branch), [Test examples of PROD image building](#test-examples-of-prod-image-building-test-examples-of-prod-image-building), [Docker Compose quick start with PROD image verifying](#docker-compose-quick-start-with-prod-image-verifying-test-docker-compose-quick-start), [Task SDK integration tests with PROD image](#task-sdk-integration-tests-with-prod-image-task-sdk-integration-tests), [Test e2e integration tests with PROD image](#test-e2e-integration-tests-with-prod-image-test-e2e-integration-tests-basic), [Remote logging tests with PROD image](#remote-logging-tests-with-prod-image-test-e2e-integration-tests-remote-log), [Elasticsearch remote logging tests with PROD image](#elasticsearch-remote-logging-tests-with-prod-image-test-e2e-integration-tests-remote-log-elasticsearch), [OpenSearch remote logging tests with PROD image](#opensearch-remote-logging-tests-with-prod-image-test-e2e-integration-tests-remote-log-opensearch), [XCom object storage backend tests with PROD image](#xcom-object-storage-backend-tests-with-prod-image-test-e2e-integration-tests-xcom-object-storage), [Event driven tests with PROD image](#event-driven-tests-with-prod-image-test-e2e-integration-tests-event-driven), [Chromium UI e2e tests with PROD image](#chromium-ui-e2e-tests-with-prod-image-test-ui-e2e-chromium), [Firefox UI e2e tests with PROD image](#firefox-ui-e2e-tests-with-prod-image-test-ui-e2e-firefox), [WebKit UI e2e tests with PROD image](#webkit-ui-e2e-tests-with-prod-image-test-ui-e2e-webkit), [Airflow CTL integration tests with PROD image](#airflow-ctl-integration-tests-with-prod-image-airflow-ctl-integration-tests)
+## Schedule
 
-## Workflow call API
-
-**Inputs:**
-
-| Name | Type | Required | Default | Description |
-|------|------|----------|---------|-------------|
-| `runners` | string | Yes | - | The array of labels (in json form) determining runners. |
-| `platform` | string | Yes | - | Platform for the build - 'linux/amd64' or 'linux/arm64' |
-| `default-branch` | string | Yes | - | The default branch for the repository |
-| `run-task-sdk-integration-tests` | string | Yes | - | Whether to run Task SDK integration tests (true/false) |
-| `run-remote-logging-s3-e2e-tests` | string | Yes | - | Whether to run S3 remote logging e2e tests (true/false) |
-| `run-remote-logging-elasticsearch-e2e-tests` | string | Yes | - | Whether to run Elasticsearch remote logging e2e tests (true/false) |
-| `run-remote-logging-opensearch-e2e-tests` | string | Yes | - | Whether to run OpenSearch remote logging e2e tests (true/false) |
-| `run-event-driven-e2e-tests` | string | Yes | - | Whether to run event driven e2e tests (true/false) |
-| `constraints-branch` | string | Yes | - | Branch used to construct constraints URL from. |
-| `upgrade-to-newer-dependencies` | string | Yes | - | Whether to upgrade to newer dependencies (true/false) |
-| `docker-cache` | string | Yes | - | Docker cache specification to build the image (registry, local, disabled). |
-| `disable-airflow-repo-cache` | string | Yes | - | Disable airflow repo cache read from main. |
-| `canary-run` | string | Yes | - | Whether to run the canary run (true/false) |
-| `default-python-version` | string | Yes | - | Which version of python should be used by default |
-| `use-uv` | string | Yes | - | Whether to use uv |
-| `run-ui-e2e-tests` | string | Yes | - | Whether to run UI e2e tests (true/false) |
-| `run-airflow-ctl-integration-tests` | string | Yes | - | Whether to run Airflow CTL integration tests (true/false) |
+- `0 6 * * 2,4`
 
 ## Permissions
 
-- `contents`: `read`
+- `contents`: `write`
+- `pull-requests`: `write`
 
-## Called by
+## Call graph (rooted at this workflow)
 
-`additional-prod-image-tests.yml`
+`scheduled-upgrade-check-v3-2-test.yml` [schedule, workflow_dispatch]
 
-- [ci-amd.yml](#additional-prod-image-tests-additional-prod-image-tests) (job: `additional-prod-image-tests`) - entry point
-- [ci-arm.yml](#additional-prod-image-tests-additional-prod-image-tests-1) (job: `additional-prod-image-tests`) - entry point
+- `upgrade-v3-2-test` uses [upgrade-check.yml](#upgrade-check)
+  - `createupgrade-check / [${{ inputs.target-branch }}] Install Breeze` uses [./.github/actions/breeze](#setup-breeze)
+  - `createupgrade-check / [${{ inputs.target-branch }}] Install prek` uses [./.github/actions/install-prek](#install-prek)
+
+## Transitive requirements (from full call graph)
+
+Secrets referenced (literal names): `GITHUB_TOKEN`, `SLACK_BOT_TOKEN`
+
+Permissions declared across the chain: `contents: write`, `pull-requests: write`
 
 ## Referenced secrets and variables
 
@@ -236,455 +159,23 @@
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | job `test-examples-of-prod-image-building` env `GITHUB_TOKEN`; job `test-docker-compose-quick-start` env `GITHUB_TOKEN`; job `task-sdk-integration-tests` env `GITHUB_TOKEN`; job `airflow-ctl-integration-tests` env `GITHUB_TOKEN` |
+| `SLACK_BOT_TOKEN` | job `upgrade-v3-2-test` secrets `SLACK_BOT_TOKEN` |
 
 ## Jobs
 
-### PROD image extra checks (main) (`prod-image-extra-checks-main`)
+### [v3-2-test] Upgrade (`upgrade-v3-2-test`)
 
 | Property | Value |
 |----------|-------|
-| Uses workflow | [PROD images extra checks](#prod-images-extra-checks) |
-| Condition | `inputs.default-branch == 'main' && inputs.canary-run == 'true'` |
+| Uses workflow | [Upgrade check](#upgrade-check) |
 
 #### Inputs forwarded
 
-- `runners`: `${{ inputs.runners }}`
-- `platform`: `${{ inputs.platform }}`
-- `python-versions`: `[ '${{ inputs.default-python-version }}' ]`
-- `default-python-version`: `${{ inputs.default-python-version }}`
-- `branch`: `${{ inputs.default-branch }}`
-- `upgrade-to-newer-dependencies`: `${{ inputs.upgrade-to-newer-dependencies }}`
-- `constraints-branch`: `${{ inputs.constraints-branch }}`
-- `docker-cache`: `${{ inputs.docker-cache }}`
-- `disable-airflow-repo-cache`: `${{ inputs.disable-airflow-repo-cache }}`
+- `target-branch`: `v3-2-test`
 
-### PROD image extra checks (release) (`prod-image-extra-checks-release-branch`)
+#### Secrets forwarded
 
-| Property | Value |
-|----------|-------|
-| Uses workflow | [PROD images extra checks](#prod-images-extra-checks) |
-| Condition | `inputs.default-branch != 'main' && inputs.canary-run == 'true'` |
-
-#### Inputs forwarded
-
-- `runners`: `${{ inputs.runners }}`
-- `platform`: `${{ inputs.platform }}`
-- `python-versions`: `[ '${{ inputs.default-python-version }}' ]`
-- `default-python-version`: `${{ inputs.default-python-version }}`
-- `branch`: `${{ inputs.default-branch }}`
-- `upgrade-to-newer-dependencies`: `${{ inputs.upgrade-to-newer-dependencies }}`
-- `constraints-branch`: `${{ inputs.constraints-branch }}`
-- `docker-cache`: `${{ inputs.docker-cache }}`
-- `disable-airflow-repo-cache`: `${{ inputs.disable-airflow-repo-cache }}`
-
-### Test examples of PROD image building (`test-examples-of-prod-image-building`)
-
-**Environment (`env`):**
-
-| Variable | Value |
-|----------|-------|
-| `GITHUB_REPOSITORY` | `${{ github.repository }}` |
-| `GITHUB_TOKEN` | `${{ secrets.GITHUB_TOKEN }}` |
-| `GITHUB_USERNAME` | `${{ github.actor }}` |
-| `VERBOSE` | `true` |
-
-<details>
-<summary>Steps (4)</summary>
-
-1. **Cleanup repo**
-
-2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@v6.0.2`
-   - With:
-     - `fetch-depth`: `2`
-     - `persist-credentials`: `false`
-
-3. **Prepare breeze & PROD image: ${{ inputs.default-python-version }}**
-   - Uses: `./.github/actions/prepare_breeze_and_image`
-   - With:
-     - `platform`: `${{ inputs.platform }}` - Platform for the build - linux/amd64 or linux/arm64 (required)
-     - `image-type`: `prod` - Which image type to prepare (ci/prod)
-     - `python`: `${{ inputs.default-python-version }}` - Python version for image to prepare (required)
-     - `use-uv`: `${{ inputs.use-uv }}` - Whether to use uv (required)
-     - `make-mnt-writeable-and-cleanup`: `true` - Whether to cleanup /mnt (required)
-
-4. **Test examples of PROD image building**
-   - Env:
-     - `GITHUB_REPOSITORY`: `${{ github.repository }}`
-     - `DEFAULT_BRANCH`: `${{ inputs.default-branch }}`
-     - `DEFAULT_PYTHON_VERSION`: `${{ inputs.default-python-version }}`
-
-</details>
-
-### Docker Compose quick start with PROD image verifying (`test-docker-compose-quick-start`)
-
-**Environment (`env`):**
-
-| Variable | Value |
-|----------|-------|
-| `PYTHON_MAJOR_MINOR_VERSION` | `${{ inputs.default-python-version }}` |
-| `GITHUB_REPOSITORY` | `${{ github.repository }}` |
-| `GITHUB_TOKEN` | `${{ secrets.GITHUB_TOKEN }}` |
-| `GITHUB_USERNAME` | `${{ github.actor }}` |
-| `VERBOSE` | `true` |
-
-<details>
-<summary>Steps (4)</summary>
-
-1. **Cleanup repo**
-
-2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@v6.0.2`
-   - With:
-     - `fetch-depth`: `2`
-     - `persist-credentials`: `false`
-
-3. **Prepare breeze & PROD image: ${{ env.PYTHON\_MAJOR\_MINOR\_VERSION }}**
-   - ID: `breeze`
-   - Uses: `./.github/actions/prepare_breeze_and_image`
-   - With:
-     - `platform`: `${{ inputs.platform }}` - Platform for the build - linux/amd64 or linux/arm64 (required)
-     - `image-type`: `prod` - Which image type to prepare (ci/prod)
-     - `python`: `${{ env.PYTHON_MAJOR_MINOR_VERSION }}` - Python version for image to prepare (required)
-     - `use-uv`: `${{ inputs.use-uv }}` - Whether to use uv (required)
-     - `make-mnt-writeable-and-cleanup`: `true` - Whether to cleanup /mnt (required)
-
-4. **Test docker-compose quick start**
-
-</details>
-
-### Task SDK integration tests with PROD image (`task-sdk-integration-tests`)
-
-| Property | Value |
-|----------|-------|
-| Condition | `inputs.run-task-sdk-integration-tests == 'true'` |
-
-**Environment (`env`):**
-
-| Variable | Value |
-|----------|-------|
-| `PYTHON_MAJOR_MINOR_VERSION` | `${{ inputs.default-python-version }}` |
-| `GITHUB_REPOSITORY` | `${{ github.repository }}` |
-| `GITHUB_TOKEN` | `${{ secrets.GITHUB_TOKEN }}` |
-| `GITHUB_USERNAME` | `${{ github.actor }}` |
-| `VERBOSE` | `true` |
-
-<details>
-<summary>Steps (4)</summary>
-
-1. **Cleanup repo**
-
-2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@v6.0.2`
-   - With:
-     - `fetch-depth`: `2`
-     - `persist-credentials`: `false`
-
-3. **Prepare breeze & PROD image: ${{ env.PYTHON\_MAJOR\_MINOR\_VERSION }}**
-   - ID: `breeze`
-   - Uses: `./.github/actions/prepare_breeze_and_image`
-   - With:
-     - `platform`: `${{ inputs.platform }}` - Platform for the build - linux/amd64 or linux/arm64 (required)
-     - `image-type`: `prod` - Which image type to prepare (ci/prod)
-     - `python`: `${{ env.PYTHON_MAJOR_MINOR_VERSION }}` - Python version for image to prepare (required)
-     - `use-uv`: `${{ inputs.use-uv }}` - Whether to use uv (required)
-     - `make-mnt-writeable-and-cleanup`: `true` - Whether to cleanup /mnt (required)
-
-4. **Run Task SDK integration tests**
-
-</details>
-
-### Test e2e integration tests with PROD image (`test-e2e-integration-tests-basic`)
-
-| Property | Value |
-|----------|-------|
-| Uses workflow | [Airflow E2E Tests](#airflow-e2e-tests) |
-
-#### Inputs forwarded
-
-- `workflow-name`: `Regular e2e test`
-- `runners`: `${{ inputs.runners }}`
-- `platform`: `${{ inputs.platform }}`
-- `default-python-version`: `${{ inputs.default-python-version }}`
-- `use-uv`: `${{ inputs.use-uv }}`
-
-### Remote logging tests with PROD image (`test-e2e-integration-tests-remote-log`)
-
-| Property | Value |
-|----------|-------|
-| Uses workflow | [Airflow E2E Tests](#airflow-e2e-tests) |
-| Condition | `inputs.canary-run == 'true' \|\| inputs.run-remote-logging-s3-e2e-tests == 'true'` |
-
-#### Inputs forwarded
-
-- `workflow-name`: `Remote logging e2e test`
-- `runners`: `${{ inputs.runners }}`
-- `platform`: `${{ inputs.platform }}`
-- `default-python-version`: `${{ inputs.default-python-version }}`
-- `use-uv`: `${{ inputs.use-uv }}`
-- `e2e_test_mode`: `remote_log`
-
-### Elasticsearch remote logging tests with PROD image (`test-e2e-integration-tests-remote-log-elasticsearch`)
-
-| Property | Value |
-|----------|-------|
-| Uses workflow | [Airflow E2E Tests](#airflow-e2e-tests) |
-| Condition | `inputs.canary-run == 'true' \|\| inputs.run-remote-logging-elasticsearch-e2e-tests == 'true'` |
-
-#### Inputs forwarded
-
-- `workflow-name`: `Elasticsearch remote logging e2e test`
-- `runners`: `${{ inputs.runners }}`
-- `platform`: `${{ inputs.platform }}`
-- `default-python-version`: `${{ inputs.default-python-version }}`
-- `use-uv`: `${{ inputs.use-uv }}`
-- `e2e_test_mode`: `remote_log_elasticsearch`
-
-### OpenSearch remote logging tests with PROD image (`test-e2e-integration-tests-remote-log-opensearch`)
-
-| Property | Value |
-|----------|-------|
-| Uses workflow | [Airflow E2E Tests](#airflow-e2e-tests) |
-| Condition | `inputs.canary-run == 'true' \|\| inputs.run-remote-logging-opensearch-e2e-tests == 'true'` |
-
-#### Inputs forwarded
-
-- `workflow-name`: `OpenSearch remote logging e2e test`
-- `runners`: `${{ inputs.runners }}`
-- `platform`: `${{ inputs.platform }}`
-- `default-python-version`: `${{ inputs.default-python-version }}`
-- `use-uv`: `${{ inputs.use-uv }}`
-- `e2e_test_mode`: `remote_log_opensearch`
-
-### XCom object storage backend tests with PROD image (`test-e2e-integration-tests-xcom-object-storage`)
-
-| Property | Value |
-|----------|-------|
-| Uses workflow | [Airflow E2E Tests](#airflow-e2e-tests) |
-
-#### Inputs forwarded
-
-- `workflow-name`: `XCom object storage backend e2e test`
-- `runners`: `${{ inputs.runners }}`
-- `platform`: `${{ inputs.platform }}`
-- `default-python-version`: `${{ inputs.default-python-version }}`
-- `use-uv`: `${{ inputs.use-uv }}`
-- `e2e_test_mode`: `xcom_object_storage`
-
-### Event driven tests with PROD image (`test-e2e-integration-tests-event-driven`)
-
-| Property | Value |
-|----------|-------|
-| Uses workflow | [Airflow E2E Tests](#airflow-e2e-tests) |
-| Condition | `inputs.canary-run == 'true' \|\| inputs.run-event-driven-e2e-tests == 'true'` |
-
-#### Inputs forwarded
-
-- `workflow-name`: `Event driven e2e test`
-- `runners`: `${{ inputs.runners }}`
-- `platform`: `${{ inputs.platform }}`
-- `default-python-version`: `${{ inputs.default-python-version }}`
-- `use-uv`: `${{ inputs.use-uv }}`
-- `e2e_test_mode`: `event_driven`
-
-### Chromium UI e2e tests with PROD image (`test-ui-e2e-chromium`)
-
-| Property | Value |
-|----------|-------|
-| Uses workflow | [UI End-to-End Tests](#ui-end-to-end-tests) |
-| Condition | `inputs.run-ui-e2e-tests == 'true'` |
-
-#### Inputs forwarded
-
-- `workflow-name`: `Chromium UI e2e tests`
-- `runners`: `${{ inputs.runners }}`
-- `platform`: `${{ inputs.platform }}`
-- `default-python-version`: `${{ inputs.default-python-version }}`
-- `use-uv`: `${{ inputs.use-uv }}`
-- `browser`: `chromium`
-
-### Firefox UI e2e tests with PROD image (`test-ui-e2e-firefox`)
-
-| Property | Value |
-|----------|-------|
-| Uses workflow | [UI End-to-End Tests](#ui-end-to-end-tests) |
-| Condition | `inputs.run-ui-e2e-tests == 'true'` |
-
-#### Inputs forwarded
-
-- `workflow-name`: `Firefox UI e2e tests`
-- `runners`: `${{ inputs.runners }}`
-- `platform`: `${{ inputs.platform }}`
-- `default-python-version`: `${{ inputs.default-python-version }}`
-- `use-uv`: `${{ inputs.use-uv }}`
-- `browser`: `firefox`
-
-### WebKit UI e2e tests with PROD image (`test-ui-e2e-webkit`)
-
-| Property | Value |
-|----------|-------|
-| Uses workflow | [UI End-to-End Tests](#ui-end-to-end-tests) |
-| Condition | `inputs.run-ui-e2e-tests == 'true'` |
-
-#### Inputs forwarded
-
-- `workflow-name`: `WebKit UI e2e tests`
-- `runners`: `${{ inputs.runners }}`
-- `platform`: `${{ inputs.platform }}`
-- `default-python-version`: `${{ inputs.default-python-version }}`
-- `use-uv`: `${{ inputs.use-uv }}`
-- `browser`: `webkit`
-
-### Airflow CTL integration tests with PROD image (`airflow-ctl-integration-tests`)
-
-| Property | Value |
-|----------|-------|
-| Condition | `inputs.run-airflow-ctl-integration-tests == 'true'` |
-
-**Environment (`env`):**
-
-| Variable | Value |
-|----------|-------|
-| `PYTHON_MAJOR_MINOR_VERSION` | `${{ inputs.default-python-version }}` |
-| `GITHUB_REPOSITORY` | `${{ github.repository }}` |
-| `GITHUB_TOKEN` | `${{ secrets.GITHUB_TOKEN }}` |
-| `GITHUB_USERNAME` | `${{ github.actor }}` |
-| `VERBOSE` | `true` |
-
-<details>
-<summary>Steps (4)</summary>
-
-1. **Cleanup repo**
-
-2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@v6.0.2`
-   - With:
-     - `fetch-depth`: `2`
-     - `persist-credentials`: `false`
-
-3. **Prepare breeze & PROD image: ${{ env.PYTHON\_MAJOR\_MINOR\_VERSION }}**
-   - ID: `breeze`
-   - Uses: `./.github/actions/prepare_breeze_and_image`
-   - With:
-     - `platform`: `${{ inputs.platform }}` - Platform for the build - linux/amd64 or linux/arm64 (required)
-     - `image-type`: `prod` - Which image type to prepare (ci/prod)
-     - `python`: `${{ env.PYTHON_MAJOR_MINOR_VERSION }}` - Python version for image to prepare (required)
-     - `use-uv`: `${{ inputs.use-uv }}` - Whether to use uv (required)
-     - `make-mnt-writeable-and-cleanup`: `true` - Whether to cleanup /mnt (required)
-
-4. **Run airflowctl integration tests**
-
-</details>
-
-[Back to top](#contents)
-
-# Non-core Distribution tests
-
-**Triggers:** `workflow_call`
-
-| Property | Value |
-|----------|-------|
-| File | `airflow-distributions-tests.yml` |
-
-## Workflow call API
-
-**Inputs:**
-
-| Name | Type | Required | Default | Description |
-|------|------|----------|---------|-------------|
-| `runners` | string | Yes | - | The array of labels (in json form) determining runners. |
-| `platform` | string | Yes | - | Platform for the build - 'linux/amd64' or 'linux/arm64' |
-| `distribution-name` | string | Yes | - | The name of the distribution to test |
-| `distribution-cmd-format` | string | Yes | - | The type of distribution to test |
-| `test-type` | string | Yes | - | distribution test type |
-| `default-python-version` | string | Yes | - | Which version of python should be used by default |
-| `python-versions` | string | Yes | - | JSON-formatted array of Python versions to build images from |
-| `use-uv` | string | Yes | - | Whether to use uv to build the image (true/false) |
-| `canary-run` | string | Yes | - | Whether this is a canary run (true/false) |
-| `use-local-venv` | string | Yes | - | Whether local venv should be used for tests (true/false) |
-| `test-timeout` | number | No | `60` | - |
-
-## Permissions
-
-- `contents`: `read`
-
-## Called by
-
-`airflow-distributions-tests.yml`
-
-- **[ci-amd.yml](#tests-amd)** - entry point (x2)
-- **[ci-arm.yml](#tests-arm)** - entry point (x2)
-
-## Referenced secrets and variables
-
-**Secrets:**
-
-| Name | Used by |
-|------|---------|
-| `GITHUB_TOKEN` | job `distributions-tests` env `GITHUB_TOKEN` |
-
-## Jobs
-
-### ${{ inputs.distribution-name }}:P${{ matrix.python-version }} tests (`distributions-tests`)
-
-| Property | Value |
-|----------|-------|
-| Runs on | `${{ fromJSON(inputs.runners) }}` |
-| Matrix | `python-version`: ${{fromJSON(inputs.python-versions)}} |
-
-**Environment (`env`):**
-
-| Variable | Value |
-|----------|-------|
-| `GITHUB_REPOSITORY` | `${{ github.repository }}` |
-| `GITHUB_TOKEN` | `${{ secrets.GITHUB_TOKEN }}` |
-| `GITHUB_USERNAME` | `${{ github.actor }}` |
-| `INCLUDE_NOT_READY_PROVIDERS` | `true` |
-| `PYTHON_MAJOR_MINOR_VERSION` | `${{ inputs.default-python-version }}` |
-| `VERBOSE` | `true` |
-
-<details>
-<summary>Steps (8)</summary>
-
-1. **Cleanup repo**
-
-2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@v6.0.2`
-   - With:
-     - `persist-credentials`: `false`
-
-3. **Prepare breeze & CI image: ${{ matrix.python-version }}**
-   - Uses: `./.github/actions/prepare_breeze_and_image`
-   - Condition: `${{ inputs.use-local-venv != 'true' }}`
-   - With:
-     - `platform`: `${{ inputs.platform }}` - Platform for the build - linux/amd64 or linux/arm64 (required)
-     - `python`: `${{ matrix.python-version }}` - Python version for image to prepare (required)
-     - `use-uv`: `${{ inputs.use-uv }}` - Whether to use uv (required)
-     - `make-mnt-writeable-and-cleanup`: `true` - Whether to cleanup /mnt (required)
-
-4. **Install Breeze**
-   - Uses: `./.github/actions/breeze`
-   - Condition: `${{ inputs.use-local-venv == 'true' }}`
-
-5. **Cleanup dist files**
-   - Condition: `${{ matrix.python-version == inputs.default-python-version }}`
-
-6. **Prepare Airflow ${{inputs.distribution-name}}: wheel**
-   - Condition: `${{ matrix.python-version == inputs.default-python-version }}`
-   - Env:
-     - `DISTRIBUTION_TYPE`: `${{ inputs.distribution-cmd-format }}`
-     - `USE_LOCAL_HATCH`: `${{ inputs.use-local-venv }}`
-
-7. **Verify wheel packages with twine**
-   - Condition: `${{ matrix.python-version == inputs.default-python-version }}`
-
-8. **Run unit tests for Airflow ${{inputs.distribution-name}}:Python ${{ matrix.python-version }}**
-   - Env:
-     - `PYTHON_VERSION`: `${{ matrix.python-version }}`
-     - `TEST_TYPE`: `${{ inputs.test-type }}`
-
-</details>
+- `SLACK_BOT_TOKEN`: `${{ secrets.SLACK_BOT_TOKEN }}`
 
 [Back to top](#contents)
 
@@ -1035,16 +526,24 @@ Inputs for the `workflow_dispatch` event.
 
 [Back to top](#contents)
 
-# Basic tests
+# Build & Publish Registry
 
-**Triggers:** `workflow_call`
+**Triggers:** `workflow_dispatch`, `workflow_call`
 
 | Property | Value |
 |----------|-------|
-| File | `basic-tests.yml` |
-| Default runs-on | `${{ fromJSON(inputs.runners) }}` |
+| File | `registry-build.yml` |
 
-**Jobs:** [Breeze unit tests](#breeze-unit-tests-run-breeze-tests), [Breeze integration tests](#breeze-integration-tests-run-breeze-integration-tests), [Shared ${{ matrix.shared-distribution }} tests](#shared--matrixshared-distribution--tests-tests-shared-distributions), [Scripts tests](#scripts-tests-tests-scripts), [React UI tests](#react-ui-tests-tests-ui), [Check translation completeness](#check-translation-completeness-check-translation-completness), [Static checks: basic checks only](#static-checks-basic-checks-only-static-checks-basic-checks-only), [Test git clone on Windows](#test-git-clone-on-windows-test-git-clone-on-windows), [Test Airflow release commands](#test-airflow-release-commands-test-airflow-release-commands), [Test Airflow standalone commands](#test-airflow-standalone-commands-test-airflow-standalone)
+**Jobs:** [Build CI image](#build-ci-image-build-ci-image), [Build & Publish Registry](#build--publish-registry-build-and-publish-registry)
+
+## Manual trigger inputs
+
+Inputs for the `workflow_dispatch` event.
+
+| Name | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| `destination` | choice | Yes | `staging` | Publish to live or staging S3 bucket<br>Options: `staging`, `live` |
+| `provider` | string | No | - | Provider ID(s) for incremental build (space-separated, empty = full build) |
 
 ## Workflow call API
 
@@ -1052,31 +551,40 @@ Inputs for the `workflow_dispatch` event.
 
 | Name | Type | Required | Default | Description |
 |------|------|----------|---------|-------------|
-| `runners` | string | Yes | - | The array of labels (in json form) determining runners. |
-| `run-ui-tests` | string | Yes | - | Whether to run UI tests (true/false) |
-| `run-www-tests` | string | Yes | - | Whether to run WWW tests (true/false) |
-| `run-api-codegen` | string | Yes | - | Whether to run API codegen (true/false) |
-| `run-breeze-integration-tests` | string | Yes | - | Whether to run breeze integration tests (true/false) |
-| `run-scripts-tests` | string | Yes | - | Whether to run scripts tests (true/false) |
-| `basic-checks-only` | string | Yes | - | Whether to run only basic checks (true/false) |
-| `skip-prek-hooks` | string | Yes | - | Whether to skip prek hooks (true/false) |
-| `default-python-version` | string | Yes | - | Which version of python should be used by default |
-| `shared-distributions-as-json` | string | Yes | - | Json array of shared distributions to run tests for |
-| `canary-run` | string | Yes | - | Whether to run canary tests (true/false) |
-| `latest-versions-only` | string | Yes | - | Whether to run only latest version checks (true/false) |
-| `use-uv` | string | Yes | - | Whether to use uv in the image |
-| `platform` | string | Yes | - | Platform for the build - linux/amd64 or linux/arm64 |
+| `destination` | string | No | `staging` | Publish to live or staging S3 bucket |
+| `provider` | string | No | - | Provider ID(s) for incremental build (space-separated, empty = full build) |
+
+**Secrets:**
+
+| Name | Required | Description |
+|------|----------|-------------|
+| `DOCS_AWS_ACCESS_KEY_ID` | Yes | - |
+| `DOCS_AWS_SECRET_ACCESS_KEY` | Yes | - |
 
 ## Permissions
 
 - `contents`: `read`
+- `packages`: `read`
+
+## Call graph (rooted at this workflow)
+
+`registry-build.yml` [workflow_dispatch, workflow_call]
+
+- `build-ci-image` uses [ci-image-build.yml](#build-ci-images)
+  - `build-ci-images / Install Breeze` uses [./.github/actions/breeze](#setup-breeze)
+- `build-and-publish-registry / Prepare breeze & CI image` uses [./.github/actions/prepare_breeze_and_image](#prepare-breeze--current-image-ci-or-prod)
+
+## Transitive requirements (from full call graph)
+
+Secrets referenced (literal names): `CONSTRAINTS_GITHUB_REPOSITORY`, `DOCS_AWS_ACCESS_KEY_ID`, `DOCS_AWS_SECRET_ACCESS_KEY`, `GITHUB_TOKEN`
+
+Permissions declared across the chain: `contents: read`, `packages: read`, `packages: write`
 
 ## Called by
 
-`basic-tests.yml`
+`registry-build.yml`
 
-- [ci-amd.yml](#basic-tests-basic-tests) (job: `basic-tests`) - entry point
-- [ci-arm.yml](#basic-tests-basic-tests-1) (job: `basic-tests`) - entry point
+- [publish-docs-to-s3.yml](#update-provider-registry-update-registry) (job: `update-registry`) - entry point
 
 ## Referenced secrets and variables
 
@@ -1084,332 +592,149 @@ Inputs for the `workflow_dispatch` event.
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | job `test-airflow-release-commands` env `GITHUB_TOKEN`; job `test-airflow-release-commands` step `Test providers metadata generation` env `GITHUB_TOKEN` |
+| `DOCS_AWS_ACCESS_KEY_ID` | job `build-and-publish-registry` step `Configure AWS credentials` with `aws-access-key-id` |
+| `DOCS_AWS_SECRET_ACCESS_KEY` | job `build-and-publish-registry` step `Configure AWS credentials` with `aws-secret-access-key` |
 
 ## Jobs
 
-### Breeze unit tests (`run-breeze-tests`)
-
-<details>
-<summary>Steps (4)</summary>
-
-1. **Cleanup repo**
-
-2. **actions/checkout@v6.0.2**
-   - With:
-     - `fetch-depth`: `0`
-     - `persist-credentials`: `false`
-
-3. **Install Breeze**
-   - Uses: `./.github/actions/breeze`
-
-4. **Run unit tests**
-
-</details>
-
-### Breeze integration tests (`run-breeze-integration-tests`)
+### Build CI image (`build-ci-image`)
 
 | Property | Value |
 |----------|-------|
-| Condition | `inputs.run-breeze-integration-tests == 'true'` |
+| Uses workflow | [Build CI images](#build-ci-images) |
+| Condition | `github.event_name == 'workflow_call' \|\| contains(fromJSON('[<br>  "ashb",<br>  "bugraoz93",<br>  "eladkal",<br>  "ephraimbuddy",<br>  "jedcunningham",<br>  "jscheffl",<br>  "kaxil",<br>  "pierrejeambrun",<br>  "shahar1",<br>  "potiuk",<br>  "utkarsharma2",<br>  "vincbeck"<br>  ]'), github.event.sender.login)` |
 
-<details>
-<summary>Steps (7)</summary>
+**Permissions:**
 
-1. **Cleanup repo**
+- `contents`: `read`
+- `packages`: `write`
 
-2. **actions/checkout@v6.0.2**
-   - With:
-     - `fetch-depth`: `0`
-     - `persist-credentials`: `false`
+#### Inputs forwarded
 
-3. **Install Breeze**
-   - Uses: `./.github/actions/breeze`
+- `runners`: `["ubuntu-22.04"]`
+- `platform`: `linux/amd64`
+- `push-image`: `false`
+- `upload-image-artifact`: `true`
+- `upload-mount-cache-artifact`: `false`
+- `python-versions`: `["3.12"]`
+- `branch`: `main`
+- `constraints-branch`: `constraints-main`
+- `use-uv`: `true`
+- `upgrade-to-newer-dependencies`: `false`
+- `docker-cache`: `registry`
+- `disable-airflow-repo-cache`: `false`
 
-4. **Install SVN**
-
-5. **Install Java (for Apache RAT)**
-   - Uses: `actions/setup-java@v5.2.0`
-   - With:
-     - `distribution`: `temurin`
-     - `java-version`: `17`
-
-6. **Install hatch**
-
-7. **Run integration tests**
-
-</details>
-
-### Shared ${{ matrix.shared-distribution }} tests (`tests-shared-distributions`)
+### Build & Publish Registry (`build-and-publish-registry`)
 
 | Property | Value |
 |----------|-------|
-| Matrix | `shared-distribution`: ${{ fromJSON(inputs.shared-distributions-as-json) }} |
+| Runs on | `ubuntu-latest` |
+| Depends on | `build-ci-image` |
 
-<details>
-<summary>Steps (3)</summary>
+**Permissions:**
 
-1. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@v6.0.2`
-   - With:
-     - `fetch-depth`: `1`
-     - `persist-credentials`: `false`
+- `contents`: `read`
 
-2. **Install uv**
+**Environment (`env`):**
 
-3. **Run shared ${{ matrix.shared-distribution }} tests**
-
-</details>
-
-### Scripts tests (`tests-scripts`)
-
-| Property | Value |
+| Variable | Value |
 |----------|-------|
-| Condition | `inputs.run-scripts-tests == 'true'` |
+| `SCARF_ANALYTICS` | `false` |
+| `DO_NOT_TRACK` | `1` |
+| `EXISTING_REGISTRY_DIR` | `/tmp/existing-registry` |
+| `REGISTRY_DATA_DIR` | `dev/registry` |
+| `REGISTRY_PROVIDERS_JSON` | `providers.json` |
+| `REGISTRY_MODULES_JSON` | `modules.json` |
+| `REGISTRY_SITE_DATA_DIR` | `registry/src/_data` |
+| `REGISTRY_SITE_VERSIONS_DIR` | `registry/src/_data/versions` |
+| `REGISTRY_SITE_LOGOS_DIR` | `registry/public/logos` |
+| `REGISTRY_CACHE_CONTROL` | `public, max-age=300` |
 
 <details>
-<summary>Steps (3)</summary>
+<summary>Steps (17)</summary>
 
-1. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@v6.0.2`
-   - With:
-     - `fetch-depth`: `1`
-     - `persist-credentials`: `false`
-
-2. **Install uv**
-
-3. **Run scripts tests**
-
-</details>
-
-### React UI tests (`tests-ui`)
-
-| Property | Value |
-|----------|-------|
-| Condition | `inputs.run-ui-tests == 'true'` |
-
-<details>
-<summary>Steps (12)</summary>
-
-1. **Cleanup repo**
-
-2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
+1. **Checkout repository**
    - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
+     - `fetch-tags`: `true`
 
-3. **Setup pnpm**
+2. **Prepare breeze & CI image**
+   - Uses: `./.github/actions/prepare_breeze_and_image`
+   - With:
+     - `python`: `3.12` - Python version for image to prepare (required)
+     - `platform`: `linux/amd64` - Platform for the build - linux/amd64 or linux/arm64 (required)
+     - `use-uv`: `true` - Whether to use uv (required)
+     - `make-mnt-writeable-and-cleanup`: `true` - Whether to cleanup /mnt (required)
+
+3. **Install AWS CLI v2**
+
+4. **Configure AWS credentials**
+   - Uses: `aws-actions/configure-aws-credentials@v6.1.1`
+   - With:
+     - `aws-access-key-id`: `${{ secrets.DOCS_AWS_ACCESS_KEY_ID }}`
+     - `aws-secret-access-key`: `${{ secrets.DOCS_AWS_SECRET_ACCESS_KEY }}`
+     - `aws-region`: `us-east-2`
+
+5. **Determine S3 destination**
+   - ID: `destination`
+   - Env:
+     - `DESTINATION`: `${{ inputs.destination || 'staging' }}`
+
+6. **Download existing registry data from S3**
+   - ID: `download-existing`
+   - Condition: `inputs.provider != ''`
+   - Env:
+     - `S3_BUCKET`: `${{ steps.destination.outputs.bucket }}`
+
+7. **Extract registry data (breeze)**
+   - Env:
+     - `PROVIDER`: `${{ inputs.provider }}`
+     - `DESTINATION`: `${{ inputs.destination }}`
+
+8. **Merge with existing registry data**
+   - Condition: `inputs.provider != '' && steps.download-existing.outputs.found == 'true'`
+
+9. **Copy breeze output to registry data**
+
+10. **Setup pnpm**
    - Uses: `pnpm/action-setup@v6.0.8`
    - With:
-     - `version`: `9`
-     - `run_install`: `false`
+     - `version`: `10`
 
-4. **Setup node**
+11. **Setup Node.js**
    - Uses: `actions/setup-node@v6.4.0`
    - With:
      - `node-version`: `24`
      - `cache`: `pnpm`
-     - `cache-dependency-path`: `airflow-core/src/airflow/**/pnpm-lock.yaml`
+     - `cache-dependency-path`: `registry/pnpm-lock.yaml`
 
-5. **Restore eslint cache (ui)**
-   - ID: `restore-eslint-cache-ui`
-   - Uses: `apache/infrastructure-actions/stash/restore@49df447b39b18354895520e0a63731b7cad7cbec`
-   - With:
-     - `path`: `airflow-core/src/airflow/ui/node_modules/`
-     - `key`: `cache-ui-node-modules-v1-${{ runner.os }}-${{ hashFiles('airflow-core/src/airflow/ui/**/pnpm-lock.yaml') }}`
+12. **Install Node.js dependencies**
 
-6. **cd airflow-core/src/airflow/ui && pnpm install --frozen-l...**
-
-7. **cd airflow-core/src/airflow/ui && pnpm test**
+13. **Build registry site**
    - Env:
-     - `FORCE_COLOR`: `2`
+     - `REGISTRY_PATH_PREFIX`: `/registry/`
 
-8. **Save eslint cache (ui)**
-   - Uses: `apache/infrastructure-actions/stash/save@49df447b39b18354895520e0a63731b7cad7cbec`
-   - Condition: `steps.restore-eslint-cache-ui.outputs.stash-hit != 'true'`
+14. **Upload registry artifact**
+   - Uses: `actions/upload-artifact@v7.0.1`
    - With:
-     - `path`: `airflow-core/src/airflow/ui/node_modules/`
-     - `key`: `cache-ui-node-modules-v1-${{ runner.os }}-${{ hashFiles('airflow/ui/**/pnpm-lock.yaml') }}`
+     - `name`: `registry-site`
+     - `path`: `registry/_site`
+     - `retention-days`: `7`
      - `if-no-files-found`: `error`
-     - `retention-days`: `2`
 
-9. **Restore eslint cache (simple auth manager UI)**
-   - ID: `restore-eslint-cache-simple-am-ui`
-   - Uses: `apache/infrastructure-actions/stash/restore@49df447b39b18354895520e0a63731b7cad7cbec`
-   - With:
-     - `path`: `airflow-core/src/airflow/api_fastapi/auth/managers/simple/ui/node_modules/`
-     - `key`: `cache-simple-am-ui-node-modules-v1- ${{ runner.os }}-${{ hashFiles('airflow/api_fastapi/auth/managers/simple/ui/**/pnpm-lock.yaml') }}`
-
-10. **cd airflow-core/src/airflow/api\_fastapi/auth/managers/sim...**
-
-11. **cd airflow-core/src/airflow/api\_fastapi/auth/managers/sim...**
+15. **Verify build emitted expected content**
    - Env:
-     - `FORCE_COLOR`: `2`
+     - `PROVIDER`: `${{ inputs.provider }}`
 
-12. **Save eslint cache (ui)**
-   - Uses: `apache/infrastructure-actions/stash/save@49df447b39b18354895520e0a63731b7cad7cbec`
-   - Condition: `steps.restore-eslint-cache-simple-am-ui.outputs.stash-hit != 'true'`
-   - With:
-     - `path`: `airflow-core/src/airflow/api_fastapi/auth/managers/simple/ui/node_modules/`
-     - `key`: `cache-simple-am-ui-node-modules-v1- ${{ runner.os }}-${{ hashFiles('airflow/api_fastapi/auth/managers/simple/ui/**/pnpm-lock.yaml') }}`
-     - `if-no-files-found`: `error`
-     - `retention-days`: `2`
-
-</details>
-
-### Check translation completeness (`check-translation-completness`)
-
-<details>
-<summary>Steps (3)</summary>
-
-1. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@v6.0.2`
-   - With:
-     - `persist-credentials`: `false`
-
-2. **Install Breeze**
-   - Uses: `./.github/actions/breeze`
-
-3. **Check translation completeness**
-
-</details>
-
-### Static checks: basic checks only (`static-checks-basic-checks-only`)
-
-| Property | Value |
-|----------|-------|
-| Condition | `inputs.basic-checks-only == 'true'` |
-
-<details>
-<summary>Steps (6)</summary>
-
-1. **Cleanup repo**
-
-2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@v6.0.2`
-   - With:
-     - `persist-credentials`: `false`
-
-3. **Install Breeze**
-   - ID: `breeze`
-   - Uses: `./.github/actions/breeze`
-
-4. **Install prek**
-   - ID: `prek`
-   - Uses: `./.github/actions/install-prek`
-   - With:
-     - `python-version`: `${{ steps.breeze.outputs.host-python-version }}` - Python version to use
-     - `platform`: `${{ inputs.platform }}` - Platform for the build - linux/amd64 or linux/arm64 (required)
-     - `save-cache`: `true` - Whether to save prek cache (required)
-
-5. **Fetch incoming commit ${{ github.sha }} with its parent**
-   - Uses: `actions/checkout@v6.0.2`
-   - With:
-     - `ref`: `${{ github.sha }}`
-     - `fetch-depth`: `2`
-     - `persist-credentials`: `false`
-
-6. **Static checks: basic checks only**
+16. **Sync registry to S3**
    - Env:
-     - `VERBOSE`: `false`
-     - `SKIP_BREEZE_PREK_HOOKS`: `true`
-     - `SKIP`: `${{ inputs.skip-prek-hooks }}`
-     - `COLUMNS`: `202`
+     - `S3_BUCKET`: `${{ steps.destination.outputs.bucket }}`
+     - `PROVIDER`: `${{ inputs.provider }}`
 
-</details>
-
-### Test git clone on Windows (`test-git-clone-on-windows`)
-
-| Property | Value |
-|----------|-------|
-| Runs on | `windows-2025` |
-
-<details>
-<summary>Steps (1)</summary>
-
-1. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@v6.0.2`
-   - With:
-     - `fetch-depth`: `2`
-     - `persist-credentials`: `false`
-
-</details>
-
-### Test Airflow release commands (`test-airflow-release-commands`)
-
-| Property | Value |
-|----------|-------|
-| Condition | `inputs.canary-run == 'true'` |
-
-**Environment (`env`):**
-
-| Variable | Value |
-|----------|-------|
-| `PYTHON_MAJOR_MINOR_VERSION` | `${{ inputs.default-python-version }}` |
-| `GITHUB_REPOSITORY` | `${{ github.repository }}` |
-| `GITHUB_TOKEN` | `${{ secrets.GITHUB_TOKEN }}` |
-| `GITHUB_USERNAME` | `${{ github.actor }}` |
-| `VERBOSE` | `true` |
-
-<details>
-<summary>Steps (12)</summary>
-
-1. **Cleanup repo**
-
-2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@v6.0.2`
-   - With:
-     - `persist-credentials`: `false`
-
-3. **Install Breeze**
-   - Uses: `./.github/actions/breeze`
-
-4. **Cleanup dist files**
-
-5. **Setup git for tagging**
-
-6. **Install twine**
-
-7. **Check Airflow create minor branch command**
-
-8. **Check Airflow RC process command**
-
-9. **Check Airflow release process command**
-
-10. **Test providers metadata generation**
+17. **Publish version metadata**
    - Env:
-     - `GITHUB_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
-
-11. **Fetch all git tags for origin**
-
-12. **Test airflow core issue generation automatically**
-
-</details>
-
-### Test Airflow standalone commands (`test-airflow-standalone`)
-
-**Environment (`env`):**
-
-| Variable | Value |
-|----------|-------|
-| `AIRFLOW_HOME` | `~/airflow` |
-| `FORCE_COLOR` | `1` |
-
-<details>
-<summary>Steps (5)</summary>
-
-1. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@v6.0.2`
-   - With:
-     - `persist-credentials`: `false`
-
-2. **Install uv**
-
-3. **Set up Airflow home directory**
-
-4. **Install Airflow from current repo (simulating user installation)**
-
-5. **Test airflow standalone command**
+     - `S3_BUCKET`: `${{ steps.destination.outputs.bucket }}`
 
 </details>
 
@@ -1457,6 +782,1314 @@ Inputs for the `workflow_dispatch` event.
 
 [Back to top](#contents)
 
+# CI Notification
+
+**Triggers:** `schedule`, `workflow_dispatch`
+
+| Property | Value |
+|----------|-------|
+| File | `ci-notification.yml` |
+
+## Schedule
+
+- `0 6,17 * * *`
+
+## Permissions
+
+- `contents`: `read`
+
+## Environment (`env`)
+
+| Variable | Value |
+|----------|-------|
+| `GITHUB_REPOSITORY` | `${{ github.repository }}` |
+| `GITHUB_TOKEN` | `${{ secrets.GITHUB_TOKEN }}` |
+| `GITHUB_USERNAME` | `${{ github.actor }}` |
+| `SLACK_BOT_TOKEN` | `${{ secrets.SLACK_BOT_TOKEN }}` |
+| `VERBOSE` | `true` |
+
+## Referenced secrets and variables
+
+**Secrets:**
+
+| Name | Used by |
+|------|---------|
+| `GITHUB_TOKEN` | workflow env `GITHUB_TOKEN`; job `workflow-status` step `Find workflow run status` env `GITHUB_TOKEN`; job `workflow-status` step `Determine notification action` env `GITHUB_TOKEN` |
+| `SLACK_BOT_TOKEN` | workflow env `SLACK_BOT_TOKEN` |
+
+## Jobs
+
+### `workflow-status`
+
+| Property | Value |
+|----------|-------|
+| Runs on | `ubuntu-latest` |
+| Matrix | `branch`: v3-2-test; `workflow-id`: ci-amd.yml |
+
+<details>
+<summary>Steps (7)</summary>
+
+1. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
+   - Uses: `actions/checkout@v6.0.2`
+   - With:
+     - `persist-credentials`: `false`
+
+2. **Find workflow run status**
+   - ID: `find-workflow-run-status`
+   - Env:
+     - `GITHUB_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
+     - `workflow_branch`: `${{ matrix.branch }}`
+     - `workflow_id`: `${{ matrix.workflow-id }}`
+
+3. **Determine notification action**
+   - ID: `notification`
+   - Env:
+     - `ARTIFACT_NAME`: `slack-state-ci-${{ matrix.branch }}-${{ matrix.workflow-id }}`
+     - `CURRENT_FAILURES`: `${{ steps.find-workflow-run-status.outputs.failed-jobs }}`
+     - `GITHUB_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
+
+4. **Upload notification state**
+   - Uses: `actions/upload-artifact@v7.0.1`
+   - With:
+     - `name`: `slack-state-ci-${{ matrix.branch }}-${{ matrix.workflow-id }}`
+     - `path`: `./slack-state/`
+     - `retention-days`: `7`
+     - `overwrite`: `true`
+
+5. **Send Slack notification (new/changed failures)**
+   - Uses: `slackapi/slack-github-action@v3.0.3`
+   - Condition: `steps.notification.outputs.action == 'notify_new'`
+   - With:
+     - `method`: `chat.postMessage`
+     - `token`: `${{ env.SLACK_BOT_TOKEN }}`
+     - `payload`: `channel: "internal-airflow-ci-cd" text: "🚨 Failure Alert: ${{ env.workflow_id }} on branch *${{ env.branch }}*\n\nFailing jobs:\n${{ steps.find-workflow-run-status.outputs.failed-jobs }}\n\n*Details:* <${{ env.run_url }}|View the failure log>" blocks:   - type: "section"     text:       type: "mrkdwn"       text: "🚨 Failure Alert: ${{ env.workflow_id }} on *${{ env.branch }}*\n\nFailing jobs:\n${{ steps.find-workflow-run-status.outputs.failed-jobs }}\n\n*Details:* <${{ env.run_url }}|View the failure log>"`
+   - Env:
+     - `run_url`: `${{ steps.find-workflow-run-status.outputs.run-url }}`
+     - `branch`: `${{ matrix.branch }}`
+     - `workflow_id`: `${{ matrix.workflow-id }}`
+
+6. **Send Slack notification (still not fixed)**
+   - Uses: `slackapi/slack-github-action@v3.0.3`
+   - Condition: `steps.notification.outputs.action == 'notify_reminder'`
+   - With:
+     - `method`: `chat.postMessage`
+     - `token`: `${{ env.SLACK_BOT_TOKEN }}`
+     - `payload`: `channel: "internal-airflow-ci-cd" text: "🚨🔁 Still not fixed: ${{ env.workflow_id }} on branch *${{ env.branch }}*\n\nFailing jobs:\n${{ steps.find-workflow-run-status.outputs.failed-jobs }}\n\n*Details:* <${{ env.run_url }}|View the failure log>" blocks:   - type: "section"     text:       type: "mrkdwn"       text: "🚨🔁 Still not fixed: ${{ env.workflow_id }} on *${{ env.branch }}*\n\nFailing jobs:\n${{ steps.find-workflow-run-status.outputs.failed-jobs }}\n\n*Details:* <${{ env.run_url }}|View the failure log>"`
+   - Env:
+     - `run_url`: `${{ steps.find-workflow-run-status.outputs.run-url }}`
+     - `branch`: `${{ matrix.branch }}`
+     - `workflow_id`: `${{ matrix.workflow-id }}`
+
+7. **Send Slack notification (all passing)**
+   - Uses: `slackapi/slack-github-action@v3.0.3`
+   - Condition: `steps.notification.outputs.action == 'notify_recovery'`
+   - With:
+     - `method`: `chat.postMessage`
+     - `token`: `${{ env.SLACK_BOT_TOKEN }}`
+     - `payload`: `channel: "internal-airflow-ci-cd" text: "✅ All passing: ${{ env.workflow_id }} on branch *${{ env.branch }}*\n\n*Details:* <${{ env.run_url }}|View the run log>" blocks:   - type: "section"     text:       type: "mrkdwn"       text: "✅ All passing: ${{ env.workflow_id }} on *${{ env.branch }}*\n\n*Details:* <${{ env.run_url }}|View the run log>"`
+   - Env:
+     - `run_url`: `${{ steps.find-workflow-run-status.outputs.run-url }}`
+     - `branch`: `${{ matrix.branch }}`
+     - `workflow_id`: `${{ matrix.workflow-id }}`
+
+</details>
+
+[Back to top](#contents)
+
+# Close stale PRs & Issues
+
+**Triggers:** `schedule`
+
+| Property | Value |
+|----------|-------|
+| File | `stale.yml` |
+
+## Schedule
+
+- `0 0 * * *`
+
+## Permissions
+
+- `pull-requests`: `write`
+- `issues`: `write`
+
+## Jobs
+
+### `stale`
+
+| Property | Value |
+|----------|-------|
+| Runs on | `ubuntu-22.04` |
+
+<details>
+<summary>Steps (2)</summary>
+
+1. **actions/stale@v10.2.0**
+   - With:
+     - `stale-pr-message`: `This pull request has been automatically marked as stale because it has not had recent activity. It will be closed in 5 days if no further activity occurs. Thank you for your contributions.`
+     - `days-before-pr-stale`: `45`
+     - `days-before-pr-close`: `5`
+     - `exempt-pr-labels`: `pinned,security,pending-response`
+     - `only-issue-labels`: `pending-response`
+     - `remove-stale-when-updated`: `true`
+     - `days-before-issue-stale`: `14`
+     - `days-before-issue-close`: `7`
+     - `stale-issue-message`: `This issue has been automatically marked as stale because it has been open for 14 days with no response from the author. It will be closed in next 7 days if no further activity occurs from the issue author.`
+     - `close-issue-message`: `This issue has been closed because it has not received response from the issue author.`
+
+2. **actions/stale@v10.2.0**
+   - With:
+     - `only-pr-labels`: `pending-response`
+     - `days-before-pr-stale`: `7`
+     - `days-before-pr-close`: `7`
+     - `stale-pr-message`: `This pull request has been automatically marked as stale because the author has not responded to a request for more information. It will be closed in 7 days if no further activity occurs. Thank you for your contributions.`
+     - `close-pr-message`: `This pull request has been closed because the author has not responded to a request for more information.`
+     - `labels-to-remove-when-unstale`: `pending-response,stale`
+     - `remove-stale-when-updated`: `true`
+     - `days-before-issue-stale`: `-1`
+     - `days-before-issue-close`: `-1`
+
+</details>
+
+[Back to top](#contents)
+
+# CodeQL
+
+**Triggers:** `pull_request`, `push`, `schedule`
+
+| Property | Value |
+|----------|-------|
+| File | `codeql-analysis.yml` |
+
+## Schedule
+
+- `0 2 * * *`
+
+## Event filters
+
+- **pull_request**
+  - branches: `main`, `v[0-9]+-[0-9]+-test`, `v[0-9]+-[0-9]+-stable`
+- **push**
+  - branches: `main`
+
+## Permissions
+
+- `contents`: `read`
+
+**Concurrency:** group `codeql-${{ github.event.pull_request.number || github.ref }}`, cancel-in-progress: `true`
+
+## Jobs
+
+### Analyze (`analyze`)
+
+| Property | Value |
+|----------|-------|
+| Runs on | `ubuntu-22.04` |
+| Matrix | `language`: python, javascript, actions, go |
+
+**Permissions:**
+
+- `actions`: `read`
+- `contents`: `read`
+- `pull-requests`: `read`
+- `security-events`: `write`
+
+<details>
+<summary>Steps (4)</summary>
+
+1. **Checkout repository**
+   - Uses: `actions/checkout@v6.0.2`
+   - With:
+     - `persist-credentials`: `false`
+
+2. **Initialize CodeQL**
+   - Uses: `github/codeql-action/init@v4.35.5`
+   - With:
+     - `languages`: `${{ matrix.language }}`
+
+3. **Autobuild**
+   - Uses: `github/codeql-action/autobuild@v4.35.5`
+
+4. **Perform CodeQL Analysis**
+   - Uses: `github/codeql-action/analyze@v4.35.5`
+   - With:
+     - `category`: `/language:${{matrix.language}}`
+
+</details>
+
+[Back to top](#contents)
+
+# E2E Flaky Tests Report
+
+**Triggers:** `schedule`, `workflow_dispatch`
+
+| Property | Value |
+|----------|-------|
+| File | `e2e-flaky-tests-report.yml` |
+
+## Schedule
+
+- `0 0 * * *`
+
+## Permissions
+
+- `contents`: `read`
+- `actions`: `read`
+
+## Environment (`env`)
+
+| Variable | Value |
+|----------|-------|
+| `GITHUB_REPOSITORY` | `${{ github.repository }}` |
+| `GITHUB_TOKEN` | `${{ secrets.GITHUB_TOKEN }}` |
+| `SLACK_BOT_TOKEN` | `${{ secrets.SLACK_BOT_TOKEN }}` |
+
+## Referenced secrets and variables
+
+**Secrets:**
+
+| Name | Used by |
+|------|---------|
+| `GITHUB_TOKEN` | workflow env `GITHUB_TOKEN`; job `analyze-flaky-tests` step `Analyze E2E test results` env `GITHUB_TOKEN` |
+| `SLACK_BOT_TOKEN` | workflow env `SLACK_BOT_TOKEN` |
+
+## Jobs
+
+### Analyze E2E flaky tests (`analyze-flaky-tests`)
+
+| Property | Value |
+|----------|-------|
+| Runs on | `ubuntu-latest` |
+
+<details>
+<summary>Steps (4)</summary>
+
+1. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
+   - Uses: `actions/checkout@v6.0.2`
+   - With:
+     - `persist-credentials`: `false`
+
+2. **Analyze E2E test results**
+   - ID: `analyze`
+   - Env:
+     - `GITHUB_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
+     - `MAX_RUNS`: `10`
+     - `WORKFLOW_NAME`: `ci-amd.yml`
+     - `BRANCH`: `main`
+     - `OUTPUT_FILE`: `slack-message.json`
+
+3. **Post report to Slack**
+   - Uses: `slackapi/slack-github-action@v3.0.3`
+   - Condition: `always() && steps.analyze.outcome == 'success'`
+   - With:
+     - `method`: `chat.postMessage`
+     - `token`: `${{ env.SLACK_BOT_TOKEN }}`
+     - `payload-file-path`: `slack-message.json`
+
+4. **Upload analysis results**
+   - Uses: `actions/upload-artifact@v7.0.1`
+   - Condition: `always()`
+   - With:
+     - `name`: `e2e-flaky-test-analysis`
+     - `path`: `slack-message.json`
+     - `retention-days`: `14`
+
+</details>
+
+[Back to top](#contents)
+
+# Milestone Tag Assistant
+
+**Triggers:** `push`
+
+| Property | Value |
+|----------|-------|
+| File | `milestone-tag-assistant.yml` |
+| Default runs-on | `ubuntu-latest` |
+
+**Jobs:** [Get PR information](#get-pr-information-get-pr-info-1), [Set milestone on merged PR](#set-milestone-on-merged-pr-set-milestone)
+
+## Event filters
+
+- **push**
+  - branches: `main`, `v3-2-test`, `v3-1-test`
+
+## Permissions
+
+- `contents`: `write` - zizmor: ignore[excessive-permissions]
+- `pull-requests`: `write` - zizmor: ignore[excessive-permissions]
+
+## Call graph (rooted at this workflow)
+
+`milestone-tag-assistant.yml` [push]
+
+- `set-milestone / Install Breeze` uses [./.github/actions/breeze](#setup-breeze)
+
+## Transitive requirements (from full call graph)
+
+Secrets referenced (literal names): `GITHUB_TOKEN`
+
+Permissions declared across the chain: `contents: write`, `pull-requests: write`
+
+## Referenced secrets and variables
+
+**Secrets:**
+
+| Name | Used by |
+|------|---------|
+| `GITHUB_TOKEN` | job `get-pr-info` step `Find PR information` env `GITHUB_TOKEN` |
+
+## Jobs
+
+### Get PR information (`get-pr-info`)
+
+<details>
+<summary>Steps (2)</summary>
+
+1. **Add delay for GitHub to process PR merge**
+
+2. **Find PR information**
+   - ID: `pr-info`
+   - Uses: `actions/github-script@v9.0.0`
+   - With:
+     - `script`: `` const { data: pullRequests } = await github.rest.repos.listPullRequestsAssociatedWithCommit({     owner: context.repo.owner,     repo: context.repo.repo,     commit_sha: process.env.GITHUB_SHA });  if (pullRequests.length === 0) {     console.log('⚠️ No pull request found for this commit.');     core.setOutput('should-run', 'false');     return; }  const pr = pullRequests[0];  // Skip if PR already has a milestone if (pr.milestone !== null) {     console.log(`PR #${pr.number} already has milestone: ${pr.milestone.title}`);     core.setOutput('should-run', 'false');     return; }  const labels = pr.labels.map(label => label.name);  console.log(`Commit ${process.env.GITHUB_SHA} is associated with PR #${pr.number}`); console.log(`Title: ${pr.title}`); console.log(`Labels: ${JSON.stringify(labels)}`); console.log(`Base branch: ${pr.base.ref}`); console.log(`Merged by: ${pr.merged_by?.login || 'unknown'}`);  core.setOutput('should-run', 'true'); core.setOutput('pr-number', pr.number.toString()); core.setOutput('pr-title', pr.title); core.setOutput('pr-labels', JSON.stringify(labels)); core.setOutput('base-branch', pr.base.ref); core.setOutput('merged-by', pr.merged_by?.login || 'unknown'); ``
+   - Env:
+     - `GITHUB_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
+
+</details>
+
+### Set milestone on merged PR (`set-milestone`)
+
+| Property | Value |
+|----------|-------|
+| Depends on | `get-pr-info` |
+| Condition | `${{ needs.get-pr-info.outputs.should-run == 'true' }}` |
+
+<details>
+<summary>Steps (3)</summary>
+
+1. **Checkout repository**
+   - Uses: `actions/checkout@v6.0.2`
+   - With:
+     - `persist-credentials`: `false`
+     - `ref`: `main`
+
+2. **Install Breeze**
+   - ID: `breeze`
+   - Uses: `./.github/actions/breeze`
+
+3. **Check criteria and set milestone**
+   - Env:
+     - `GH_TOKEN`: `${{ github.token }}`
+     - `GITHUB_REPOSITORY`: `${{ github.repository }}`
+     - `PR_NUMBER`: `${{ needs.get-pr-info.outputs.pr-number }}`
+     - `PR_TITLE`: `${{ needs.get-pr-info.outputs.pr-title }}`
+     - `PR_LABELS`: `${{ needs.get-pr-info.outputs.pr-labels }}`
+     - `BASE_BRANCH`: `${{ needs.get-pr-info.outputs.base-branch }}`
+     - `MERGED_BY`: `${{ needs.get-pr-info.outputs.merged-by }}`
+
+</details>
+
+[Back to top](#contents)
+
+# Notify uv.lock conflicts
+
+**Triggers:** `push`
+
+| Property | Value |
+|----------|-------|
+| File | `notify-uv-lock-conflicts.yml` |
+
+## Event filters
+
+- **push**
+  - branches: `main`
+  - paths: `uv.lock`
+
+## Permissions
+
+- `contents`: `read`
+- `pull-requests`: `write`
+
+## Referenced secrets and variables
+
+**Secrets:**
+
+| Name | Used by |
+|------|---------|
+| `GITHUB_TOKEN` | job `notify` step `Notify open PRs` env `GITHUB_TOKEN` |
+
+## Jobs
+
+### Notify open PRs that conflict on uv.lock (`notify`)
+
+| Property | Value |
+|----------|-------|
+| Runs on | `ubuntu-22.04` |
+
+<details>
+<summary>Steps (3)</summary>
+
+1. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
+   - Uses: `actions/checkout@v6.0.2`
+   - With:
+     - `persist-credentials`: `false`
+
+2. **Install uv**
+
+3. **Notify open PRs**
+   - Env:
+     - `GITHUB_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
+     - `GITHUB_REPOSITORY`: `${{ github.repository }}`
+     - `GITHUB_SHA`: `${{ github.sha }}`
+
+</details>
+
+[Back to top](#contents)
+
+# Publish Docs to S3
+
+**Triggers:** `workflow_dispatch`
+
+| Property | Value |
+|----------|-------|
+| File | `publish-docs-to-s3.yml` |
+| Default runs-on | `ubuntu-latest` |
+
+**Jobs:** [Build Info](#build-info-build-info), [Build documentation](#build-documentation-build-docs), [Publish documentation to S3](#publish-documentation-to-s3-publish-docs-to-s3), [Update Provider Registry](#update-provider-registry-update-registry)
+
+## Manual trigger inputs
+
+Inputs for the `workflow_dispatch` event.
+
+| Name | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| `ref` | string | Yes | - | The branch or tag to checkout for the docs publishing |
+| `destination` | choice | No | `auto` | The destination location in S3<br>Options: `auto`, `live`, `staging` |
+| `include-docs` | string | Yes | - | Space separated list of packages to build |
+| `exclude-docs` | string | No | `no-docs-excluded` | Comma separated list of docs to exclude |
+| `skip-write-to-stable-folder` | boolean | No | `false` | Do not override stable version |
+| `build-sboms` | boolean | No | `false` | Build SBOMs |
+| `airflow-base-version` | string | No | - | Override the Airflow Base Version to use for the docs build |
+| `airflow-version` | string | No | - | Override the Airflow Version to use for the docs build |
+| `apply-commits` | string | No | - | Optionally apply commit hashes before building - to patch the docs (coma separated) |
+| `ignore-missing-inventories` | boolean | No | `false` | Do not fail the build on missing third-party inventories |
+
+## Permissions
+
+- `contents`: `read`
+
+## Call graph (rooted at this workflow)
+
+`publish-docs-to-s3.yml` [workflow_dispatch]
+
+- uses **[./.github/actions/breeze](#setup-breeze)** (x2)
+- `update-registry` uses [registry-build.yml](#build--publish-registry)
+  - `build-ci-image` uses [ci-image-build.yml](#build-ci-images)
+    - `build-ci-images / Install Breeze` uses [./.github/actions/breeze](#setup-breeze)
+  - `build-and-publish-registry / Prepare breeze & CI image` uses [./.github/actions/prepare_breeze_and_image](#prepare-breeze--current-image-ci-or-prod)
+
+## Transitive requirements (from full call graph)
+
+Secrets referenced (literal names): `CONSTRAINTS_GITHUB_REPOSITORY`, `DOCS_AWS_ACCESS_KEY_ID`, `DOCS_AWS_SECRET_ACCESS_KEY`, `GITHUB_TOKEN`
+
+Permissions declared across the chain: `contents: read`, `id-token: write (OIDC)`, `packages: read`, `packages: write`
+
+## Referenced secrets and variables
+
+**Secrets:**
+
+| Name | Used by |
+|------|---------|
+| `GITHUB_TOKEN` | job `build-docs` env `GITHUB_TOKEN`; job `build-docs` step `Login to ghcr.io` env `GITHUB_TOKEN`; job `publish-docs-to-s3` env `GITHUB_TOKEN`; job `publish-docs-to-s3` step `Prepare SBOMs` env `GITHUB_TOKEN` |
+| `DOCS_AWS_ACCESS_KEY_ID` | job `publish-docs-to-s3` step `Configure AWS credentials` with `aws-access-key-id`; job `update-registry` secrets `DOCS_AWS_ACCESS_KEY_ID` |
+| `DOCS_AWS_SECRET_ACCESS_KEY` | job `publish-docs-to-s3` step `Configure AWS credentials` with `aws-secret-access-key`; job `update-registry` secrets `DOCS_AWS_SECRET_ACCESS_KEY` |
+
+## Jobs
+
+### Build Info (`build-info`)
+
+| Property | Value |
+|----------|-------|
+| Runs on | `ubuntu-24.04` |
+| Condition | `contains(fromJSON('[ "ashb", "bugraoz93", "eladkal", "ephraimbuddy", "jedcunningham", "jscheffl", "kaxil", "pierrejeambrun", "shahar1", "potiuk", "utkarsharma2", "vincbeck", "vatsrahul1001", ]'), github.event.sender.login)` |
+
+**Environment (`env`):**
+
+| Variable | Value |
+|----------|-------|
+| `VERBOSE` | `true` |
+| `REF` | `${{ inputs.ref }}` |
+| `INCLUDE_DOCS` | `${{ inputs.include-docs }}` |
+| `EXCLUDE_DOCS` | `${{ inputs.exclude-docs }}` |
+| `DESTINATION` | `${{ inputs.destination }}` |
+| `SKIP_WRITE_TO_STABLE_FOLDER` | `${{ inputs.skip-write-to-stable-folder }}` |
+| `BUILD_SBOMS` | `${{ inputs.build-sboms }}` |
+| `AIRFLOW_BASE_VERSION` | `${{ inputs.airflow-base-version \|\| '' }}` |
+| `AIRFLOW_VERSION` | `${{ inputs.airflow-version \|\| '' }}` |
+| `APPLY_COMMITS` | `${{ inputs.apply-commits \|\| '' }}` |
+
+<details>
+<summary>Steps (3)</summary>
+
+1. **Checkout for wave provider derivation**
+   - Uses: `actions/checkout@v6.0.2`
+   - With:
+     - `persist-credentials`: `false`
+     - `ref`: `${{ inputs.ref }}`
+     - `fetch-tags`: `true`
+     - `fetch-depth`: `0`
+
+2. **Derive registry trigger inputs**
+   - ID: `derive_registry_inputs`
+   - Env:
+     - `INCLUDE_DOCS`: `${{ inputs.include-docs }}`
+     - `REF`: `${{ inputs.ref }}`
+
+3. **Input parameters summary**
+   - ID: `parameters`
+
+</details>
+
+### Build documentation (`build-docs`)
+
+| Property | Value |
+|----------|-------|
+| Depends on | `build-info` |
+
+**Permissions:**
+
+- `contents`: `read`
+- `packages`: `read`
+
+**Environment (`env`):**
+
+| Variable | Value |
+|----------|-------|
+| `GITHUB_REPOSITORY` | `${{ github.repository }}` |
+| `GITHUB_TOKEN` | `${{ secrets.GITHUB_TOKEN }}` |
+| `GITHUB_USERNAME` | `${{ github.actor }}` |
+| `INCLUDE_SUCCESS_OUTPUTS` | `false` |
+| `VERBOSE` | `true` |
+| `EXTRA_BUILD_OPTIONS` | `${{ needs.build-info.outputs.extra-build-options }}` |
+| `APPLY_COMMITS` | `${{ inputs.apply-commits \|\| '' }}` |
+| `PYTHON_MAJOR_MINOR_VERSION` | `${{ needs.build-info.outputs.default-python-version }}` |
+| `DOCKER_CACHE` | `registry` |
+
+<details>
+<summary>Steps (17)</summary>
+
+1. **Cleanup repo**
+
+2. **Checkout current version first to clean-up stuff**
+   - Uses: `actions/checkout@v6.0.2`
+   - With:
+     - `persist-credentials`: `false`
+     - `path`: `current-version`
+
+3. **Free up disk space**
+
+4. **Make /mnt writeable**
+
+5. **Move docker to /mnt**
+
+6. **Copy the version retrieval script**
+
+7. **Checkout ${{ inputs.ref }}**
+   - Uses: `actions/checkout@v6.0.2`
+   - With:
+     - `persist-credentials`: `false`
+     - `ref`: `${{ inputs.ref }}`
+     - `fetch-tags`: `true`
+     - `fetch-depth`: `0`
+
+8. **Apply patch commits if provided**
+
+9. **Install Breeze from the ${{ inputs.ref }} reference**
+   - Uses: `./.github/actions/breeze`
+   - With:
+     - `python-version`: `${{ needs.build-info.outputs.default-python-version }}` - Python version to use
+
+10. **Login to ghcr.io**
+   - Env:
+     - `GITHUB_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
+     - `ACTOR`: `${{ github.actor }}`
+
+11. **Building image from the ${{ inputs.ref }} reference**
+   - Env:
+     - `INCLUDE_DOCS`: `${{ needs.build-info.outputs.include-docs }}`
+     - `INCLUDE_COMMITS`: `${{ startsWith(inputs.ref, 'providers') && 'true' || 'false' }}`
+
+12. **Restore docs inventory cache**
+   - ID: `restore-docs-inventory-cache`
+   - Uses: `apache/infrastructure-actions/stash/restore@49df447b39b18354895520e0a63731b7cad7cbec`
+   - With:
+     - `path`: `./generated/_inventory_cache/`
+     - `key`: `cache-docs-inventory-v1`
+
+13. **Building docs with --docs-only flag using ${{ inputs.ref }} reference breeze**
+   - Env:
+     - `INCLUDE_DOCS`: `${{ needs.build-info.outputs.include-docs }}`
+     - `INCLUDE_COMMITS`: `${{ startsWith(inputs.ref, 'providers') && 'true' || 'false' }}`
+     - `FAIL_ON_INVENTORIES`: `${{ inputs.ignore-missing-inventories != true && '--fail-on-missing-third-party-inventories' || '' }}`
+
+14. **Save docs inventory cache**
+   - Uses: `apache/infrastructure-actions/stash/save@49df447b39b18354895520e0a63731b7cad7cbec`
+   - Condition: `steps.restore-docs-inventory-cache.outputs.stash-hit != 'true'`
+   - With:
+     - `path`: `./generated/_inventory_cache/`
+     - `key`: `cache-docs-inventory-v1`
+     - `if-no-files-found`: `error`
+     - `retention-days`: `2`
+
+15. **Store stable versions**
+
+16. **Saving build docs folder**
+
+17. **Upload build docs**
+   - Uses: `actions/upload-artifact@v7.0.1`
+   - With:
+     - `name`: `airflow-docs`
+     - `path`: `/mnt/_build`
+     - `retention-days`: `7`
+     - `if-no-files-found`: `error`
+     - `overwrite`: `true`
+
+</details>
+
+### Publish documentation to S3 (`publish-docs-to-s3`)
+
+| Property | Value |
+|----------|-------|
+| Depends on | `build-docs`, `build-info` |
+
+**Permissions:**
+
+- `id-token`: `write` (OIDC)
+- `contents`: `read`
+- `packages`: `write`
+
+**Environment (`env`):**
+
+| Variable | Value |
+|----------|-------|
+| `GITHUB_REPOSITORY` | `${{ github.repository }}` |
+| `GITHUB_TOKEN` | `${{ secrets.GITHUB_TOKEN }}` |
+| `GITHUB_USERNAME` | `${{ github.actor }}` |
+| `INCLUDE_SUCCESS_OUTPUTS` | `false` |
+| `PYTHON_MAJOR_MINOR_VERSION` | `3.10` |
+| `VERBOSE` | `true` |
+
+<details>
+<summary>Steps (17)</summary>
+
+1. **Cleanup repo**
+
+2. **Checkout current version with all history for SBOM**
+   - Uses: `actions/checkout@v6.0.2`
+   - With:
+     - `persist-credentials`: `false`
+     - `fetch-depth`: `0`
+
+3. **Make /mnt writeable and cleanup**
+
+4. **Install Breeze**
+   - Uses: `./.github/actions/breeze`
+
+5. **Download docs prepared as artifacts**
+   - Uses: `actions/download-artifact@v8.0.1`
+   - With:
+     - `name`: `airflow-docs`
+     - `path`: `/mnt/_build`
+
+6. **Move docs to generated folder**
+
+7. **Make sure SBOM dir exists and has the right permissions**
+   - Condition: `inputs.build-sboms`
+
+8. **Prepare SBOMs**
+   - Condition: `inputs.build-sboms`
+   - Env:
+     - `AIRFLOW_VERSION`: `${{ needs.build-info.outputs.airflow-version }}`
+     - `GITHUB_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
+     - `PYTHON_VERSION`: `${{ needs.build-info.outputs.default-python-version }}`
+     - `FORCE`: `true`
+
+9. **Generated SBOM files**
+   - Condition: `inputs.build-sboms`
+
+10. **Check disk space available**
+
+11. **Create /mnt/airflow-site directory**
+
+12. **Publish docs to /mnt/airflow-site directory using ${{ inputs.ref }} reference breeze**
+   - Env:
+     - `INCLUDE_DOCS`: `${{ needs.build-info.outputs.include-docs }}`
+
+13. **Check disk space available**
+
+14. **Update watermarks**
+   - Condition: `needs.build-info.outputs.destination == 'staging'`
+   - Env:
+     - `SOURCE_DIR_PATH`: `/mnt/airflow-site/docs-archive/`
+
+15. **Install AWS CLI v2**
+
+16. **Configure AWS credentials**
+   - Uses: `aws-actions/configure-aws-credentials@v6.1.1`
+   - With:
+     - `aws-access-key-id`: `${{ secrets.DOCS_AWS_ACCESS_KEY_ID }}`
+     - `aws-secret-access-key`: `${{ secrets.DOCS_AWS_SECRET_ACCESS_KEY }}`
+     - `aws-region`: `us-east-2`
+
+17. **Syncing docs to S3**
+   - Env:
+     - `DESTINATION_LOCATION`: `${{ needs.build-info.outputs.destination-location }}`
+     - `SOURCE_DIR_PATH`: `/mnt/airflow-site/docs-archive/`
+     - `EXCLUDE_DOCS`: `${{ inputs.exclude-docs }}`
+     - `SKIP_WRITE_TO_STABLE_FOLDER`: `${{ needs.build-info.outputs.skip-write-to-stable-folder }}`
+
+</details>
+
+### Update Provider Registry (`update-registry`)
+
+| Property | Value |
+|----------|-------|
+| Uses workflow | [Build & Publish Registry](#build--publish-registry) |
+| Depends on | `publish-docs-to-s3`, `build-info` |
+| Condition | `needs.build-info.outputs.registry-providers != '' \|\| needs.build-info.outputs.registry-full-build == 'true'` |
+
+**Permissions:**
+
+- `contents`: `read`
+- `packages`: `write`
+
+#### Inputs forwarded
+
+- `destination`: `${{ needs.build-info.outputs.destination }}`
+- `provider`: `${{ needs.build-info.outputs.registry-providers }}`
+
+#### Secrets forwarded
+
+- `DOCS_AWS_ACCESS_KEY_ID`: `${{ secrets.DOCS_AWS_ACCESS_KEY_ID }}`
+- `DOCS_AWS_SECRET_ACCESS_KEY`: `${{ secrets.DOCS_AWS_SECRET_ACCESS_KEY }}`
+
+[Back to top](#contents)
+
+# Recheck old bug reports
+
+**Triggers:** `schedule`
+
+| Property | Value |
+|----------|-------|
+| File | `recheck-old-bug-report.yml` |
+
+## Schedule
+
+- `0 7 * * *`
+
+## Permissions
+
+- `issues`: `write`
+
+## Jobs
+
+### `recheck-old-bug-report`
+
+| Property | Value |
+|----------|-------|
+| Runs on | `ubuntu-22.04` |
+
+<details>
+<summary>Steps (1)</summary>
+
+1. **actions/stale@v10.2.0**
+   - With:
+     - `only-issue-labels`: `kind:bug`
+     - `stale-issue-label`: `Stale Bug Report`
+     - `days-before-issue-stale`: `365`
+     - `days-before-issue-close`: `30`
+     - `days-before-pr-stale`: `-1`
+     - `days-before-pr-close`: `-1`
+     - `remove-stale-when-updated`: `false`
+     - `remove-issue-stale-when-updated`: `true`
+     - `labels-to-add-when-unstale`: `needs-triage`
+     - `labels-to-remove-when-unstale`: `Stale Bug Report`
+     - `stale-issue-message`: `This issue has been automatically marked as stale because it has been open for 365 days without any activity. There has been several Airflow releases since last activity on this issue. Kindly asking to recheck the report against latest Airflow version and let us know if the issue is reproducible. The issue will be closed in next 30 days if no further activity occurs from the issue author.`
+     - `close-issue-message`: `This issue has been closed because it has not received response from the issue author.`
+
+</details>
+
+[Back to top](#contents)
+
+# Registry Backfill
+
+**Triggers:** `workflow_dispatch`
+
+| Property | Value |
+|----------|-------|
+| File | `registry-backfill.yml` |
+| Default runs-on | `ubuntu-latest` |
+
+**Jobs:** [Build CI image](#build-ci-image-build-ci-image-1), [`prepare`](#prepare), [Backfill ${{ matrix.provider }} (${{ matrix.versions }})](#backfill--matrixprovider---matrixversions--backfill), [Publish versions.json](#publish-versionsjson-publish-versions)
+
+## Manual trigger inputs
+
+Inputs for the `workflow_dispatch` event.
+
+| Name | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| `destination` | choice | Yes | `staging` | Publish to live or staging S3 bucket<br>Options: `staging`, `live` |
+| `provider-versions` | string | Yes | - | Space-separated provider/version pairs (e.g. 'amazon/9.24.0 google/21.0.0 celery/3.17.2'). Multiple versions per provider are grouped into one job. |
+
+## Permissions
+
+- `contents`: `read`
+- `packages`: `read`
+
+## Call graph (rooted at this workflow)
+
+`registry-backfill.yml` [workflow_dispatch]
+
+- `build-ci-image` uses [ci-image-build.yml](#build-ci-images)
+  - `build-ci-images / Install Breeze` uses [./.github/actions/breeze](#setup-breeze)
+- `backfill / Prepare breeze & CI image` uses [./.github/actions/prepare_breeze_and_image](#prepare-breeze--current-image-ci-or-prod)
+- `publish-versions / Install Breeze` uses [./.github/actions/breeze](#setup-breeze)
+
+## Transitive requirements (from full call graph)
+
+Secrets referenced (literal names): `CONSTRAINTS_GITHUB_REPOSITORY`, `DOCS_AWS_ACCESS_KEY_ID`, `DOCS_AWS_SECRET_ACCESS_KEY`, `GITHUB_TOKEN`
+
+Permissions declared across the chain: `contents: read`, `packages: read`, `packages: write`
+
+## Referenced secrets and variables
+
+**Secrets:**
+
+| Name | Used by |
+|------|---------|
+| `DOCS_AWS_ACCESS_KEY_ID` | job `backfill` step `Configure AWS credentials` with `aws-access-key-id`; job `publish-versions` step `Configure AWS credentials` with `aws-access-key-id` |
+| `DOCS_AWS_SECRET_ACCESS_KEY` | job `backfill` step `Configure AWS credentials` with `aws-secret-access-key`; job `publish-versions` step `Configure AWS credentials` with `aws-secret-access-key` |
+
+## Jobs
+
+### Build CI image (`build-ci-image`)
+
+| Property | Value |
+|----------|-------|
+| Uses workflow | [Build CI images](#build-ci-images) |
+| Condition | `contains(fromJSON('[<br>  "ashb",<br>  "bugraoz93",<br>  "eladkal",<br>  "ephraimbuddy",<br>  "jedcunningham",<br>  "jscheffl",<br>  "kaxil",<br>  "pierrejeambrun",<br>  "shahar1",<br>  "potiuk",<br>  "utkarsharma2",<br>  "vincbeck"<br>  ]'), github.event.sender.login)` |
+
+**Permissions:**
+
+- `contents`: `read`
+- `packages`: `write`
+
+#### Inputs forwarded
+
+- `runners`: `["ubuntu-22.04"]`
+- `platform`: `linux/amd64`
+- `push-image`: `false`
+- `upload-image-artifact`: `true`
+- `upload-mount-cache-artifact`: `false`
+- `python-versions`: `["3.12"]`
+- `branch`: `main`
+- `constraints-branch`: `constraints-main`
+- `use-uv`: `true`
+- `upgrade-to-newer-dependencies`: `false`
+- `docker-cache`: `registry`
+- `disable-airflow-repo-cache`: `false`
+
+### `prepare`
+
+<details>
+<summary>Steps (2)</summary>
+
+1. **Build provider matrix**
+   - ID: `matrix`
+   - Env:
+     - `PROVIDER_VERSIONS`: `${{ inputs.provider-versions }}`
+
+2. **Determine S3 destination**
+   - ID: `destination`
+   - Env:
+     - `DESTINATION`: `${{ inputs.destination }}`
+
+</details>
+
+### Backfill ${{ matrix.provider }} (${{ matrix.versions }}) (`backfill`)
+
+| Property | Value |
+|----------|-------|
+| Depends on | `prepare`, `build-ci-image` |
+
+**Permissions:**
+
+- `contents`: `read`
+- `packages`: `read`
+
+<details>
+<summary>Steps (14)</summary>
+
+1. **Checkout repository**
+   - Uses: `actions/checkout@v6.0.2`
+   - With:
+     - `persist-credentials`: `false`
+     - `fetch-depth`: `0`
+
+2. **Fetch provider tags**
+   - Env:
+     - `VERSIONS`: `${{ matrix.versions }}`
+     - `PROVIDER`: `${{ matrix.provider }}`
+
+3. **Prepare breeze & CI image**
+   - Uses: `./.github/actions/prepare_breeze_and_image`
+   - With:
+     - `python`: `3.12` - Python version for image to prepare (required)
+     - `platform`: `linux/amd64` - Platform for the build - linux/amd64 or linux/arm64 (required)
+     - `use-uv`: `true` - Whether to use uv (required)
+     - `make-mnt-writeable-and-cleanup`: `true` - Whether to cleanup /mnt (required)
+
+4. **Install AWS CLI v2**
+
+5. **Configure AWS credentials**
+   - Uses: `aws-actions/configure-aws-credentials@v6.1.1`
+   - With:
+     - `aws-access-key-id`: `${{ secrets.DOCS_AWS_ACCESS_KEY_ID }}`
+     - `aws-secret-access-key`: `${{ secrets.DOCS_AWS_SECRET_ACCESS_KEY }}`
+     - `aws-region`: `us-east-2`
+
+6. **Download existing providers.json**
+   - Env:
+     - `S3_BUCKET`: `${{ needs.prepare.outputs.bucket }}`
+
+7. **Run breeze registry backfill**
+   - Env:
+     - `VERSIONS`: `${{ matrix.versions }}`
+     - `PROVIDER`: `${{ matrix.provider }}`
+
+8. **Download data files from S3 for build**
+   - Env:
+     - `S3_BUCKET`: `${{ needs.prepare.outputs.bucket }}`
+
+9. **Patch providers.json with backfill version(s)**
+   - Env:
+     - `VERSIONS`: `${{ matrix.versions }}`
+     - `PROVIDER`: `${{ matrix.provider }}`
+
+10. **Setup pnpm**
+   - Uses: `pnpm/action-setup@v6.0.8`
+   - With:
+     - `version`: `10`
+
+11. **Setup Node.js**
+   - Uses: `actions/setup-node@v6.4.0`
+   - With:
+     - `node-version`: `24`
+     - `cache`: `pnpm`
+     - `cache-dependency-path`: `registry/pnpm-lock.yaml`
+
+12. **Install Node.js dependencies**
+
+13. **Build registry site**
+   - Env:
+     - `REGISTRY_PATH_PREFIX`: `/registry/`
+
+14. **Sync backfilled version pages to S3**
+   - Env:
+     - `S3_BUCKET`: `${{ needs.prepare.outputs.bucket }}`
+     - `CACHE_CONTROL`: `public, max-age=300`
+     - `VERSIONS`: `${{ matrix.versions }}`
+     - `PROVIDER`: `${{ matrix.provider }}`
+
+</details>
+
+### Publish versions.json (`publish-versions`)
+
+| Property | Value |
+|----------|-------|
+| Depends on | `prepare`, `backfill` |
+
+<details>
+<summary>Steps (6)</summary>
+
+1. **Checkout repository**
+   - Uses: `actions/checkout@v6.0.2`
+   - With:
+     - `persist-credentials`: `false`
+
+2. **Install Breeze**
+   - Uses: `./.github/actions/breeze`
+   - With:
+     - `python-version`: `3.12` - Python version to use
+
+3. **Install AWS CLI v2**
+
+4. **Configure AWS credentials**
+   - Uses: `aws-actions/configure-aws-credentials@v6.1.1`
+   - With:
+     - `aws-access-key-id`: `${{ secrets.DOCS_AWS_ACCESS_KEY_ID }}`
+     - `aws-secret-access-key`: `${{ secrets.DOCS_AWS_SECRET_ACCESS_KEY }}`
+     - `aws-region`: `us-east-2`
+
+5. **Download providers.json from S3**
+   - Env:
+     - `S3_BUCKET`: `${{ needs.prepare.outputs.bucket }}`
+
+6. **Publish version metadata**
+   - Env:
+     - `S3_BUCKET`: `${{ needs.prepare.outputs.bucket }}`
+
+</details>
+
+[Back to top](#contents)
+
+# Registry Tests
+
+**Triggers:** `pull_request`, `push`
+
+| Property | Value |
+|----------|-------|
+| File | `registry-tests.yml` |
+
+## Event filters
+
+- **pull_request**
+  - branches: `main`
+  - paths: `dev/registry/**`, `registry/**`, `providers/*/provider.yaml`, `providers/*/*/provider.yaml`, `.github/workflows/registry-tests.yml`
+- **push**
+  - branches: `main`
+  - paths: `dev/registry/**`
+
+## Permissions
+
+- `contents`: `read`
+
+**Concurrency:** group `registry-tests-${{ github.event.pull_request.number || github.ref }}`, cancel-in-progress: `true`
+
+## Jobs
+
+### Registry extraction tests (`registry-tests`)
+
+| Property | Value |
+|----------|-------|
+| Runs on | `ubuntu-latest` |
+
+<details>
+<summary>Steps (3)</summary>
+
+1. **Checkout repository**
+   - Uses: `actions/checkout@v6.0.2`
+   - With:
+     - `persist-credentials`: `false`
+
+2. **Install uv**
+   - Uses: `astral-sh/setup-uv@v8.1.0`
+   - With:
+     - `python-version`: `3.12`
+
+3. **Run registry extraction tests**
+
+</details>
+
+[Back to top](#contents)
+
+# Release PROD images
+
+**Triggers:** `workflow_dispatch`
+
+| Property | Value |
+|----------|-------|
+| File | `release_dockerhub_image.yml` |
+
+**Jobs:** [Build Info](#build-info-build-info-1), [Release images](#release-images-release-images)
+
+## Manual trigger inputs
+
+Inputs for the `workflow_dispatch` event.
+
+| Name | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| `airflowVersion` | - | Yes | - | Airflow version (e.g. 3.0.1, 3.0.1rc1, 3.0.1b1) |
+| `amdOnly` | boolean | No | `false` | Limit to amd64 images |
+| `limitPythonVersions` | string | No | - | Force python versions (e.g. "3.10 3.11") |
+
+## Permissions
+
+- `contents`: `read`
+- `packages`: `read`
+
+## Environment (`env`)
+
+| Variable | Value |
+|----------|-------|
+| `GITHUB_TOKEN` | `${{ secrets.GITHUB_TOKEN }}` |
+| `VERBOSE` | `true` |
+
+**Concurrency:** group `${{ github.event.inputs.airflowVersion }}`, cancel-in-progress: `true`
+
+## Call graph (rooted at this workflow)
+
+`release_dockerhub_image.yml` [workflow_dispatch]
+
+- `build-info / Install Breeze` uses [./.github/actions/breeze](#setup-breeze)
+- `release-images` uses [release_single_dockerhub_image.yml](#release-single-prod-image)
+  - uses **[./.github/actions/breeze](#setup-breeze)** (x2)
+
+## Transitive requirements (from full call graph)
+
+Secrets referenced (literal names): `DOCKERHUB_TOKEN`, `DOCKERHUB_USER`, `GITHUB_TOKEN`
+
+Permissions declared across the chain: `contents: read`, `packages: read`
+
+## Referenced secrets and variables
+
+**Secrets:**
+
+| Name | Used by |
+|------|---------|
+| `GITHUB_TOKEN` | workflow env `GITHUB_TOKEN` |
+| `DOCKERHUB_USER` | job `release-images` secrets `DOCKERHUB_USER` |
+| `DOCKERHUB_TOKEN` | job `release-images` secrets `DOCKERHUB_TOKEN` |
+
+## Jobs
+
+### Build Info (`build-info`)
+
+| Property | Value |
+|----------|-------|
+| Runs on | `ubuntu-24.04` |
+| Condition | `contains(fromJSON('[ "ashb", "bugraoz93", "eladkal", "ephraimbuddy", "jedcunningham", "jscheffl", "kaxil", "pierrejeambrun", "potiuk", "utkarsharma2", "vincbeck", "vatsrahul1001", ]'), github.event.sender.login)` |
+
+**Environment (`env`):**
+
+| Variable | Value |
+|----------|-------|
+| `VERBOSE` | `true` |
+| `AIRFLOW_VERSION` | `${{ github.event.inputs.airflowVersion }}` |
+| `AMD_ONLY` | `${{ github.event.inputs.amdOnly }}` |
+| `LIMIT_PYTHON_VERSIONS` | `${{ github.event.inputs.limitPythonVersions }}` |
+
+<details>
+<summary>Steps (9)</summary>
+
+1. **Input parameters summary**
+
+2. **Cleanup repo**
+
+3. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
+   - Uses: `actions/checkout@v6.0.2`
+   - With:
+     - `persist-credentials`: `false`
+
+4. **Install Breeze**
+   - Uses: `./.github/actions/breeze`
+
+5. **Save github context to file**
+
+6. **Selective checks**
+   - ID: `selective-checks`
+   - Env:
+     - `VERBOSE`: `false`
+     - `GITHUB_CONTEXT_INPUT`: `${{ runner.temp }}/github_context.json`
+
+7. **Check airflow version**
+   - ID: `check-airflow-version`
+
+8. **Determine build matrix**
+   - ID: `determine-matrix`
+
+9. **Determine python versions**
+   - ID: `determine-python-versions`
+   - Env:
+     - `ALL_PYTHON_VERSIONS`: `${{ steps.selective-checks.outputs.all-python-versions }}`
+
+</details>
+
+### Release images (`release-images`)
+
+| Property | Value |
+|----------|-------|
+| Uses workflow | [Release single PROD image](#release-single-prod-image) |
+| Matrix | `python`: ${{ fromJSON(needs.build-info.outputs.pythonVersions) }} |
+| Depends on | `build-info` |
+
+**Permissions:**
+
+- `contents`: `read`
+
+#### Inputs forwarded
+
+- `pythonVersion`: `${{ matrix.python }}`
+- `airflowVersion`: `${{ needs.build-info.outputs.airflowVersion }}`
+- `platformMatrix`: `${{ needs.build-info.outputs.platformMatrix }}`
+- `skipLatest`: `${{ needs.build-info.outputs.skipLatest }}`
+- `armRunners`: `${{ needs.build-info.outputs.arm-runners }}`
+- `amdRunners`: `${{ needs.build-info.outputs.amd-runners }}`
+
+#### Secrets forwarded
+
+- `DOCKERHUB_USER`: `${{ secrets.DOCKERHUB_USER }}`
+- `DOCKERHUB_TOKEN`: `${{ secrets.DOCKERHUB_TOKEN }}`
+
+[Back to top](#contents)
+
+# Scheduled verify release calendar
+
+**Triggers:** `schedule`, `workflow_dispatch`
+
+| Property | Value |
+|----------|-------|
+| File | `scheduled-verify-release-calendar.yml` |
+
+## Schedule
+
+- `0 6 * * *`
+
+## Permissions
+
+- `contents`: `read`
+
+## Referenced secrets and variables
+
+**Secrets:**
+
+| Name | Used by |
+|------|---------|
+| `SLACK_BOT_TOKEN` | job `verify-release-calendar` step `Notify Slack on failure` with `token` |
+
+## Jobs
+
+### Verify release calendar (`verify-release-calendar`)
+
+| Property | Value |
+|----------|-------|
+| Runs on | `ubuntu-22.04` |
+
+<details>
+<summary>Steps (4)</summary>
+
+1. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
+   - Uses: `actions/checkout@v6.0.2`
+   - With:
+     - `persist-credentials`: `false`
+
+2. **Install uv**
+
+3. **Verify release calendar**
+
+4. **Notify Slack on failure**
+   - Uses: `slackapi/slack-github-action@45a88b9581bfab2566dc881e2cd66d334e621e2c`
+   - Condition: `failure()`
+   - With:
+     - `method`: `chat.postMessage`
+     - `token`: `${{ secrets.SLACK_BOT_TOKEN }}`
+     - `payload`: `` channel: "release-management" text: >-   :warning: Release calendar verification failed.   See:   ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} blocks:   - type: section     text:       type: mrkdwn       text: >-         :warning: *Release calendar verification failed*          The scheduled `verify_release_calendar.py` check         failed. Please review and fix the mismatch between         the Confluence release wiki and the Google         Calendar entries.          • <https://cwiki.apache.org/confluence/display/AIRFLOW/Release+Plan|Release Plan wiki>          • <https://calendar.google.com/calendar/u/0?cid=Y19kZTIxNGU5MmRmM2I3NTk3NzljYjY1ZjNlNDllNTYyNzk2YzYxMjZlNzUwMGNmYTdlNTI0YmY3ODE4NmQ4YjVlQGdyb3VwLmNhbGVuZGFyLmdvb2dsZS5jb20|Release Calendar>          • <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View failed run> ``
+
+</details>
+
+[Back to top](#contents)
+
 # Tests (AMD)
 
 **Triggers:** `schedule`, `pull_request`, `push`, `workflow_dispatch`
@@ -1466,7 +2099,7 @@ Inputs for the `workflow_dispatch` event.
 | File | `ci-amd.yml` |
 | Default runs-on | `${{ fromJSON(needs.build-info.outputs.runner-type) }}` |
 
-**Jobs:** [Build info](#build-info-build-info), [Platform: AMD](#platform-amd-print-platform), [Basic tests](#basic-tests-basic-tests), [Build CI images](#build-ci-images-build-ci-images), [Additional CI image checks](#additional-ci-image-checks-additional-ci-image-checks), [Generate constraints](#generate-constraints-generate-constraints), [CI image checks](#ci-image-checks-ci-image-checks), [MyPy providers checks](#mypy-providers-checks-mypy-providers), [Migration round-trip check](#migration-round-trip-check-migration-round-trip), [provider distributions tests](#provider-distributions-tests-providers), [Helm tests](#helm-tests-tests-helm), [Postgres tests: core](#postgres-tests-core-tests-postgres-core), [Postgres tests: providers](#postgres-tests-providers-tests-postgres-providers), [MySQL tests: core](#mysql-tests-core-tests-mysql-core), [MySQL tests: providers](#mysql-tests-providers-tests-mysql-providers), [Sqlite tests: core](#sqlite-tests-core-tests-sqlite-core), [Sqlite tests: providers](#sqlite-tests-providers-tests-sqlite-providers), [Non-DB tests: core](#non-db-tests-core-tests-non-db-core), [Non-DB tests: providers](#non-db-tests-providers-tests-non-db-providers), [Special tests](#special-tests-tests-special), [Integration and System Tests](#integration-and-system-tests-tests-integration-system), [Low dep tests:core](#low-dep-testscore-tests-with-lowest-direct-resolution-core), [Low dep tests: providers](#low-dep-tests-providers-tests-with-lowest-direct-resolution-providers), [Build PROD images](#build-prod-images-build-prod-images), [Additional PROD image tests](#additional-prod-image-tests-additional-prod-image-tests), [Kubernetes tests](#kubernetes-tests-tests-kubernetes), [Task SDK tests](#task-sdk-tests-tests-task-sdk), [Go SDK tests](#go-sdk-tests-tests-go-sdk), [Airflow CTL tests](#airflow-ctl-tests-tests-airflow-ctl), [Finalize tests](#finalize-tests-finalize-tests), [Notify Slack](#notify-slack-notify-slack), [Summarize warnings](#summarize-warnings-summarize-warnings)
+**Jobs:** [Build info](#build-info-build-info-2), [Platform: AMD](#platform-amd-print-platform), [Basic tests](#basic-tests-basic-tests), [Build CI images](#build-ci-images-build-ci-images), [Additional CI image checks](#additional-ci-image-checks-additional-ci-image-checks), [Generate constraints](#generate-constraints-generate-constraints), [CI image checks](#ci-image-checks-ci-image-checks), [MyPy providers checks](#mypy-providers-checks-mypy-providers), [Migration round-trip check](#migration-round-trip-check-migration-round-trip), [provider distributions tests](#provider-distributions-tests-providers), [Helm tests](#helm-tests-tests-helm), [Postgres tests: core](#postgres-tests-core-tests-postgres-core), [Postgres tests: providers](#postgres-tests-providers-tests-postgres-providers), [MySQL tests: core](#mysql-tests-core-tests-mysql-core), [MySQL tests: providers](#mysql-tests-providers-tests-mysql-providers), [Sqlite tests: core](#sqlite-tests-core-tests-sqlite-core), [Sqlite tests: providers](#sqlite-tests-providers-tests-sqlite-providers), [Non-DB tests: core](#non-db-tests-core-tests-non-db-core), [Non-DB tests: providers](#non-db-tests-providers-tests-non-db-providers), [Special tests](#special-tests-tests-special), [Integration and System Tests](#integration-and-system-tests-tests-integration-system), [Low dep tests:core](#low-dep-testscore-tests-with-lowest-direct-resolution-core), [Low dep tests: providers](#low-dep-tests-providers-tests-with-lowest-direct-resolution-providers), [Build PROD images](#build-prod-images-build-prod-images), [Additional PROD image tests](#additional-prod-image-tests-additional-prod-image-tests), [Kubernetes tests](#kubernetes-tests-tests-kubernetes), [Task SDK tests](#task-sdk-tests-tests-task-sdk), [Go SDK tests](#go-sdk-tests-tests-go-sdk), [Airflow CTL tests](#airflow-ctl-tests-tests-airflow-ctl), [Finalize tests](#finalize-tests-finalize-tests), [Notify Slack](#notify-slack-notify-slack), [Summarize warnings](#summarize-warnings-summarize-warnings)
 
 ## Schedule
 
@@ -2668,7 +3301,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
 | File | `ci-arm.yml` |
 | Default runs-on | `${{ fromJSON(needs.build-info.outputs.runner-type) }}` |
 
-**Jobs:** [Build info](#build-info-build-info-1), [Platform: ARM](#platform-arm-print-platform), [Basic tests](#basic-tests-basic-tests-1), [Build CI images](#build-ci-images-build-ci-images-1), [Additional CI image checks](#additional-ci-image-checks-additional-ci-image-checks-1), [Generate constraints](#generate-constraints-generate-constraints-1), [CI image checks](#ci-image-checks-ci-image-checks-1), [MyPy providers checks](#mypy-providers-checks-mypy-providers-1), [Migration round-trip check](#migration-round-trip-check-migration-round-trip-1), [provider distributions tests](#provider-distributions-tests-providers-1), [Helm tests](#helm-tests-tests-helm-1), [Postgres tests: core](#postgres-tests-core-tests-postgres-core-1), [Postgres tests: providers](#postgres-tests-providers-tests-postgres-providers-1), [MySQL tests: core](#mysql-tests-core-tests-mysql-core-1), [MySQL tests: providers](#mysql-tests-providers-tests-mysql-providers-1), [Sqlite tests: core](#sqlite-tests-core-tests-sqlite-core-1), [Sqlite tests: providers](#sqlite-tests-providers-tests-sqlite-providers-1), [Non-DB tests: core](#non-db-tests-core-tests-non-db-core-1), [Non-DB tests: providers](#non-db-tests-providers-tests-non-db-providers-1), [Special tests](#special-tests-tests-special-1), [Integration and System Tests](#integration-and-system-tests-tests-integration-system-1), [Low dep tests:core](#low-dep-testscore-tests-with-lowest-direct-resolution-core-1), [Low dep tests: providers](#low-dep-tests-providers-tests-with-lowest-direct-resolution-providers-1), [Build PROD images](#build-prod-images-build-prod-images-1), [Additional PROD image tests](#additional-prod-image-tests-additional-prod-image-tests-1), [Kubernetes tests](#kubernetes-tests-tests-kubernetes-1), [Task SDK tests](#task-sdk-tests-tests-task-sdk-1), [Go SDK tests](#go-sdk-tests-tests-go-sdk-1), [Airflow CTL tests](#airflow-ctl-tests-tests-airflow-ctl-1), [Finalize tests](#finalize-tests-finalize-tests-1), [Notify Slack](#notify-slack-notify-slack-1), [Summarize warnings](#summarize-warnings-summarize-warnings-1)
+**Jobs:** [Build info](#build-info-build-info-3), [Platform: ARM](#platform-arm-print-platform), [Basic tests](#basic-tests-basic-tests-1), [Build CI images](#build-ci-images-build-ci-images-1), [Additional CI image checks](#additional-ci-image-checks-additional-ci-image-checks-1), [Generate constraints](#generate-constraints-generate-constraints-1), [CI image checks](#ci-image-checks-ci-image-checks-1), [MyPy providers checks](#mypy-providers-checks-mypy-providers-1), [Migration round-trip check](#migration-round-trip-check-migration-round-trip-1), [provider distributions tests](#provider-distributions-tests-providers-1), [Helm tests](#helm-tests-tests-helm-1), [Postgres tests: core](#postgres-tests-core-tests-postgres-core-1), [Postgres tests: providers](#postgres-tests-providers-tests-postgres-providers-1), [MySQL tests: core](#mysql-tests-core-tests-mysql-core-1), [MySQL tests: providers](#mysql-tests-providers-tests-mysql-providers-1), [Sqlite tests: core](#sqlite-tests-core-tests-sqlite-core-1), [Sqlite tests: providers](#sqlite-tests-providers-tests-sqlite-providers-1), [Non-DB tests: core](#non-db-tests-core-tests-non-db-core-1), [Non-DB tests: providers](#non-db-tests-providers-tests-non-db-providers-1), [Special tests](#special-tests-tests-special-1), [Integration and System Tests](#integration-and-system-tests-tests-integration-system-1), [Low dep tests:core](#low-dep-testscore-tests-with-lowest-direct-resolution-core-1), [Low dep tests: providers](#low-dep-tests-providers-tests-with-lowest-direct-resolution-providers-1), [Build PROD images](#build-prod-images-build-prod-images-1), [Additional PROD image tests](#additional-prod-image-tests-additional-prod-image-tests-1), [Kubernetes tests](#kubernetes-tests-tests-kubernetes-1), [Task SDK tests](#task-sdk-tests-tests-task-sdk-1), [Go SDK tests](#go-sdk-tests-tests-go-sdk-1), [Airflow CTL tests](#airflow-ctl-tests-tests-airflow-ctl-1), [Finalize tests](#finalize-tests-finalize-tests-1), [Notify Slack](#notify-slack-notify-slack-1), [Summarize warnings](#summarize-warnings-summarize-warnings-1)
 
 ## Schedule
 
@@ -3858,6 +4491,1504 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
 
 [Back to top](#contents)
 
+# UI End-to-End Tests
+
+**Triggers:** `workflow_dispatch`, `workflow_call`
+
+| Property | Value |
+|----------|-------|
+| File | `ui-e2e-tests.yml` |
+
+## Manual trigger inputs
+
+Inputs for the `workflow_dispatch` event.
+
+| Name | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| `workflow-name` | string | Yes | - | Name of the test |
+| `runners` | string | No | `["ubuntu-24.04"]` | The array of labels (in json form) determining runners. |
+| `platform` | string | No | `linux/amd64` | Platform for the build - 'linux/amd64' or 'linux/arm64' |
+| `default-python-version` | string | No | `3.10` | Which version of python should be used by default |
+| `use-uv` | string | No | `true` | Whether to use uv to build the image (true/false) |
+| `docker-image-tag` | string | Yes | - | Tag of the Docker image to test |
+| `browser` | string | No | `all` | Browser to test (chromium, firefox, webkit, all) |
+
+## Workflow call API
+
+**Inputs:**
+
+| Name | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| `workflow-name` | string | Yes | - | Name of the test |
+| `runners` | string | Yes | - | The array of labels (in json form) determining runners. |
+| `platform` | string | Yes | - | Platform for the build - 'linux/amd64' or 'linux/arm64' |
+| `default-python-version` | string | Yes | - | Which version of python should be used by default |
+| `use-uv` | string | Yes | - | Whether to use uv to build the image (true/false) |
+| `docker-image-tag` | string | No | - | Tag of the Docker image to test |
+| `browser` | string | No | `all` | Browser to test (chromium, firefox, webkit, all) |
+
+## Permissions
+
+- `contents`: `read`
+
+## Call graph (rooted at this workflow)
+
+`ui-e2e-tests.yml` [workflow_dispatch, workflow_call]
+
+- `test-ui-e2e-tests / Prepare breeze & PROD image: ${{ env.PYTHON_MAJOR_MINOR_VERSION }}` uses [./.github/actions/prepare_breeze_and_image](#prepare-breeze--current-image-ci-or-prod)
+- `test-ui-e2e-tests / Install Breeze (manual trigger)` uses [./.github/actions/breeze](#setup-breeze)
+
+## Transitive requirements (from full call graph)
+
+Secrets referenced (literal names): `GITHUB_TOKEN`
+
+Permissions declared across the chain: `contents: read`
+
+## Called by
+
+`ui-e2e-tests.yml`
+
+- **[additional-prod-image-tests.yml](#additional-prod-image-tests)** (x3)
+  - [ci-amd.yml](#additional-prod-image-tests-additional-prod-image-tests) (job: `additional-prod-image-tests`) - entry point
+  - [ci-arm.yml](#additional-prod-image-tests-additional-prod-image-tests-1) (job: `additional-prod-image-tests`) - entry point
+
+## Referenced secrets and variables
+
+**Secrets:**
+
+| Name | Used by |
+|------|---------|
+| `GITHUB_TOKEN` | job `test-ui-e2e-tests` env `GITHUB_TOKEN` |
+
+## Jobs
+
+### ${{ inputs.workflow-name || 'UI E2E Tests' }} (`test-ui-e2e-tests`)
+
+| Property | Value |
+|----------|-------|
+| Runs on | `${{ fromJSON(inputs.runners \|\| '["ubuntu-24.04"]') }}` |
+
+**Environment (`env`):**
+
+| Variable | Value |
+|----------|-------|
+| `PYTHON_MAJOR_MINOR_VERSION` | `${{ inputs.default-python-version \|\| '3.10' }}` |
+| `GITHUB_REPOSITORY` | `${{ github.repository }}` |
+| `GITHUB_TOKEN` | `${{ secrets.GITHUB_TOKEN }}` |
+| `GITHUB_USERNAME` | `${{ github.actor }}` |
+| `VERBOSE` | `true` |
+| `BROWSER` | `${{ inputs.browser \|\| 'all' }}` |
+| `PLATFORM` | `${{ inputs.platform \|\| 'linux/amd64' }}` |
+| `USE_UV` | `${{ inputs.use-uv \|\| 'true' }}` |
+
+<details>
+<summary>Steps (12)</summary>
+
+1. **Cleanup repo**
+
+2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
+   - Uses: `actions/checkout@v6.0.2`
+   - With:
+     - `fetch-depth`: `2`
+     - `persist-credentials`: `false`
+
+3. **Prepare breeze & PROD image: ${{ env.PYTHON\_MAJOR\_MINOR\_VERSION }}**
+   - ID: `breeze`
+   - Uses: `./.github/actions/prepare_breeze_and_image`
+   - Condition: `github.event_name != 'workflow_dispatch'`
+   - With:
+     - `platform`: `${{ inputs.platform }}` - Platform for the build - linux/amd64 or linux/arm64 (required)
+     - `image-type`: `prod` - Which image type to prepare (ci/prod)
+     - `python`: `${{ env.PYTHON_MAJOR_MINOR_VERSION }}` - Python version for image to prepare (required)
+     - `use-uv`: `${{ inputs.use-uv }}` - Whether to use uv (required)
+     - `make-mnt-writeable-and-cleanup`: `true` - Whether to cleanup /mnt (required)
+
+4. **Install Breeze (manual trigger)**
+   - Uses: `./.github/actions/breeze`
+   - Condition: `github.event_name == 'workflow_dispatch'`
+
+5. **Setup pnpm**
+   - Uses: `pnpm/action-setup@v6.0.8`
+   - With:
+     - `version`: `9`
+     - `run_install`: `false`
+
+6. **Setup node**
+   - Uses: `actions/setup-node@v6.4.0`
+   - With:
+     - `node-version`: `24`
+
+7. **Compile UI assets (for image build fallback)**
+   - Condition: `github.event_name == 'workflow_dispatch'`
+
+8. **Install Playwright browsers and dependencies**
+
+9. **Test UI e2e tests**
+   - Env:
+     - `DOCKER_IMAGE`: `${{ inputs.docker-image-tag || '' }}`
+
+10. **Upload test results**
+   - Uses: `actions/upload-artifact@v7.0.1`
+   - Condition: `always()`
+   - With:
+     - `name`: `playwright-report-${{ env.BROWSER }}`
+     - `path`: `airflow-core/src/airflow/ui/playwright-report/ airflow-core/src/airflow/ui/test-results/`
+     - `retention-days`: `7`
+     - `if-no-files-found`: `warn`
+
+11. **Extract E2E test failures and fixme tests**
+   - Condition: `always()`
+   - Env:
+     - `RESULTS_JSON`: `airflow-core/src/airflow/ui/test-results/results.json`
+     - `OUTPUT_DIR`: `e2e-test-report`
+     - `BROWSER`: `${{ env.BROWSER }}`
+     - `RUN_ID`: `${{ github.run_id }}`
+     - `RUN_ATTEMPT`: `${{ github.run_attempt }}`
+
+12. **Upload E2E test report**
+   - Uses: `actions/upload-artifact@v7.0.1`
+   - Condition: `always()`
+   - With:
+     - `name`: `e2e-test-report-${{ env.BROWSER }}`
+     - `path`: `e2e-test-report/`
+     - `retention-days`: `14`
+     - `if-no-files-found`: `warn`
+
+</details>
+
+[Back to top](#contents)
+
+# Update constraints on push for main (only when uv.lock changes)
+
+**Triggers:** `push`
+
+| Property | Value |
+|----------|-------|
+| File | `update-constraints-on-push.yml` |
+| Default runs-on | `ubuntu-22.04` |
+
+**Jobs:** [Build info](#build-info-build-info-4), [Build CI images](#build-ci-images-build-ci-images-2), [Generate constraints](#generate-constraints-generate-constraints-2), [Commit and push constraints](#commit-and-push-constraints-update-constraints), [Notify on failure](#notify-on-failure-notify-on-failure)
+
+## Event filters
+
+- **push**
+  - branches: `main`, `v[0-9]+-[0-9]+-test`
+  - paths: `uv.lock`
+
+## Permissions
+
+- `contents`: `read`
+
+## Environment (`env`)
+
+| Variable | Value |
+|----------|-------|
+| `GITHUB_REPOSITORY` | `${{ github.repository }}` |
+| `GITHUB_TOKEN` | `${{ secrets.GITHUB_TOKEN }}` |
+| `GITHUB_USERNAME` | `${{ github.actor }}` |
+| `VERBOSE` | `true` |
+
+**Concurrency:** group `${{ github.workflow }}-${{ github.ref }}`, cancel-in-progress: `true`
+
+## Call graph (rooted at this workflow)
+
+`update-constraints-on-push.yml` [push]
+
+- `build-info / Install Breeze` uses [./.github/actions/breeze](#setup-breeze)
+- `build-ci-images` uses [ci-image-build.yml](#build-ci-images)
+  - `build-ci-images / Install Breeze` uses [./.github/actions/breeze](#setup-breeze)
+- `generate-constraints` uses [generate-constraints.yml](#generate-constraints)
+  - `generate-constraints-matrix / Install prek` uses [./.github/actions/install-prek](#install-prek)
+  - `generate-constraints-matrix / Prepare breeze & CI image: ${{ matrix.python-version }}` uses [./.github/actions/prepare_breeze_and_image](#prepare-breeze--current-image-ci-or-prod)
+
+## Transitive requirements (from full call graph)
+
+Secrets referenced (literal names): `CONSTRAINTS_GITHUB_REPOSITORY`, `GITHUB_TOKEN`, `SLACK_BOT_TOKEN`
+
+Permissions declared across the chain: `contents: read`, `contents: write`, `packages: read`, `packages: write`
+
+## Referenced secrets and variables
+
+**Secrets:**
+
+| Name | Used by |
+|------|---------|
+| `GITHUB_TOKEN` | workflow env `GITHUB_TOKEN` |
+| `SLACK_BOT_TOKEN` | job `notify-on-failure` env `SLACK_BOT_TOKEN` |
+
+## Jobs
+
+### Build info (`build-info`)
+
+<details>
+<summary>Steps (6)</summary>
+
+1. **Cleanup repo**
+
+2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
+   - Uses: `actions/checkout@v6.0.2`
+   - With:
+     - `persist-credentials`: `false`
+
+3. **Fetch incoming commit ${{ github.sha }} with its parent**
+   - Uses: `actions/checkout@v6.0.2`
+   - With:
+     - `ref`: `${{ github.sha }}`
+     - `fetch-depth`: `2`
+     - `persist-credentials`: `false`
+
+4. **Install Breeze**
+   - ID: `breeze`
+   - Uses: `./.github/actions/breeze`
+
+5. **Save github context to file**
+
+6. **Selective checks**
+   - ID: `selective-checks`
+   - Env:
+     - `PR_LABELS`: `[]`
+     - `COMMIT_REF`: `${{ github.sha }}`
+     - `VERBOSE`: `false`
+     - `GITHUB_CONTEXT_INPUT`: `${{ runner.temp }}/github_context.json`
+
+</details>
+
+### Build CI images (`build-ci-images`)
+
+| Property | Value |
+|----------|-------|
+| Uses workflow | [Build CI images](#build-ci-images) |
+| Depends on | `build-info` |
+
+**Permissions:**
+
+- `contents`: `read`
+- `packages`: `write`
+
+#### Inputs forwarded
+
+- `runners`: `["ubuntu-22.04"]`
+- `platform`: `linux/amd64`
+- `push-image`: `false`
+- `upload-image-artifact`: `true`
+- `upload-mount-cache-artifact`: `false`
+- `python-versions`: `${{ needs.build-info.outputs.python-versions }}`
+- `branch`: `${{ needs.build-info.outputs.default-branch }}`
+- `constraints-branch`: `${{ needs.build-info.outputs.default-constraints-branch }}`
+- `use-uv`: `true`
+- `upgrade-to-newer-dependencies`: `false`
+- `docker-cache`: `registry`
+- `disable-airflow-repo-cache`: `false`
+
+### Generate constraints (`generate-constraints`)
+
+| Property | Value |
+|----------|-------|
+| Uses workflow | [Generate constraints](#generate-constraints) |
+| Depends on | `build-info`, `build-ci-images` |
+
+#### Inputs forwarded
+
+- `runners`: `["ubuntu-22.04"]`
+- `platform`: `linux/amd64`
+- `python-versions-list-as-string`: `${{ needs.build-info.outputs.python-versions-list-as-string }}`
+- `python-versions`: `${{ needs.build-info.outputs.python-versions }}`
+- `generate-pypi-constraints`: `true`
+- `generate-no-providers-constraints`: `true`
+- `debug-resources`: `false`
+- `use-uv`: `true`
+
+### Commit and push constraints (`update-constraints`)
+
+| Property | Value |
+|----------|-------|
+| Depends on | `build-info`, `generate-constraints` |
+
+**Permissions:**
+
+- `contents`: `write`
+- `packages`: `read`
+
+**Environment (`env`):**
+
+| Variable | Value |
+|----------|-------|
+| `PYTHON_VERSIONS` | `${{ needs.build-info.outputs.python-versions-list-as-string }}` |
+
+<details>
+<summary>Steps (8)</summary>
+
+1. **Cleanup repo**
+
+2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
+   - Uses: `actions/checkout@v6.0.2`
+   - With:
+     - `persist-credentials`: `false`
+
+3. **Set constraints branch name**
+   - ID: `constraints-branch`
+
+4. **Checkout ${{ steps.constraints-branch.outputs.branch }}**
+   - Uses: `actions/checkout@v6.0.2`
+   - With:
+     - `path`: `constraints`
+     - `ref`: `${{ steps.constraints-branch.outputs.branch }}`
+     - `persist-credentials`: `true`
+     - `fetch-depth`: `0`
+
+5. **Download constraints from the generate-constraints job**
+   - Uses: `actions/download-artifact@v8.0.1`
+   - With:
+     - `pattern`: `constraints-*`
+     - `path`: `./files`
+
+6. **Diff in constraints for Python: ${{ needs.build-info.outputs.python-versions-list-as-string }}**
+
+7. **Commit changed constraint files for Python: ${{ needs.build-info.outputs.python-versions-list-as-string }}**
+
+8. **Push changes**
+
+</details>
+
+### Notify on failure (`notify-on-failure`)
+
+| Property | Value |
+|----------|-------|
+| Depends on | `build-info`, `build-ci-images`, `generate-constraints`, `update-constraints` |
+| Condition | `failure()` |
+
+**Environment (`env`):**
+
+| Variable | Value |
+|----------|-------|
+| `SLACK_BOT_TOKEN` | `${{ secrets.SLACK_BOT_TOKEN }}` |
+
+<details>
+<summary>Steps (1)</summary>
+
+1. **Send Slack notification**
+   - Uses: `slackapi/slack-github-action@v3.0.3`
+   - With:
+     - `method`: `chat.postMessage`
+     - `token`: `${{ env.SLACK_BOT_TOKEN }}`
+     - `payload`: `channel: "internal-airflow-ci-cd" text: "🚨 Update constraints workflow failed on branch *${{ github.ref_name }}*\n\n*Details:* <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View the failure log>" blocks:   - type: "section"     text:       type: "mrkdwn"       text: "🚨 Update constraints workflow failed on *${{ github.ref_name }}*\n\n*Details:* <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View the failure log>"`
+
+</details>
+
+[Back to top](#contents)
+
+# Update constraints on push for stable branch (always)
+
+**Triggers:** `push`
+
+| Property | Value |
+|----------|-------|
+| File | `update-constraints-on-push-stable.yml` |
+| Default runs-on | `ubuntu-22.04` |
+
+**Jobs:** [Build info](#build-info-build-info-5), [Build CI images](#build-ci-images-build-ci-images-3), [Generate constraints](#generate-constraints-generate-constraints-3), [Commit and push constraints](#commit-and-push-constraints-update-constraints-1), [Notify on failure](#notify-on-failure-notify-on-failure-1)
+
+## Event filters
+
+- **push**
+  - branches: `v[0-9]+-[0-9]+-stable`
+
+## Permissions
+
+- `contents`: `read`
+
+## Environment (`env`)
+
+| Variable | Value |
+|----------|-------|
+| `GITHUB_REPOSITORY` | `${{ github.repository }}` |
+| `GITHUB_TOKEN` | `${{ secrets.GITHUB_TOKEN }}` |
+| `GITHUB_USERNAME` | `${{ github.actor }}` |
+| `VERBOSE` | `true` |
+
+**Concurrency:** group `${{ github.workflow }}-${{ github.ref }}`, cancel-in-progress: `true`
+
+## Call graph (rooted at this workflow)
+
+`update-constraints-on-push-stable.yml` [push]
+
+- `build-info / Install Breeze` uses [./.github/actions/breeze](#setup-breeze)
+- `build-ci-images` uses [ci-image-build.yml](#build-ci-images)
+  - `build-ci-images / Install Breeze` uses [./.github/actions/breeze](#setup-breeze)
+- `generate-constraints` uses [generate-constraints.yml](#generate-constraints)
+  - `generate-constraints-matrix / Install prek` uses [./.github/actions/install-prek](#install-prek)
+  - `generate-constraints-matrix / Prepare breeze & CI image: ${{ matrix.python-version }}` uses [./.github/actions/prepare_breeze_and_image](#prepare-breeze--current-image-ci-or-prod)
+
+## Transitive requirements (from full call graph)
+
+Secrets referenced (literal names): `CONSTRAINTS_GITHUB_REPOSITORY`, `GITHUB_TOKEN`, `SLACK_BOT_TOKEN`
+
+Permissions declared across the chain: `contents: read`, `contents: write`, `packages: read`, `packages: write`
+
+## Referenced secrets and variables
+
+**Secrets:**
+
+| Name | Used by |
+|------|---------|
+| `GITHUB_TOKEN` | workflow env `GITHUB_TOKEN` |
+| `SLACK_BOT_TOKEN` | job `notify-on-failure` env `SLACK_BOT_TOKEN` |
+
+## Jobs
+
+### Build info (`build-info`)
+
+<details>
+<summary>Steps (6)</summary>
+
+1. **Cleanup repo**
+
+2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
+   - Uses: `actions/checkout@v6.0.2`
+   - With:
+     - `persist-credentials`: `false`
+
+3. **Fetch incoming commit ${{ github.sha }} with its parent**
+   - Uses: `actions/checkout@v6.0.2`
+   - With:
+     - `ref`: `${{ github.sha }}`
+     - `fetch-depth`: `2`
+     - `persist-credentials`: `false`
+
+4. **Install Breeze**
+   - ID: `breeze`
+   - Uses: `./.github/actions/breeze`
+
+5. **Save github context to file**
+
+6. **Selective checks**
+   - ID: `selective-checks`
+   - Env:
+     - `PR_LABELS`: `[]`
+     - `COMMIT_REF`: `${{ github.sha }}`
+     - `VERBOSE`: `false`
+     - `GITHUB_CONTEXT_INPUT`: `${{ runner.temp }}/github_context.json`
+
+</details>
+
+### Build CI images (`build-ci-images`)
+
+| Property | Value |
+|----------|-------|
+| Uses workflow | [Build CI images](#build-ci-images) |
+| Depends on | `build-info` |
+
+**Permissions:**
+
+- `contents`: `read`
+- `packages`: `write`
+
+#### Inputs forwarded
+
+- `runners`: `["ubuntu-22.04"]`
+- `platform`: `linux/amd64`
+- `push-image`: `false`
+- `upload-image-artifact`: `true`
+- `upload-mount-cache-artifact`: `false`
+- `python-versions`: `${{ needs.build-info.outputs.python-versions }}`
+- `branch`: `${{ needs.build-info.outputs.default-branch }}`
+- `constraints-branch`: `${{ needs.build-info.outputs.default-constraints-branch }}`
+- `use-uv`: `true`
+- `upgrade-to-newer-dependencies`: `false`
+- `docker-cache`: `registry`
+- `disable-airflow-repo-cache`: `false`
+
+### Generate constraints (`generate-constraints`)
+
+| Property | Value |
+|----------|-------|
+| Uses workflow | [Generate constraints](#generate-constraints) |
+| Depends on | `build-info`, `build-ci-images` |
+
+#### Inputs forwarded
+
+- `runners`: `["ubuntu-22.04"]`
+- `platform`: `linux/amd64`
+- `python-versions-list-as-string`: `${{ needs.build-info.outputs.python-versions-list-as-string }}`
+- `python-versions`: `${{ needs.build-info.outputs.python-versions }}`
+- `generate-pypi-constraints`: `true`
+- `generate-no-providers-constraints`: `true`
+- `debug-resources`: `false`
+- `use-uv`: `true`
+
+### Commit and push constraints (`update-constraints`)
+
+| Property | Value |
+|----------|-------|
+| Depends on | `build-info`, `generate-constraints` |
+
+**Permissions:**
+
+- `contents`: `write`
+- `packages`: `read`
+
+**Environment (`env`):**
+
+| Variable | Value |
+|----------|-------|
+| `PYTHON_VERSIONS` | `${{ needs.build-info.outputs.python-versions-list-as-string }}` |
+
+<details>
+<summary>Steps (8)</summary>
+
+1. **Cleanup repo**
+
+2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
+   - Uses: `actions/checkout@v6.0.2`
+   - With:
+     - `persist-credentials`: `false`
+
+3. **Set constraints branch name**
+   - ID: `constraints-branch`
+
+4. **Checkout ${{ steps.constraints-branch.outputs.branch }}**
+   - Uses: `actions/checkout@v6.0.2`
+   - With:
+     - `path`: `constraints`
+     - `ref`: `${{ steps.constraints-branch.outputs.branch }}`
+     - `persist-credentials`: `true`
+     - `fetch-depth`: `0`
+
+5. **Download constraints from the generate-constraints job**
+   - Uses: `actions/download-artifact@v8.0.1`
+   - With:
+     - `pattern`: `constraints-*`
+     - `path`: `./files`
+
+6. **Diff in constraints for Python: ${{ needs.build-info.outputs.python-versions-list-as-string }}**
+
+7. **Commit changed constraint files for Python: ${{ needs.build-info.outputs.python-versions-list-as-string }}**
+
+8. **Push changes**
+
+</details>
+
+### Notify on failure (`notify-on-failure`)
+
+| Property | Value |
+|----------|-------|
+| Depends on | `build-info`, `build-ci-images`, `generate-constraints`, `update-constraints` |
+| Condition | `failure()` |
+
+**Environment (`env`):**
+
+| Variable | Value |
+|----------|-------|
+| `SLACK_BOT_TOKEN` | `${{ secrets.SLACK_BOT_TOKEN }}` |
+
+<details>
+<summary>Steps (1)</summary>
+
+1. **Send Slack notification**
+   - Uses: `slackapi/slack-github-action@v3.0.3`
+   - With:
+     - `method`: `chat.postMessage`
+     - `token`: `${{ env.SLACK_BOT_TOKEN }}`
+     - `payload`: `channel: "internal-airflow-ci-cd" text: "🚨 Update constraints workflow failed on branch *${{ github.ref_name }}*\n\n*Details:* <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View the failure log>" blocks:   - type: "section"     text:       type: "mrkdwn"       text: "🚨 Update constraints workflow failed on *${{ github.ref_name }}*\n\n*Details:* <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View the failure log>"`
+
+</details>
+
+[Back to top](#contents)
+
+# Additional CI image checks
+
+**Triggers:** `workflow_call`
+
+| Property | Value |
+|----------|-------|
+| File | `additional-ci-image-checks.yml` |
+
+**Jobs:** [Push Early Image Cache](#push-early-image-cache-push-early-buildx-cache-to-github-registry), [Check that image builds quickly](#check-that-image-builds-quickly-check-that-image-builds-quickly)
+
+## Workflow call API
+
+**Inputs:**
+
+| Name | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| `runners` | string | Yes | - | The array of labels (in json form) determining runners. |
+| `platform` | string | Yes | - | Platform for the build - 'linux/amd64' or 'linux/arm64' |
+| `python-versions` | string | Yes | - | The list of python versions (stringified JSON array) to run the tests on. |
+| `branch` | string | Yes | - | Branch used to run the CI jobs in (main/v*_*_test). |
+| `constraints-branch` | string | Yes | - | Branch used to get constraints from |
+| `default-python-version` | string | Yes | - | Which version of python should be used by default |
+| `upgrade-to-newer-dependencies` | string | Yes | - | Whether to upgrade to newer dependencies (true/false) |
+| `skip-prek-hooks` | string | Yes | - | Whether to skip prek hooks (true/false) |
+| `docker-cache` | string | Yes | - | Docker cache specification to build the image (registry, local, disabled). |
+| `disable-airflow-repo-cache` | string | Yes | - | Disable airflow repo cache read from main. |
+| `canary-run` | string | Yes | - | Whether this is a canary run (true/false) |
+| `latest-versions-only` | string | Yes | - | Whether to run only latest versions (true/false) |
+| `include-success-outputs` | string | Yes | - | Whether to include success outputs (true/false) |
+| `debug-resources` | string | Yes | - | Whether to debug resources (true/false) |
+| `use-uv` | string | Yes | - | Whether to use uv to build the image (true/false) |
+
+## Permissions
+
+- `contents`: `read`
+
+## Called by
+
+`additional-ci-image-checks.yml`
+
+- [ci-amd.yml](#additional-ci-image-checks-additional-ci-image-checks) (job: `additional-ci-image-checks`) - entry point
+- [ci-arm.yml](#additional-ci-image-checks-additional-ci-image-checks-1) (job: `additional-ci-image-checks`) - entry point
+
+## Referenced secrets and variables
+
+**Secrets:**
+
+| Name | Used by |
+|------|---------|
+| `GITHUB_TOKEN` | job `check-that-image-builds-quickly` env `GITHUB_TOKEN` |
+
+## Jobs
+
+### Push Early Image Cache (`push-early-buildx-cache-to-github-registry`)
+
+| Property | Value |
+|----------|-------|
+| Uses workflow | [Push image cache](#push-image-cache) |
+| Condition | `inputs.canary-run == 'true' && (github.event_name == 'schedule' \|\| github.event_name == 'workflow_dispatch')` |
+
+**Permissions:**
+
+- `contents`: `read`
+- `packages`: `write`
+
+#### Inputs forwarded
+
+- `runners`: `${{ inputs.runners }}`
+- `cache-type`: `Early`
+- `include-prod-images`: `false`
+- `push-latest-images`: `false`
+- `platform`: `${{ inputs.platform }}`
+- `python-versions`: `${{ inputs.python-versions }}`
+- `branch`: `${{ inputs.branch }}`
+- `constraints-branch`: `${{ inputs.constraints-branch }}`
+- `use-uv`: `${{ inputs.use-uv }}`
+- `include-success-outputs`: `${{ inputs.include-success-outputs }}`
+- `docker-cache`: `${{ inputs.docker-cache }}`
+- `disable-airflow-repo-cache`: `${{ inputs.disable-airflow-repo-cache }}`
+
+### Check that image builds quickly (`check-that-image-builds-quickly`)
+
+| Property | Value |
+|----------|-------|
+| Runs on | `${{ fromJSON(inputs.runners) }}` |
+| Condition | `inputs.branch == 'main'` |
+
+**Environment (`env`):**
+
+| Variable | Value |
+|----------|-------|
+| `UPGRADE_TO_NEWER_DEPENDENCIES` | `false` |
+| `PYTHON_MAJOR_MINOR_VERSION` | `${{ inputs.default-python-version }}` |
+| `PYTHON_VERSION` | `${{ inputs.default-python-version }}` |
+| `GITHUB_REPOSITORY` | `${{ github.repository }}` |
+| `GITHUB_TOKEN` | `${{ secrets.GITHUB_TOKEN }}` |
+| `GITHUB_USERNAME` | `${{ github.actor }}` |
+| `VERBOSE` | `true` |
+| `PLATFORM` | `${{ inputs.platform }}` |
+
+<details>
+<summary>Steps (4)</summary>
+
+1. **Cleanup repo**
+
+2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
+   - Uses: `actions/checkout@v6.0.2`
+   - With:
+     - `persist-credentials`: `false`
+
+3. **Install Breeze**
+   - Uses: `./.github/actions/breeze`
+
+4. **Check that image builds quickly**
+
+</details>
+
+[Back to top](#contents)
+
+# Additional PROD image tests
+
+**Triggers:** `workflow_call`
+
+| Property | Value |
+|----------|-------|
+| File | `additional-prod-image-tests.yml` |
+| Default runs-on | `${{ fromJSON(inputs.runners) }}` |
+
+**Jobs:** [PROD image extra checks (main)](#prod-image-extra-checks-main-prod-image-extra-checks-main), [PROD image extra checks (release)](#prod-image-extra-checks-release-prod-image-extra-checks-release-branch), [Test examples of PROD image building](#test-examples-of-prod-image-building-test-examples-of-prod-image-building), [Docker Compose quick start with PROD image verifying](#docker-compose-quick-start-with-prod-image-verifying-test-docker-compose-quick-start), [Task SDK integration tests with PROD image](#task-sdk-integration-tests-with-prod-image-task-sdk-integration-tests), [Test e2e integration tests with PROD image](#test-e2e-integration-tests-with-prod-image-test-e2e-integration-tests-basic), [Remote logging tests with PROD image](#remote-logging-tests-with-prod-image-test-e2e-integration-tests-remote-log), [Elasticsearch remote logging tests with PROD image](#elasticsearch-remote-logging-tests-with-prod-image-test-e2e-integration-tests-remote-log-elasticsearch), [OpenSearch remote logging tests with PROD image](#opensearch-remote-logging-tests-with-prod-image-test-e2e-integration-tests-remote-log-opensearch), [XCom object storage backend tests with PROD image](#xcom-object-storage-backend-tests-with-prod-image-test-e2e-integration-tests-xcom-object-storage), [Event driven tests with PROD image](#event-driven-tests-with-prod-image-test-e2e-integration-tests-event-driven), [Chromium UI e2e tests with PROD image](#chromium-ui-e2e-tests-with-prod-image-test-ui-e2e-chromium), [Firefox UI e2e tests with PROD image](#firefox-ui-e2e-tests-with-prod-image-test-ui-e2e-firefox), [WebKit UI e2e tests with PROD image](#webkit-ui-e2e-tests-with-prod-image-test-ui-e2e-webkit), [Airflow CTL integration tests with PROD image](#airflow-ctl-integration-tests-with-prod-image-airflow-ctl-integration-tests)
+
+## Workflow call API
+
+**Inputs:**
+
+| Name | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| `runners` | string | Yes | - | The array of labels (in json form) determining runners. |
+| `platform` | string | Yes | - | Platform for the build - 'linux/amd64' or 'linux/arm64' |
+| `default-branch` | string | Yes | - | The default branch for the repository |
+| `run-task-sdk-integration-tests` | string | Yes | - | Whether to run Task SDK integration tests (true/false) |
+| `run-remote-logging-s3-e2e-tests` | string | Yes | - | Whether to run S3 remote logging e2e tests (true/false) |
+| `run-remote-logging-elasticsearch-e2e-tests` | string | Yes | - | Whether to run Elasticsearch remote logging e2e tests (true/false) |
+| `run-remote-logging-opensearch-e2e-tests` | string | Yes | - | Whether to run OpenSearch remote logging e2e tests (true/false) |
+| `run-event-driven-e2e-tests` | string | Yes | - | Whether to run event driven e2e tests (true/false) |
+| `constraints-branch` | string | Yes | - | Branch used to construct constraints URL from. |
+| `upgrade-to-newer-dependencies` | string | Yes | - | Whether to upgrade to newer dependencies (true/false) |
+| `docker-cache` | string | Yes | - | Docker cache specification to build the image (registry, local, disabled). |
+| `disable-airflow-repo-cache` | string | Yes | - | Disable airflow repo cache read from main. |
+| `canary-run` | string | Yes | - | Whether to run the canary run (true/false) |
+| `default-python-version` | string | Yes | - | Which version of python should be used by default |
+| `use-uv` | string | Yes | - | Whether to use uv |
+| `run-ui-e2e-tests` | string | Yes | - | Whether to run UI e2e tests (true/false) |
+| `run-airflow-ctl-integration-tests` | string | Yes | - | Whether to run Airflow CTL integration tests (true/false) |
+
+## Permissions
+
+- `contents`: `read`
+
+## Called by
+
+`additional-prod-image-tests.yml`
+
+- [ci-amd.yml](#additional-prod-image-tests-additional-prod-image-tests) (job: `additional-prod-image-tests`) - entry point
+- [ci-arm.yml](#additional-prod-image-tests-additional-prod-image-tests-1) (job: `additional-prod-image-tests`) - entry point
+
+## Referenced secrets and variables
+
+**Secrets:**
+
+| Name | Used by |
+|------|---------|
+| `GITHUB_TOKEN` | job `test-examples-of-prod-image-building` env `GITHUB_TOKEN`; job `test-docker-compose-quick-start` env `GITHUB_TOKEN`; job `task-sdk-integration-tests` env `GITHUB_TOKEN`; job `airflow-ctl-integration-tests` env `GITHUB_TOKEN` |
+
+## Jobs
+
+### PROD image extra checks (main) (`prod-image-extra-checks-main`)
+
+| Property | Value |
+|----------|-------|
+| Uses workflow | [PROD images extra checks](#prod-images-extra-checks) |
+| Condition | `inputs.default-branch == 'main' && inputs.canary-run == 'true'` |
+
+#### Inputs forwarded
+
+- `runners`: `${{ inputs.runners }}`
+- `platform`: `${{ inputs.platform }}`
+- `python-versions`: `[ '${{ inputs.default-python-version }}' ]`
+- `default-python-version`: `${{ inputs.default-python-version }}`
+- `branch`: `${{ inputs.default-branch }}`
+- `upgrade-to-newer-dependencies`: `${{ inputs.upgrade-to-newer-dependencies }}`
+- `constraints-branch`: `${{ inputs.constraints-branch }}`
+- `docker-cache`: `${{ inputs.docker-cache }}`
+- `disable-airflow-repo-cache`: `${{ inputs.disable-airflow-repo-cache }}`
+
+### PROD image extra checks (release) (`prod-image-extra-checks-release-branch`)
+
+| Property | Value |
+|----------|-------|
+| Uses workflow | [PROD images extra checks](#prod-images-extra-checks) |
+| Condition | `inputs.default-branch != 'main' && inputs.canary-run == 'true'` |
+
+#### Inputs forwarded
+
+- `runners`: `${{ inputs.runners }}`
+- `platform`: `${{ inputs.platform }}`
+- `python-versions`: `[ '${{ inputs.default-python-version }}' ]`
+- `default-python-version`: `${{ inputs.default-python-version }}`
+- `branch`: `${{ inputs.default-branch }}`
+- `upgrade-to-newer-dependencies`: `${{ inputs.upgrade-to-newer-dependencies }}`
+- `constraints-branch`: `${{ inputs.constraints-branch }}`
+- `docker-cache`: `${{ inputs.docker-cache }}`
+- `disable-airflow-repo-cache`: `${{ inputs.disable-airflow-repo-cache }}`
+
+### Test examples of PROD image building (`test-examples-of-prod-image-building`)
+
+**Environment (`env`):**
+
+| Variable | Value |
+|----------|-------|
+| `GITHUB_REPOSITORY` | `${{ github.repository }}` |
+| `GITHUB_TOKEN` | `${{ secrets.GITHUB_TOKEN }}` |
+| `GITHUB_USERNAME` | `${{ github.actor }}` |
+| `VERBOSE` | `true` |
+
+<details>
+<summary>Steps (4)</summary>
+
+1. **Cleanup repo**
+
+2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
+   - Uses: `actions/checkout@v6.0.2`
+   - With:
+     - `fetch-depth`: `2`
+     - `persist-credentials`: `false`
+
+3. **Prepare breeze & PROD image: ${{ inputs.default-python-version }}**
+   - Uses: `./.github/actions/prepare_breeze_and_image`
+   - With:
+     - `platform`: `${{ inputs.platform }}` - Platform for the build - linux/amd64 or linux/arm64 (required)
+     - `image-type`: `prod` - Which image type to prepare (ci/prod)
+     - `python`: `${{ inputs.default-python-version }}` - Python version for image to prepare (required)
+     - `use-uv`: `${{ inputs.use-uv }}` - Whether to use uv (required)
+     - `make-mnt-writeable-and-cleanup`: `true` - Whether to cleanup /mnt (required)
+
+4. **Test examples of PROD image building**
+   - Env:
+     - `GITHUB_REPOSITORY`: `${{ github.repository }}`
+     - `DEFAULT_BRANCH`: `${{ inputs.default-branch }}`
+     - `DEFAULT_PYTHON_VERSION`: `${{ inputs.default-python-version }}`
+
+</details>
+
+### Docker Compose quick start with PROD image verifying (`test-docker-compose-quick-start`)
+
+**Environment (`env`):**
+
+| Variable | Value |
+|----------|-------|
+| `PYTHON_MAJOR_MINOR_VERSION` | `${{ inputs.default-python-version }}` |
+| `GITHUB_REPOSITORY` | `${{ github.repository }}` |
+| `GITHUB_TOKEN` | `${{ secrets.GITHUB_TOKEN }}` |
+| `GITHUB_USERNAME` | `${{ github.actor }}` |
+| `VERBOSE` | `true` |
+
+<details>
+<summary>Steps (4)</summary>
+
+1. **Cleanup repo**
+
+2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
+   - Uses: `actions/checkout@v6.0.2`
+   - With:
+     - `fetch-depth`: `2`
+     - `persist-credentials`: `false`
+
+3. **Prepare breeze & PROD image: ${{ env.PYTHON\_MAJOR\_MINOR\_VERSION }}**
+   - ID: `breeze`
+   - Uses: `./.github/actions/prepare_breeze_and_image`
+   - With:
+     - `platform`: `${{ inputs.platform }}` - Platform for the build - linux/amd64 or linux/arm64 (required)
+     - `image-type`: `prod` - Which image type to prepare (ci/prod)
+     - `python`: `${{ env.PYTHON_MAJOR_MINOR_VERSION }}` - Python version for image to prepare (required)
+     - `use-uv`: `${{ inputs.use-uv }}` - Whether to use uv (required)
+     - `make-mnt-writeable-and-cleanup`: `true` - Whether to cleanup /mnt (required)
+
+4. **Test docker-compose quick start**
+
+</details>
+
+### Task SDK integration tests with PROD image (`task-sdk-integration-tests`)
+
+| Property | Value |
+|----------|-------|
+| Condition | `inputs.run-task-sdk-integration-tests == 'true'` |
+
+**Environment (`env`):**
+
+| Variable | Value |
+|----------|-------|
+| `PYTHON_MAJOR_MINOR_VERSION` | `${{ inputs.default-python-version }}` |
+| `GITHUB_REPOSITORY` | `${{ github.repository }}` |
+| `GITHUB_TOKEN` | `${{ secrets.GITHUB_TOKEN }}` |
+| `GITHUB_USERNAME` | `${{ github.actor }}` |
+| `VERBOSE` | `true` |
+
+<details>
+<summary>Steps (4)</summary>
+
+1. **Cleanup repo**
+
+2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
+   - Uses: `actions/checkout@v6.0.2`
+   - With:
+     - `fetch-depth`: `2`
+     - `persist-credentials`: `false`
+
+3. **Prepare breeze & PROD image: ${{ env.PYTHON\_MAJOR\_MINOR\_VERSION }}**
+   - ID: `breeze`
+   - Uses: `./.github/actions/prepare_breeze_and_image`
+   - With:
+     - `platform`: `${{ inputs.platform }}` - Platform for the build - linux/amd64 or linux/arm64 (required)
+     - `image-type`: `prod` - Which image type to prepare (ci/prod)
+     - `python`: `${{ env.PYTHON_MAJOR_MINOR_VERSION }}` - Python version for image to prepare (required)
+     - `use-uv`: `${{ inputs.use-uv }}` - Whether to use uv (required)
+     - `make-mnt-writeable-and-cleanup`: `true` - Whether to cleanup /mnt (required)
+
+4. **Run Task SDK integration tests**
+
+</details>
+
+### Test e2e integration tests with PROD image (`test-e2e-integration-tests-basic`)
+
+| Property | Value |
+|----------|-------|
+| Uses workflow | [Airflow E2E Tests](#airflow-e2e-tests) |
+
+#### Inputs forwarded
+
+- `workflow-name`: `Regular e2e test`
+- `runners`: `${{ inputs.runners }}`
+- `platform`: `${{ inputs.platform }}`
+- `default-python-version`: `${{ inputs.default-python-version }}`
+- `use-uv`: `${{ inputs.use-uv }}`
+
+### Remote logging tests with PROD image (`test-e2e-integration-tests-remote-log`)
+
+| Property | Value |
+|----------|-------|
+| Uses workflow | [Airflow E2E Tests](#airflow-e2e-tests) |
+| Condition | `inputs.canary-run == 'true' \|\| inputs.run-remote-logging-s3-e2e-tests == 'true'` |
+
+#### Inputs forwarded
+
+- `workflow-name`: `Remote logging e2e test`
+- `runners`: `${{ inputs.runners }}`
+- `platform`: `${{ inputs.platform }}`
+- `default-python-version`: `${{ inputs.default-python-version }}`
+- `use-uv`: `${{ inputs.use-uv }}`
+- `e2e_test_mode`: `remote_log`
+
+### Elasticsearch remote logging tests with PROD image (`test-e2e-integration-tests-remote-log-elasticsearch`)
+
+| Property | Value |
+|----------|-------|
+| Uses workflow | [Airflow E2E Tests](#airflow-e2e-tests) |
+| Condition | `inputs.canary-run == 'true' \|\| inputs.run-remote-logging-elasticsearch-e2e-tests == 'true'` |
+
+#### Inputs forwarded
+
+- `workflow-name`: `Elasticsearch remote logging e2e test`
+- `runners`: `${{ inputs.runners }}`
+- `platform`: `${{ inputs.platform }}`
+- `default-python-version`: `${{ inputs.default-python-version }}`
+- `use-uv`: `${{ inputs.use-uv }}`
+- `e2e_test_mode`: `remote_log_elasticsearch`
+
+### OpenSearch remote logging tests with PROD image (`test-e2e-integration-tests-remote-log-opensearch`)
+
+| Property | Value |
+|----------|-------|
+| Uses workflow | [Airflow E2E Tests](#airflow-e2e-tests) |
+| Condition | `inputs.canary-run == 'true' \|\| inputs.run-remote-logging-opensearch-e2e-tests == 'true'` |
+
+#### Inputs forwarded
+
+- `workflow-name`: `OpenSearch remote logging e2e test`
+- `runners`: `${{ inputs.runners }}`
+- `platform`: `${{ inputs.platform }}`
+- `default-python-version`: `${{ inputs.default-python-version }}`
+- `use-uv`: `${{ inputs.use-uv }}`
+- `e2e_test_mode`: `remote_log_opensearch`
+
+### XCom object storage backend tests with PROD image (`test-e2e-integration-tests-xcom-object-storage`)
+
+| Property | Value |
+|----------|-------|
+| Uses workflow | [Airflow E2E Tests](#airflow-e2e-tests) |
+
+#### Inputs forwarded
+
+- `workflow-name`: `XCom object storage backend e2e test`
+- `runners`: `${{ inputs.runners }}`
+- `platform`: `${{ inputs.platform }}`
+- `default-python-version`: `${{ inputs.default-python-version }}`
+- `use-uv`: `${{ inputs.use-uv }}`
+- `e2e_test_mode`: `xcom_object_storage`
+
+### Event driven tests with PROD image (`test-e2e-integration-tests-event-driven`)
+
+| Property | Value |
+|----------|-------|
+| Uses workflow | [Airflow E2E Tests](#airflow-e2e-tests) |
+| Condition | `inputs.canary-run == 'true' \|\| inputs.run-event-driven-e2e-tests == 'true'` |
+
+#### Inputs forwarded
+
+- `workflow-name`: `Event driven e2e test`
+- `runners`: `${{ inputs.runners }}`
+- `platform`: `${{ inputs.platform }}`
+- `default-python-version`: `${{ inputs.default-python-version }}`
+- `use-uv`: `${{ inputs.use-uv }}`
+- `e2e_test_mode`: `event_driven`
+
+### Chromium UI e2e tests with PROD image (`test-ui-e2e-chromium`)
+
+| Property | Value |
+|----------|-------|
+| Uses workflow | [UI End-to-End Tests](#ui-end-to-end-tests) |
+| Condition | `inputs.run-ui-e2e-tests == 'true'` |
+
+#### Inputs forwarded
+
+- `workflow-name`: `Chromium UI e2e tests`
+- `runners`: `${{ inputs.runners }}`
+- `platform`: `${{ inputs.platform }}`
+- `default-python-version`: `${{ inputs.default-python-version }}`
+- `use-uv`: `${{ inputs.use-uv }}`
+- `browser`: `chromium`
+
+### Firefox UI e2e tests with PROD image (`test-ui-e2e-firefox`)
+
+| Property | Value |
+|----------|-------|
+| Uses workflow | [UI End-to-End Tests](#ui-end-to-end-tests) |
+| Condition | `inputs.run-ui-e2e-tests == 'true'` |
+
+#### Inputs forwarded
+
+- `workflow-name`: `Firefox UI e2e tests`
+- `runners`: `${{ inputs.runners }}`
+- `platform`: `${{ inputs.platform }}`
+- `default-python-version`: `${{ inputs.default-python-version }}`
+- `use-uv`: `${{ inputs.use-uv }}`
+- `browser`: `firefox`
+
+### WebKit UI e2e tests with PROD image (`test-ui-e2e-webkit`)
+
+| Property | Value |
+|----------|-------|
+| Uses workflow | [UI End-to-End Tests](#ui-end-to-end-tests) |
+| Condition | `inputs.run-ui-e2e-tests == 'true'` |
+
+#### Inputs forwarded
+
+- `workflow-name`: `WebKit UI e2e tests`
+- `runners`: `${{ inputs.runners }}`
+- `platform`: `${{ inputs.platform }}`
+- `default-python-version`: `${{ inputs.default-python-version }}`
+- `use-uv`: `${{ inputs.use-uv }}`
+- `browser`: `webkit`
+
+### Airflow CTL integration tests with PROD image (`airflow-ctl-integration-tests`)
+
+| Property | Value |
+|----------|-------|
+| Condition | `inputs.run-airflow-ctl-integration-tests == 'true'` |
+
+**Environment (`env`):**
+
+| Variable | Value |
+|----------|-------|
+| `PYTHON_MAJOR_MINOR_VERSION` | `${{ inputs.default-python-version }}` |
+| `GITHUB_REPOSITORY` | `${{ github.repository }}` |
+| `GITHUB_TOKEN` | `${{ secrets.GITHUB_TOKEN }}` |
+| `GITHUB_USERNAME` | `${{ github.actor }}` |
+| `VERBOSE` | `true` |
+
+<details>
+<summary>Steps (4)</summary>
+
+1. **Cleanup repo**
+
+2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
+   - Uses: `actions/checkout@v6.0.2`
+   - With:
+     - `fetch-depth`: `2`
+     - `persist-credentials`: `false`
+
+3. **Prepare breeze & PROD image: ${{ env.PYTHON\_MAJOR\_MINOR\_VERSION }}**
+   - ID: `breeze`
+   - Uses: `./.github/actions/prepare_breeze_and_image`
+   - With:
+     - `platform`: `${{ inputs.platform }}` - Platform for the build - linux/amd64 or linux/arm64 (required)
+     - `image-type`: `prod` - Which image type to prepare (ci/prod)
+     - `python`: `${{ env.PYTHON_MAJOR_MINOR_VERSION }}` - Python version for image to prepare (required)
+     - `use-uv`: `${{ inputs.use-uv }}` - Whether to use uv (required)
+     - `make-mnt-writeable-and-cleanup`: `true` - Whether to cleanup /mnt (required)
+
+4. **Run airflowctl integration tests**
+
+</details>
+
+[Back to top](#contents)
+
+# Basic tests
+
+**Triggers:** `workflow_call`
+
+| Property | Value |
+|----------|-------|
+| File | `basic-tests.yml` |
+| Default runs-on | `${{ fromJSON(inputs.runners) }}` |
+
+**Jobs:** [Breeze unit tests](#breeze-unit-tests-run-breeze-tests), [Breeze integration tests](#breeze-integration-tests-run-breeze-integration-tests), [Shared ${{ matrix.shared-distribution }} tests](#shared--matrixshared-distribution--tests-tests-shared-distributions), [Scripts tests](#scripts-tests-tests-scripts), [React UI tests](#react-ui-tests-tests-ui), [Check translation completeness](#check-translation-completeness-check-translation-completness), [Static checks: basic checks only](#static-checks-basic-checks-only-static-checks-basic-checks-only), [Test git clone on Windows](#test-git-clone-on-windows-test-git-clone-on-windows), [Test Airflow release commands](#test-airflow-release-commands-test-airflow-release-commands), [Test Airflow standalone commands](#test-airflow-standalone-commands-test-airflow-standalone)
+
+## Workflow call API
+
+**Inputs:**
+
+| Name | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| `runners` | string | Yes | - | The array of labels (in json form) determining runners. |
+| `run-ui-tests` | string | Yes | - | Whether to run UI tests (true/false) |
+| `run-www-tests` | string | Yes | - | Whether to run WWW tests (true/false) |
+| `run-api-codegen` | string | Yes | - | Whether to run API codegen (true/false) |
+| `run-breeze-integration-tests` | string | Yes | - | Whether to run breeze integration tests (true/false) |
+| `run-scripts-tests` | string | Yes | - | Whether to run scripts tests (true/false) |
+| `basic-checks-only` | string | Yes | - | Whether to run only basic checks (true/false) |
+| `skip-prek-hooks` | string | Yes | - | Whether to skip prek hooks (true/false) |
+| `default-python-version` | string | Yes | - | Which version of python should be used by default |
+| `shared-distributions-as-json` | string | Yes | - | Json array of shared distributions to run tests for |
+| `canary-run` | string | Yes | - | Whether to run canary tests (true/false) |
+| `latest-versions-only` | string | Yes | - | Whether to run only latest version checks (true/false) |
+| `use-uv` | string | Yes | - | Whether to use uv in the image |
+| `platform` | string | Yes | - | Platform for the build - linux/amd64 or linux/arm64 |
+
+## Permissions
+
+- `contents`: `read`
+
+## Called by
+
+`basic-tests.yml`
+
+- [ci-amd.yml](#basic-tests-basic-tests) (job: `basic-tests`) - entry point
+- [ci-arm.yml](#basic-tests-basic-tests-1) (job: `basic-tests`) - entry point
+
+## Referenced secrets and variables
+
+**Secrets:**
+
+| Name | Used by |
+|------|---------|
+| `GITHUB_TOKEN` | job `test-airflow-release-commands` env `GITHUB_TOKEN`; job `test-airflow-release-commands` step `Test providers metadata generation` env `GITHUB_TOKEN` |
+
+## Jobs
+
+### Breeze unit tests (`run-breeze-tests`)
+
+<details>
+<summary>Steps (4)</summary>
+
+1. **Cleanup repo**
+
+2. **actions/checkout@v6.0.2**
+   - With:
+     - `fetch-depth`: `0`
+     - `persist-credentials`: `false`
+
+3. **Install Breeze**
+   - Uses: `./.github/actions/breeze`
+
+4. **Run unit tests**
+
+</details>
+
+### Breeze integration tests (`run-breeze-integration-tests`)
+
+| Property | Value |
+|----------|-------|
+| Condition | `inputs.run-breeze-integration-tests == 'true'` |
+
+<details>
+<summary>Steps (7)</summary>
+
+1. **Cleanup repo**
+
+2. **actions/checkout@v6.0.2**
+   - With:
+     - `fetch-depth`: `0`
+     - `persist-credentials`: `false`
+
+3. **Install Breeze**
+   - Uses: `./.github/actions/breeze`
+
+4. **Install SVN**
+
+5. **Install Java (for Apache RAT)**
+   - Uses: `actions/setup-java@v5.2.0`
+   - With:
+     - `distribution`: `temurin`
+     - `java-version`: `17`
+
+6. **Install hatch**
+
+7. **Run integration tests**
+
+</details>
+
+### Shared ${{ matrix.shared-distribution }} tests (`tests-shared-distributions`)
+
+| Property | Value |
+|----------|-------|
+| Matrix | `shared-distribution`: ${{ fromJSON(inputs.shared-distributions-as-json) }} |
+
+<details>
+<summary>Steps (3)</summary>
+
+1. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
+   - Uses: `actions/checkout@v6.0.2`
+   - With:
+     - `fetch-depth`: `1`
+     - `persist-credentials`: `false`
+
+2. **Install uv**
+
+3. **Run shared ${{ matrix.shared-distribution }} tests**
+
+</details>
+
+### Scripts tests (`tests-scripts`)
+
+| Property | Value |
+|----------|-------|
+| Condition | `inputs.run-scripts-tests == 'true'` |
+
+<details>
+<summary>Steps (3)</summary>
+
+1. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
+   - Uses: `actions/checkout@v6.0.2`
+   - With:
+     - `fetch-depth`: `1`
+     - `persist-credentials`: `false`
+
+2. **Install uv**
+
+3. **Run scripts tests**
+
+</details>
+
+### React UI tests (`tests-ui`)
+
+| Property | Value |
+|----------|-------|
+| Condition | `inputs.run-ui-tests == 'true'` |
+
+<details>
+<summary>Steps (12)</summary>
+
+1. **Cleanup repo**
+
+2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
+   - Uses: `actions/checkout@v6.0.2`
+   - With:
+     - `persist-credentials`: `false`
+
+3. **Setup pnpm**
+   - Uses: `pnpm/action-setup@v6.0.8`
+   - With:
+     - `version`: `9`
+     - `run_install`: `false`
+
+4. **Setup node**
+   - Uses: `actions/setup-node@v6.4.0`
+   - With:
+     - `node-version`: `24`
+     - `cache`: `pnpm`
+     - `cache-dependency-path`: `airflow-core/src/airflow/**/pnpm-lock.yaml`
+
+5. **Restore eslint cache (ui)**
+   - ID: `restore-eslint-cache-ui`
+   - Uses: `apache/infrastructure-actions/stash/restore@49df447b39b18354895520e0a63731b7cad7cbec`
+   - With:
+     - `path`: `airflow-core/src/airflow/ui/node_modules/`
+     - `key`: `cache-ui-node-modules-v1-${{ runner.os }}-${{ hashFiles('airflow-core/src/airflow/ui/**/pnpm-lock.yaml') }}`
+
+6. **cd airflow-core/src/airflow/ui && pnpm install --frozen-l...**
+
+7. **cd airflow-core/src/airflow/ui && pnpm test**
+   - Env:
+     - `FORCE_COLOR`: `2`
+
+8. **Save eslint cache (ui)**
+   - Uses: `apache/infrastructure-actions/stash/save@49df447b39b18354895520e0a63731b7cad7cbec`
+   - Condition: `steps.restore-eslint-cache-ui.outputs.stash-hit != 'true'`
+   - With:
+     - `path`: `airflow-core/src/airflow/ui/node_modules/`
+     - `key`: `cache-ui-node-modules-v1-${{ runner.os }}-${{ hashFiles('airflow/ui/**/pnpm-lock.yaml') }}`
+     - `if-no-files-found`: `error`
+     - `retention-days`: `2`
+
+9. **Restore eslint cache (simple auth manager UI)**
+   - ID: `restore-eslint-cache-simple-am-ui`
+   - Uses: `apache/infrastructure-actions/stash/restore@49df447b39b18354895520e0a63731b7cad7cbec`
+   - With:
+     - `path`: `airflow-core/src/airflow/api_fastapi/auth/managers/simple/ui/node_modules/`
+     - `key`: `cache-simple-am-ui-node-modules-v1- ${{ runner.os }}-${{ hashFiles('airflow/api_fastapi/auth/managers/simple/ui/**/pnpm-lock.yaml') }}`
+
+10. **cd airflow-core/src/airflow/api\_fastapi/auth/managers/sim...**
+
+11. **cd airflow-core/src/airflow/api\_fastapi/auth/managers/sim...**
+   - Env:
+     - `FORCE_COLOR`: `2`
+
+12. **Save eslint cache (ui)**
+   - Uses: `apache/infrastructure-actions/stash/save@49df447b39b18354895520e0a63731b7cad7cbec`
+   - Condition: `steps.restore-eslint-cache-simple-am-ui.outputs.stash-hit != 'true'`
+   - With:
+     - `path`: `airflow-core/src/airflow/api_fastapi/auth/managers/simple/ui/node_modules/`
+     - `key`: `cache-simple-am-ui-node-modules-v1- ${{ runner.os }}-${{ hashFiles('airflow/api_fastapi/auth/managers/simple/ui/**/pnpm-lock.yaml') }}`
+     - `if-no-files-found`: `error`
+     - `retention-days`: `2`
+
+</details>
+
+### Check translation completeness (`check-translation-completness`)
+
+<details>
+<summary>Steps (3)</summary>
+
+1. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
+   - Uses: `actions/checkout@v6.0.2`
+   - With:
+     - `persist-credentials`: `false`
+
+2. **Install Breeze**
+   - Uses: `./.github/actions/breeze`
+
+3. **Check translation completeness**
+
+</details>
+
+### Static checks: basic checks only (`static-checks-basic-checks-only`)
+
+| Property | Value |
+|----------|-------|
+| Condition | `inputs.basic-checks-only == 'true'` |
+
+<details>
+<summary>Steps (6)</summary>
+
+1. **Cleanup repo**
+
+2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
+   - Uses: `actions/checkout@v6.0.2`
+   - With:
+     - `persist-credentials`: `false`
+
+3. **Install Breeze**
+   - ID: `breeze`
+   - Uses: `./.github/actions/breeze`
+
+4. **Install prek**
+   - ID: `prek`
+   - Uses: `./.github/actions/install-prek`
+   - With:
+     - `python-version`: `${{ steps.breeze.outputs.host-python-version }}` - Python version to use
+     - `platform`: `${{ inputs.platform }}` - Platform for the build - linux/amd64 or linux/arm64 (required)
+     - `save-cache`: `true` - Whether to save prek cache (required)
+
+5. **Fetch incoming commit ${{ github.sha }} with its parent**
+   - Uses: `actions/checkout@v6.0.2`
+   - With:
+     - `ref`: `${{ github.sha }}`
+     - `fetch-depth`: `2`
+     - `persist-credentials`: `false`
+
+6. **Static checks: basic checks only**
+   - Env:
+     - `VERBOSE`: `false`
+     - `SKIP_BREEZE_PREK_HOOKS`: `true`
+     - `SKIP`: `${{ inputs.skip-prek-hooks }}`
+     - `COLUMNS`: `202`
+
+</details>
+
+### Test git clone on Windows (`test-git-clone-on-windows`)
+
+| Property | Value |
+|----------|-------|
+| Runs on | `windows-2025` |
+
+<details>
+<summary>Steps (1)</summary>
+
+1. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
+   - Uses: `actions/checkout@v6.0.2`
+   - With:
+     - `fetch-depth`: `2`
+     - `persist-credentials`: `false`
+
+</details>
+
+### Test Airflow release commands (`test-airflow-release-commands`)
+
+| Property | Value |
+|----------|-------|
+| Condition | `inputs.canary-run == 'true'` |
+
+**Environment (`env`):**
+
+| Variable | Value |
+|----------|-------|
+| `PYTHON_MAJOR_MINOR_VERSION` | `${{ inputs.default-python-version }}` |
+| `GITHUB_REPOSITORY` | `${{ github.repository }}` |
+| `GITHUB_TOKEN` | `${{ secrets.GITHUB_TOKEN }}` |
+| `GITHUB_USERNAME` | `${{ github.actor }}` |
+| `VERBOSE` | `true` |
+
+<details>
+<summary>Steps (12)</summary>
+
+1. **Cleanup repo**
+
+2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
+   - Uses: `actions/checkout@v6.0.2`
+   - With:
+     - `persist-credentials`: `false`
+
+3. **Install Breeze**
+   - Uses: `./.github/actions/breeze`
+
+4. **Cleanup dist files**
+
+5. **Setup git for tagging**
+
+6. **Install twine**
+
+7. **Check Airflow create minor branch command**
+
+8. **Check Airflow RC process command**
+
+9. **Check Airflow release process command**
+
+10. **Test providers metadata generation**
+   - Env:
+     - `GITHUB_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
+
+11. **Fetch all git tags for origin**
+
+12. **Test airflow core issue generation automatically**
+
+</details>
+
+### Test Airflow standalone commands (`test-airflow-standalone`)
+
+**Environment (`env`):**
+
+| Variable | Value |
+|----------|-------|
+| `AIRFLOW_HOME` | `~/airflow` |
+| `FORCE_COLOR` | `1` |
+
+<details>
+<summary>Steps (5)</summary>
+
+1. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
+   - Uses: `actions/checkout@v6.0.2`
+   - With:
+     - `persist-credentials`: `false`
+
+2. **Install uv**
+
+3. **Set up Airflow home directory**
+
+4. **Install Airflow from current repo (simulating user installation)**
+
+5. **Test airflow standalone command**
+
+</details>
+
+[Back to top](#contents)
+
 # Build CI images
 
 **Triggers:** `workflow_call`
@@ -3900,11 +6031,11 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
 
 - [ci-amd.yml](#build-ci-images-build-ci-images) (job: `build-ci-images`) - entry point
 - [ci-arm.yml](#build-ci-images-build-ci-images-1) (job: `build-ci-images`) - entry point
-- [registry-backfill.yml](#build-ci-image-build-ci-image) (job: `build-ci-image`) - entry point
-- [registry-build.yml](#build-ci-image-build-ci-image-1) (job: `build-ci-image`) - entry point
+- [registry-backfill.yml](#build-ci-image-build-ci-image-1) (job: `build-ci-image`) - entry point
+- [registry-build.yml](#build-ci-image-build-ci-image) (job: `build-ci-image`) - entry point
   - [publish-docs-to-s3.yml](#update-provider-registry-update-registry) (job: `update-registry`) - entry point
-- [update-constraints-on-push-stable.yml](#build-ci-images-build-ci-images-2) (job: `build-ci-images`) - entry point
-- [update-constraints-on-push.yml](#build-ci-images-build-ci-images-3) (job: `build-ci-images`) - entry point
+- [update-constraints-on-push-stable.yml](#build-ci-images-build-ci-images-3) (job: `build-ci-images`) - entry point
+- [update-constraints-on-push.yml](#build-ci-images-build-ci-images-2) (job: `build-ci-images`) - entry point
 
 ## Referenced secrets and variables
 
@@ -4026,6 +6157,232 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
 
 [Back to top](#contents)
 
+# Build PROD images
+
+**Triggers:** `workflow_call`
+
+| Property | Value |
+|----------|-------|
+| File | `prod-image-build.yml` |
+| Default runs-on | `${{ fromJSON(inputs.runners) }}` |
+
+**Jobs:** [Build Airflow and provider distributions](#build-airflow-and-provider-distributions-build-prod-packages), [Build PROD ${{ inputs.build-type }} image ${{ matrix.python-version }}](#build-prod--inputsbuild-type--image--matrixpython-version--build-prod-images)
+
+## Workflow call API
+
+**Inputs:**
+
+| Name | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| `runners` | string | Yes | - | The array of labels (in json form) determining runners. |
+| `build-type` | string | Yes | - | Name of the 'type' of the build - usually 'Regular' but other types are used to test image variations. |
+| `upload-package-artifact` | string | Yes | - | Whether to upload package artifacts (true/false). If false, the job will rely on artifacts prepared by the main prod-image build job. |
+| `target-commit-sha` | string | No | - | The commit SHA to checkout for the build |
+| `pull-request-target` | string | No | `false` | Whether we are running this from pull-request-target workflow (true/false) |
+| `is-committer-build` | string | No | `false` | Whether the build is executed by committer (true/false) |
+| `push-image` | string | Yes | - | Whether to push image to the registry (true/false) |
+| `upload-image-artifact` | string | No | `false` | Whether to upload docker image artifact |
+| `debian-version` | string | No | `bookworm` | Base Debian distribution to use for the build (bookworm) |
+| `install-mysql-client-type` | string | No | `mariadb` | MySQL client type to use during build (mariadb/mysql) |
+| `use-uv` | string | Yes | - | Whether to use uv to build the image (true/false) |
+| `python-versions` | string | Yes | `[""]` | JSON-formatted array of Python versions to build images from |
+| `default-python-version` | string | Yes | - | Which version of python should be used by default |
+| `platform` | string | Yes | - | Platform for the build - 'linux/amd64' or 'linux/arm64' |
+| `branch` | string | Yes | - | Branch used to run the CI jobs in (main/v*_*_test). |
+| `constraints-branch` | string | Yes | - | Branch used to construct constraints URL from. |
+| `upgrade-to-newer-dependencies` | string | Yes | - | Whether to attempt to upgrade image to newer dependencies (true/false) |
+| `docker-cache` | string | Yes | - | Docker cache specification to build the image (registry, local, disabled). |
+| `disable-airflow-repo-cache` | string | Yes | - | Disable airflow repo cache read from main. |
+| `prod-image-build` | string | Yes | - | Whether this is a prod-image build (true/false) |
+
+## Permissions
+
+- `contents`: `read`
+
+## Called by
+
+`prod-image-build.yml`
+
+- [ci-amd.yml](#build-prod-images-build-prod-images) (job: `build-prod-images`) - entry point
+- [ci-arm.yml](#build-prod-images-build-prod-images-1) (job: `build-prod-images`) - entry point
+- [prod-image-extra-checks.yml](#pip-image) (job: `pip-image`)
+  - **[additional-prod-image-tests.yml](#additional-prod-image-tests)** (x2)
+    - [ci-amd.yml](#additional-prod-image-tests-additional-prod-image-tests) (job: `additional-prod-image-tests`) - entry point
+    - [ci-arm.yml](#additional-prod-image-tests-additional-prod-image-tests-1) (job: `additional-prod-image-tests`) - entry point
+
+## Referenced secrets and variables
+
+**Secrets:**
+
+| Name | Used by |
+|------|---------|
+| `CONSTRAINTS_GITHUB_REPOSITORY` | job `build-prod-images` env `CONSTRAINTS_GITHUB_REPOSITORY` |
+| `GITHUB_TOKEN` | job `build-prod-images` env `GITHUB_TOKEN`; job `build-prod-images` step `Login to ghcr.io` env `GITHUB_TOKEN` |
+
+## Jobs
+
+### Build Airflow and provider distributions (`build-prod-packages`)
+
+| Property | Value |
+|----------|-------|
+| Condition | `inputs.prod-image-build == 'true'` |
+
+**Environment (`env`):**
+
+| Variable | Value |
+|----------|-------|
+| `PYTHON_MAJOR_MINOR_VERSION` | `${{ inputs.default-python-version }}` |
+
+<details>
+<summary>Steps (13)</summary>
+
+1. **Cleanup repo**
+   - Condition: `inputs.upload-package-artifact == 'true'`
+
+2. **Checkout target branch**
+   - Uses: `actions/checkout@v6.0.2`
+   - With:
+     - `persist-credentials`: `false`
+
+3. **Make /mnt writeable**
+   - Condition: `inputs.upload-package-artifact == 'true'`
+
+4. **Move docker to /mnt**
+   - Condition: `inputs.upload-package-artifact == 'true'`
+
+5. **Cleanup dist and context file**
+   - Condition: `inputs.upload-package-artifact == 'true'`
+
+6. **Install prek**
+   - ID: `prek`
+   - Uses: `./.github/actions/install-prek`
+   - With:
+     - `python-version`: `${{ matrix.python-version }}` - Python version to use
+     - `platform`: `${{ inputs.platform }}` - Platform for the build - linux/amd64 or linux/arm64 (required)
+     - `save-cache`: `false` - Whether to save prek cache (required)
+
+7. **Install Breeze**
+   - Uses: `./.github/actions/breeze`
+   - Condition: `inputs.upload-package-artifact == 'true'`
+
+8. **Prepare providers packages - all providers built from sources**
+   - Condition: `inputs.upload-package-artifact == 'true' && inputs.branch == 'main'`
+
+9. **Prepare providers packages with only new versions of providers**
+   - Condition: `inputs.upload-package-artifact == 'true' && inputs.branch != 'main'`
+
+10. **Prepare airflow package**
+   - Condition: `inputs.upload-package-artifact == 'true'`
+
+11. **Prepare task-sdk package**
+   - Condition: `inputs.upload-package-artifact == 'true'`
+
+12. **Prepare airflow-ctl package**
+   - Condition: `inputs.upload-package-artifact == 'true'`
+
+13. **Upload prepared packages as artifacts**
+   - Uses: `actions/upload-artifact@v7.0.1`
+   - Condition: `inputs.upload-package-artifact == 'true'`
+   - With:
+     - `name`: `prod-packages`
+     - `path`: `./dist`
+     - `retention-days`: `7`
+     - `if-no-files-found`: `error`
+
+</details>
+
+### Build PROD ${{ inputs.build-type }} image ${{ matrix.python-version }} (`build-prod-images`)
+
+| Property | Value |
+|----------|-------|
+| Matrix | `python-version`: ${{ fromJSON(inputs.python-versions) }} |
+| Depends on | `build-prod-packages` |
+
+**Environment (`env`):**
+
+| Variable | Value |
+|----------|-------|
+| `BACKEND` | `sqlite` |
+| `PYTHON_MAJOR_MINOR_VERSION` | `${{ matrix.python-version }}` |
+| `DEFAULT_BRANCH` | `${{ inputs.branch }}` |
+| `DEFAULT_CONSTRAINTS_BRANCH` | `${{ inputs.constraints-branch }}` |
+| `INCLUDE_NOT_READY_PROVIDERS` | `true` |
+| `CONSTRAINTS_GITHUB_REPOSITORY` | `${{ secrets.CONSTRAINTS_GITHUB_REPOSITORY != '' && secrets.CONSTRAINTS_GITHUB_REPOSITORY \|\| 'apache/airflow' }}` |
+| `GITHUB_REPOSITORY` | `${{ github.repository }}` |
+| `GITHUB_TOKEN` | `${{ secrets.GITHUB_TOKEN }}` |
+| `GITHUB_USERNAME` | `${{ github.actor }}` |
+| `PLATFORM` | `${{ inputs.platform }}` |
+| `VERBOSE` | `true` |
+
+<details>
+<summary>Steps (14)</summary>
+
+1. **Cleanup repo**
+
+2. **Checkout target branch**
+   - Uses: `actions/checkout@v6.0.2`
+   - With:
+     - `persist-credentials`: `false`
+
+3. **Make /mnt writeable**
+
+4. **Install Breeze**
+   - Uses: `./.github/actions/breeze`
+
+5. **Cleanup dist and context file**
+
+6. **Download packages prepared as artifacts**
+   - Uses: `actions/download-artifact@v8.0.1`
+   - With:
+     - `name`: `prod-packages`
+     - `path`: `./docker-context-files`
+
+7. **Download constraints**
+   - Uses: `actions/download-artifact@v8.0.1`
+   - With:
+     - `name`: `constraints-${{ matrix.python-version }}`
+     - `path`: `./docker-context-files/constraints-${{ matrix.python-version }}`
+
+8. **Show downloaded files**
+
+9. **Show constraints**
+
+10. **Login to ghcr.io**
+   - Env:
+     - `GITHUB_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
+     - `ACTOR`: `${{ github.actor }}`
+
+11. **Build PROD images w/ source providers ${{ env.PYTHON\_MAJOR\_MINOR\_VERSION }}**
+   - Env:
+     - `PUSH`: `${{ inputs.push-image }}`
+     - `DOCKER_CACHE`: `${{ inputs.docker-cache }}`
+     - `DISABLE_AIRFLOW_REPO_CACHE`: `${{ inputs.disable-airflow-repo-cache }}`
+     - `DEBIAN_VERSION`: `${{ inputs.debian-version }}`
+     - `INSTALL_MYSQL_CLIENT_TYPE`: `${{ inputs.install-mysql-client-type }}`
+     - `UPGRADE_TO_NEWER_DEPENDENCIES`: `${{ inputs.upgrade-to-newer-dependencies }}`
+     - `INCLUDE_NOT_READY_PROVIDERS`: `true`
+     - `USE_UV`: `${{ inputs.use-uv }}`
+
+12. **Verify PROD image ${{ env.PYTHON\_MAJOR\_MINOR\_VERSION }}**
+
+13. **Export PROD docker image ${{ env.PYTHON\_MAJOR\_MINOR\_VERSION }}**
+   - Condition: `inputs.upload-image-artifact == 'true'`
+   - Env:
+     - `PLATFORM`: `${{ inputs.platform }}`
+
+14. **Stash PROD docker image ${{ env.PYTHON\_MAJOR\_MINOR\_VERSION }}**
+   - Uses: `apache/infrastructure-actions/stash/save@49df447b39b18354895520e0a63731b7cad7cbec`
+   - Condition: `inputs.upload-image-artifact == 'true'`
+   - With:
+     - `key`: `prod-image-save-v3-${{ inputs.platform }}-${{ env.PYTHON_MAJOR_MINOR_VERSION }}`
+     - `path`: `/mnt/prod-image-save-*-${{ env.PYTHON_MAJOR_MINOR_VERSION }}.tar`
+     - `if-no-files-found`: `error`
+     - `retention-days`: `2`
+
+</details>
+
+[Back to top](#contents)
+
 # CI Image Checks
 
 **Triggers:** `workflow_call`
@@ -4035,7 +6392,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
 | File | `ci-image-checks.yml` |
 | Default runs-on | `${{ fromJSON(inputs.runners) }}` |
 
-**Jobs:** [Static checks](#static-checks-static-checks), [Build documentation](#build-documentation-build-docs), [Publish documentation and validate versions](#publish-documentation-and-validate-versions-publish-docs), [Test Python API client](#test-python-api-client-test-python-api-client)
+**Jobs:** [Static checks](#static-checks-static-checks), [Build documentation](#build-documentation-build-docs-1), [Publish documentation and validate versions](#publish-documentation-and-validate-versions-publish-docs), [Test Python API client](#test-python-api-client-test-python-api-client)
 
 ## Workflow call API
 
@@ -4441,265 +6798,6 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
 
 [Back to top](#contents)
 
-# CI Notification
-
-**Triggers:** `schedule`, `workflow_dispatch`
-
-| Property | Value |
-|----------|-------|
-| File | `ci-notification.yml` |
-
-## Schedule
-
-- `0 6,17 * * *`
-
-## Permissions
-
-- `contents`: `read`
-
-## Environment (`env`)
-
-| Variable | Value |
-|----------|-------|
-| `GITHUB_REPOSITORY` | `${{ github.repository }}` |
-| `GITHUB_TOKEN` | `${{ secrets.GITHUB_TOKEN }}` |
-| `GITHUB_USERNAME` | `${{ github.actor }}` |
-| `SLACK_BOT_TOKEN` | `${{ secrets.SLACK_BOT_TOKEN }}` |
-| `VERBOSE` | `true` |
-
-## Referenced secrets and variables
-
-**Secrets:**
-
-| Name | Used by |
-|------|---------|
-| `GITHUB_TOKEN` | workflow env `GITHUB_TOKEN`; job `workflow-status` step `Find workflow run status` env `GITHUB_TOKEN`; job `workflow-status` step `Determine notification action` env `GITHUB_TOKEN` |
-| `SLACK_BOT_TOKEN` | workflow env `SLACK_BOT_TOKEN` |
-
-## Jobs
-
-### `workflow-status`
-
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-latest` |
-| Matrix | `branch`: v3-2-test; `workflow-id`: ci-amd.yml |
-
-<details>
-<summary>Steps (7)</summary>
-
-1. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@v6.0.2`
-   - With:
-     - `persist-credentials`: `false`
-
-2. **Find workflow run status**
-   - ID: `find-workflow-run-status`
-   - Env:
-     - `GITHUB_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
-     - `workflow_branch`: `${{ matrix.branch }}`
-     - `workflow_id`: `${{ matrix.workflow-id }}`
-
-3. **Determine notification action**
-   - ID: `notification`
-   - Env:
-     - `ARTIFACT_NAME`: `slack-state-ci-${{ matrix.branch }}-${{ matrix.workflow-id }}`
-     - `CURRENT_FAILURES`: `${{ steps.find-workflow-run-status.outputs.failed-jobs }}`
-     - `GITHUB_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
-
-4. **Upload notification state**
-   - Uses: `actions/upload-artifact@v7.0.1`
-   - With:
-     - `name`: `slack-state-ci-${{ matrix.branch }}-${{ matrix.workflow-id }}`
-     - `path`: `./slack-state/`
-     - `retention-days`: `7`
-     - `overwrite`: `true`
-
-5. **Send Slack notification (new/changed failures)**
-   - Uses: `slackapi/slack-github-action@v3.0.3`
-   - Condition: `steps.notification.outputs.action == 'notify_new'`
-   - With:
-     - `method`: `chat.postMessage`
-     - `token`: `${{ env.SLACK_BOT_TOKEN }}`
-     - `payload`: `channel: "internal-airflow-ci-cd" text: "🚨 Failure Alert: ${{ env.workflow_id }} on branch *${{ env.branch }}*\n\nFailing jobs:\n${{ steps.find-workflow-run-status.outputs.failed-jobs }}\n\n*Details:* <${{ env.run_url }}|View the failure log>" blocks:   - type: "section"     text:       type: "mrkdwn"       text: "🚨 Failure Alert: ${{ env.workflow_id }} on *${{ env.branch }}*\n\nFailing jobs:\n${{ steps.find-workflow-run-status.outputs.failed-jobs }}\n\n*Details:* <${{ env.run_url }}|View the failure log>"`
-   - Env:
-     - `run_url`: `${{ steps.find-workflow-run-status.outputs.run-url }}`
-     - `branch`: `${{ matrix.branch }}`
-     - `workflow_id`: `${{ matrix.workflow-id }}`
-
-6. **Send Slack notification (still not fixed)**
-   - Uses: `slackapi/slack-github-action@v3.0.3`
-   - Condition: `steps.notification.outputs.action == 'notify_reminder'`
-   - With:
-     - `method`: `chat.postMessage`
-     - `token`: `${{ env.SLACK_BOT_TOKEN }}`
-     - `payload`: `channel: "internal-airflow-ci-cd" text: "🚨🔁 Still not fixed: ${{ env.workflow_id }} on branch *${{ env.branch }}*\n\nFailing jobs:\n${{ steps.find-workflow-run-status.outputs.failed-jobs }}\n\n*Details:* <${{ env.run_url }}|View the failure log>" blocks:   - type: "section"     text:       type: "mrkdwn"       text: "🚨🔁 Still not fixed: ${{ env.workflow_id }} on *${{ env.branch }}*\n\nFailing jobs:\n${{ steps.find-workflow-run-status.outputs.failed-jobs }}\n\n*Details:* <${{ env.run_url }}|View the failure log>"`
-   - Env:
-     - `run_url`: `${{ steps.find-workflow-run-status.outputs.run-url }}`
-     - `branch`: `${{ matrix.branch }}`
-     - `workflow_id`: `${{ matrix.workflow-id }}`
-
-7. **Send Slack notification (all passing)**
-   - Uses: `slackapi/slack-github-action@v3.0.3`
-   - Condition: `steps.notification.outputs.action == 'notify_recovery'`
-   - With:
-     - `method`: `chat.postMessage`
-     - `token`: `${{ env.SLACK_BOT_TOKEN }}`
-     - `payload`: `channel: "internal-airflow-ci-cd" text: "✅ All passing: ${{ env.workflow_id }} on branch *${{ env.branch }}*\n\n*Details:* <${{ env.run_url }}|View the run log>" blocks:   - type: "section"     text:       type: "mrkdwn"       text: "✅ All passing: ${{ env.workflow_id }} on *${{ env.branch }}*\n\n*Details:* <${{ env.run_url }}|View the run log>"`
-   - Env:
-     - `run_url`: `${{ steps.find-workflow-run-status.outputs.run-url }}`
-     - `branch`: `${{ matrix.branch }}`
-     - `workflow_id`: `${{ matrix.workflow-id }}`
-
-</details>
-
-[Back to top](#contents)
-
-# CodeQL
-
-**Triggers:** `pull_request`, `push`, `schedule`
-
-| Property | Value |
-|----------|-------|
-| File | `codeql-analysis.yml` |
-
-## Schedule
-
-- `0 2 * * *`
-
-## Event filters
-
-- **pull_request**
-  - branches: `main`, `v[0-9]+-[0-9]+-test`, `v[0-9]+-[0-9]+-stable`
-- **push**
-  - branches: `main`
-
-## Permissions
-
-- `contents`: `read`
-
-**Concurrency:** group `codeql-${{ github.event.pull_request.number || github.ref }}`, cancel-in-progress: `true`
-
-## Jobs
-
-### Analyze (`analyze`)
-
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-22.04` |
-| Matrix | `language`: python, javascript, actions, go |
-
-**Permissions:**
-
-- `actions`: `read`
-- `contents`: `read`
-- `pull-requests`: `read`
-- `security-events`: `write`
-
-<details>
-<summary>Steps (4)</summary>
-
-1. **Checkout repository**
-   - Uses: `actions/checkout@v6.0.2`
-   - With:
-     - `persist-credentials`: `false`
-
-2. **Initialize CodeQL**
-   - Uses: `github/codeql-action/init@v4.35.5`
-   - With:
-     - `languages`: `${{ matrix.language }}`
-
-3. **Autobuild**
-   - Uses: `github/codeql-action/autobuild@v4.35.5`
-
-4. **Perform CodeQL Analysis**
-   - Uses: `github/codeql-action/analyze@v4.35.5`
-   - With:
-     - `category`: `/language:${{matrix.language}}`
-
-</details>
-
-[Back to top](#contents)
-
-# E2E Flaky Tests Report
-
-**Triggers:** `schedule`, `workflow_dispatch`
-
-| Property | Value |
-|----------|-------|
-| File | `e2e-flaky-tests-report.yml` |
-
-## Schedule
-
-- `0 0 * * *`
-
-## Permissions
-
-- `contents`: `read`
-- `actions`: `read`
-
-## Environment (`env`)
-
-| Variable | Value |
-|----------|-------|
-| `GITHUB_REPOSITORY` | `${{ github.repository }}` |
-| `GITHUB_TOKEN` | `${{ secrets.GITHUB_TOKEN }}` |
-| `SLACK_BOT_TOKEN` | `${{ secrets.SLACK_BOT_TOKEN }}` |
-
-## Referenced secrets and variables
-
-**Secrets:**
-
-| Name | Used by |
-|------|---------|
-| `GITHUB_TOKEN` | workflow env `GITHUB_TOKEN`; job `analyze-flaky-tests` step `Analyze E2E test results` env `GITHUB_TOKEN` |
-| `SLACK_BOT_TOKEN` | workflow env `SLACK_BOT_TOKEN` |
-
-## Jobs
-
-### Analyze E2E flaky tests (`analyze-flaky-tests`)
-
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-latest` |
-
-<details>
-<summary>Steps (4)</summary>
-
-1. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@v6.0.2`
-   - With:
-     - `persist-credentials`: `false`
-
-2. **Analyze E2E test results**
-   - ID: `analyze`
-   - Env:
-     - `GITHUB_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
-     - `MAX_RUNS`: `10`
-     - `WORKFLOW_NAME`: `ci-amd.yml`
-     - `BRANCH`: `main`
-     - `OUTPUT_FILE`: `slack-message.json`
-
-3. **Post report to Slack**
-   - Uses: `slackapi/slack-github-action@v3.0.3`
-   - Condition: `always() && steps.analyze.outcome == 'success'`
-   - With:
-     - `method`: `chat.postMessage`
-     - `token`: `${{ env.SLACK_BOT_TOKEN }}`
-     - `payload-file-path`: `slack-message.json`
-
-4. **Upload analysis results**
-   - Uses: `actions/upload-artifact@v7.0.1`
-   - Condition: `always()`
-   - With:
-     - `name`: `e2e-flaky-test-analysis`
-     - `path`: `slack-message.json`
-     - `retention-days`: `14`
-
-</details>
-
-[Back to top](#contents)
-
 # Finalize tests
 
 **Triggers:** `workflow_call`
@@ -4905,8 +7003,8 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
 
 - [ci-amd.yml](#generate-constraints-generate-constraints) (job: `generate-constraints`) - entry point
 - [ci-arm.yml](#generate-constraints-generate-constraints-1) (job: `generate-constraints`) - entry point
-- [update-constraints-on-push-stable.yml](#generate-constraints-generate-constraints-2) (job: `generate-constraints`) - entry point
-- [update-constraints-on-push.yml](#generate-constraints-generate-constraints-3) (job: `generate-constraints`) - entry point
+- [update-constraints-on-push-stable.yml](#generate-constraints-generate-constraints-3) (job: `generate-constraints`) - entry point
+- [update-constraints-on-push.yml](#generate-constraints-generate-constraints-2) (job: `generate-constraints`) - entry point
 
 ## Referenced secrets and variables
 
@@ -5481,165 +7579,13 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
 
 [Back to top](#contents)
 
-# Milestone Tag Assistant
-
-**Triggers:** `push`
-
-| Property | Value |
-|----------|-------|
-| File | `milestone-tag-assistant.yml` |
-| Default runs-on | `ubuntu-latest` |
-
-**Jobs:** [Get PR information](#get-pr-information-get-pr-info-1), [Set milestone on merged PR](#set-milestone-on-merged-pr-set-milestone)
-
-## Event filters
-
-- **push**
-  - branches: `main`, `v3-2-test`, `v3-1-test`
-
-## Permissions
-
-- `contents`: `write` - zizmor: ignore[excessive-permissions]
-- `pull-requests`: `write` - zizmor: ignore[excessive-permissions]
-
-## Call graph (rooted at this workflow)
-
-`milestone-tag-assistant.yml` [push]
-
-- `set-milestone / Install Breeze` uses [./.github/actions/breeze](#setup-breeze)
-
-## Transitive requirements (from full call graph)
-
-Secrets referenced (literal names): `GITHUB_TOKEN`
-
-Permissions declared across the chain: `contents: write`, `pull-requests: write`
-
-## Referenced secrets and variables
-
-**Secrets:**
-
-| Name | Used by |
-|------|---------|
-| `GITHUB_TOKEN` | job `get-pr-info` step `Find PR information` env `GITHUB_TOKEN` |
-
-## Jobs
-
-### Get PR information (`get-pr-info`)
-
-<details>
-<summary>Steps (2)</summary>
-
-1. **Add delay for GitHub to process PR merge**
-
-2. **Find PR information**
-   - ID: `pr-info`
-   - Uses: `actions/github-script@v9.0.0`
-   - With:
-     - `script`: `` const { data: pullRequests } = await github.rest.repos.listPullRequestsAssociatedWithCommit({     owner: context.repo.owner,     repo: context.repo.repo,     commit_sha: process.env.GITHUB_SHA });  if (pullRequests.length === 0) {     console.log('⚠️ No pull request found for this commit.');     core.setOutput('should-run', 'false');     return; }  const pr = pullRequests[0];  // Skip if PR already has a milestone if (pr.milestone !== null) {     console.log(`PR #${pr.number} already has milestone: ${pr.milestone.title}`);     core.setOutput('should-run', 'false');     return; }  const labels = pr.labels.map(label => label.name);  console.log(`Commit ${process.env.GITHUB_SHA} is associated with PR #${pr.number}`); console.log(`Title: ${pr.title}`); console.log(`Labels: ${JSON.stringify(labels)}`); console.log(`Base branch: ${pr.base.ref}`); console.log(`Merged by: ${pr.merged_by?.login || 'unknown'}`);  core.setOutput('should-run', 'true'); core.setOutput('pr-number', pr.number.toString()); core.setOutput('pr-title', pr.title); core.setOutput('pr-labels', JSON.stringify(labels)); core.setOutput('base-branch', pr.base.ref); core.setOutput('merged-by', pr.merged_by?.login || 'unknown'); ``
-   - Env:
-     - `GITHUB_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
-
-</details>
-
-### Set milestone on merged PR (`set-milestone`)
-
-| Property | Value |
-|----------|-------|
-| Depends on | `get-pr-info` |
-| Condition | `${{ needs.get-pr-info.outputs.should-run == 'true' }}` |
-
-<details>
-<summary>Steps (3)</summary>
-
-1. **Checkout repository**
-   - Uses: `actions/checkout@v6.0.2`
-   - With:
-     - `persist-credentials`: `false`
-     - `ref`: `main`
-
-2. **Install Breeze**
-   - ID: `breeze`
-   - Uses: `./.github/actions/breeze`
-
-3. **Check criteria and set milestone**
-   - Env:
-     - `GH_TOKEN`: `${{ github.token }}`
-     - `GITHUB_REPOSITORY`: `${{ github.repository }}`
-     - `PR_NUMBER`: `${{ needs.get-pr-info.outputs.pr-number }}`
-     - `PR_TITLE`: `${{ needs.get-pr-info.outputs.pr-title }}`
-     - `PR_LABELS`: `${{ needs.get-pr-info.outputs.pr-labels }}`
-     - `BASE_BRANCH`: `${{ needs.get-pr-info.outputs.base-branch }}`
-     - `MERGED_BY`: `${{ needs.get-pr-info.outputs.merged-by }}`
-
-</details>
-
-[Back to top](#contents)
-
-# Notify uv.lock conflicts
-
-**Triggers:** `push`
-
-| Property | Value |
-|----------|-------|
-| File | `notify-uv-lock-conflicts.yml` |
-
-## Event filters
-
-- **push**
-  - branches: `main`
-  - paths: `uv.lock`
-
-## Permissions
-
-- `contents`: `read`
-- `pull-requests`: `write`
-
-## Referenced secrets and variables
-
-**Secrets:**
-
-| Name | Used by |
-|------|---------|
-| `GITHUB_TOKEN` | job `notify` step `Notify open PRs` env `GITHUB_TOKEN` |
-
-## Jobs
-
-### Notify open PRs that conflict on uv.lock (`notify`)
-
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-22.04` |
-
-<details>
-<summary>Steps (3)</summary>
-
-1. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@v6.0.2`
-   - With:
-     - `persist-credentials`: `false`
-
-2. **Install uv**
-
-3. **Notify open PRs**
-   - Env:
-     - `GITHUB_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
-     - `GITHUB_REPOSITORY`: `${{ github.repository }}`
-     - `GITHUB_SHA`: `${{ github.sha }}`
-
-</details>
-
-[Back to top](#contents)
-
-# Build PROD images
+# Non-core Distribution tests
 
 **Triggers:** `workflow_call`
 
 | Property | Value |
 |----------|-------|
-| File | `prod-image-build.yml` |
-| Default runs-on | `${{ fromJSON(inputs.runners) }}` |
-
-**Jobs:** [Build Airflow and provider distributions](#build-airflow-and-provider-distributions-build-prod-packages), [Build PROD ${{ inputs.build-type }} image ${{ matrix.python-version }}](#build-prod--inputsbuild-type--image--matrixpython-version--build-prod-images)
+| File | `airflow-distributions-tests.yml` |
 
 ## Workflow call API
 
@@ -5648,25 +7594,16 @@ Permissions declared across the chain: `contents: write`, `pull-requests: write`
 | Name | Type | Required | Default | Description |
 |------|------|----------|---------|-------------|
 | `runners` | string | Yes | - | The array of labels (in json form) determining runners. |
-| `build-type` | string | Yes | - | Name of the 'type' of the build - usually 'Regular' but other types are used to test image variations. |
-| `upload-package-artifact` | string | Yes | - | Whether to upload package artifacts (true/false). If false, the job will rely on artifacts prepared by the main prod-image build job. |
-| `target-commit-sha` | string | No | - | The commit SHA to checkout for the build |
-| `pull-request-target` | string | No | `false` | Whether we are running this from pull-request-target workflow (true/false) |
-| `is-committer-build` | string | No | `false` | Whether the build is executed by committer (true/false) |
-| `push-image` | string | Yes | - | Whether to push image to the registry (true/false) |
-| `upload-image-artifact` | string | No | `false` | Whether to upload docker image artifact |
-| `debian-version` | string | No | `bookworm` | Base Debian distribution to use for the build (bookworm) |
-| `install-mysql-client-type` | string | No | `mariadb` | MySQL client type to use during build (mariadb/mysql) |
-| `use-uv` | string | Yes | - | Whether to use uv to build the image (true/false) |
-| `python-versions` | string | Yes | `[""]` | JSON-formatted array of Python versions to build images from |
-| `default-python-version` | string | Yes | - | Which version of python should be used by default |
 | `platform` | string | Yes | - | Platform for the build - 'linux/amd64' or 'linux/arm64' |
-| `branch` | string | Yes | - | Branch used to run the CI jobs in (main/v*_*_test). |
-| `constraints-branch` | string | Yes | - | Branch used to construct constraints URL from. |
-| `upgrade-to-newer-dependencies` | string | Yes | - | Whether to attempt to upgrade image to newer dependencies (true/false) |
-| `docker-cache` | string | Yes | - | Docker cache specification to build the image (registry, local, disabled). |
-| `disable-airflow-repo-cache` | string | Yes | - | Disable airflow repo cache read from main. |
-| `prod-image-build` | string | Yes | - | Whether this is a prod-image build (true/false) |
+| `distribution-name` | string | Yes | - | The name of the distribution to test |
+| `distribution-cmd-format` | string | Yes | - | The type of distribution to test |
+| `test-type` | string | Yes | - | distribution test type |
+| `default-python-version` | string | Yes | - | Which version of python should be used by default |
+| `python-versions` | string | Yes | - | JSON-formatted array of Python versions to build images from |
+| `use-uv` | string | Yes | - | Whether to use uv to build the image (true/false) |
+| `canary-run` | string | Yes | - | Whether this is a canary run (true/false) |
+| `use-local-venv` | string | Yes | - | Whether local venv should be used for tests (true/false) |
+| `test-timeout` | number | No | `60` | - |
 
 ## Permissions
 
@@ -5674,14 +7611,10 @@ Permissions declared across the chain: `contents: write`, `pull-requests: write`
 
 ## Called by
 
-`prod-image-build.yml`
+`airflow-distributions-tests.yml`
 
-- [ci-amd.yml](#build-prod-images-build-prod-images) (job: `build-prod-images`) - entry point
-- [ci-arm.yml](#build-prod-images-build-prod-images-1) (job: `build-prod-images`) - entry point
-- [prod-image-extra-checks.yml](#pip-image) (job: `pip-image`)
-  - **[additional-prod-image-tests.yml](#additional-prod-image-tests)** (x2)
-    - [ci-amd.yml](#additional-prod-image-tests-additional-prod-image-tests) (job: `additional-prod-image-tests`) - entry point
-    - [ci-arm.yml](#additional-prod-image-tests-additional-prod-image-tests-1) (job: `additional-prod-image-tests`) - entry point
+- **[ci-amd.yml](#tests-amd)** - entry point (x2)
+- **[ci-arm.yml](#tests-arm)** - entry point (x2)
 
 ## Referenced secrets and variables
 
@@ -5689,168 +7622,67 @@ Permissions declared across the chain: `contents: write`, `pull-requests: write`
 
 | Name | Used by |
 |------|---------|
-| `CONSTRAINTS_GITHUB_REPOSITORY` | job `build-prod-images` env `CONSTRAINTS_GITHUB_REPOSITORY` |
-| `GITHUB_TOKEN` | job `build-prod-images` env `GITHUB_TOKEN`; job `build-prod-images` step `Login to ghcr.io` env `GITHUB_TOKEN` |
+| `GITHUB_TOKEN` | job `distributions-tests` env `GITHUB_TOKEN` |
 
 ## Jobs
 
-### Build Airflow and provider distributions (`build-prod-packages`)
+### ${{ inputs.distribution-name }}:P${{ matrix.python-version }} tests (`distributions-tests`)
 
 | Property | Value |
 |----------|-------|
-| Condition | `inputs.prod-image-build == 'true'` |
+| Runs on | `${{ fromJSON(inputs.runners) }}` |
+| Matrix | `python-version`: ${{fromJSON(inputs.python-versions)}} |
 
 **Environment (`env`):**
 
 | Variable | Value |
 |----------|-------|
-| `PYTHON_MAJOR_MINOR_VERSION` | `${{ inputs.default-python-version }}` |
-
-<details>
-<summary>Steps (13)</summary>
-
-1. **Cleanup repo**
-   - Condition: `inputs.upload-package-artifact == 'true'`
-
-2. **Checkout target branch**
-   - Uses: `actions/checkout@v6.0.2`
-   - With:
-     - `persist-credentials`: `false`
-
-3. **Make /mnt writeable**
-   - Condition: `inputs.upload-package-artifact == 'true'`
-
-4. **Move docker to /mnt**
-   - Condition: `inputs.upload-package-artifact == 'true'`
-
-5. **Cleanup dist and context file**
-   - Condition: `inputs.upload-package-artifact == 'true'`
-
-6. **Install prek**
-   - ID: `prek`
-   - Uses: `./.github/actions/install-prek`
-   - With:
-     - `python-version`: `${{ matrix.python-version }}` - Python version to use
-     - `platform`: `${{ inputs.platform }}` - Platform for the build - linux/amd64 or linux/arm64 (required)
-     - `save-cache`: `false` - Whether to save prek cache (required)
-
-7. **Install Breeze**
-   - Uses: `./.github/actions/breeze`
-   - Condition: `inputs.upload-package-artifact == 'true'`
-
-8. **Prepare providers packages - all providers built from sources**
-   - Condition: `inputs.upload-package-artifact == 'true' && inputs.branch == 'main'`
-
-9. **Prepare providers packages with only new versions of providers**
-   - Condition: `inputs.upload-package-artifact == 'true' && inputs.branch != 'main'`
-
-10. **Prepare airflow package**
-   - Condition: `inputs.upload-package-artifact == 'true'`
-
-11. **Prepare task-sdk package**
-   - Condition: `inputs.upload-package-artifact == 'true'`
-
-12. **Prepare airflow-ctl package**
-   - Condition: `inputs.upload-package-artifact == 'true'`
-
-13. **Upload prepared packages as artifacts**
-   - Uses: `actions/upload-artifact@v7.0.1`
-   - Condition: `inputs.upload-package-artifact == 'true'`
-   - With:
-     - `name`: `prod-packages`
-     - `path`: `./dist`
-     - `retention-days`: `7`
-     - `if-no-files-found`: `error`
-
-</details>
-
-### Build PROD ${{ inputs.build-type }} image ${{ matrix.python-version }} (`build-prod-images`)
-
-| Property | Value |
-|----------|-------|
-| Matrix | `python-version`: ${{ fromJSON(inputs.python-versions) }} |
-| Depends on | `build-prod-packages` |
-
-**Environment (`env`):**
-
-| Variable | Value |
-|----------|-------|
-| `BACKEND` | `sqlite` |
-| `PYTHON_MAJOR_MINOR_VERSION` | `${{ matrix.python-version }}` |
-| `DEFAULT_BRANCH` | `${{ inputs.branch }}` |
-| `DEFAULT_CONSTRAINTS_BRANCH` | `${{ inputs.constraints-branch }}` |
-| `INCLUDE_NOT_READY_PROVIDERS` | `true` |
-| `CONSTRAINTS_GITHUB_REPOSITORY` | `${{ secrets.CONSTRAINTS_GITHUB_REPOSITORY != '' && secrets.CONSTRAINTS_GITHUB_REPOSITORY \|\| 'apache/airflow' }}` |
 | `GITHUB_REPOSITORY` | `${{ github.repository }}` |
 | `GITHUB_TOKEN` | `${{ secrets.GITHUB_TOKEN }}` |
 | `GITHUB_USERNAME` | `${{ github.actor }}` |
-| `PLATFORM` | `${{ inputs.platform }}` |
+| `INCLUDE_NOT_READY_PROVIDERS` | `true` |
+| `PYTHON_MAJOR_MINOR_VERSION` | `${{ inputs.default-python-version }}` |
 | `VERBOSE` | `true` |
 
 <details>
-<summary>Steps (14)</summary>
+<summary>Steps (8)</summary>
 
 1. **Cleanup repo**
 
-2. **Checkout target branch**
+2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
    - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
 
-3. **Make /mnt writeable**
+3. **Prepare breeze & CI image: ${{ matrix.python-version }}**
+   - Uses: `./.github/actions/prepare_breeze_and_image`
+   - Condition: `${{ inputs.use-local-venv != 'true' }}`
+   - With:
+     - `platform`: `${{ inputs.platform }}` - Platform for the build - linux/amd64 or linux/arm64 (required)
+     - `python`: `${{ matrix.python-version }}` - Python version for image to prepare (required)
+     - `use-uv`: `${{ inputs.use-uv }}` - Whether to use uv (required)
+     - `make-mnt-writeable-and-cleanup`: `true` - Whether to cleanup /mnt (required)
 
 4. **Install Breeze**
    - Uses: `./.github/actions/breeze`
+   - Condition: `${{ inputs.use-local-venv == 'true' }}`
 
-5. **Cleanup dist and context file**
+5. **Cleanup dist files**
+   - Condition: `${{ matrix.python-version == inputs.default-python-version }}`
 
-6. **Download packages prepared as artifacts**
-   - Uses: `actions/download-artifact@v8.0.1`
-   - With:
-     - `name`: `prod-packages`
-     - `path`: `./docker-context-files`
-
-7. **Download constraints**
-   - Uses: `actions/download-artifact@v8.0.1`
-   - With:
-     - `name`: `constraints-${{ matrix.python-version }}`
-     - `path`: `./docker-context-files/constraints-${{ matrix.python-version }}`
-
-8. **Show downloaded files**
-
-9. **Show constraints**
-
-10. **Login to ghcr.io**
+6. **Prepare Airflow ${{inputs.distribution-name}}: wheel**
+   - Condition: `${{ matrix.python-version == inputs.default-python-version }}`
    - Env:
-     - `GITHUB_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
-     - `ACTOR`: `${{ github.actor }}`
+     - `DISTRIBUTION_TYPE`: `${{ inputs.distribution-cmd-format }}`
+     - `USE_LOCAL_HATCH`: `${{ inputs.use-local-venv }}`
 
-11. **Build PROD images w/ source providers ${{ env.PYTHON\_MAJOR\_MINOR\_VERSION }}**
+7. **Verify wheel packages with twine**
+   - Condition: `${{ matrix.python-version == inputs.default-python-version }}`
+
+8. **Run unit tests for Airflow ${{inputs.distribution-name}}:Python ${{ matrix.python-version }}**
    - Env:
-     - `PUSH`: `${{ inputs.push-image }}`
-     - `DOCKER_CACHE`: `${{ inputs.docker-cache }}`
-     - `DISABLE_AIRFLOW_REPO_CACHE`: `${{ inputs.disable-airflow-repo-cache }}`
-     - `DEBIAN_VERSION`: `${{ inputs.debian-version }}`
-     - `INSTALL_MYSQL_CLIENT_TYPE`: `${{ inputs.install-mysql-client-type }}`
-     - `UPGRADE_TO_NEWER_DEPENDENCIES`: `${{ inputs.upgrade-to-newer-dependencies }}`
-     - `INCLUDE_NOT_READY_PROVIDERS`: `true`
-     - `USE_UV`: `${{ inputs.use-uv }}`
-
-12. **Verify PROD image ${{ env.PYTHON\_MAJOR\_MINOR\_VERSION }}**
-
-13. **Export PROD docker image ${{ env.PYTHON\_MAJOR\_MINOR\_VERSION }}**
-   - Condition: `inputs.upload-image-artifact == 'true'`
-   - Env:
-     - `PLATFORM`: `${{ inputs.platform }}`
-
-14. **Stash PROD docker image ${{ env.PYTHON\_MAJOR\_MINOR\_VERSION }}**
-   - Uses: `apache/infrastructure-actions/stash/save@49df447b39b18354895520e0a63731b7cad7cbec`
-   - Condition: `inputs.upload-image-artifact == 'true'`
-   - With:
-     - `key`: `prod-image-save-v3-${{ inputs.platform }}-${{ env.PYTHON_MAJOR_MINOR_VERSION }}`
-     - `path`: `/mnt/prod-image-save-*-${{ env.PYTHON_MAJOR_MINOR_VERSION }}.tar`
-     - `if-no-files-found`: `error`
-     - `retention-days`: `2`
+     - `PYTHON_VERSION`: `${{ matrix.python-version }}`
+     - `TEST_TYPE`: `${{ inputs.test-type }}`
 
 </details>
 
@@ -5921,53 +7753,45 @@ Permissions declared across the chain: `contents: write`, `pull-requests: write`
 
 [Back to top](#contents)
 
-# Publish Docs to S3
+# Provider tests
 
-**Triggers:** `workflow_dispatch`
+**Triggers:** `workflow_call`
 
 | Property | Value |
 |----------|-------|
-| File | `publish-docs-to-s3.yml` |
-| Default runs-on | `ubuntu-latest` |
+| File | `test-providers.yml` |
+| Default runs-on | `${{ fromJSON(inputs.runners) }}` |
 
-**Jobs:** [Build Info](#build-info-build-info-2), [Build documentation](#build-documentation-build-docs-1), [Publish documentation to S3](#publish-documentation-to-s3-publish-docs-to-s3), [Update Provider Registry](#update-provider-registry-update-registry)
+**Jobs:** [Providers ${{ matrix.package-format }} tests](#providers--matrixpackage-format--tests-prepare-install-verify-provider-distributions), [Compat ${{ matrix.compat.airflow-version }}:P${{ matrix.compat.python-version }}:${{ matrix.compat.test-types.description }}](#compat--matrixcompatairflow-version-p-matrixcompatpython-version--matrixcompattest-typesdescription--providers-compatibility-tests-matrix)
 
-## Manual trigger inputs
+## Workflow call API
 
-Inputs for the `workflow_dispatch` event.
+**Inputs:**
 
 | Name | Type | Required | Default | Description |
 |------|------|----------|---------|-------------|
-| `ref` | string | Yes | - | The branch or tag to checkout for the docs publishing |
-| `destination` | choice | No | `auto` | The destination location in S3<br>Options: `auto`, `live`, `staging` |
-| `include-docs` | string | Yes | - | Space separated list of packages to build |
-| `exclude-docs` | string | No | `no-docs-excluded` | Comma separated list of docs to exclude |
-| `skip-write-to-stable-folder` | boolean | No | `false` | Do not override stable version |
-| `build-sboms` | boolean | No | `false` | Build SBOMs |
-| `airflow-base-version` | string | No | - | Override the Airflow Base Version to use for the docs build |
-| `airflow-version` | string | No | - | Override the Airflow Version to use for the docs build |
-| `apply-commits` | string | No | - | Optionally apply commit hashes before building - to patch the docs (coma separated) |
-| `ignore-missing-inventories` | boolean | No | `false` | Do not fail the build on missing third-party inventories |
+| `runners` | string | Yes | - | The array of labels (in json form) determining public AMD runners. |
+| `platform` | string | Yes | - | Platform for the build - 'linux/amd64' or 'linux/arm64' |
+| `canary-run` | string | Yes | - | Whether this is a canary run |
+| `default-python-version` | string | Yes | - | Which version of python should be used by default |
+| `upgrade-to-newer-dependencies` | string | Yes | - | Whether to upgrade to newer dependencies |
+| `selected-providers-list-as-string` | string | No | - | List of affected providers as string |
+| `providers-compatibility-tests-matrix` | string | Yes | - | JSON-formatted array of providers compatibility tests in the form of array of dicts (airflow-version, python-versions, remove-providers, run-unit-tests) |
+| `providers-test-types-list-as-strings-in-json` | string | Yes | - | List of parallel provider test types as string |
+| `skip-providers-tests` | string | Yes | - | Whether to skip provider tests (true/false) |
+| `python-versions` | string | Yes | - | JSON-formatted array of Python versions to build images from |
+| `use-uv` | string | Yes | - | Whether to use uv |
 
 ## Permissions
 
 - `contents`: `read`
 
-## Call graph (rooted at this workflow)
+## Called by
 
-`publish-docs-to-s3.yml` [workflow_dispatch]
+`test-providers.yml`
 
-- uses **[./.github/actions/breeze](#setup-breeze)** (x2)
-- `update-registry` uses [registry-build.yml](#build--publish-registry)
-  - `build-ci-image` uses [ci-image-build.yml](#build-ci-images)
-    - `build-ci-images / Install Breeze` uses [./.github/actions/breeze](#setup-breeze)
-  - `build-and-publish-registry / Prepare breeze & CI image` uses [./.github/actions/prepare_breeze_and_image](#prepare-breeze--current-image-ci-or-prod)
-
-## Transitive requirements (from full call graph)
-
-Secrets referenced (literal names): `CONSTRAINTS_GITHUB_REPOSITORY`, `DOCS_AWS_ACCESS_KEY_ID`, `DOCS_AWS_SECRET_ACCESS_KEY`, `GITHUB_TOKEN`
-
-Permissions declared across the chain: `contents: read`, `id-token: write (OIDC)`, `packages: read`, `packages: write`
+- [ci-amd.yml](#provider-distributions-tests-providers) (job: `providers`) - entry point
+- [ci-arm.yml](#provider-distributions-tests-providers-1) (job: `providers`) - entry point
 
 ## Referenced secrets and variables
 
@@ -5975,66 +7799,15 @@ Permissions declared across the chain: `contents: read`, `id-token: write (OIDC)
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | job `build-docs` env `GITHUB_TOKEN`; job `build-docs` step `Login to ghcr.io` env `GITHUB_TOKEN`; job `publish-docs-to-s3` env `GITHUB_TOKEN`; job `publish-docs-to-s3` step `Prepare SBOMs` env `GITHUB_TOKEN` |
-| `DOCS_AWS_ACCESS_KEY_ID` | job `publish-docs-to-s3` step `Configure AWS credentials` with `aws-access-key-id`; job `update-registry` secrets `DOCS_AWS_ACCESS_KEY_ID` |
-| `DOCS_AWS_SECRET_ACCESS_KEY` | job `publish-docs-to-s3` step `Configure AWS credentials` with `aws-secret-access-key`; job `update-registry` secrets `DOCS_AWS_SECRET_ACCESS_KEY` |
+| `GITHUB_TOKEN` | job `prepare-install-verify-provider-distributions` env `GITHUB_TOKEN`; job `providers-compatibility-tests-matrix` env `GITHUB_TOKEN` |
 
 ## Jobs
 
-### Build Info (`build-info`)
+### Providers ${{ matrix.package-format }} tests (`prepare-install-verify-provider-distributions`)
 
 | Property | Value |
 |----------|-------|
-| Runs on | `ubuntu-24.04` |
-| Condition | `contains(fromJSON('[ "ashb", "bugraoz93", "eladkal", "ephraimbuddy", "jedcunningham", "jscheffl", "kaxil", "pierrejeambrun", "shahar1", "potiuk", "utkarsharma2", "vincbeck", "vatsrahul1001", ]'), github.event.sender.login)` |
-
-**Environment (`env`):**
-
-| Variable | Value |
-|----------|-------|
-| `VERBOSE` | `true` |
-| `REF` | `${{ inputs.ref }}` |
-| `INCLUDE_DOCS` | `${{ inputs.include-docs }}` |
-| `EXCLUDE_DOCS` | `${{ inputs.exclude-docs }}` |
-| `DESTINATION` | `${{ inputs.destination }}` |
-| `SKIP_WRITE_TO_STABLE_FOLDER` | `${{ inputs.skip-write-to-stable-folder }}` |
-| `BUILD_SBOMS` | `${{ inputs.build-sboms }}` |
-| `AIRFLOW_BASE_VERSION` | `${{ inputs.airflow-base-version \|\| '' }}` |
-| `AIRFLOW_VERSION` | `${{ inputs.airflow-version \|\| '' }}` |
-| `APPLY_COMMITS` | `${{ inputs.apply-commits \|\| '' }}` |
-
-<details>
-<summary>Steps (3)</summary>
-
-1. **Checkout for wave provider derivation**
-   - Uses: `actions/checkout@v6.0.2`
-   - With:
-     - `persist-credentials`: `false`
-     - `ref`: `${{ inputs.ref }}`
-     - `fetch-tags`: `true`
-     - `fetch-depth`: `0`
-
-2. **Derive registry trigger inputs**
-   - ID: `derive_registry_inputs`
-   - Env:
-     - `INCLUDE_DOCS`: `${{ inputs.include-docs }}`
-     - `REF`: `${{ inputs.ref }}`
-
-3. **Input parameters summary**
-   - ID: `parameters`
-
-</details>
-
-### Build documentation (`build-docs`)
-
-| Property | Value |
-|----------|-------|
-| Depends on | `build-info` |
-
-**Permissions:**
-
-- `contents`: `read`
-- `packages`: `read`
+| Matrix | `package-format`: wheel, sdist |
 
 **Environment (`env`):**
 
@@ -6043,105 +7816,78 @@ Permissions declared across the chain: `contents: read`, `id-token: write (OIDC)
 | `GITHUB_REPOSITORY` | `${{ github.repository }}` |
 | `GITHUB_TOKEN` | `${{ secrets.GITHUB_TOKEN }}` |
 | `GITHUB_USERNAME` | `${{ github.actor }}` |
-| `INCLUDE_SUCCESS_OUTPUTS` | `false` |
+| `INCLUDE_NOT_READY_PROVIDERS` | `true` |
+| `PYTHON_MAJOR_MINOR_VERSION` | `${{ inputs.default-python-version }}` |
 | `VERBOSE` | `true` |
-| `EXTRA_BUILD_OPTIONS` | `${{ needs.build-info.outputs.extra-build-options }}` |
-| `APPLY_COMMITS` | `${{ inputs.apply-commits \|\| '' }}` |
-| `PYTHON_MAJOR_MINOR_VERSION` | `${{ needs.build-info.outputs.default-python-version }}` |
-| `DOCKER_CACHE` | `registry` |
 
 <details>
-<summary>Steps (17)</summary>
+<summary>Steps (16)</summary>
 
 1. **Cleanup repo**
 
-2. **Checkout current version first to clean-up stuff**
+2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
    - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
-     - `path`: `current-version`
 
-3. **Free up disk space**
-
-4. **Make /mnt writeable**
-
-5. **Move docker to /mnt**
-
-6. **Copy the version retrieval script**
-
-7. **Checkout ${{ inputs.ref }}**
-   - Uses: `actions/checkout@v6.0.2`
+3. **Install prek**
+   - ID: `prek`
+   - Uses: `./.github/actions/install-prek`
    - With:
-     - `persist-credentials`: `false`
-     - `ref`: `${{ inputs.ref }}`
-     - `fetch-tags`: `true`
-     - `fetch-depth`: `0`
+     - `python-version`: `${{ inputs.default-python-version }}` - Python version to use
+     - `platform`: `${{ inputs.platform }}` - Platform for the build - linux/amd64 or linux/arm64 (required)
+     - `save-cache`: `false` - Whether to save prek cache (required)
 
-8. **Apply patch commits if provided**
-
-9. **Install Breeze from the ${{ inputs.ref }} reference**
-   - Uses: `./.github/actions/breeze`
+4. **Prepare breeze & CI image: ${{ inputs.default-python-version }}**
+   - Uses: `./.github/actions/prepare_breeze_and_image`
    - With:
-     - `python-version`: `${{ needs.build-info.outputs.default-python-version }}` - Python version to use
+     - `platform`: `${{ inputs.platform }}` - Platform for the build - linux/amd64 or linux/arm64 (required)
+     - `python`: `${{ inputs.default-python-version }}` - Python version for image to prepare (required)
+     - `use-uv`: `${{ inputs.use-uv }}` - Whether to use uv (required)
+     - `make-mnt-writeable-and-cleanup`: `true` - Whether to cleanup /mnt (required)
 
-10. **Login to ghcr.io**
+5. **Cleanup dist files**
+
+6. **Set current date as RELEASE\_DATE variable**
+   - ID: `date`
+
+7. **Prepare provider documentation**
+   - Condition: `matrix.package-format == 'wheel'`
+
+8. **Prepare provider distributions: ${{ matrix.package-format }}**
+
+9. **Prepare airflow package: ${{ matrix.package-format }}**
+
+10. **Prepare task-sdk package: ${{ matrix.package-format }}**
+
+11. **Prepare airflow-ctl package: ${{ matrix.package-format }}**
+
+12. **Verify ${{ matrix.package-format }} packages with twine**
+
+13. **Test providers issue generation automatically**
+   - Condition: `matrix.package-format == 'wheel'`
+
+14. **Generate source constraints from CI image**
+
+15. **Install and verify wheel provider distributions**
+   - Condition: `matrix.package-format == 'wheel'`
    - Env:
-     - `GITHUB_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
-     - `ACTOR`: `${{ github.actor }}`
+     - `DISTRIBUTION_FORMAT`: `${{ matrix.package-format }}`
+     - `INSTALL_AIRFLOW_WITH_CONSTRAINTS`: `${{ inputs.upgrade-to-newer-dependencies == 'true' && 'false' || 'true' }}`
 
-11. **Building image from the ${{ inputs.ref }} reference**
+16. **Install all sdist provider distributions and airflow**
+   - Condition: `matrix.package-format == 'sdist'`
    - Env:
-     - `INCLUDE_DOCS`: `${{ needs.build-info.outputs.include-docs }}`
-     - `INCLUDE_COMMITS`: `${{ startsWith(inputs.ref, 'providers') && 'true' || 'false' }}`
-
-12. **Restore docs inventory cache**
-   - ID: `restore-docs-inventory-cache`
-   - Uses: `apache/infrastructure-actions/stash/restore@49df447b39b18354895520e0a63731b7cad7cbec`
-   - With:
-     - `path`: `./generated/_inventory_cache/`
-     - `key`: `cache-docs-inventory-v1`
-
-13. **Building docs with --docs-only flag using ${{ inputs.ref }} reference breeze**
-   - Env:
-     - `INCLUDE_DOCS`: `${{ needs.build-info.outputs.include-docs }}`
-     - `INCLUDE_COMMITS`: `${{ startsWith(inputs.ref, 'providers') && 'true' || 'false' }}`
-     - `FAIL_ON_INVENTORIES`: `${{ inputs.ignore-missing-inventories != true && '--fail-on-missing-third-party-inventories' || '' }}`
-
-14. **Save docs inventory cache**
-   - Uses: `apache/infrastructure-actions/stash/save@49df447b39b18354895520e0a63731b7cad7cbec`
-   - Condition: `steps.restore-docs-inventory-cache.outputs.stash-hit != 'true'`
-   - With:
-     - `path`: `./generated/_inventory_cache/`
-     - `key`: `cache-docs-inventory-v1`
-     - `if-no-files-found`: `error`
-     - `retention-days`: `2`
-
-15. **Store stable versions**
-
-16. **Saving build docs folder**
-
-17. **Upload build docs**
-   - Uses: `actions/upload-artifact@v7.0.1`
-   - With:
-     - `name`: `airflow-docs`
-     - `path`: `/mnt/_build`
-     - `retention-days`: `7`
-     - `if-no-files-found`: `error`
-     - `overwrite`: `true`
+     - `DISTRIBUTION_FORMAT`: `${{ matrix.package-format }}`
 
 </details>
 
-### Publish documentation to S3 (`publish-docs-to-s3`)
+### Compat ${{ matrix.compat.airflow-version }}:P${{ matrix.compat.python-version }}:${{ matrix.compat.test-types.description }} (`providers-compatibility-tests-matrix`)
 
 | Property | Value |
 |----------|-------|
-| Depends on | `build-docs`, `build-info` |
-
-**Permissions:**
-
-- `id-token`: `write` (OIDC)
-- `contents`: `read`
-- `packages`: `write`
+| Matrix | `compat`: ${{fromJSON(inputs.providers-compatibility-tests-matrix)}}; `test-types`: ${{ fromJSON(inputs.providers-test-types-list-as-strings-in-json) }} |
+| Condition | `inputs.skip-providers-tests != 'true'` |
 
 **Environment (`env`):**
 
@@ -6150,103 +7896,63 @@ Permissions declared across the chain: `contents: read`, `id-token: write (OIDC)
 | `GITHUB_REPOSITORY` | `${{ github.repository }}` |
 | `GITHUB_TOKEN` | `${{ secrets.GITHUB_TOKEN }}` |
 | `GITHUB_USERNAME` | `${{ github.actor }}` |
-| `INCLUDE_SUCCESS_OUTPUTS` | `false` |
-| `PYTHON_MAJOR_MINOR_VERSION` | `3.10` |
+| `INCLUDE_NOT_READY_PROVIDERS` | `true` |
+| `PYTHON_MAJOR_MINOR_VERSION` | `${{ matrix.compat.python-version }}` |
 | `VERBOSE` | `true` |
+| `CLEAN_AIRFLOW_INSTALLATION` | `true` |
 
 <details>
-<summary>Steps (17)</summary>
+<summary>Steps (11)</summary>
 
 1. **Cleanup repo**
 
-2. **Checkout current version with all history for SBOM**
+2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
    - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
-     - `fetch-depth`: `0`
 
-3. **Make /mnt writeable and cleanup**
-
-4. **Install Breeze**
-   - Uses: `./.github/actions/breeze`
-
-5. **Download docs prepared as artifacts**
-   - Uses: `actions/download-artifact@v8.0.1`
+3. **Install prek**
+   - ID: `prek`
+   - Uses: `./.github/actions/install-prek`
    - With:
-     - `name`: `airflow-docs`
-     - `path`: `/mnt/_build`
+     - `python-version`: `${{ matrix.compat.python-version }}` - Python version to use
+     - `platform`: `${{ inputs.platform }}` - Platform for the build - linux/amd64 or linux/arm64 (required)
+     - `save-cache`: `false` - Whether to save prek cache (required)
 
-6. **Move docs to generated folder**
-
-7. **Make sure SBOM dir exists and has the right permissions**
-   - Condition: `inputs.build-sboms`
-
-8. **Prepare SBOMs**
-   - Condition: `inputs.build-sboms`
-   - Env:
-     - `AIRFLOW_VERSION`: `${{ needs.build-info.outputs.airflow-version }}`
-     - `GITHUB_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
-     - `PYTHON_VERSION`: `${{ needs.build-info.outputs.default-python-version }}`
-     - `FORCE`: `true`
-
-9. **Generated SBOM files**
-   - Condition: `inputs.build-sboms`
-
-10. **Check disk space available**
-
-11. **Create /mnt/airflow-site directory**
-
-12. **Publish docs to /mnt/airflow-site directory using ${{ inputs.ref }} reference breeze**
-   - Env:
-     - `INCLUDE_DOCS`: `${{ needs.build-info.outputs.include-docs }}`
-
-13. **Check disk space available**
-
-14. **Update watermarks**
-   - Condition: `needs.build-info.outputs.destination == 'staging'`
-   - Env:
-     - `SOURCE_DIR_PATH`: `/mnt/airflow-site/docs-archive/`
-
-15. **Install AWS CLI v2**
-
-16. **Configure AWS credentials**
-   - Uses: `aws-actions/configure-aws-credentials@v6.1.1`
+4. **Prepare breeze & CI image: ${{ matrix.compat.python-version }}**
+   - Uses: `./.github/actions/prepare_breeze_and_image`
    - With:
-     - `aws-access-key-id`: `${{ secrets.DOCS_AWS_ACCESS_KEY_ID }}`
-     - `aws-secret-access-key`: `${{ secrets.DOCS_AWS_SECRET_ACCESS_KEY }}`
-     - `aws-region`: `us-east-2`
+     - `platform`: `${{ inputs.platform }}` - Platform for the build - linux/amd64 or linux/arm64 (required)
+     - `python`: `${{ matrix.compat.python-version }}` - Python version for image to prepare (required)
+     - `use-uv`: `${{ inputs.use-uv }}` - Whether to use uv (required)
+     - `make-mnt-writeable-and-cleanup`: `true` - Whether to cleanup /mnt (required)
 
-17. **Syncing docs to S3**
+5. **Cleanup dist files**
+
+6. **Prepare provider distributions: wheel**
+
+7. **Remove incompatible Airflow ${{ matrix.compat.airflow-version }}:Python ${{ matrix.compat.python-version }} provider distributions**
+   - Condition: `matrix.compat.remove-providers != ''`
    - Env:
-     - `DESTINATION_LOCATION`: `${{ needs.build-info.outputs.destination-location }}`
-     - `SOURCE_DIR_PATH`: `/mnt/airflow-site/docs-archive/`
-     - `EXCLUDE_DOCS`: `${{ inputs.exclude-docs }}`
-     - `SKIP_WRITE_TO_STABLE_FOLDER`: `${{ needs.build-info.outputs.skip-write-to-stable-folder }}`
+     - `REMOVE_PROVIDERS`: `${{ matrix.compat.remove-providers }}`
+
+8. **Download airflow package: wheel**
+
+9. **Install and verify all provider distributions and airflow on Airflow ${{ matrix.compat.airflow-version }}:Python ${{ matrix.compat.python-version }}**
+   - Condition: `matrix.compat.run-unit-tests != 'true'`
+   - Env:
+     - `AIRFLOW_VERSION`: `${{ matrix.compat.airflow-version }}`
+
+10. **Check amount of disk space available**
+
+11. **Run provider unit tests on Airflow ${{ matrix.compat.airflow-version }}:Python ${{ matrix.compat.python-version }}:${{ matrix.test-types.description }}**
+   - Condition: `matrix.compat.run-unit-tests == 'true'`
+   - Env:
+     - `PROVIDERS_TEST_TYPES`: `${{ matrix.test-types.test_types }}`
+     - `AIRFLOW_VERSION`: `${{ matrix.compat.airflow-version }}`
+     - `REMOVE_PROVIDERS`: `${{ matrix.compat.remove-providers }}`
 
 </details>
-
-### Update Provider Registry (`update-registry`)
-
-| Property | Value |
-|----------|-------|
-| Uses workflow | [Build & Publish Registry](#build--publish-registry) |
-| Depends on | `publish-docs-to-s3`, `build-info` |
-| Condition | `needs.build-info.outputs.registry-providers != '' \|\| needs.build-info.outputs.registry-full-build == 'true'` |
-
-**Permissions:**
-
-- `contents`: `read`
-- `packages`: `write`
-
-#### Inputs forwarded
-
-- `destination`: `${{ needs.build-info.outputs.destination }}`
-- `provider`: `${{ needs.build-info.outputs.registry-providers }}`
-
-#### Secrets forwarded
-
-- `DOCS_AWS_ACCESS_KEY_ID`: `${{ secrets.DOCS_AWS_ACCESS_KEY_ID }}`
-- `DOCS_AWS_SECRET_ACCESS_KEY`: `${{ secrets.DOCS_AWS_SECRET_ACCESS_KEY }}`
 
 [Back to top](#contents)
 
@@ -6435,678 +8141,6 @@ Permissions declared across the chain: `contents: read`, `id-token: write (OIDC)
      - `PLATFORM`: `${{ inputs.platform }}`
 
 </details>
-
-[Back to top](#contents)
-
-# Recheck old bug reports
-
-**Triggers:** `schedule`
-
-| Property | Value |
-|----------|-------|
-| File | `recheck-old-bug-report.yml` |
-
-## Schedule
-
-- `0 7 * * *`
-
-## Permissions
-
-- `issues`: `write`
-
-## Jobs
-
-### `recheck-old-bug-report`
-
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-22.04` |
-
-<details>
-<summary>Steps (1)</summary>
-
-1. **actions/stale@v10.2.0**
-   - With:
-     - `only-issue-labels`: `kind:bug`
-     - `stale-issue-label`: `Stale Bug Report`
-     - `days-before-issue-stale`: `365`
-     - `days-before-issue-close`: `30`
-     - `days-before-pr-stale`: `-1`
-     - `days-before-pr-close`: `-1`
-     - `remove-stale-when-updated`: `false`
-     - `remove-issue-stale-when-updated`: `true`
-     - `labels-to-add-when-unstale`: `needs-triage`
-     - `labels-to-remove-when-unstale`: `Stale Bug Report`
-     - `stale-issue-message`: `This issue has been automatically marked as stale because it has been open for 365 days without any activity. There has been several Airflow releases since last activity on this issue. Kindly asking to recheck the report against latest Airflow version and let us know if the issue is reproducible. The issue will be closed in next 30 days if no further activity occurs from the issue author.`
-     - `close-issue-message`: `This issue has been closed because it has not received response from the issue author.`
-
-</details>
-
-[Back to top](#contents)
-
-# Registry Backfill
-
-**Triggers:** `workflow_dispatch`
-
-| Property | Value |
-|----------|-------|
-| File | `registry-backfill.yml` |
-| Default runs-on | `ubuntu-latest` |
-
-**Jobs:** [Build CI image](#build-ci-image-build-ci-image), [`prepare`](#prepare), [Backfill ${{ matrix.provider }} (${{ matrix.versions }})](#backfill--matrixprovider---matrixversions--backfill), [Publish versions.json](#publish-versionsjson-publish-versions)
-
-## Manual trigger inputs
-
-Inputs for the `workflow_dispatch` event.
-
-| Name | Type | Required | Default | Description |
-|------|------|----------|---------|-------------|
-| `destination` | choice | Yes | `staging` | Publish to live or staging S3 bucket<br>Options: `staging`, `live` |
-| `provider-versions` | string | Yes | - | Space-separated provider/version pairs (e.g. 'amazon/9.24.0 google/21.0.0 celery/3.17.2'). Multiple versions per provider are grouped into one job. |
-
-## Permissions
-
-- `contents`: `read`
-- `packages`: `read`
-
-## Call graph (rooted at this workflow)
-
-`registry-backfill.yml` [workflow_dispatch]
-
-- `build-ci-image` uses [ci-image-build.yml](#build-ci-images)
-  - `build-ci-images / Install Breeze` uses [./.github/actions/breeze](#setup-breeze)
-- `backfill / Prepare breeze & CI image` uses [./.github/actions/prepare_breeze_and_image](#prepare-breeze--current-image-ci-or-prod)
-- `publish-versions / Install Breeze` uses [./.github/actions/breeze](#setup-breeze)
-
-## Transitive requirements (from full call graph)
-
-Secrets referenced (literal names): `CONSTRAINTS_GITHUB_REPOSITORY`, `DOCS_AWS_ACCESS_KEY_ID`, `DOCS_AWS_SECRET_ACCESS_KEY`, `GITHUB_TOKEN`
-
-Permissions declared across the chain: `contents: read`, `packages: read`, `packages: write`
-
-## Referenced secrets and variables
-
-**Secrets:**
-
-| Name | Used by |
-|------|---------|
-| `DOCS_AWS_ACCESS_KEY_ID` | job `backfill` step `Configure AWS credentials` with `aws-access-key-id`; job `publish-versions` step `Configure AWS credentials` with `aws-access-key-id` |
-| `DOCS_AWS_SECRET_ACCESS_KEY` | job `backfill` step `Configure AWS credentials` with `aws-secret-access-key`; job `publish-versions` step `Configure AWS credentials` with `aws-secret-access-key` |
-
-## Jobs
-
-### Build CI image (`build-ci-image`)
-
-| Property | Value |
-|----------|-------|
-| Uses workflow | [Build CI images](#build-ci-images) |
-| Condition | `contains(fromJSON('[<br>  "ashb",<br>  "bugraoz93",<br>  "eladkal",<br>  "ephraimbuddy",<br>  "jedcunningham",<br>  "jscheffl",<br>  "kaxil",<br>  "pierrejeambrun",<br>  "shahar1",<br>  "potiuk",<br>  "utkarsharma2",<br>  "vincbeck"<br>  ]'), github.event.sender.login)` |
-
-**Permissions:**
-
-- `contents`: `read`
-- `packages`: `write`
-
-#### Inputs forwarded
-
-- `runners`: `["ubuntu-22.04"]`
-- `platform`: `linux/amd64`
-- `push-image`: `false`
-- `upload-image-artifact`: `true`
-- `upload-mount-cache-artifact`: `false`
-- `python-versions`: `["3.12"]`
-- `branch`: `main`
-- `constraints-branch`: `constraints-main`
-- `use-uv`: `true`
-- `upgrade-to-newer-dependencies`: `false`
-- `docker-cache`: `registry`
-- `disable-airflow-repo-cache`: `false`
-
-### `prepare`
-
-<details>
-<summary>Steps (2)</summary>
-
-1. **Build provider matrix**
-   - ID: `matrix`
-   - Env:
-     - `PROVIDER_VERSIONS`: `${{ inputs.provider-versions }}`
-
-2. **Determine S3 destination**
-   - ID: `destination`
-   - Env:
-     - `DESTINATION`: `${{ inputs.destination }}`
-
-</details>
-
-### Backfill ${{ matrix.provider }} (${{ matrix.versions }}) (`backfill`)
-
-| Property | Value |
-|----------|-------|
-| Depends on | `prepare`, `build-ci-image` |
-
-**Permissions:**
-
-- `contents`: `read`
-- `packages`: `read`
-
-<details>
-<summary>Steps (14)</summary>
-
-1. **Checkout repository**
-   - Uses: `actions/checkout@v6.0.2`
-   - With:
-     - `persist-credentials`: `false`
-     - `fetch-depth`: `0`
-
-2. **Fetch provider tags**
-   - Env:
-     - `VERSIONS`: `${{ matrix.versions }}`
-     - `PROVIDER`: `${{ matrix.provider }}`
-
-3. **Prepare breeze & CI image**
-   - Uses: `./.github/actions/prepare_breeze_and_image`
-   - With:
-     - `python`: `3.12` - Python version for image to prepare (required)
-     - `platform`: `linux/amd64` - Platform for the build - linux/amd64 or linux/arm64 (required)
-     - `use-uv`: `true` - Whether to use uv (required)
-     - `make-mnt-writeable-and-cleanup`: `true` - Whether to cleanup /mnt (required)
-
-4. **Install AWS CLI v2**
-
-5. **Configure AWS credentials**
-   - Uses: `aws-actions/configure-aws-credentials@v6.1.1`
-   - With:
-     - `aws-access-key-id`: `${{ secrets.DOCS_AWS_ACCESS_KEY_ID }}`
-     - `aws-secret-access-key`: `${{ secrets.DOCS_AWS_SECRET_ACCESS_KEY }}`
-     - `aws-region`: `us-east-2`
-
-6. **Download existing providers.json**
-   - Env:
-     - `S3_BUCKET`: `${{ needs.prepare.outputs.bucket }}`
-
-7. **Run breeze registry backfill**
-   - Env:
-     - `VERSIONS`: `${{ matrix.versions }}`
-     - `PROVIDER`: `${{ matrix.provider }}`
-
-8. **Download data files from S3 for build**
-   - Env:
-     - `S3_BUCKET`: `${{ needs.prepare.outputs.bucket }}`
-
-9. **Patch providers.json with backfill version(s)**
-   - Env:
-     - `VERSIONS`: `${{ matrix.versions }}`
-     - `PROVIDER`: `${{ matrix.provider }}`
-
-10. **Setup pnpm**
-   - Uses: `pnpm/action-setup@v6.0.8`
-   - With:
-     - `version`: `10`
-
-11. **Setup Node.js**
-   - Uses: `actions/setup-node@v6.4.0`
-   - With:
-     - `node-version`: `24`
-     - `cache`: `pnpm`
-     - `cache-dependency-path`: `registry/pnpm-lock.yaml`
-
-12. **Install Node.js dependencies**
-
-13. **Build registry site**
-   - Env:
-     - `REGISTRY_PATH_PREFIX`: `/registry/`
-
-14. **Sync backfilled version pages to S3**
-   - Env:
-     - `S3_BUCKET`: `${{ needs.prepare.outputs.bucket }}`
-     - `CACHE_CONTROL`: `public, max-age=300`
-     - `VERSIONS`: `${{ matrix.versions }}`
-     - `PROVIDER`: `${{ matrix.provider }}`
-
-</details>
-
-### Publish versions.json (`publish-versions`)
-
-| Property | Value |
-|----------|-------|
-| Depends on | `prepare`, `backfill` |
-
-<details>
-<summary>Steps (6)</summary>
-
-1. **Checkout repository**
-   - Uses: `actions/checkout@v6.0.2`
-   - With:
-     - `persist-credentials`: `false`
-
-2. **Install Breeze**
-   - Uses: `./.github/actions/breeze`
-   - With:
-     - `python-version`: `3.12` - Python version to use
-
-3. **Install AWS CLI v2**
-
-4. **Configure AWS credentials**
-   - Uses: `aws-actions/configure-aws-credentials@v6.1.1`
-   - With:
-     - `aws-access-key-id`: `${{ secrets.DOCS_AWS_ACCESS_KEY_ID }}`
-     - `aws-secret-access-key`: `${{ secrets.DOCS_AWS_SECRET_ACCESS_KEY }}`
-     - `aws-region`: `us-east-2`
-
-5. **Download providers.json from S3**
-   - Env:
-     - `S3_BUCKET`: `${{ needs.prepare.outputs.bucket }}`
-
-6. **Publish version metadata**
-   - Env:
-     - `S3_BUCKET`: `${{ needs.prepare.outputs.bucket }}`
-
-</details>
-
-[Back to top](#contents)
-
-# Build & Publish Registry
-
-**Triggers:** `workflow_dispatch`, `workflow_call`
-
-| Property | Value |
-|----------|-------|
-| File | `registry-build.yml` |
-
-**Jobs:** [Build CI image](#build-ci-image-build-ci-image-1), [Build & Publish Registry](#build--publish-registry-build-and-publish-registry)
-
-## Manual trigger inputs
-
-Inputs for the `workflow_dispatch` event.
-
-| Name | Type | Required | Default | Description |
-|------|------|----------|---------|-------------|
-| `destination` | choice | Yes | `staging` | Publish to live or staging S3 bucket<br>Options: `staging`, `live` |
-| `provider` | string | No | - | Provider ID(s) for incremental build (space-separated, empty = full build) |
-
-## Workflow call API
-
-**Inputs:**
-
-| Name | Type | Required | Default | Description |
-|------|------|----------|---------|-------------|
-| `destination` | string | No | `staging` | Publish to live or staging S3 bucket |
-| `provider` | string | No | - | Provider ID(s) for incremental build (space-separated, empty = full build) |
-
-**Secrets:**
-
-| Name | Required | Description |
-|------|----------|-------------|
-| `DOCS_AWS_ACCESS_KEY_ID` | Yes | - |
-| `DOCS_AWS_SECRET_ACCESS_KEY` | Yes | - |
-
-## Permissions
-
-- `contents`: `read`
-- `packages`: `read`
-
-## Call graph (rooted at this workflow)
-
-`registry-build.yml` [workflow_dispatch, workflow_call]
-
-- `build-ci-image` uses [ci-image-build.yml](#build-ci-images)
-  - `build-ci-images / Install Breeze` uses [./.github/actions/breeze](#setup-breeze)
-- `build-and-publish-registry / Prepare breeze & CI image` uses [./.github/actions/prepare_breeze_and_image](#prepare-breeze--current-image-ci-or-prod)
-
-## Transitive requirements (from full call graph)
-
-Secrets referenced (literal names): `CONSTRAINTS_GITHUB_REPOSITORY`, `DOCS_AWS_ACCESS_KEY_ID`, `DOCS_AWS_SECRET_ACCESS_KEY`, `GITHUB_TOKEN`
-
-Permissions declared across the chain: `contents: read`, `packages: read`, `packages: write`
-
-## Called by
-
-`registry-build.yml`
-
-- [publish-docs-to-s3.yml](#update-provider-registry-update-registry) (job: `update-registry`) - entry point
-
-## Referenced secrets and variables
-
-**Secrets:**
-
-| Name | Used by |
-|------|---------|
-| `DOCS_AWS_ACCESS_KEY_ID` | job `build-and-publish-registry` step `Configure AWS credentials` with `aws-access-key-id` |
-| `DOCS_AWS_SECRET_ACCESS_KEY` | job `build-and-publish-registry` step `Configure AWS credentials` with `aws-secret-access-key` |
-
-## Jobs
-
-### Build CI image (`build-ci-image`)
-
-| Property | Value |
-|----------|-------|
-| Uses workflow | [Build CI images](#build-ci-images) |
-| Condition | `github.event_name == 'workflow_call' \|\| contains(fromJSON('[<br>  "ashb",<br>  "bugraoz93",<br>  "eladkal",<br>  "ephraimbuddy",<br>  "jedcunningham",<br>  "jscheffl",<br>  "kaxil",<br>  "pierrejeambrun",<br>  "shahar1",<br>  "potiuk",<br>  "utkarsharma2",<br>  "vincbeck"<br>  ]'), github.event.sender.login)` |
-
-**Permissions:**
-
-- `contents`: `read`
-- `packages`: `write`
-
-#### Inputs forwarded
-
-- `runners`: `["ubuntu-22.04"]`
-- `platform`: `linux/amd64`
-- `push-image`: `false`
-- `upload-image-artifact`: `true`
-- `upload-mount-cache-artifact`: `false`
-- `python-versions`: `["3.12"]`
-- `branch`: `main`
-- `constraints-branch`: `constraints-main`
-- `use-uv`: `true`
-- `upgrade-to-newer-dependencies`: `false`
-- `docker-cache`: `registry`
-- `disable-airflow-repo-cache`: `false`
-
-### Build & Publish Registry (`build-and-publish-registry`)
-
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-latest` |
-| Depends on | `build-ci-image` |
-
-**Permissions:**
-
-- `contents`: `read`
-
-**Environment (`env`):**
-
-| Variable | Value |
-|----------|-------|
-| `SCARF_ANALYTICS` | `false` |
-| `DO_NOT_TRACK` | `1` |
-| `EXISTING_REGISTRY_DIR` | `/tmp/existing-registry` |
-| `REGISTRY_DATA_DIR` | `dev/registry` |
-| `REGISTRY_PROVIDERS_JSON` | `providers.json` |
-| `REGISTRY_MODULES_JSON` | `modules.json` |
-| `REGISTRY_SITE_DATA_DIR` | `registry/src/_data` |
-| `REGISTRY_SITE_VERSIONS_DIR` | `registry/src/_data/versions` |
-| `REGISTRY_SITE_LOGOS_DIR` | `registry/public/logos` |
-| `REGISTRY_CACHE_CONTROL` | `public, max-age=300` |
-
-<details>
-<summary>Steps (17)</summary>
-
-1. **Checkout repository**
-   - Uses: `actions/checkout@v6.0.2`
-   - With:
-     - `persist-credentials`: `false`
-     - `fetch-tags`: `true`
-
-2. **Prepare breeze & CI image**
-   - Uses: `./.github/actions/prepare_breeze_and_image`
-   - With:
-     - `python`: `3.12` - Python version for image to prepare (required)
-     - `platform`: `linux/amd64` - Platform for the build - linux/amd64 or linux/arm64 (required)
-     - `use-uv`: `true` - Whether to use uv (required)
-     - `make-mnt-writeable-and-cleanup`: `true` - Whether to cleanup /mnt (required)
-
-3. **Install AWS CLI v2**
-
-4. **Configure AWS credentials**
-   - Uses: `aws-actions/configure-aws-credentials@v6.1.1`
-   - With:
-     - `aws-access-key-id`: `${{ secrets.DOCS_AWS_ACCESS_KEY_ID }}`
-     - `aws-secret-access-key`: `${{ secrets.DOCS_AWS_SECRET_ACCESS_KEY }}`
-     - `aws-region`: `us-east-2`
-
-5. **Determine S3 destination**
-   - ID: `destination`
-   - Env:
-     - `DESTINATION`: `${{ inputs.destination || 'staging' }}`
-
-6. **Download existing registry data from S3**
-   - ID: `download-existing`
-   - Condition: `inputs.provider != ''`
-   - Env:
-     - `S3_BUCKET`: `${{ steps.destination.outputs.bucket }}`
-
-7. **Extract registry data (breeze)**
-   - Env:
-     - `PROVIDER`: `${{ inputs.provider }}`
-     - `DESTINATION`: `${{ inputs.destination }}`
-
-8. **Merge with existing registry data**
-   - Condition: `inputs.provider != '' && steps.download-existing.outputs.found == 'true'`
-
-9. **Copy breeze output to registry data**
-
-10. **Setup pnpm**
-   - Uses: `pnpm/action-setup@v6.0.8`
-   - With:
-     - `version`: `10`
-
-11. **Setup Node.js**
-   - Uses: `actions/setup-node@v6.4.0`
-   - With:
-     - `node-version`: `24`
-     - `cache`: `pnpm`
-     - `cache-dependency-path`: `registry/pnpm-lock.yaml`
-
-12. **Install Node.js dependencies**
-
-13. **Build registry site**
-   - Env:
-     - `REGISTRY_PATH_PREFIX`: `/registry/`
-
-14. **Upload registry artifact**
-   - Uses: `actions/upload-artifact@v7.0.1`
-   - With:
-     - `name`: `registry-site`
-     - `path`: `registry/_site`
-     - `retention-days`: `7`
-     - `if-no-files-found`: `error`
-
-15. **Verify build emitted expected content**
-   - Env:
-     - `PROVIDER`: `${{ inputs.provider }}`
-
-16. **Sync registry to S3**
-   - Env:
-     - `S3_BUCKET`: `${{ steps.destination.outputs.bucket }}`
-     - `PROVIDER`: `${{ inputs.provider }}`
-
-17. **Publish version metadata**
-   - Env:
-     - `S3_BUCKET`: `${{ steps.destination.outputs.bucket }}`
-
-</details>
-
-[Back to top](#contents)
-
-# Registry Tests
-
-**Triggers:** `pull_request`, `push`
-
-| Property | Value |
-|----------|-------|
-| File | `registry-tests.yml` |
-
-## Event filters
-
-- **pull_request**
-  - branches: `main`
-  - paths: `dev/registry/**`, `registry/**`, `providers/*/provider.yaml`, `providers/*/*/provider.yaml`, `.github/workflows/registry-tests.yml`
-- **push**
-  - branches: `main`
-  - paths: `dev/registry/**`
-
-## Permissions
-
-- `contents`: `read`
-
-**Concurrency:** group `registry-tests-${{ github.event.pull_request.number || github.ref }}`, cancel-in-progress: `true`
-
-## Jobs
-
-### Registry extraction tests (`registry-tests`)
-
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-latest` |
-
-<details>
-<summary>Steps (3)</summary>
-
-1. **Checkout repository**
-   - Uses: `actions/checkout@v6.0.2`
-   - With:
-     - `persist-credentials`: `false`
-
-2. **Install uv**
-   - Uses: `astral-sh/setup-uv@v8.1.0`
-   - With:
-     - `python-version`: `3.12`
-
-3. **Run registry extraction tests**
-
-</details>
-
-[Back to top](#contents)
-
-# Release PROD images
-
-**Triggers:** `workflow_dispatch`
-
-| Property | Value |
-|----------|-------|
-| File | `release_dockerhub_image.yml` |
-
-**Jobs:** [Build Info](#build-info-build-info-3), [Release images](#release-images-release-images)
-
-## Manual trigger inputs
-
-Inputs for the `workflow_dispatch` event.
-
-| Name | Type | Required | Default | Description |
-|------|------|----------|---------|-------------|
-| `airflowVersion` | - | Yes | - | Airflow version (e.g. 3.0.1, 3.0.1rc1, 3.0.1b1) |
-| `amdOnly` | boolean | No | `false` | Limit to amd64 images |
-| `limitPythonVersions` | string | No | - | Force python versions (e.g. "3.10 3.11") |
-
-## Permissions
-
-- `contents`: `read`
-- `packages`: `read`
-
-## Environment (`env`)
-
-| Variable | Value |
-|----------|-------|
-| `GITHUB_TOKEN` | `${{ secrets.GITHUB_TOKEN }}` |
-| `VERBOSE` | `true` |
-
-**Concurrency:** group `${{ github.event.inputs.airflowVersion }}`, cancel-in-progress: `true`
-
-## Call graph (rooted at this workflow)
-
-`release_dockerhub_image.yml` [workflow_dispatch]
-
-- `build-info / Install Breeze` uses [./.github/actions/breeze](#setup-breeze)
-- `release-images` uses [release_single_dockerhub_image.yml](#release-single-prod-image)
-  - uses **[./.github/actions/breeze](#setup-breeze)** (x2)
-
-## Transitive requirements (from full call graph)
-
-Secrets referenced (literal names): `DOCKERHUB_TOKEN`, `DOCKERHUB_USER`, `GITHUB_TOKEN`
-
-Permissions declared across the chain: `contents: read`, `packages: read`
-
-## Referenced secrets and variables
-
-**Secrets:**
-
-| Name | Used by |
-|------|---------|
-| `GITHUB_TOKEN` | workflow env `GITHUB_TOKEN` |
-| `DOCKERHUB_USER` | job `release-images` secrets `DOCKERHUB_USER` |
-| `DOCKERHUB_TOKEN` | job `release-images` secrets `DOCKERHUB_TOKEN` |
-
-## Jobs
-
-### Build Info (`build-info`)
-
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-24.04` |
-| Condition | `contains(fromJSON('[ "ashb", "bugraoz93", "eladkal", "ephraimbuddy", "jedcunningham", "jscheffl", "kaxil", "pierrejeambrun", "potiuk", "utkarsharma2", "vincbeck", "vatsrahul1001", ]'), github.event.sender.login)` |
-
-**Environment (`env`):**
-
-| Variable | Value |
-|----------|-------|
-| `VERBOSE` | `true` |
-| `AIRFLOW_VERSION` | `${{ github.event.inputs.airflowVersion }}` |
-| `AMD_ONLY` | `${{ github.event.inputs.amdOnly }}` |
-| `LIMIT_PYTHON_VERSIONS` | `${{ github.event.inputs.limitPythonVersions }}` |
-
-<details>
-<summary>Steps (9)</summary>
-
-1. **Input parameters summary**
-
-2. **Cleanup repo**
-
-3. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@v6.0.2`
-   - With:
-     - `persist-credentials`: `false`
-
-4. **Install Breeze**
-   - Uses: `./.github/actions/breeze`
-
-5. **Save github context to file**
-
-6. **Selective checks**
-   - ID: `selective-checks`
-   - Env:
-     - `VERBOSE`: `false`
-     - `GITHUB_CONTEXT_INPUT`: `${{ runner.temp }}/github_context.json`
-
-7. **Check airflow version**
-   - ID: `check-airflow-version`
-
-8. **Determine build matrix**
-   - ID: `determine-matrix`
-
-9. **Determine python versions**
-   - ID: `determine-python-versions`
-   - Env:
-     - `ALL_PYTHON_VERSIONS`: `${{ steps.selective-checks.outputs.all-python-versions }}`
-
-</details>
-
-### Release images (`release-images`)
-
-| Property | Value |
-|----------|-------|
-| Uses workflow | [Release single PROD image](#release-single-prod-image) |
-| Matrix | `python`: ${{ fromJSON(needs.build-info.outputs.pythonVersions) }} |
-| Depends on | `build-info` |
-
-**Permissions:**
-
-- `contents`: `read`
-
-#### Inputs forwarded
-
-- `pythonVersion`: `${{ matrix.python }}`
-- `airflowVersion`: `${{ needs.build-info.outputs.airflowVersion }}`
-- `platformMatrix`: `${{ needs.build-info.outputs.platformMatrix }}`
-- `skipLatest`: `${{ needs.build-info.outputs.skipLatest }}`
-- `armRunners`: `${{ needs.build-info.outputs.arm-runners }}`
-- `amdRunners`: `${{ needs.build-info.outputs.amd-runners }}`
-
-#### Secrets forwarded
-
-- `DOCKERHUB_USER`: `${{ secrets.DOCKERHUB_USER }}`
-- `DOCKERHUB_TOKEN`: `${{ secrets.DOCKERHUB_TOKEN }}`
 
 [Back to top](#contents)
 
@@ -7299,326 +8333,6 @@ Permissions declared across the chain: `contents: read`, `packages: read`
 
 14. **Docker logout**
    - Condition: `always()`
-
-</details>
-
-[Back to top](#contents)
-
-# Unit tests
-
-**Triggers:** `workflow_call`
-
-| Property | Value |
-|----------|-------|
-| File | `run-unit-tests.yml` |
-
-## Workflow call API
-
-**Inputs:**
-
-| Name | Type | Required | Default | Description |
-|------|------|----------|---------|-------------|
-| `runners` | string | Yes | - | The array of labels (in json form) determining public AMD runners. |
-| `platform` | string | Yes | - | Platform for the build - 'linux/amd64' or 'linux/arm64' |
-| `test-group` | string | Yes | - | Test group to run: ('core', 'providers') |
-| `test-types-as-strings-in-json` | string | Yes | - | The list of list of test types to run (types in item are separated by spaces) as json |
-| `backend` | string | Yes | - | The backend to run the tests on |
-| `test-scope` | string | Yes | - | The scope of the test to run: ('DB', 'Non-DB', 'All') |
-| `test-name` | string | Yes | - | The name of the test to run |
-| `test-name-separator` | string | No | `:` | The separator to use after the test name |
-| `python-versions` | string | Yes | - | The list of python versions (stringified JSON array) to run the tests on. |
-| `backend-versions` | string | Yes | - | The list of backend versions (stringified JSON array) to run the tests on. |
-| `excluded-providers-as-string` | string | Yes | - | Excluded providers (per Python version) as json string |
-| `excludes` | string | Yes | - | Excluded combos (stringified JSON array of python-version/backend-version dicts) |
-| `run-migration-tests` | string | No | `false` | Whether to run migration tests or not (true/false) |
-| `run-coverage` | string | Yes | - | Whether to run coverage or not (true/false) |
-| `debug-resources` | string | Yes | - | Whether to debug resources or not (true/false) |
-| `include-success-outputs` | string | No | `false` | Whether to include success outputs or not (true/false) |
-| `downgrade-sqlalchemy` | string | No | `false` | Whether to downgrade SQLAlchemy or not (true/false) |
-| `upgrade-sqlalchemy` | string | No | `false` | Whether to upgrade SQLAlchemy or not (true/false) |
-| `upgrade-boto` | string | No | `false` | Whether to upgrade boto or not (true/false) |
-| `downgrade-pendulum` | string | No | `false` | Whether to downgrade pendulum or not (true/false) |
-| `force-lowest-dependencies` | string | No | `false` | Whether to force lowest dependencies for the tests or not (true/false) |
-| `monitor-delay-time-in-seconds` | number | No | `20` | How much time to wait between printing parallel monitor summary |
-| `skip-providers-tests` | string | Yes | - | Whether to skip providers tests or not (true/false) |
-| `use-uv` | string | Yes | - | Whether to use uv |
-| `default-branch` | string | Yes | - | The default branch of the repository |
-
-## Permissions
-
-- `contents`: `read`
-
-## Called by
-
-`run-unit-tests.yml`
-
-- **[ci-amd.yml](#tests-amd)** - entry point (x10)
-- **[ci-arm.yml](#tests-arm)** - entry point (x10)
-- **[special-tests.yml](#special-tests)** (x11)
-  - [ci-amd.yml](#special-tests-tests-special) (job: `tests-special`) - entry point
-  - [ci-arm.yml](#special-tests-tests-special-1) (job: `tests-special`) - entry point
-
-## Referenced secrets and variables
-
-**Secrets:**
-
-| Name | Used by |
-|------|---------|
-| `GITHUB_TOKEN` | job `tests` env `GITHUB_TOKEN` |
-| `CODECOV_TOKEN` | job `tests` step `Post Tests success` with `codecov-token` |
-
-## Jobs
-
-### ${{ inputs.test-scope == 'All' && '' || inputs.test-scope == 'Quarantined' && 'Qrnt' || inputs.test-scope }}${{ inputs.test-scope == 'All' && '' || '-' }}${{ inputs.test-group == 'providers' && 'prov' || inputs.test-group}}:${{ inputs.test-name }}${{ inputs.test-name-separator }}${{ matrix.backend-version }}:${{ matrix.python-version}}:${{ matrix.test-types.description }} (`tests`)
-
-| Property | Value |
-|----------|-------|
-| Runs on | `${{ fromJSON(inputs.runners) }}` |
-| Matrix | `python-version`: ${{fromJSON(inputs.python-versions)}}; `backend-version`: ${{fromJSON(inputs.backend-versions)}}; `test-types`: ${{ fromJSON(inputs.test-types-as-strings-in-json) }} (combinations adjusted by include/exclude) |
-| Condition | `inputs.test-group == 'core' \|\| inputs.skip-providers-tests != 'true'` |
-
-**Environment (`env`):**
-
-| Variable | Value |
-|----------|-------|
-| `BACKEND` | `${{ inputs.backend }}` |
-| `BACKEND_VERSION` | `${{ matrix.backend-version }}` |
-| `DB_RESET` | `true` |
-| `DEBUG_RESOURCES` | `${{ inputs.debug-resources }}` |
-| `DOWNGRADE_SQLALCHEMY` | `${{ inputs.downgrade-sqlalchemy }}` |
-| `DOWNGRADE_PENDULUM` | `${{ inputs.downgrade-pendulum }}` |
-| `ENABLE_COVERAGE` | `${{ inputs.run-coverage }}` |
-| `EXCLUDED_PROVIDERS` | `${{ inputs.excluded-providers-as-string }}` |
-| `FORCE_LOWEST_DEPENDENCIES` | `${{ inputs.force-lowest-dependencies }}` |
-| `GITHUB_REPOSITORY` | `${{ github.repository }}` |
-| `GITHUB_TOKEN` | `${{ secrets.GITHUB_TOKEN }}` |
-| `GITHUB_USERNAME` | `${{ github.actor }}` |
-| `INCLUDE_SUCCESS_OUTPUTS` | `${{ inputs.include-success-outputs }}` |
-| `PLATFORM` | `${{ inputs.platform }}` |
-| `JOB_ID` | `${{ inputs.test-group }}-${{ matrix.test-types.description }}-${{ inputs.test-scope }}-${{ inputs.test-name }}-${{inputs.backend}}-${{ matrix.backend-version }}-${{ matrix.python-version }}` |
-| `MOUNT_SOURCES` | `skip` |
-| `PARALLEL_TEST_TYPES` | `${{ matrix.test-types.test_types }}` |
-| `PYTHON_MAJOR_MINOR_VERSION` | `${{ matrix.python-version }}` |
-| `UPGRADE_BOTO` | `${{ inputs.upgrade-boto }}` |
-| `UPGRADE_SQLALCHEMY` | `${{ inputs.upgrade-sqlalchemy }}` |
-| `AIRFLOW_MONITOR_DELAY_TIME_IN_SECONDS` | `${{inputs.monitor-delay-time-in-seconds}}` |
-| `VERBOSE` | `true` |
-| `DEFAULT_BRANCH` | `${{ inputs.default-branch }}` |
-| `TOTAL_TEST_TIMEOUT` | `3600` |
-
-<details>
-<summary>Steps (9)</summary>
-
-1. **Cleanup repo**
-
-2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@v6.0.2`
-   - With:
-     - `persist-credentials`: `false`
-
-3. **Make /mnt writeable**
-
-4. **Move docker to /mnt**
-
-5. **Prepare breeze & CI image: ${{ matrix.python-version }}**
-   - Uses: `./.github/actions/prepare_breeze_and_image`
-   - With:
-     - `platform`: `${{ inputs.platform }}` - Platform for the build - linux/amd64 or linux/arm64 (required)
-     - `python`: `${{ matrix.python-version }}` - Python version for image to prepare (required)
-     - `use-uv`: `${{ inputs.use-uv }}` - Whether to use uv (required)
-     - `make-mnt-writeable-and-cleanup`: `false` - Whether to cleanup /mnt (required)
-
-6. **Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL\_TEST\_TYPES }}**
-   - Uses: `./.github/actions/migration_tests`
-   - Condition: `inputs.run-migration-tests == 'true' && inputs.test-group == 'core' && matrix.python-version != '3.14'`
-   - With:
-     - `python-version`: `${{ matrix.python-version }}` - Python version to run the tests on (required)
-
-7. **${{ inputs.test-group }}:${{ inputs.test-scope }} Tests ${{ inputs.test-name }} ${{ matrix.backend-version }} Py${{ matrix.python-version }}:${{ env.PARALLEL\_TEST\_TYPES }}**
-   - Env:
-     - `TEST_GROUP`: `${{ inputs.test-group }}`
-     - `TEST_SCOPE`: `${{ inputs.test-scope }}`
-
-8. **Post Tests success**
-   - Uses: `./.github/actions/post_tests_success`
-   - Condition: `success()`
-   - With:
-     - `codecov-token`: `${{ secrets.CODECOV_TOKEN }}` - Codecov token (required)
-     - `python-version`: `${{ matrix.python-version }}` - Python version (required)
-
-9. **Post Tests failure**
-   - Uses: `./.github/actions/post_tests_failure`
-   - Condition: `failure() || cancelled()`
-
-</details>
-
-[Back to top](#contents)
-
-# [main] Scheduled CI upgrade check
-
-**Triggers:** `schedule`, `workflow_dispatch`
-
-| Property | Value |
-|----------|-------|
-| File | `scheduled-upgrade-check-main.yml` |
-
-## Schedule
-
-- `0 6 * * 1,3,5`
-
-## Permissions
-
-- `contents`: `write`
-- `pull-requests`: `write`
-
-## Call graph (rooted at this workflow)
-
-`scheduled-upgrade-check-main.yml` [schedule, workflow_dispatch]
-
-- `upgrade-main` uses [upgrade-check.yml](#upgrade-check)
-  - `createupgrade-check / [${{ inputs.target-branch }}] Install Breeze` uses [./.github/actions/breeze](#setup-breeze)
-  - `createupgrade-check / [${{ inputs.target-branch }}] Install prek` uses [./.github/actions/install-prek](#install-prek)
-
-## Transitive requirements (from full call graph)
-
-Secrets referenced (literal names): `GITHUB_TOKEN`, `SLACK_BOT_TOKEN`
-
-Permissions declared across the chain: `contents: write`, `pull-requests: write`
-
-## Referenced secrets and variables
-
-**Secrets:**
-
-| Name | Used by |
-|------|---------|
-| `SLACK_BOT_TOKEN` | job `upgrade-main` secrets `SLACK_BOT_TOKEN` |
-
-## Jobs
-
-### [main] Upgrade (`upgrade-main`)
-
-| Property | Value |
-|----------|-------|
-| Uses workflow | [Upgrade check](#upgrade-check) |
-
-#### Inputs forwarded
-
-- `target-branch`: `main`
-
-#### Secrets forwarded
-
-- `SLACK_BOT_TOKEN`: `${{ secrets.SLACK_BOT_TOKEN }}`
-
-[Back to top](#contents)
-
-# [v3-2-test] Scheduled CI upgrade check
-
-**Triggers:** `schedule`, `workflow_dispatch`
-
-| Property | Value |
-|----------|-------|
-| File | `scheduled-upgrade-check-v3-2-test.yml` |
-
-## Schedule
-
-- `0 6 * * 2,4`
-
-## Permissions
-
-- `contents`: `write`
-- `pull-requests`: `write`
-
-## Call graph (rooted at this workflow)
-
-`scheduled-upgrade-check-v3-2-test.yml` [schedule, workflow_dispatch]
-
-- `upgrade-v3-2-test` uses [upgrade-check.yml](#upgrade-check)
-  - `createupgrade-check / [${{ inputs.target-branch }}] Install Breeze` uses [./.github/actions/breeze](#setup-breeze)
-  - `createupgrade-check / [${{ inputs.target-branch }}] Install prek` uses [./.github/actions/install-prek](#install-prek)
-
-## Transitive requirements (from full call graph)
-
-Secrets referenced (literal names): `GITHUB_TOKEN`, `SLACK_BOT_TOKEN`
-
-Permissions declared across the chain: `contents: write`, `pull-requests: write`
-
-## Referenced secrets and variables
-
-**Secrets:**
-
-| Name | Used by |
-|------|---------|
-| `SLACK_BOT_TOKEN` | job `upgrade-v3-2-test` secrets `SLACK_BOT_TOKEN` |
-
-## Jobs
-
-### [v3-2-test] Upgrade (`upgrade-v3-2-test`)
-
-| Property | Value |
-|----------|-------|
-| Uses workflow | [Upgrade check](#upgrade-check) |
-
-#### Inputs forwarded
-
-- `target-branch`: `v3-2-test`
-
-#### Secrets forwarded
-
-- `SLACK_BOT_TOKEN`: `${{ secrets.SLACK_BOT_TOKEN }}`
-
-[Back to top](#contents)
-
-# Scheduled verify release calendar
-
-**Triggers:** `schedule`, `workflow_dispatch`
-
-| Property | Value |
-|----------|-------|
-| File | `scheduled-verify-release-calendar.yml` |
-
-## Schedule
-
-- `0 6 * * *`
-
-## Permissions
-
-- `contents`: `read`
-
-## Referenced secrets and variables
-
-**Secrets:**
-
-| Name | Used by |
-|------|---------|
-| `SLACK_BOT_TOKEN` | job `verify-release-calendar` step `Notify Slack on failure` with `token` |
-
-## Jobs
-
-### Verify release calendar (`verify-release-calendar`)
-
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-22.04` |
-
-<details>
-<summary>Steps (4)</summary>
-
-1. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@v6.0.2`
-   - With:
-     - `persist-credentials`: `false`
-
-2. **Install uv**
-
-3. **Verify release calendar**
-
-4. **Notify Slack on failure**
-   - Uses: `slackapi/slack-github-action@45a88b9581bfab2566dc881e2cd66d334e621e2c`
-   - Condition: `failure()`
-   - With:
-     - `method`: `chat.postMessage`
-     - `token`: `${{ secrets.SLACK_BOT_TOKEN }}`
-     - `payload`: `` channel: "release-management" text: >-   :warning: Release calendar verification failed.   See:   ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} blocks:   - type: section     text:       type: mrkdwn       text: >-         :warning: *Release calendar verification failed*          The scheduled `verify_release_calendar.py` check         failed. Please review and fix the mismatch between         the Confluence release wiki and the Google         Calendar entries.          • <https://cwiki.apache.org/confluence/display/AIRFLOW/Release+Plan|Release Plan wiki>          • <https://calendar.google.com/calendar/u/0?cid=Y19kZTIxNGU5MmRmM2I3NTk3NzljYjY1ZjNlNDllNTYyNzk2YzYxMjZlNzUwMGNmYTdlNTI0YmY3ODE4NmQ4YjVlQGdyb3VwLmNhbGVuZGFyLmdvb2dsZS5jb20|Release Calendar>          • <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View failed run> ``
 
 </details>
 
@@ -8017,73 +8731,13 @@ Permissions declared across the chain: `contents: write`, `pull-requests: write`
 
 [Back to top](#contents)
 
-# Close stale PRs & Issues
-
-**Triggers:** `schedule`
-
-| Property | Value |
-|----------|-------|
-| File | `stale.yml` |
-
-## Schedule
-
-- `0 0 * * *`
-
-## Permissions
-
-- `pull-requests`: `write`
-- `issues`: `write`
-
-## Jobs
-
-### `stale`
-
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-22.04` |
-
-<details>
-<summary>Steps (2)</summary>
-
-1. **actions/stale@v10.2.0**
-   - With:
-     - `stale-pr-message`: `This pull request has been automatically marked as stale because it has not had recent activity. It will be closed in 5 days if no further activity occurs. Thank you for your contributions.`
-     - `days-before-pr-stale`: `45`
-     - `days-before-pr-close`: `5`
-     - `exempt-pr-labels`: `pinned,security,pending-response`
-     - `only-issue-labels`: `pending-response`
-     - `remove-stale-when-updated`: `true`
-     - `days-before-issue-stale`: `14`
-     - `days-before-issue-close`: `7`
-     - `stale-issue-message`: `This issue has been automatically marked as stale because it has been open for 14 days with no response from the author. It will be closed in next 7 days if no further activity occurs from the issue author.`
-     - `close-issue-message`: `This issue has been closed because it has not received response from the issue author.`
-
-2. **actions/stale@v10.2.0**
-   - With:
-     - `only-pr-labels`: `pending-response`
-     - `days-before-pr-stale`: `7`
-     - `days-before-pr-close`: `7`
-     - `stale-pr-message`: `This pull request has been automatically marked as stale because the author has not responded to a request for more information. It will be closed in 7 days if no further activity occurs. Thank you for your contributions.`
-     - `close-pr-message`: `This pull request has been closed because the author has not responded to a request for more information.`
-     - `labels-to-remove-when-unstale`: `pending-response,stale`
-     - `remove-stale-when-updated`: `true`
-     - `days-before-issue-stale`: `-1`
-     - `days-before-issue-close`: `-1`
-
-</details>
-
-[Back to top](#contents)
-
-# Provider tests
+# Unit tests
 
 **Triggers:** `workflow_call`
 
 | Property | Value |
 |----------|-------|
-| File | `test-providers.yml` |
-| Default runs-on | `${{ fromJSON(inputs.runners) }}` |
-
-**Jobs:** [Providers ${{ matrix.package-format }} tests](#providers--matrixpackage-format--tests-prepare-install-verify-provider-distributions), [Compat ${{ matrix.compat.airflow-version }}:P${{ matrix.compat.python-version }}:${{ matrix.compat.test-types.description }}](#compat--matrixcompatairflow-version-p-matrixcompatpython-version--matrixcompattest-typesdescription--providers-compatibility-tests-matrix)
+| File | `run-unit-tests.yml` |
 
 ## Workflow call API
 
@@ -8093,15 +8747,29 @@ Permissions declared across the chain: `contents: write`, `pull-requests: write`
 |------|------|----------|---------|-------------|
 | `runners` | string | Yes | - | The array of labels (in json form) determining public AMD runners. |
 | `platform` | string | Yes | - | Platform for the build - 'linux/amd64' or 'linux/arm64' |
-| `canary-run` | string | Yes | - | Whether this is a canary run |
-| `default-python-version` | string | Yes | - | Which version of python should be used by default |
-| `upgrade-to-newer-dependencies` | string | Yes | - | Whether to upgrade to newer dependencies |
-| `selected-providers-list-as-string` | string | No | - | List of affected providers as string |
-| `providers-compatibility-tests-matrix` | string | Yes | - | JSON-formatted array of providers compatibility tests in the form of array of dicts (airflow-version, python-versions, remove-providers, run-unit-tests) |
-| `providers-test-types-list-as-strings-in-json` | string | Yes | - | List of parallel provider test types as string |
-| `skip-providers-tests` | string | Yes | - | Whether to skip provider tests (true/false) |
-| `python-versions` | string | Yes | - | JSON-formatted array of Python versions to build images from |
+| `test-group` | string | Yes | - | Test group to run: ('core', 'providers') |
+| `test-types-as-strings-in-json` | string | Yes | - | The list of list of test types to run (types in item are separated by spaces) as json |
+| `backend` | string | Yes | - | The backend to run the tests on |
+| `test-scope` | string | Yes | - | The scope of the test to run: ('DB', 'Non-DB', 'All') |
+| `test-name` | string | Yes | - | The name of the test to run |
+| `test-name-separator` | string | No | `:` | The separator to use after the test name |
+| `python-versions` | string | Yes | - | The list of python versions (stringified JSON array) to run the tests on. |
+| `backend-versions` | string | Yes | - | The list of backend versions (stringified JSON array) to run the tests on. |
+| `excluded-providers-as-string` | string | Yes | - | Excluded providers (per Python version) as json string |
+| `excludes` | string | Yes | - | Excluded combos (stringified JSON array of python-version/backend-version dicts) |
+| `run-migration-tests` | string | No | `false` | Whether to run migration tests or not (true/false) |
+| `run-coverage` | string | Yes | - | Whether to run coverage or not (true/false) |
+| `debug-resources` | string | Yes | - | Whether to debug resources or not (true/false) |
+| `include-success-outputs` | string | No | `false` | Whether to include success outputs or not (true/false) |
+| `downgrade-sqlalchemy` | string | No | `false` | Whether to downgrade SQLAlchemy or not (true/false) |
+| `upgrade-sqlalchemy` | string | No | `false` | Whether to upgrade SQLAlchemy or not (true/false) |
+| `upgrade-boto` | string | No | `false` | Whether to upgrade boto or not (true/false) |
+| `downgrade-pendulum` | string | No | `false` | Whether to downgrade pendulum or not (true/false) |
+| `force-lowest-dependencies` | string | No | `false` | Whether to force lowest dependencies for the tests or not (true/false) |
+| `monitor-delay-time-in-seconds` | number | No | `20` | How much time to wait between printing parallel monitor summary |
+| `skip-providers-tests` | string | Yes | - | Whether to skip providers tests or not (true/false) |
 | `use-uv` | string | Yes | - | Whether to use uv |
+| `default-branch` | string | Yes | - | The default branch of the repository |
 
 ## Permissions
 
@@ -8109,10 +8777,13 @@ Permissions declared across the chain: `contents: write`, `pull-requests: write`
 
 ## Called by
 
-`test-providers.yml`
+`run-unit-tests.yml`
 
-- [ci-amd.yml](#provider-distributions-tests-providers) (job: `providers`) - entry point
-- [ci-arm.yml](#provider-distributions-tests-providers-1) (job: `providers`) - entry point
+- **[ci-amd.yml](#tests-amd)** - entry point (x10)
+- **[ci-arm.yml](#tests-arm)** - entry point (x10)
+- **[special-tests.yml](#special-tests)** (x11)
+  - [ci-amd.yml](#special-tests-tests-special) (job: `tests-special`) - entry point
+  - [ci-arm.yml](#special-tests-tests-special-1) (job: `tests-special`) - entry point
 
 ## Referenced secrets and variables
 
@@ -8120,29 +8791,50 @@ Permissions declared across the chain: `contents: write`, `pull-requests: write`
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | job `prepare-install-verify-provider-distributions` env `GITHUB_TOKEN`; job `providers-compatibility-tests-matrix` env `GITHUB_TOKEN` |
+| `GITHUB_TOKEN` | job `tests` env `GITHUB_TOKEN` |
+| `CODECOV_TOKEN` | job `tests` step `Post Tests success` with `codecov-token` |
 
 ## Jobs
 
-### Providers ${{ matrix.package-format }} tests (`prepare-install-verify-provider-distributions`)
+### ${{ inputs.test-scope == 'All' && '' || inputs.test-scope == 'Quarantined' && 'Qrnt' || inputs.test-scope }}${{ inputs.test-scope == 'All' && '' || '-' }}${{ inputs.test-group == 'providers' && 'prov' || inputs.test-group}}:${{ inputs.test-name }}${{ inputs.test-name-separator }}${{ matrix.backend-version }}:${{ matrix.python-version}}:${{ matrix.test-types.description }} (`tests`)
 
 | Property | Value |
 |----------|-------|
-| Matrix | `package-format`: wheel, sdist |
+| Runs on | `${{ fromJSON(inputs.runners) }}` |
+| Matrix | `python-version`: ${{fromJSON(inputs.python-versions)}}; `backend-version`: ${{fromJSON(inputs.backend-versions)}}; `test-types`: ${{ fromJSON(inputs.test-types-as-strings-in-json) }} (combinations adjusted by include/exclude) |
+| Condition | `inputs.test-group == 'core' \|\| inputs.skip-providers-tests != 'true'` |
 
 **Environment (`env`):**
 
 | Variable | Value |
 |----------|-------|
+| `BACKEND` | `${{ inputs.backend }}` |
+| `BACKEND_VERSION` | `${{ matrix.backend-version }}` |
+| `DB_RESET` | `true` |
+| `DEBUG_RESOURCES` | `${{ inputs.debug-resources }}` |
+| `DOWNGRADE_SQLALCHEMY` | `${{ inputs.downgrade-sqlalchemy }}` |
+| `DOWNGRADE_PENDULUM` | `${{ inputs.downgrade-pendulum }}` |
+| `ENABLE_COVERAGE` | `${{ inputs.run-coverage }}` |
+| `EXCLUDED_PROVIDERS` | `${{ inputs.excluded-providers-as-string }}` |
+| `FORCE_LOWEST_DEPENDENCIES` | `${{ inputs.force-lowest-dependencies }}` |
 | `GITHUB_REPOSITORY` | `${{ github.repository }}` |
 | `GITHUB_TOKEN` | `${{ secrets.GITHUB_TOKEN }}` |
 | `GITHUB_USERNAME` | `${{ github.actor }}` |
-| `INCLUDE_NOT_READY_PROVIDERS` | `true` |
-| `PYTHON_MAJOR_MINOR_VERSION` | `${{ inputs.default-python-version }}` |
+| `INCLUDE_SUCCESS_OUTPUTS` | `${{ inputs.include-success-outputs }}` |
+| `PLATFORM` | `${{ inputs.platform }}` |
+| `JOB_ID` | `${{ inputs.test-group }}-${{ matrix.test-types.description }}-${{ inputs.test-scope }}-${{ inputs.test-name }}-${{inputs.backend}}-${{ matrix.backend-version }}-${{ matrix.python-version }}` |
+| `MOUNT_SOURCES` | `skip` |
+| `PARALLEL_TEST_TYPES` | `${{ matrix.test-types.test_types }}` |
+| `PYTHON_MAJOR_MINOR_VERSION` | `${{ matrix.python-version }}` |
+| `UPGRADE_BOTO` | `${{ inputs.upgrade-boto }}` |
+| `UPGRADE_SQLALCHEMY` | `${{ inputs.upgrade-sqlalchemy }}` |
+| `AIRFLOW_MONITOR_DELAY_TIME_IN_SECONDS` | `${{inputs.monitor-delay-time-in-seconds}}` |
 | `VERBOSE` | `true` |
+| `DEFAULT_BRANCH` | `${{ inputs.default-branch }}` |
+| `TOTAL_TEST_TIMEOUT` | `3600` |
 
 <details>
-<summary>Steps (16)</summary>
+<summary>Steps (9)</summary>
 
 1. **Cleanup repo**
 
@@ -8151,731 +8843,39 @@ Permissions declared across the chain: `contents: write`, `pull-requests: write`
    - With:
      - `persist-credentials`: `false`
 
-3. **Install prek**
-   - ID: `prek`
-   - Uses: `./.github/actions/install-prek`
-   - With:
-     - `python-version`: `${{ inputs.default-python-version }}` - Python version to use
-     - `platform`: `${{ inputs.platform }}` - Platform for the build - linux/amd64 or linux/arm64 (required)
-     - `save-cache`: `false` - Whether to save prek cache (required)
+3. **Make /mnt writeable**
 
-4. **Prepare breeze & CI image: ${{ inputs.default-python-version }}**
+4. **Move docker to /mnt**
+
+5. **Prepare breeze & CI image: ${{ matrix.python-version }}**
    - Uses: `./.github/actions/prepare_breeze_and_image`
    - With:
      - `platform`: `${{ inputs.platform }}` - Platform for the build - linux/amd64 or linux/arm64 (required)
-     - `python`: `${{ inputs.default-python-version }}` - Python version for image to prepare (required)
+     - `python`: `${{ matrix.python-version }}` - Python version for image to prepare (required)
      - `use-uv`: `${{ inputs.use-uv }}` - Whether to use uv (required)
-     - `make-mnt-writeable-and-cleanup`: `true` - Whether to cleanup /mnt (required)
+     - `make-mnt-writeable-and-cleanup`: `false` - Whether to cleanup /mnt (required)
 
-5. **Cleanup dist files**
+6. **Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL\_TEST\_TYPES }}**
+   - Uses: `./.github/actions/migration_tests`
+   - Condition: `inputs.run-migration-tests == 'true' && inputs.test-group == 'core' && matrix.python-version != '3.14'`
+   - With:
+     - `python-version`: `${{ matrix.python-version }}` - Python version to run the tests on (required)
 
-6. **Set current date as RELEASE\_DATE variable**
-   - ID: `date`
-
-7. **Prepare provider documentation**
-   - Condition: `matrix.package-format == 'wheel'`
-
-8. **Prepare provider distributions: ${{ matrix.package-format }}**
-
-9. **Prepare airflow package: ${{ matrix.package-format }}**
-
-10. **Prepare task-sdk package: ${{ matrix.package-format }}**
-
-11. **Prepare airflow-ctl package: ${{ matrix.package-format }}**
-
-12. **Verify ${{ matrix.package-format }} packages with twine**
-
-13. **Test providers issue generation automatically**
-   - Condition: `matrix.package-format == 'wheel'`
-
-14. **Generate source constraints from CI image**
-
-15. **Install and verify wheel provider distributions**
-   - Condition: `matrix.package-format == 'wheel'`
+7. **${{ inputs.test-group }}:${{ inputs.test-scope }} Tests ${{ inputs.test-name }} ${{ matrix.backend-version }} Py${{ matrix.python-version }}:${{ env.PARALLEL\_TEST\_TYPES }}**
    - Env:
-     - `DISTRIBUTION_FORMAT`: `${{ matrix.package-format }}`
-     - `INSTALL_AIRFLOW_WITH_CONSTRAINTS`: `${{ inputs.upgrade-to-newer-dependencies == 'true' && 'false' || 'true' }}`
+     - `TEST_GROUP`: `${{ inputs.test-group }}`
+     - `TEST_SCOPE`: `${{ inputs.test-scope }}`
 
-16. **Install all sdist provider distributions and airflow**
-   - Condition: `matrix.package-format == 'sdist'`
-   - Env:
-     - `DISTRIBUTION_FORMAT`: `${{ matrix.package-format }}`
-
-</details>
-
-### Compat ${{ matrix.compat.airflow-version }}:P${{ matrix.compat.python-version }}:${{ matrix.compat.test-types.description }} (`providers-compatibility-tests-matrix`)
-
-| Property | Value |
-|----------|-------|
-| Matrix | `compat`: ${{fromJSON(inputs.providers-compatibility-tests-matrix)}}; `test-types`: ${{ fromJSON(inputs.providers-test-types-list-as-strings-in-json) }} |
-| Condition | `inputs.skip-providers-tests != 'true'` |
-
-**Environment (`env`):**
-
-| Variable | Value |
-|----------|-------|
-| `GITHUB_REPOSITORY` | `${{ github.repository }}` |
-| `GITHUB_TOKEN` | `${{ secrets.GITHUB_TOKEN }}` |
-| `GITHUB_USERNAME` | `${{ github.actor }}` |
-| `INCLUDE_NOT_READY_PROVIDERS` | `true` |
-| `PYTHON_MAJOR_MINOR_VERSION` | `${{ matrix.compat.python-version }}` |
-| `VERBOSE` | `true` |
-| `CLEAN_AIRFLOW_INSTALLATION` | `true` |
-
-<details>
-<summary>Steps (11)</summary>
-
-1. **Cleanup repo**
-
-2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@v6.0.2`
+8. **Post Tests success**
+   - Uses: `./.github/actions/post_tests_success`
+   - Condition: `success()`
    - With:
-     - `persist-credentials`: `false`
-
-3. **Install prek**
-   - ID: `prek`
-   - Uses: `./.github/actions/install-prek`
-   - With:
-     - `python-version`: `${{ matrix.compat.python-version }}` - Python version to use
-     - `platform`: `${{ inputs.platform }}` - Platform for the build - linux/amd64 or linux/arm64 (required)
-     - `save-cache`: `false` - Whether to save prek cache (required)
-
-4. **Prepare breeze & CI image: ${{ matrix.compat.python-version }}**
-   - Uses: `./.github/actions/prepare_breeze_and_image`
-   - With:
-     - `platform`: `${{ inputs.platform }}` - Platform for the build - linux/amd64 or linux/arm64 (required)
-     - `python`: `${{ matrix.compat.python-version }}` - Python version for image to prepare (required)
-     - `use-uv`: `${{ inputs.use-uv }}` - Whether to use uv (required)
-     - `make-mnt-writeable-and-cleanup`: `true` - Whether to cleanup /mnt (required)
-
-5. **Cleanup dist files**
-
-6. **Prepare provider distributions: wheel**
-
-7. **Remove incompatible Airflow ${{ matrix.compat.airflow-version }}:Python ${{ matrix.compat.python-version }} provider distributions**
-   - Condition: `matrix.compat.remove-providers != ''`
-   - Env:
-     - `REMOVE_PROVIDERS`: `${{ matrix.compat.remove-providers }}`
-
-8. **Download airflow package: wheel**
-
-9. **Install and verify all provider distributions and airflow on Airflow ${{ matrix.compat.airflow-version }}:Python ${{ matrix.compat.python-version }}**
-   - Condition: `matrix.compat.run-unit-tests != 'true'`
-   - Env:
-     - `AIRFLOW_VERSION`: `${{ matrix.compat.airflow-version }}`
-
-10. **Check amount of disk space available**
-
-11. **Run provider unit tests on Airflow ${{ matrix.compat.airflow-version }}:Python ${{ matrix.compat.python-version }}:${{ matrix.test-types.description }}**
-   - Condition: `matrix.compat.run-unit-tests == 'true'`
-   - Env:
-     - `PROVIDERS_TEST_TYPES`: `${{ matrix.test-types.test_types }}`
-     - `AIRFLOW_VERSION`: `${{ matrix.compat.airflow-version }}`
-     - `REMOVE_PROVIDERS`: `${{ matrix.compat.remove-providers }}`
-
-</details>
-
-[Back to top](#contents)
-
-# UI End-to-End Tests
-
-**Triggers:** `workflow_dispatch`, `workflow_call`
-
-| Property | Value |
-|----------|-------|
-| File | `ui-e2e-tests.yml` |
-
-## Manual trigger inputs
-
-Inputs for the `workflow_dispatch` event.
-
-| Name | Type | Required | Default | Description |
-|------|------|----------|---------|-------------|
-| `workflow-name` | string | Yes | - | Name of the test |
-| `runners` | string | No | `["ubuntu-24.04"]` | The array of labels (in json form) determining runners. |
-| `platform` | string | No | `linux/amd64` | Platform for the build - 'linux/amd64' or 'linux/arm64' |
-| `default-python-version` | string | No | `3.10` | Which version of python should be used by default |
-| `use-uv` | string | No | `true` | Whether to use uv to build the image (true/false) |
-| `docker-image-tag` | string | Yes | - | Tag of the Docker image to test |
-| `browser` | string | No | `all` | Browser to test (chromium, firefox, webkit, all) |
-
-## Workflow call API
-
-**Inputs:**
-
-| Name | Type | Required | Default | Description |
-|------|------|----------|---------|-------------|
-| `workflow-name` | string | Yes | - | Name of the test |
-| `runners` | string | Yes | - | The array of labels (in json form) determining runners. |
-| `platform` | string | Yes | - | Platform for the build - 'linux/amd64' or 'linux/arm64' |
-| `default-python-version` | string | Yes | - | Which version of python should be used by default |
-| `use-uv` | string | Yes | - | Whether to use uv to build the image (true/false) |
-| `docker-image-tag` | string | No | - | Tag of the Docker image to test |
-| `browser` | string | No | `all` | Browser to test (chromium, firefox, webkit, all) |
-
-## Permissions
-
-- `contents`: `read`
-
-## Call graph (rooted at this workflow)
-
-`ui-e2e-tests.yml` [workflow_dispatch, workflow_call]
-
-- `test-ui-e2e-tests / Prepare breeze & PROD image: ${{ env.PYTHON_MAJOR_MINOR_VERSION }}` uses [./.github/actions/prepare_breeze_and_image](#prepare-breeze--current-image-ci-or-prod)
-- `test-ui-e2e-tests / Install Breeze (manual trigger)` uses [./.github/actions/breeze](#setup-breeze)
-
-## Transitive requirements (from full call graph)
-
-Secrets referenced (literal names): `GITHUB_TOKEN`
-
-Permissions declared across the chain: `contents: read`
-
-## Called by
-
-`ui-e2e-tests.yml`
-
-- **[additional-prod-image-tests.yml](#additional-prod-image-tests)** (x3)
-  - [ci-amd.yml](#additional-prod-image-tests-additional-prod-image-tests) (job: `additional-prod-image-tests`) - entry point
-  - [ci-arm.yml](#additional-prod-image-tests-additional-prod-image-tests-1) (job: `additional-prod-image-tests`) - entry point
-
-## Referenced secrets and variables
-
-**Secrets:**
-
-| Name | Used by |
-|------|---------|
-| `GITHUB_TOKEN` | job `test-ui-e2e-tests` env `GITHUB_TOKEN` |
-
-## Jobs
-
-### ${{ inputs.workflow-name || 'UI E2E Tests' }} (`test-ui-e2e-tests`)
-
-| Property | Value |
-|----------|-------|
-| Runs on | `${{ fromJSON(inputs.runners \|\| '["ubuntu-24.04"]') }}` |
-
-**Environment (`env`):**
-
-| Variable | Value |
-|----------|-------|
-| `PYTHON_MAJOR_MINOR_VERSION` | `${{ inputs.default-python-version \|\| '3.10' }}` |
-| `GITHUB_REPOSITORY` | `${{ github.repository }}` |
-| `GITHUB_TOKEN` | `${{ secrets.GITHUB_TOKEN }}` |
-| `GITHUB_USERNAME` | `${{ github.actor }}` |
-| `VERBOSE` | `true` |
-| `BROWSER` | `${{ inputs.browser \|\| 'all' }}` |
-| `PLATFORM` | `${{ inputs.platform \|\| 'linux/amd64' }}` |
-| `USE_UV` | `${{ inputs.use-uv \|\| 'true' }}` |
-
-<details>
-<summary>Steps (12)</summary>
-
-1. **Cleanup repo**
-
-2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@v6.0.2`
-   - With:
-     - `fetch-depth`: `2`
-     - `persist-credentials`: `false`
-
-3. **Prepare breeze & PROD image: ${{ env.PYTHON\_MAJOR\_MINOR\_VERSION }}**
-   - ID: `breeze`
-   - Uses: `./.github/actions/prepare_breeze_and_image`
-   - Condition: `github.event_name != 'workflow_dispatch'`
-   - With:
-     - `platform`: `${{ inputs.platform }}` - Platform for the build - linux/amd64 or linux/arm64 (required)
-     - `image-type`: `prod` - Which image type to prepare (ci/prod)
-     - `python`: `${{ env.PYTHON_MAJOR_MINOR_VERSION }}` - Python version for image to prepare (required)
-     - `use-uv`: `${{ inputs.use-uv }}` - Whether to use uv (required)
-     - `make-mnt-writeable-and-cleanup`: `true` - Whether to cleanup /mnt (required)
-
-4. **Install Breeze (manual trigger)**
-   - Uses: `./.github/actions/breeze`
-   - Condition: `github.event_name == 'workflow_dispatch'`
-
-5. **Setup pnpm**
-   - Uses: `pnpm/action-setup@v6.0.8`
-   - With:
-     - `version`: `9`
-     - `run_install`: `false`
-
-6. **Setup node**
-   - Uses: `actions/setup-node@v6.4.0`
-   - With:
-     - `node-version`: `24`
-
-7. **Compile UI assets (for image build fallback)**
-   - Condition: `github.event_name == 'workflow_dispatch'`
-
-8. **Install Playwright browsers and dependencies**
-
-9. **Test UI e2e tests**
-   - Env:
-     - `DOCKER_IMAGE`: `${{ inputs.docker-image-tag || '' }}`
-
-10. **Upload test results**
-   - Uses: `actions/upload-artifact@v7.0.1`
-   - Condition: `always()`
-   - With:
-     - `name`: `playwright-report-${{ env.BROWSER }}`
-     - `path`: `airflow-core/src/airflow/ui/playwright-report/ airflow-core/src/airflow/ui/test-results/`
-     - `retention-days`: `7`
-     - `if-no-files-found`: `warn`
-
-11. **Extract E2E test failures and fixme tests**
-   - Condition: `always()`
-   - Env:
-     - `RESULTS_JSON`: `airflow-core/src/airflow/ui/test-results/results.json`
-     - `OUTPUT_DIR`: `e2e-test-report`
-     - `BROWSER`: `${{ env.BROWSER }}`
-     - `RUN_ID`: `${{ github.run_id }}`
-     - `RUN_ATTEMPT`: `${{ github.run_attempt }}`
-
-12. **Upload E2E test report**
-   - Uses: `actions/upload-artifact@v7.0.1`
-   - Condition: `always()`
-   - With:
-     - `name`: `e2e-test-report-${{ env.BROWSER }}`
-     - `path`: `e2e-test-report/`
-     - `retention-days`: `14`
-     - `if-no-files-found`: `warn`
-
-</details>
-
-[Back to top](#contents)
-
-# Update constraints on push for stable branch (always)
-
-**Triggers:** `push`
-
-| Property | Value |
-|----------|-------|
-| File | `update-constraints-on-push-stable.yml` |
-| Default runs-on | `ubuntu-22.04` |
-
-**Jobs:** [Build info](#build-info-build-info-4), [Build CI images](#build-ci-images-build-ci-images-2), [Generate constraints](#generate-constraints-generate-constraints-2), [Commit and push constraints](#commit-and-push-constraints-update-constraints), [Notify on failure](#notify-on-failure-notify-on-failure)
-
-## Event filters
-
-- **push**
-  - branches: `v[0-9]+-[0-9]+-stable`
-
-## Permissions
-
-- `contents`: `read`
-
-## Environment (`env`)
-
-| Variable | Value |
-|----------|-------|
-| `GITHUB_REPOSITORY` | `${{ github.repository }}` |
-| `GITHUB_TOKEN` | `${{ secrets.GITHUB_TOKEN }}` |
-| `GITHUB_USERNAME` | `${{ github.actor }}` |
-| `VERBOSE` | `true` |
-
-**Concurrency:** group `${{ github.workflow }}-${{ github.ref }}`, cancel-in-progress: `true`
-
-## Call graph (rooted at this workflow)
-
-`update-constraints-on-push-stable.yml` [push]
-
-- `build-info / Install Breeze` uses [./.github/actions/breeze](#setup-breeze)
-- `build-ci-images` uses [ci-image-build.yml](#build-ci-images)
-  - `build-ci-images / Install Breeze` uses [./.github/actions/breeze](#setup-breeze)
-- `generate-constraints` uses [generate-constraints.yml](#generate-constraints)
-  - `generate-constraints-matrix / Install prek` uses [./.github/actions/install-prek](#install-prek)
-  - `generate-constraints-matrix / Prepare breeze & CI image: ${{ matrix.python-version }}` uses [./.github/actions/prepare_breeze_and_image](#prepare-breeze--current-image-ci-or-prod)
-
-## Transitive requirements (from full call graph)
-
-Secrets referenced (literal names): `CONSTRAINTS_GITHUB_REPOSITORY`, `GITHUB_TOKEN`, `SLACK_BOT_TOKEN`
-
-Permissions declared across the chain: `contents: read`, `contents: write`, `packages: read`, `packages: write`
-
-## Referenced secrets and variables
-
-**Secrets:**
-
-| Name | Used by |
-|------|---------|
-| `GITHUB_TOKEN` | workflow env `GITHUB_TOKEN` |
-| `SLACK_BOT_TOKEN` | job `notify-on-failure` env `SLACK_BOT_TOKEN` |
-
-## Jobs
-
-### Build info (`build-info`)
-
-<details>
-<summary>Steps (6)</summary>
-
-1. **Cleanup repo**
-
-2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@v6.0.2`
-   - With:
-     - `persist-credentials`: `false`
-
-3. **Fetch incoming commit ${{ github.sha }} with its parent**
-   - Uses: `actions/checkout@v6.0.2`
-   - With:
-     - `ref`: `${{ github.sha }}`
-     - `fetch-depth`: `2`
-     - `persist-credentials`: `false`
-
-4. **Install Breeze**
-   - ID: `breeze`
-   - Uses: `./.github/actions/breeze`
-
-5. **Save github context to file**
-
-6. **Selective checks**
-   - ID: `selective-checks`
-   - Env:
-     - `PR_LABELS`: `[]`
-     - `COMMIT_REF`: `${{ github.sha }}`
-     - `VERBOSE`: `false`
-     - `GITHUB_CONTEXT_INPUT`: `${{ runner.temp }}/github_context.json`
-
-</details>
-
-### Build CI images (`build-ci-images`)
-
-| Property | Value |
-|----------|-------|
-| Uses workflow | [Build CI images](#build-ci-images) |
-| Depends on | `build-info` |
-
-**Permissions:**
-
-- `contents`: `read`
-- `packages`: `write`
-
-#### Inputs forwarded
-
-- `runners`: `["ubuntu-22.04"]`
-- `platform`: `linux/amd64`
-- `push-image`: `false`
-- `upload-image-artifact`: `true`
-- `upload-mount-cache-artifact`: `false`
-- `python-versions`: `${{ needs.build-info.outputs.python-versions }}`
-- `branch`: `${{ needs.build-info.outputs.default-branch }}`
-- `constraints-branch`: `${{ needs.build-info.outputs.default-constraints-branch }}`
-- `use-uv`: `true`
-- `upgrade-to-newer-dependencies`: `false`
-- `docker-cache`: `registry`
-- `disable-airflow-repo-cache`: `false`
-
-### Generate constraints (`generate-constraints`)
-
-| Property | Value |
-|----------|-------|
-| Uses workflow | [Generate constraints](#generate-constraints) |
-| Depends on | `build-info`, `build-ci-images` |
-
-#### Inputs forwarded
-
-- `runners`: `["ubuntu-22.04"]`
-- `platform`: `linux/amd64`
-- `python-versions-list-as-string`: `${{ needs.build-info.outputs.python-versions-list-as-string }}`
-- `python-versions`: `${{ needs.build-info.outputs.python-versions }}`
-- `generate-pypi-constraints`: `true`
-- `generate-no-providers-constraints`: `true`
-- `debug-resources`: `false`
-- `use-uv`: `true`
-
-### Commit and push constraints (`update-constraints`)
-
-| Property | Value |
-|----------|-------|
-| Depends on | `build-info`, `generate-constraints` |
-
-**Permissions:**
-
-- `contents`: `write`
-- `packages`: `read`
-
-**Environment (`env`):**
-
-| Variable | Value |
-|----------|-------|
-| `PYTHON_VERSIONS` | `${{ needs.build-info.outputs.python-versions-list-as-string }}` |
-
-<details>
-<summary>Steps (8)</summary>
-
-1. **Cleanup repo**
-
-2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@v6.0.2`
-   - With:
-     - `persist-credentials`: `false`
-
-3. **Set constraints branch name**
-   - ID: `constraints-branch`
-
-4. **Checkout ${{ steps.constraints-branch.outputs.branch }}**
-   - Uses: `actions/checkout@v6.0.2`
-   - With:
-     - `path`: `constraints`
-     - `ref`: `${{ steps.constraints-branch.outputs.branch }}`
-     - `persist-credentials`: `true`
-     - `fetch-depth`: `0`
-
-5. **Download constraints from the generate-constraints job**
-   - Uses: `actions/download-artifact@v8.0.1`
-   - With:
-     - `pattern`: `constraints-*`
-     - `path`: `./files`
-
-6. **Diff in constraints for Python: ${{ needs.build-info.outputs.python-versions-list-as-string }}**
-
-7. **Commit changed constraint files for Python: ${{ needs.build-info.outputs.python-versions-list-as-string }}**
-
-8. **Push changes**
-
-</details>
-
-### Notify on failure (`notify-on-failure`)
-
-| Property | Value |
-|----------|-------|
-| Depends on | `build-info`, `build-ci-images`, `generate-constraints`, `update-constraints` |
-| Condition | `failure()` |
-
-**Environment (`env`):**
-
-| Variable | Value |
-|----------|-------|
-| `SLACK_BOT_TOKEN` | `${{ secrets.SLACK_BOT_TOKEN }}` |
-
-<details>
-<summary>Steps (1)</summary>
-
-1. **Send Slack notification**
-   - Uses: `slackapi/slack-github-action@v3.0.3`
-   - With:
-     - `method`: `chat.postMessage`
-     - `token`: `${{ env.SLACK_BOT_TOKEN }}`
-     - `payload`: `channel: "internal-airflow-ci-cd" text: "🚨 Update constraints workflow failed on branch *${{ github.ref_name }}*\n\n*Details:* <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View the failure log>" blocks:   - type: "section"     text:       type: "mrkdwn"       text: "🚨 Update constraints workflow failed on *${{ github.ref_name }}*\n\n*Details:* <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View the failure log>"`
-
-</details>
-
-[Back to top](#contents)
-
-# Update constraints on push for main (only when uv.lock changes)
-
-**Triggers:** `push`
-
-| Property | Value |
-|----------|-------|
-| File | `update-constraints-on-push.yml` |
-| Default runs-on | `ubuntu-22.04` |
-
-**Jobs:** [Build info](#build-info-build-info-5), [Build CI images](#build-ci-images-build-ci-images-3), [Generate constraints](#generate-constraints-generate-constraints-3), [Commit and push constraints](#commit-and-push-constraints-update-constraints-1), [Notify on failure](#notify-on-failure-notify-on-failure-1)
-
-## Event filters
-
-- **push**
-  - branches: `main`, `v[0-9]+-[0-9]+-test`
-  - paths: `uv.lock`
-
-## Permissions
-
-- `contents`: `read`
-
-## Environment (`env`)
-
-| Variable | Value |
-|----------|-------|
-| `GITHUB_REPOSITORY` | `${{ github.repository }}` |
-| `GITHUB_TOKEN` | `${{ secrets.GITHUB_TOKEN }}` |
-| `GITHUB_USERNAME` | `${{ github.actor }}` |
-| `VERBOSE` | `true` |
-
-**Concurrency:** group `${{ github.workflow }}-${{ github.ref }}`, cancel-in-progress: `true`
-
-## Call graph (rooted at this workflow)
-
-`update-constraints-on-push.yml` [push]
-
-- `build-info / Install Breeze` uses [./.github/actions/breeze](#setup-breeze)
-- `build-ci-images` uses [ci-image-build.yml](#build-ci-images)
-  - `build-ci-images / Install Breeze` uses [./.github/actions/breeze](#setup-breeze)
-- `generate-constraints` uses [generate-constraints.yml](#generate-constraints)
-  - `generate-constraints-matrix / Install prek` uses [./.github/actions/install-prek](#install-prek)
-  - `generate-constraints-matrix / Prepare breeze & CI image: ${{ matrix.python-version }}` uses [./.github/actions/prepare_breeze_and_image](#prepare-breeze--current-image-ci-or-prod)
-
-## Transitive requirements (from full call graph)
-
-Secrets referenced (literal names): `CONSTRAINTS_GITHUB_REPOSITORY`, `GITHUB_TOKEN`, `SLACK_BOT_TOKEN`
-
-Permissions declared across the chain: `contents: read`, `contents: write`, `packages: read`, `packages: write`
-
-## Referenced secrets and variables
-
-**Secrets:**
-
-| Name | Used by |
-|------|---------|
-| `GITHUB_TOKEN` | workflow env `GITHUB_TOKEN` |
-| `SLACK_BOT_TOKEN` | job `notify-on-failure` env `SLACK_BOT_TOKEN` |
-
-## Jobs
-
-### Build info (`build-info`)
-
-<details>
-<summary>Steps (6)</summary>
-
-1. **Cleanup repo**
-
-2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@v6.0.2`
-   - With:
-     - `persist-credentials`: `false`
-
-3. **Fetch incoming commit ${{ github.sha }} with its parent**
-   - Uses: `actions/checkout@v6.0.2`
-   - With:
-     - `ref`: `${{ github.sha }}`
-     - `fetch-depth`: `2`
-     - `persist-credentials`: `false`
-
-4. **Install Breeze**
-   - ID: `breeze`
-   - Uses: `./.github/actions/breeze`
-
-5. **Save github context to file**
-
-6. **Selective checks**
-   - ID: `selective-checks`
-   - Env:
-     - `PR_LABELS`: `[]`
-     - `COMMIT_REF`: `${{ github.sha }}`
-     - `VERBOSE`: `false`
-     - `GITHUB_CONTEXT_INPUT`: `${{ runner.temp }}/github_context.json`
-
-</details>
-
-### Build CI images (`build-ci-images`)
-
-| Property | Value |
-|----------|-------|
-| Uses workflow | [Build CI images](#build-ci-images) |
-| Depends on | `build-info` |
-
-**Permissions:**
-
-- `contents`: `read`
-- `packages`: `write`
-
-#### Inputs forwarded
-
-- `runners`: `["ubuntu-22.04"]`
-- `platform`: `linux/amd64`
-- `push-image`: `false`
-- `upload-image-artifact`: `true`
-- `upload-mount-cache-artifact`: `false`
-- `python-versions`: `${{ needs.build-info.outputs.python-versions }}`
-- `branch`: `${{ needs.build-info.outputs.default-branch }}`
-- `constraints-branch`: `${{ needs.build-info.outputs.default-constraints-branch }}`
-- `use-uv`: `true`
-- `upgrade-to-newer-dependencies`: `false`
-- `docker-cache`: `registry`
-- `disable-airflow-repo-cache`: `false`
-
-### Generate constraints (`generate-constraints`)
-
-| Property | Value |
-|----------|-------|
-| Uses workflow | [Generate constraints](#generate-constraints) |
-| Depends on | `build-info`, `build-ci-images` |
-
-#### Inputs forwarded
-
-- `runners`: `["ubuntu-22.04"]`
-- `platform`: `linux/amd64`
-- `python-versions-list-as-string`: `${{ needs.build-info.outputs.python-versions-list-as-string }}`
-- `python-versions`: `${{ needs.build-info.outputs.python-versions }}`
-- `generate-pypi-constraints`: `true`
-- `generate-no-providers-constraints`: `true`
-- `debug-resources`: `false`
-- `use-uv`: `true`
-
-### Commit and push constraints (`update-constraints`)
-
-| Property | Value |
-|----------|-------|
-| Depends on | `build-info`, `generate-constraints` |
-
-**Permissions:**
-
-- `contents`: `write`
-- `packages`: `read`
-
-**Environment (`env`):**
-
-| Variable | Value |
-|----------|-------|
-| `PYTHON_VERSIONS` | `${{ needs.build-info.outputs.python-versions-list-as-string }}` |
-
-<details>
-<summary>Steps (8)</summary>
-
-1. **Cleanup repo**
-
-2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@v6.0.2`
-   - With:
-     - `persist-credentials`: `false`
-
-3. **Set constraints branch name**
-   - ID: `constraints-branch`
-
-4. **Checkout ${{ steps.constraints-branch.outputs.branch }}**
-   - Uses: `actions/checkout@v6.0.2`
-   - With:
-     - `path`: `constraints`
-     - `ref`: `${{ steps.constraints-branch.outputs.branch }}`
-     - `persist-credentials`: `true`
-     - `fetch-depth`: `0`
-
-5. **Download constraints from the generate-constraints job**
-   - Uses: `actions/download-artifact@v8.0.1`
-   - With:
-     - `pattern`: `constraints-*`
-     - `path`: `./files`
-
-6. **Diff in constraints for Python: ${{ needs.build-info.outputs.python-versions-list-as-string }}**
-
-7. **Commit changed constraint files for Python: ${{ needs.build-info.outputs.python-versions-list-as-string }}**
-
-8. **Push changes**
-
-</details>
-
-### Notify on failure (`notify-on-failure`)
-
-| Property | Value |
-|----------|-------|
-| Depends on | `build-info`, `build-ci-images`, `generate-constraints`, `update-constraints` |
-| Condition | `failure()` |
-
-**Environment (`env`):**
-
-| Variable | Value |
-|----------|-------|
-| `SLACK_BOT_TOKEN` | `${{ secrets.SLACK_BOT_TOKEN }}` |
-
-<details>
-<summary>Steps (1)</summary>
-
-1. **Send Slack notification**
-   - Uses: `slackapi/slack-github-action@v3.0.3`
-   - With:
-     - `method`: `chat.postMessage`
-     - `token`: `${{ env.SLACK_BOT_TOKEN }}`
-     - `payload`: `channel: "internal-airflow-ci-cd" text: "🚨 Update constraints workflow failed on branch *${{ github.ref_name }}*\n\n*Details:* <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View the failure log>" blocks:   - type: "section"     text:       type: "mrkdwn"       text: "🚨 Update constraints workflow failed on *${{ github.ref_name }}*\n\n*Details:* <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View the failure log>"`
+     - `codecov-token`: `${{ secrets.CODECOV_TOKEN }}` - Codecov token (required)
+     - `python-version`: `${{ matrix.python-version }}` - Python version (required)
+
+9. **Post Tests failure**
+   - Uses: `./.github/actions/post_tests_failure`
+   - Condition: `failure() || cancelled()`
 
 </details>
 
@@ -8991,29 +8991,6 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 [Back to top](#contents)
 
-# Setup Breeze
-
-Sets up Python and Breeze
-
-| Property | Value |
-|----------|-------|
-| File | `action.yml` |
-| Runs with | `composite` |
-
-## Inputs
-
-| Name | Description | Required | Default |
-|------|-------------|----------|--------|
-| `python-version` | Python version to use | No | `3.10` |
-
-## Outputs
-
-| Name | Description |
-|------|-------------|
-| `host-python-version` | Python version used in host |
-
-[Back to top](#contents)
-
 # Install prek
 
 Installs prek and related packages
@@ -9030,23 +9007,6 @@ Installs prek and related packages
 | `python-version` | Python version to use | No | `3.10` |
 | `save-cache` | Whether to save prek cache | Yes | - |
 | `platform` | Platform for the build - linux/amd64 or linux/arm64 | Yes | - |
-
-[Back to top](#contents)
-
-# Run migration tests
-
-Runs migration tests
-
-| Property | Value |
-|----------|-------|
-| File | `action.yml` |
-| Runs with | `composite` |
-
-## Inputs
-
-| Name | Description | Required | Default |
-|------|-------------|----------|--------|
-| `python-version` | Python version to run the tests on | Yes | - |
 
 [Back to top](#contents)
 
@@ -9142,6 +9102,46 @@ Recreates current python image from artifacts (needed for the hard-coded actions
 | `python` | Python version for image to prepare | Yes | - |
 | `python-versions-list-as-string` | Stringified array of all Python versions to prepare - separated by spaces. | Yes | - |
 | `platform` | Platform for the build - linux/amd64 or linux/arm64 | Yes | - |
+
+[Back to top](#contents)
+
+# Run migration tests
+
+Runs migration tests
+
+| Property | Value |
+|----------|-------|
+| File | `action.yml` |
+| Runs with | `composite` |
+
+## Inputs
+
+| Name | Description | Required | Default |
+|------|-------------|----------|--------|
+| `python-version` | Python version to run the tests on | Yes | - |
+
+[Back to top](#contents)
+
+# Setup Breeze
+
+Sets up Python and Breeze
+
+| Property | Value |
+|----------|-------|
+| File | `action.yml` |
+| Runs with | `composite` |
+
+## Inputs
+
+| Name | Description | Required | Default |
+|------|-------------|----------|--------|
+| `python-version` | Python version to use | No | `3.10` |
+
+## Outputs
+
+| Name | Description |
+|------|-------------|
+| `host-python-version` | Python version used in host |
 
 [Back to top](#contents)
 

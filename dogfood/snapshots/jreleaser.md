@@ -18,11 +18,11 @@
 
 **Reusable workflows**
 
+- [X-BachInfo](#x-bachinfo)
 - [X-Jlink](#x-jlink)
 - [X-JPackage](#x-jpackage)
 - [X-NativeImage](#x-nativeimage)
 - [X-Precheck](#x-precheck)
-- [X-BachInfo](#x-bachinfo)
 - [X-UpdateWiki](#x-updatewiki)
 
 # Build
@@ -1580,6 +1580,147 @@ Permissions declared across the chain: `contents: read`
 
 [Back to top](#contents)
 
+# Trigger Early Access
+
+**Triggers:** `workflow_dispatch`
+
+| Property | Value |
+|----------|-------|
+| File | `trigger-early-access.yml` |
+
+## Permissions
+
+- `contents`: `read`
+
+## Referenced secrets and variables
+
+**Secrets:**
+
+| Name | Used by |
+|------|---------|
+| `GIT_ACCESS_TOKEN` | job `earlyaccess` step `Release early-access artifacts` with `token` |
+
+**Variables:**
+
+| Name | Used by |
+|------|---------|
+| `JAVA_VERSION` | job `earlyaccess` step `Setup Java` with `java-version` |
+| `JAVA_DISTRO` | job `earlyaccess` step `Setup Java` with `distribution` |
+
+## Jobs
+
+### Trigger Early Access (`earlyaccess`)
+
+| Property | Value |
+|----------|-------|
+| Runs on | `ubuntu-latest` |
+
+<details>
+<summary>Steps (5)</summary>
+
+1. **actions/checkout@v6.0.2**
+   - With:
+     - `persist-credentials`: `false`
+
+2. **Setup Java**
+   - Uses: `actions/setup-java@v5.2.0`
+   - With:
+     - `java-version`: `${{ vars.JAVA_VERSION }}`
+     - `distribution`: `${{ vars.JAVA_DISTRO }}`
+
+3. **Build**
+
+4. **Rename artifacts**
+
+5. **Release early-access artifacts**
+   - Uses: `softprops/action-gh-release@v2.6.1`
+   - With:
+     - `generate_release_notes`: `false`
+     - `tag_name`: `early-access`
+     - `token`: `${{ secrets.GIT_ACCESS_TOKEN }}`
+     - `prerelease`: `true`
+     - `name`: `JReleaser Early-Access`
+     - `files`: `early-access/*`
+
+</details>
+
+[Back to top](#contents)
+
+# X-BachInfo
+
+**Triggers:** `workflow_call`
+
+| Property | Value |
+|----------|-------|
+| File | `step-update-bach-info.yml` |
+
+## Workflow call API
+
+**Inputs:**
+
+| Name | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| `project-version` | string | Yes | - | - |
+| `project-tag` | string | Yes | - | - |
+
+**Secrets:**
+
+| Name | Required | Description |
+|------|----------|-------------|
+| `gh-access-token` | Yes | - |
+
+## Permissions
+
+- `actions`: `read`
+- `id-token`: `write` (OIDC)
+- `contents`: `write`
+
+## Referenced secrets and variables
+
+**Secrets:**
+
+| Name | Used by |
+|------|---------|
+| `gh-access-token` | job `update-bach-info` step `Checkout` with `token` |
+
+**Variables:**
+
+| Name | Used by |
+|------|---------|
+| `COMMIT_EMAIL` | job `update-bach-info` step `Commit` env `COMMIT_EMAIL` |
+
+## Jobs
+
+### Update bach-info (`update-bach-info`)
+
+| Property | Value |
+|----------|-------|
+| Runs on | `ubuntu-latest` |
+
+<details>
+<summary>Steps (3)</summary>
+
+1. **Checkout**
+   - Uses: `actions/checkout@v6.0.2`
+   - With:
+     - `persist-credentials`: `true`
+     - `repository`: `jreleaser/bach-info`
+     - `ref`: `main`
+     - `fetch-depth`: `0`
+     - `token`: `${{ secrets.gh-access-token }}`
+
+2. **Download script**
+
+3. **Commit**
+   - Env:
+     - `TAG`: `${{ inputs.project-tag }}`
+     - `VERSION`: `${{ inputs.project-version }}`
+     - `COMMIT_EMAIL`: `${{ vars.COMMIT_EMAIL }}`
+
+</details>
+
+[Back to top](#contents)
+
 # X-Jlink
 
 **Triggers:** `workflow_call`
@@ -2044,81 +2185,6 @@ Permissions declared across the chain: `contents: read`
 
 [Back to top](#contents)
 
-# X-BachInfo
-
-**Triggers:** `workflow_call`
-
-| Property | Value |
-|----------|-------|
-| File | `step-update-bach-info.yml` |
-
-## Workflow call API
-
-**Inputs:**
-
-| Name | Type | Required | Default | Description |
-|------|------|----------|---------|-------------|
-| `project-version` | string | Yes | - | - |
-| `project-tag` | string | Yes | - | - |
-
-**Secrets:**
-
-| Name | Required | Description |
-|------|----------|-------------|
-| `gh-access-token` | Yes | - |
-
-## Permissions
-
-- `actions`: `read`
-- `id-token`: `write` (OIDC)
-- `contents`: `write`
-
-## Referenced secrets and variables
-
-**Secrets:**
-
-| Name | Used by |
-|------|---------|
-| `gh-access-token` | job `update-bach-info` step `Checkout` with `token` |
-
-**Variables:**
-
-| Name | Used by |
-|------|---------|
-| `COMMIT_EMAIL` | job `update-bach-info` step `Commit` env `COMMIT_EMAIL` |
-
-## Jobs
-
-### Update bach-info (`update-bach-info`)
-
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-latest` |
-
-<details>
-<summary>Steps (3)</summary>
-
-1. **Checkout**
-   - Uses: `actions/checkout@v6.0.2`
-   - With:
-     - `persist-credentials`: `true`
-     - `repository`: `jreleaser/bach-info`
-     - `ref`: `main`
-     - `fetch-depth`: `0`
-     - `token`: `${{ secrets.gh-access-token }}`
-
-2. **Download script**
-
-3. **Commit**
-   - Env:
-     - `TAG`: `${{ inputs.project-tag }}`
-     - `VERSION`: `${{ inputs.project-version }}`
-     - `COMMIT_EMAIL`: `${{ vars.COMMIT_EMAIL }}`
-
-</details>
-
-[Back to top](#contents)
-
 # X-UpdateWiki
 
 **Triggers:** `workflow_call`
@@ -2209,72 +2275,6 @@ Permissions declared across the chain: `contents: read`
      - `TAG`: `${{ inputs.project-tag }}`
      - `VERSION`: `${{ inputs.project-version }}`
      - `COMMIT_EMAIL`: `${{ inputs.commit-email }}`
-
-</details>
-
-[Back to top](#contents)
-
-# Trigger Early Access
-
-**Triggers:** `workflow_dispatch`
-
-| Property | Value |
-|----------|-------|
-| File | `trigger-early-access.yml` |
-
-## Permissions
-
-- `contents`: `read`
-
-## Referenced secrets and variables
-
-**Secrets:**
-
-| Name | Used by |
-|------|---------|
-| `GIT_ACCESS_TOKEN` | job `earlyaccess` step `Release early-access artifacts` with `token` |
-
-**Variables:**
-
-| Name | Used by |
-|------|---------|
-| `JAVA_VERSION` | job `earlyaccess` step `Setup Java` with `java-version` |
-| `JAVA_DISTRO` | job `earlyaccess` step `Setup Java` with `distribution` |
-
-## Jobs
-
-### Trigger Early Access (`earlyaccess`)
-
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-latest` |
-
-<details>
-<summary>Steps (5)</summary>
-
-1. **actions/checkout@v6.0.2**
-   - With:
-     - `persist-credentials`: `false`
-
-2. **Setup Java**
-   - Uses: `actions/setup-java@v5.2.0`
-   - With:
-     - `java-version`: `${{ vars.JAVA_VERSION }}`
-     - `distribution`: `${{ vars.JAVA_DISTRO }}`
-
-3. **Build**
-
-4. **Rename artifacts**
-
-5. **Release early-access artifacts**
-   - Uses: `softprops/action-gh-release@v2.6.1`
-   - With:
-     - `generate_release_notes`: `false`
-     - `tag_name`: `early-access`
-     - `token`: `${{ secrets.GIT_ACCESS_TOKEN }}`
-     - `prerelease`: `true`
-     - `name`: `JReleaser Early-Access`
-     - `files`: `early-access/*`
 
 </details>
 

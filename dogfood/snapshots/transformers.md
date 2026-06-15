@@ -9,15 +9,14 @@
 - [Add model like runner - push](#add-model-like-runner)
 - [Anti-Slop - pull_request_target](#anti-slop)
 - [Assign PR Reviewers - pull_request_target](#assign-pr-reviewers)
-- [Self-hosted runner (benchmark) - push, pull_request](#self-hosted-runner-benchmark)
 - [Benchmark v2 Framework - workflow_dispatch](#benchmark-v2-framework)
 - [Benchmark v2 Scheduled Runner - A10 Single-GPU - workflow_dispatch](#benchmark-v2-scheduled-runner---a10-single-gpu)
 - [Benchmark v2 Scheduled Runner - MI325 Single-GPU - workflow_dispatch](#benchmark-v2-scheduled-runner---mi325-single-gpu)
-- [Build pr ci-docker - push, repository_dispatch, workflow_call, schedule](#build-pr-ci-docker)
-- [Build docker images (scheduled) - push, repository_dispatch, workflow_dispatch, workflow_call, schedule](#build-docker-images-scheduled)
 - [Build docker images (Nightly CI) - workflow_call, push](#build-docker-images-nightly-ci)
 - [Build docker images (Past CI) - push](#build-docker-images-past-ci)
+- [Build docker images (scheduled) - push, repository_dispatch, workflow_dispatch, workflow_call, schedule](#build-docker-images-scheduled)
 - [Build documentation - workflow_dispatch, push](#build-documentation)
+- [Build pr ci-docker - push, repository_dispatch, workflow_call, schedule](#build-pr-ci-docker)
 - [Build PR Documentation - pull_request, merge_group](#build-pr-documentation)
 - [Check Permissions Advisor - workflow_dispatch](#check-permissions-advisor)
 - [Check Tiny Models - push, repository_dispatch, schedule](#check-tiny-models)
@@ -26,43 +25,44 @@
 - [Doctests - push, repository_dispatch, schedule](#doctests)
 - [Extras Smoke Test - schedule](#extras-smoke-test)
 - [New model PR merged notification - push](#new-model-pr-merged-notification)
-- [PR CI - pull_request](#pr-ci)
-- [PR Repo. Consistency Bot - issue_comment](#pr-repo-consistency-bot)
-- [PR - build doc via comment - issue_comment](#pr---build-doc-via-comment)
-- [PR slow CI - Suggestion - pull_request_target](#pr-slow-ci---suggestion)
-- [Slow tests on important models (on Push - A10) - push](#slow-tests-on-important-models-on-push---a10)
-- [Release - Conda - push](#release---conda)
-- [Release - push](#release)
-- [PR comment GitHub CI - issue_comment](#pr-comment-github-ci)
-- [Nvidia CI with nightly torch - repository_dispatch, workflow_run, push](#nvidia-ci-with-nightly-torch)
-- [Self-hosted runner (nightly-past-ci-caller) - schedule, push](#self-hosted-runner-nightly-past-ci-caller)
-- [Self-hosted runner (AMD scheduled CI caller) - schedule](#self-hosted-runner-amd-scheduled-ci-caller)
-- [Self-hosted runner (AMD mi250 scheduled CI caller) - workflow_run, push](#self-hosted-runner-amd-mi250-scheduled-ci-caller)
-- [Self-hosted runner scale set (AMD mi325 scheduled CI caller) - workflow_run, push](#self-hosted-runner-scale-set-amd-mi325-scheduled-ci-caller)
-- [Self-hosted runner scale set (AMD mi355 scheduled CI caller) - workflow_run, push](#self-hosted-runner-scale-set-amd-mi355-scheduled-ci-caller)
 - [Nvidia CI - repository_dispatch, schedule, push, workflow_dispatch](#nvidia-ci)
 - [Nvidia CI - Flash Attn - repository_dispatch, schedule, push, workflow_dispatch](#nvidia-ci---flash-attn)
+- [Nvidia CI with nightly torch - repository_dispatch, workflow_run, push](#nvidia-ci-with-nightly-torch)
+- [PR - build doc via comment - issue_comment](#pr---build-doc-via-comment)
+- [PR CI - pull_request](#pr-ci)
+- [PR comment GitHub CI - issue_comment](#pr-comment-github-ci)
+- [PR Repo. Consistency Bot - issue_comment](#pr-repo-consistency-bot)
+- [PR slow CI - Suggestion - pull_request_target](#pr-slow-ci---suggestion)
+- [Release - push](#release)
+- [Release - Conda - push](#release---conda)
+- [Secret Leaks - push](#secret-leaks)
+- [Self-hosted runner (AMD mi250 scheduled CI caller) - workflow_run, push](#self-hosted-runner-amd-mi250-scheduled-ci-caller)
+- [Self-hosted runner (AMD scheduled CI caller) - schedule](#self-hosted-runner-amd-scheduled-ci-caller)
+- [Self-hosted runner (benchmark) - push, pull_request](#self-hosted-runner-benchmark)
 - [Self-hosted runner (Intel Gaudi3 scheduled CI caller) - repository_dispatch, workflow_dispatch, schedule](#self-hosted-runner-intel-gaudi3-scheduled-ci-caller)
+- [Self-hosted runner (nightly-past-ci-caller) - schedule, push](#self-hosted-runner-nightly-past-ci-caller)
+- [Self-hosted runner scale set (AMD mi325 scheduled CI caller) - workflow_run, push](#self-hosted-runner-scale-set-amd-mi325-scheduled-ci-caller)
+- [Self-hosted runner scale set (AMD mi355 scheduled CI caller) - workflow_run, push](#self-hosted-runner-scale-set-amd-mi355-scheduled-ci-caller)
+- [Slow tests on important models (on Push - A10) - push](#slow-tests-on-important-models-on-push---a10)
 - [SSH into our runners - workflow_dispatch](#ssh-into-our-runners)
 - [Stale Bot - schedule](#stale-bot)
 - [TRL CI bot - issue_comment](#trl-ci-bot)
-- [Secret Leaks - push](#secret-leaks)
 - [Update Transformers metadata - push](#update-transformers-metadata)
 - [Upload PR Documentation - workflow_run](#upload-pr-documentation)
 
 **Reusable workflows**
 
-- [Process failed tests](#process-failed-tests)
 - [CI collated reports](#ci-collated-reports)
+- [CI slack report](#ci-slack-report)
 - [Doctest job](#doctest-job)
 - [Get PR commit SHA](#get-pr-commit-sha)
 - [Get PR number](#get-pr-number)
 - [model jobs (model_jobs.yml)](#model-jobs)
 - [model jobs (model_jobs_intel_gaudi.yml)](#model-jobs-1)
+- [Nvidia CI (job definitions)](#nvidia-ci-job-definitions)
+- [Process failed tests](#process-failed-tests)
 - [Self-hosted runner (past-ci)](#self-hosted-runner-past-ci)
 - [Self-hosted runner (scheduled-intel-gaudi)](#self-hosted-runner-scheduled-intel-gaudi)
-- [Nvidia CI (job definitions)](#nvidia-ci-job-definitions)
-- [CI slack report](#ci-slack-report)
 
 # Add model like runner
 
@@ -259,77 +259,6 @@
 
 [Back to top](#contents)
 
-# Self-hosted runner (benchmark)
-
-**Triggers:** `push`, `pull_request`
-
-| Property | Value |
-|----------|-------|
-| File | `benchmark.yml` |
-
-## Event filters
-
-- **push**
-  - branches: `main`
-- **pull_request**
-  - types: `opened`, `labeled`, `reopened`, `synchronize`
-
-## Permissions
-
-- `contents`: `read`
-
-## Environment (`env`)
-
-| Variable | Value |
-|----------|-------|
-| `HF_HOME` | `/mnt/cache` |
-| `DATASET_ID` | `hf-benchmarks/transformers` |
-| `MODEL_ID` | `meta-llama/Llama-3.1-8B-Instruct` |
-
-**Concurrency:** group `${{ github.workflow }}-${{ github.head_ref || github.run_id }}`, cancel-in-progress: `true`
-
-## Referenced secrets and variables
-
-**Secrets:**
-
-| Name | Used by |
-|------|---------|
-| `HF_HUB_READ_TOKEN` | job `benchmark` step `Run benchmark` env `HF_TOKEN` |
-| `PUSH_TO_HUB_TOKEN` | job `benchmark` step `Run benchmark` env `PUSH_TO_HUB_TOKEN` |
-
-## Jobs
-
-### Benchmark (`benchmark`)
-
-| Property | Value |
-|----------|-------|
-| Runs on | `group: ${{ matrix.group }}` |
-| Matrix | `group`: aws-g5-4xlarge-cache |
-| Condition | `(github.event_name == 'pull_request' && contains( github.event.pull_request.labels.*.name, 'run-benchmark') )\|\|<br>(github.event_name == 'push' && github.ref == 'refs/heads/main')` |
-
-<details>
-<summary>Steps (4)</summary>
-
-1. **Get repo**
-   - Uses: `actions/checkout@v6.0.2`
-   - With:
-     - `fetch-depth`: `1`
-     - `persist-credentials`: `false`
-
-2. **Install benchmark script dependencies**
-
-3. **Reinstall transformers in edit mode (remove the one installed during docker image build)**
-
-4. **Run benchmark**
-   - Env:
-     - `HF_TOKEN`: `${{ secrets.HF_HUB_READ_TOKEN }}`
-     - `PUSH_TO_HUB_TOKEN`: `${{ secrets.PUSH_TO_HUB_TOKEN }}`
-     - `BRANCH_NAME`: `${{ github.head_ref || github.ref_name }}`
-
-</details>
-
-[Back to top](#contents)
-
 # Benchmark v2 Framework
 
 **Triggers:** `workflow_dispatch`
@@ -509,16 +438,15 @@ Permissions declared across the chain: `contents: read`
 
 [Back to top](#contents)
 
-# Build pr ci-docker
+# Build docker images (Nightly CI)
 
-**Triggers:** `push`, `repository_dispatch`, `workflow_call`, `schedule`
+**Triggers:** `workflow_call`, `push`
 
 | Property | Value |
 |----------|-------|
-| File | `build-ci-docker-images.yml` |
-| Default runs-on | `ubuntu-22.04` |
+| File | `build-nightly-ci-docker-images.yml` |
 
-**Jobs:** [`build`](#build), [`notify`](#notify)
+**Jobs:** [Nightly PyTorch](#nightly-pytorch-latest-with-torch-nightly-docker), [Nightly PyTorch + DeepSpeed](#nightly-pytorch--deepspeed-nightly-torch-deepspeed-docker)
 
 ## Workflow call API
 
@@ -526,22 +454,24 @@ Permissions declared across the chain: `contents: read`
 
 | Name | Type | Required | Default | Description |
 |------|------|----------|---------|-------------|
-| `image_postfix` | string | Yes | - | - |
-
-## Schedule
-
-- `6 0 * * *`
+| `job` | string | Yes | - | - |
 
 ## Event filters
 
 - **push**
-  - branches: `push-ci-image`
+  - branches: `build_nightly_ci_docker_image*`
 
 ## Permissions
 
 - `contents`: `read`
 
-**Concurrency:** group `${{ github.workflow }}`, cancel-in-progress: `true`
+**Concurrency:** group `docker-images-builds`, cancel-in-progress: `false`
+
+## Called by
+
+`build-nightly-ci-docker-images.yml`
+
+- [self-nightly-caller.yml](#build-ci-docker-images-with-nightly-torch-build_nightly_torch_ci_images) (job: `build_nightly_torch_ci_images`) - entry point
 
 ## Referenced secrets and variables
 
@@ -549,68 +479,191 @@ Permissions declared across the chain: `contents: read`
 
 | Name | Used by |
 |------|---------|
-| `DOCKERHUB_USERNAME` | job `build` step `Login to DockerHub` with `username` |
-| `DOCKERHUB_PASSWORD` | job `build` step `Login to DockerHub` with `password` |
-| `SLACK_CIFEEDBACK_BOT_TOKEN` | job `notify` step `Post to Slack` with `slack_token` |
+| `DOCKERHUB_USERNAME` | job `latest-with-torch-nightly-docker` step `Login to DockerHub` with `username`; job `nightly-torch-deepspeed-docker` step `Login to DockerHub` with `username` |
+| `DOCKERHUB_PASSWORD` | job `latest-with-torch-nightly-docker` step `Login to DockerHub` with `password`; job `nightly-torch-deepspeed-docker` step `Login to DockerHub` with `password` |
 
 ## Jobs
 
-### `build`
+### Nightly PyTorch (`latest-with-torch-nightly-docker`)
 
 | Property | Value |
 |----------|-------|
-| Matrix | `file`: quality, consistency, custom-tokenizers, torch-light, exotic-models, examples-torch |
-| Condition | `${{ contains(github.event.head_commit.message, '[build-ci-image]') \|\| contains(github.event.head_commit.message, '[push-ci-image]') && '!cancelled()' \|\| github.event_name == 'schedule' }}` |
+| Runs on | `group: aws-general-8-plus` |
+| Condition | `inputs.job == 'latest-with-torch-nightly-docker' \|\| inputs.job == ''` |
 
 <details>
-<summary>Steps (5)</summary>
+<summary>Steps (4)</summary>
 
-1. **Set tag**
-   - Env:
-     - `COMMIT_MESSAGE`: `${{ github.event.head_commit.message }}`
+1. **Set up Docker Buildx**
+   - Uses: `docker/setup-buildx-action@v2.10.0`
 
-2. **Set up Docker Buildx**
-   - Uses: `docker/setup-buildx-action@v3.12.0`
-
-3. **Check out code**
-   - Uses: `actions/checkout@v6.0.2`
+2. **Check out code**
+   - Uses: `actions/checkout@v4.3.1`
    - With:
      - `persist-credentials`: `false`
 
-4. **Login to DockerHub**
-   - Uses: `docker/login-action@v3.7.0`
+3. **Login to DockerHub**
+   - Uses: `docker/login-action@v2.2.0`
    - With:
      - `username`: `${{ secrets.DOCKERHUB_USERNAME }}`
      - `password`: `${{ secrets.DOCKERHUB_PASSWORD }}`
 
-5. **Build ${{ matrix.file }}.dockerfile**
-   - Uses: `docker/build-push-action@v5.4.0`
+4. **Build and push**
+   - Uses: `docker/build-push-action@v3.3.1`
    - With:
-     - `context`: `./docker`
-     - `build-args`: `REF=${{ github.sha }}`
-     - `file`: `./docker/${{ matrix.file }}.dockerfile`
-     - `push`: `${{ contains(github.event.head_commit.message, 'ci-image]') ||  github.event_name == 'schedule' }}`
-     - `tags`: `${{ env.TAG }}`
+     - `context`: `./docker/transformers-all-latest-gpu`
+     - `build-args`: `REF=main PYTORCH=pre`
+     - `push`: `true`
+     - `tags`: `huggingface/transformers-all-latest-torch-nightly-gpu`
 
 </details>
 
-### `notify`
+### Nightly PyTorch + DeepSpeed (`nightly-torch-deepspeed-docker`)
 
 | Property | Value |
 |----------|-------|
-| Condition | `${{ contains(github.event.head_commit.message, '[build-ci-image]') \|\| contains(github.event.head_commit.message, '[push-ci-image]') && '!cancelled()' \|\| github.event_name == 'schedule' }}` |
+| Runs on | `group: aws-g4dn-2xlarge-cache` |
+| Condition | `inputs.job == 'nightly-torch-deepspeed-docker' \|\| inputs.job == ''` |
 
 <details>
-<summary>Steps (1)</summary>
+<summary>Steps (4)</summary>
 
-1. **Post to Slack**
-   - Uses: `huggingface/hf-workflows/.github/actions/post-slack@a88e7fa2eaee28de5a4d6142381b1fb792349b67`
-   - Condition: `${{ contains(github.event.head_commit.message, '[push-ci-image]') && github.event_name != 'schedule' }}`
+1. **Set up Docker Buildx**
+   - Uses: `docker/setup-buildx-action@v2.10.0`
+
+2. **Check out code**
+   - Uses: `actions/checkout@v4.3.1`
    - With:
-     - `slack_channel`: `#transformers-ci-circleci-images`
-     - `title`: `🤗 New docker images for CircleCI are pushed.`
-     - `status`: `${{ job.status }}`
-     - `slack_token`: `${{ secrets.SLACK_CIFEEDBACK_BOT_TOKEN }}`
+     - `persist-credentials`: `false`
+
+3. **Login to DockerHub**
+   - Uses: `docker/login-action@v2.2.0`
+   - With:
+     - `username`: `${{ secrets.DOCKERHUB_USERNAME }}`
+     - `password`: `${{ secrets.DOCKERHUB_PASSWORD }}`
+
+4. **Build and push**
+   - Uses: `docker/build-push-action@v3.3.1`
+   - With:
+     - `context`: `./docker/transformers-pytorch-deepspeed-nightly-gpu`
+     - `build-args`: `REF=main`
+     - `push`: `true`
+     - `tags`: `huggingface/transformers-pytorch-deepspeed-nightly-gpu`
+
+</details>
+
+[Back to top](#contents)
+
+# Build docker images (Past CI)
+
+**Triggers:** `push`
+
+| Property | Value |
+|----------|-------|
+| File | `build-past-ci-docker-images.yml` |
+| Default runs-on | `group: aws-general-8-plus` |
+
+**Jobs:** [Past PyTorch Docker](#past-pytorch-docker-past-pytorch-docker), [Past TensorFlow Docker](#past-tensorflow-docker-past-tensorflow-docker)
+
+## Event filters
+
+- **push**
+  - branches: `build_past_ci_docker_image*`
+
+## Permissions
+
+- `contents`: `read`
+
+**Concurrency:** group `docker-images-builds`, cancel-in-progress: `false`
+
+## Referenced secrets and variables
+
+**Secrets:**
+
+| Name | Used by |
+|------|---------|
+| `DOCKERHUB_USERNAME` | job `past-pytorch-docker` step `Login to DockerHub` with `username`; job `past-tensorflow-docker` step `Login to DockerHub` with `username` |
+| `DOCKERHUB_PASSWORD` | job `past-pytorch-docker` step `Login to DockerHub` with `password`; job `past-tensorflow-docker` step `Login to DockerHub` with `password` |
+
+## Jobs
+
+### Past PyTorch Docker (`past-pytorch-docker`)
+
+| Property | Value |
+|----------|-------|
+| Matrix | `version`: 1.13, 1.12, 1.11 |
+
+<details>
+<summary>Steps (6)</summary>
+
+1. **Set up Docker Buildx**
+   - Uses: `docker/setup-buildx-action@v2.10.0`
+
+2. **Check out code**
+   - Uses: `actions/checkout@v4.3.1`
+   - With:
+     - `persist-credentials`: `false`
+
+3. **Get Base Image**
+   - ID: `get-base-image`
+   - Env:
+     - `framework_version`: `${{ matrix.version }}`
+
+4. **Print Base Image**
+
+5. **Login to DockerHub**
+   - Uses: `docker/login-action@v2.2.0`
+   - With:
+     - `username`: `${{ secrets.DOCKERHUB_USERNAME }}`
+     - `password`: `${{ secrets.DOCKERHUB_PASSWORD }}`
+
+6. **Build and push**
+   - Uses: `docker/build-push-action@v3.3.1`
+   - With:
+     - `context`: `./docker/transformers-past-gpu`
+     - `build-args`: `REF=main BASE_DOCKER_IMAGE=${{ steps.get-base-image.outputs.base_image }} FRAMEWORK=pytorch VERSION=${{ matrix.version }}`
+     - `push`: `true`
+     - `tags`: `huggingface/transformers-pytorch-past-${{ matrix.version }}-gpu`
+
+</details>
+
+### Past TensorFlow Docker (`past-tensorflow-docker`)
+
+| Property | Value |
+|----------|-------|
+| Matrix | `version`: 2.11, 2.10, 2.9, 2.8, 2.7, 2.6, 2.5 |
+
+<details>
+<summary>Steps (6)</summary>
+
+1. **Set up Docker Buildx**
+   - Uses: `docker/setup-buildx-action@v2.10.0`
+
+2. **Check out code**
+   - Uses: `actions/checkout@v4.3.1`
+   - With:
+     - `persist-credentials`: `false`
+
+3. **Get Base Image**
+   - ID: `get-base-image`
+   - Env:
+     - `framework_version`: `${{ matrix.version }}`
+
+4. **Print Base Image**
+
+5. **Login to DockerHub**
+   - Uses: `docker/login-action@v2.2.0`
+   - With:
+     - `username`: `${{ secrets.DOCKERHUB_USERNAME }}`
+     - `password`: `${{ secrets.DOCKERHUB_PASSWORD }}`
+
+6. **Build and push**
+   - Uses: `docker/build-push-action@v3.3.1`
+   - With:
+     - `context`: `./docker/transformers-past-gpu`
+     - `build-args`: `REF=main BASE_DOCKER_IMAGE=${{ steps.get-base-image.outputs.base_image }} FRAMEWORK=tensorflow VERSION=${{ matrix.version }}`
+     - `push`: `true`
+     - `tags`: `huggingface/transformers-tensorflow-past-${{ matrix.version }}-gpu`
 
 </details>
 
@@ -954,237 +1007,6 @@ Permissions declared across the chain: `contents: read`
 
 [Back to top](#contents)
 
-# Build docker images (Nightly CI)
-
-**Triggers:** `workflow_call`, `push`
-
-| Property | Value |
-|----------|-------|
-| File | `build-nightly-ci-docker-images.yml` |
-
-**Jobs:** [Nightly PyTorch](#nightly-pytorch-latest-with-torch-nightly-docker), [Nightly PyTorch + DeepSpeed](#nightly-pytorch--deepspeed-nightly-torch-deepspeed-docker)
-
-## Workflow call API
-
-**Inputs:**
-
-| Name | Type | Required | Default | Description |
-|------|------|----------|---------|-------------|
-| `job` | string | Yes | - | - |
-
-## Event filters
-
-- **push**
-  - branches: `build_nightly_ci_docker_image*`
-
-## Permissions
-
-- `contents`: `read`
-
-**Concurrency:** group `docker-images-builds`, cancel-in-progress: `false`
-
-## Called by
-
-`build-nightly-ci-docker-images.yml`
-
-- [self-nightly-caller.yml](#build-ci-docker-images-with-nightly-torch-build_nightly_torch_ci_images) (job: `build_nightly_torch_ci_images`) - entry point
-
-## Referenced secrets and variables
-
-**Secrets:**
-
-| Name | Used by |
-|------|---------|
-| `DOCKERHUB_USERNAME` | job `latest-with-torch-nightly-docker` step `Login to DockerHub` with `username`; job `nightly-torch-deepspeed-docker` step `Login to DockerHub` with `username` |
-| `DOCKERHUB_PASSWORD` | job `latest-with-torch-nightly-docker` step `Login to DockerHub` with `password`; job `nightly-torch-deepspeed-docker` step `Login to DockerHub` with `password` |
-
-## Jobs
-
-### Nightly PyTorch (`latest-with-torch-nightly-docker`)
-
-| Property | Value |
-|----------|-------|
-| Runs on | `group: aws-general-8-plus` |
-| Condition | `inputs.job == 'latest-with-torch-nightly-docker' \|\| inputs.job == ''` |
-
-<details>
-<summary>Steps (4)</summary>
-
-1. **Set up Docker Buildx**
-   - Uses: `docker/setup-buildx-action@v2.10.0`
-
-2. **Check out code**
-   - Uses: `actions/checkout@v4.3.1`
-   - With:
-     - `persist-credentials`: `false`
-
-3. **Login to DockerHub**
-   - Uses: `docker/login-action@v2.2.0`
-   - With:
-     - `username`: `${{ secrets.DOCKERHUB_USERNAME }}`
-     - `password`: `${{ secrets.DOCKERHUB_PASSWORD }}`
-
-4. **Build and push**
-   - Uses: `docker/build-push-action@v3.3.1`
-   - With:
-     - `context`: `./docker/transformers-all-latest-gpu`
-     - `build-args`: `REF=main PYTORCH=pre`
-     - `push`: `true`
-     - `tags`: `huggingface/transformers-all-latest-torch-nightly-gpu`
-
-</details>
-
-### Nightly PyTorch + DeepSpeed (`nightly-torch-deepspeed-docker`)
-
-| Property | Value |
-|----------|-------|
-| Runs on | `group: aws-g4dn-2xlarge-cache` |
-| Condition | `inputs.job == 'nightly-torch-deepspeed-docker' \|\| inputs.job == ''` |
-
-<details>
-<summary>Steps (4)</summary>
-
-1. **Set up Docker Buildx**
-   - Uses: `docker/setup-buildx-action@v2.10.0`
-
-2. **Check out code**
-   - Uses: `actions/checkout@v4.3.1`
-   - With:
-     - `persist-credentials`: `false`
-
-3. **Login to DockerHub**
-   - Uses: `docker/login-action@v2.2.0`
-   - With:
-     - `username`: `${{ secrets.DOCKERHUB_USERNAME }}`
-     - `password`: `${{ secrets.DOCKERHUB_PASSWORD }}`
-
-4. **Build and push**
-   - Uses: `docker/build-push-action@v3.3.1`
-   - With:
-     - `context`: `./docker/transformers-pytorch-deepspeed-nightly-gpu`
-     - `build-args`: `REF=main`
-     - `push`: `true`
-     - `tags`: `huggingface/transformers-pytorch-deepspeed-nightly-gpu`
-
-</details>
-
-[Back to top](#contents)
-
-# Build docker images (Past CI)
-
-**Triggers:** `push`
-
-| Property | Value |
-|----------|-------|
-| File | `build-past-ci-docker-images.yml` |
-| Default runs-on | `group: aws-general-8-plus` |
-
-**Jobs:** [Past PyTorch Docker](#past-pytorch-docker-past-pytorch-docker), [Past TensorFlow Docker](#past-tensorflow-docker-past-tensorflow-docker)
-
-## Event filters
-
-- **push**
-  - branches: `build_past_ci_docker_image*`
-
-## Permissions
-
-- `contents`: `read`
-
-**Concurrency:** group `docker-images-builds`, cancel-in-progress: `false`
-
-## Referenced secrets and variables
-
-**Secrets:**
-
-| Name | Used by |
-|------|---------|
-| `DOCKERHUB_USERNAME` | job `past-pytorch-docker` step `Login to DockerHub` with `username`; job `past-tensorflow-docker` step `Login to DockerHub` with `username` |
-| `DOCKERHUB_PASSWORD` | job `past-pytorch-docker` step `Login to DockerHub` with `password`; job `past-tensorflow-docker` step `Login to DockerHub` with `password` |
-
-## Jobs
-
-### Past PyTorch Docker (`past-pytorch-docker`)
-
-| Property | Value |
-|----------|-------|
-| Matrix | `version`: 1.13, 1.12, 1.11 |
-
-<details>
-<summary>Steps (6)</summary>
-
-1. **Set up Docker Buildx**
-   - Uses: `docker/setup-buildx-action@v2.10.0`
-
-2. **Check out code**
-   - Uses: `actions/checkout@v4.3.1`
-   - With:
-     - `persist-credentials`: `false`
-
-3. **Get Base Image**
-   - ID: `get-base-image`
-   - Env:
-     - `framework_version`: `${{ matrix.version }}`
-
-4. **Print Base Image**
-
-5. **Login to DockerHub**
-   - Uses: `docker/login-action@v2.2.0`
-   - With:
-     - `username`: `${{ secrets.DOCKERHUB_USERNAME }}`
-     - `password`: `${{ secrets.DOCKERHUB_PASSWORD }}`
-
-6. **Build and push**
-   - Uses: `docker/build-push-action@v3.3.1`
-   - With:
-     - `context`: `./docker/transformers-past-gpu`
-     - `build-args`: `REF=main BASE_DOCKER_IMAGE=${{ steps.get-base-image.outputs.base_image }} FRAMEWORK=pytorch VERSION=${{ matrix.version }}`
-     - `push`: `true`
-     - `tags`: `huggingface/transformers-pytorch-past-${{ matrix.version }}-gpu`
-
-</details>
-
-### Past TensorFlow Docker (`past-tensorflow-docker`)
-
-| Property | Value |
-|----------|-------|
-| Matrix | `version`: 2.11, 2.10, 2.9, 2.8, 2.7, 2.6, 2.5 |
-
-<details>
-<summary>Steps (6)</summary>
-
-1. **Set up Docker Buildx**
-   - Uses: `docker/setup-buildx-action@v2.10.0`
-
-2. **Check out code**
-   - Uses: `actions/checkout@v4.3.1`
-   - With:
-     - `persist-credentials`: `false`
-
-3. **Get Base Image**
-   - ID: `get-base-image`
-   - Env:
-     - `framework_version`: `${{ matrix.version }}`
-
-4. **Print Base Image**
-
-5. **Login to DockerHub**
-   - Uses: `docker/login-action@v2.2.0`
-   - With:
-     - `username`: `${{ secrets.DOCKERHUB_USERNAME }}`
-     - `password`: `${{ secrets.DOCKERHUB_PASSWORD }}`
-
-6. **Build and push**
-   - Uses: `docker/build-push-action@v3.3.1`
-   - With:
-     - `context`: `./docker/transformers-past-gpu`
-     - `build-args`: `REF=main BASE_DOCKER_IMAGE=${{ steps.get-base-image.outputs.base_image }} FRAMEWORK=tensorflow VERSION=${{ matrix.version }}`
-     - `push`: `true`
-     - `tags`: `huggingface/transformers-tensorflow-past-${{ matrix.version }}-gpu`
-
-</details>
-
-[Back to top](#contents)
-
 # Build documentation
 
 **Triggers:** `workflow_dispatch`, `push`
@@ -1193,7 +1015,7 @@ Permissions declared across the chain: `contents: read`
 |----------|-------|
 | File | `build_documentation.yml` |
 
-**Jobs:** [`build`](#build-1), [`build_other_lang`](#build_other_lang)
+**Jobs:** [`build`](#build), [`build_other_lang`](#build_other_lang)
 
 ## Event filters
 
@@ -1266,6 +1088,113 @@ External workflows referenced: `huggingface/doc-builder/.github/workflows/build_
 
 - `token`: `${{ secrets.HUGGINGFACE_PUSH }}`
 - `hf_token`: `${{ secrets.HF_DOC_BUILD_PUSH }}`
+
+[Back to top](#contents)
+
+# Build pr ci-docker
+
+**Triggers:** `push`, `repository_dispatch`, `workflow_call`, `schedule`
+
+| Property | Value |
+|----------|-------|
+| File | `build-ci-docker-images.yml` |
+| Default runs-on | `ubuntu-22.04` |
+
+**Jobs:** [`build`](#build-1), [`notify`](#notify)
+
+## Workflow call API
+
+**Inputs:**
+
+| Name | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| `image_postfix` | string | Yes | - | - |
+
+## Schedule
+
+- `6 0 * * *`
+
+## Event filters
+
+- **push**
+  - branches: `push-ci-image`
+
+## Permissions
+
+- `contents`: `read`
+
+**Concurrency:** group `${{ github.workflow }}`, cancel-in-progress: `true`
+
+## Referenced secrets and variables
+
+**Secrets:**
+
+| Name | Used by |
+|------|---------|
+| `DOCKERHUB_USERNAME` | job `build` step `Login to DockerHub` with `username` |
+| `DOCKERHUB_PASSWORD` | job `build` step `Login to DockerHub` with `password` |
+| `SLACK_CIFEEDBACK_BOT_TOKEN` | job `notify` step `Post to Slack` with `slack_token` |
+
+## Jobs
+
+### `build`
+
+| Property | Value |
+|----------|-------|
+| Matrix | `file`: quality, consistency, custom-tokenizers, torch-light, exotic-models, examples-torch |
+| Condition | `${{ contains(github.event.head_commit.message, '[build-ci-image]') \|\| contains(github.event.head_commit.message, '[push-ci-image]') && '!cancelled()' \|\| github.event_name == 'schedule' }}` |
+
+<details>
+<summary>Steps (5)</summary>
+
+1. **Set tag**
+   - Env:
+     - `COMMIT_MESSAGE`: `${{ github.event.head_commit.message }}`
+
+2. **Set up Docker Buildx**
+   - Uses: `docker/setup-buildx-action@v3.12.0`
+
+3. **Check out code**
+   - Uses: `actions/checkout@v6.0.2`
+   - With:
+     - `persist-credentials`: `false`
+
+4. **Login to DockerHub**
+   - Uses: `docker/login-action@v3.7.0`
+   - With:
+     - `username`: `${{ secrets.DOCKERHUB_USERNAME }}`
+     - `password`: `${{ secrets.DOCKERHUB_PASSWORD }}`
+
+5. **Build ${{ matrix.file }}.dockerfile**
+   - Uses: `docker/build-push-action@v5.4.0`
+   - With:
+     - `context`: `./docker`
+     - `build-args`: `REF=${{ github.sha }}`
+     - `file`: `./docker/${{ matrix.file }}.dockerfile`
+     - `push`: `${{ contains(github.event.head_commit.message, 'ci-image]') ||  github.event_name == 'schedule' }}`
+     - `tags`: `${{ env.TAG }}`
+
+</details>
+
+### `notify`
+
+| Property | Value |
+|----------|-------|
+| Condition | `${{ contains(github.event.head_commit.message, '[build-ci-image]') \|\| contains(github.event.head_commit.message, '[push-ci-image]') && '!cancelled()' \|\| github.event_name == 'schedule' }}` |
+
+<details>
+<summary>Steps (1)</summary>
+
+1. **Post to Slack**
+   - Uses: `huggingface/hf-workflows/.github/actions/post-slack@a88e7fa2eaee28de5a4d6142381b1fb792349b67`
+   - Condition: `${{ contains(github.event.head_commit.message, '[push-ci-image]') && github.event_name != 'schedule' }}`
+   - With:
+     - `slack_channel`: `#transformers-ci-circleci-images`
+     - `title`: `🤗 New docker images for CircleCI are pushed.`
+     - `status`: `${{ job.status }}`
+     - `slack_token`: `${{ secrets.SLACK_CIFEEDBACK_BOT_TOKEN }}`
+
+</details>
 
 [Back to top](#contents)
 
@@ -1393,258 +1322,6 @@ External workflows referenced: `huggingface/security-workflows/.github/workflows
 
 - `workflow_name`: `${{ inputs.workflow_name }}`
 - `run_count`: `${{ fromJSON(inputs.run_count) }}`
-
-[Back to top](#contents)
-
-# Process failed tests
-
-**Triggers:** `workflow_call`
-
-| Property | Value |
-|----------|-------|
-| File | `check_failed_tests.yml` |
-| Default runs-on | `group: aws-g5-4xlarge-cache` |
-
-**Jobs:** [Setup matrix for finding commits](#setup-matrix-for-finding-commits-setup_check_new_failures), [Find commits for new failing tests](#find-commits-for-new-failing-tests-check_new_failures), [process bad commit reports](#process-bad-commit-reports-process_new_failures_with_commit_info)
-
-## Workflow call API
-
-**Inputs:**
-
-| Name | Type | Required | Default | Description |
-|------|------|----------|---------|-------------|
-| `docker` | string | Yes | - | - |
-| `job` | string | Yes | - | - |
-| `slack_report_channel` | string | Yes | - | - |
-| `ci_event` | string | Yes | - | - |
-| `report_repo_id` | string | Yes | - | - |
-| `commit_sha` | string | No | - | - |
-| `pr_number` | string | No | - | - |
-| `max_num_runners` | number | No | `4` | - |
-
-**Outputs:**
-
-| Name | Description | Value |
-|------|-------------|-------|
-| `is_check_failures_ok` | Whether the failure checking infrastructure succeeded | `${{ jobs.check_new_failures.result != 'failure' && jobs.process_new_failures_with_commit_info.result != 'failure' }}` |
-
-## Permissions
-
-- `contents`: `read`
-
-## Environment (`env`)
-
-| Variable | Value |
-|----------|-------|
-| `HF_HOME` | `/mnt/cache` |
-| `TRANSFORMERS_IS_CI` | `yes` |
-| `OMP_NUM_THREADS` | `8` |
-| `MKL_NUM_THREADS` | `8` |
-| `RUN_SLOW` | `yes` |
-| `HF_TOKEN` | `${{ secrets.HF_HUB_READ_TOKEN }}` |
-| `TF_FORCE_GPU_ALLOW_GROWTH` | `true` |
-| `CUDA_VISIBLE_DEVICES` | `0,1` |
-
-## Called by
-
-`check_failed_tests.yml`
-
-- [self-scheduled.yml](#check-new-failures-check_new_failures) (job: `check_new_failures`)
-  - [push-important-models.yml](#model-ci-model-ci) (job: `model-ci`) - entry point
-  - **[self-comment-ci.yml](#pr-comment-github-ci)** - entry point (x2)
-  - [self-nightly-caller.yml](#model-ci-model-ci-2) (job: `model-ci`) - entry point
-  - **[self-past-caller.yml](#self-hosted-runner-past-ci)** (x2)
-    - **[self-nightly-past-ci-caller.yml](#self-hosted-runner-nightly-past-ci-caller)** - entry point (x7)
-  - **[self-scheduled-caller.yml](#nvidia-ci)** - entry point (x7)
-  - [self-scheduled-flash-attn-caller.yml](#model-ci-model-ci-8) (job: `model-ci`) - entry point
-
-## Referenced secrets and variables
-
-**Secrets:**
-
-| Name | Used by |
-|------|---------|
-| `HF_HUB_READ_TOKEN` | workflow env `HF_TOKEN` |
-| `GITHUB_TOKEN` | job `check_new_failures` step `actions/download-artifact@v8.0.1` with `github-token`; job `process_new_failures_with_commit_info` step `actions/download-artifact@v8.0.1` with `github-token` |
-| `ACCESS_REPO_INFO_TOKEN` | job `check_new_failures` step `Get `END_SHA` from previous CI runs of the same workflow` env `ACCESS_TOKEN`; job `process_new_failures_with_commit_info` step `Process report` env `ACCESS_REPO_INFO_TOKEN` |
-| `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN` | job `process_new_failures_with_commit_info` step `Process report` env `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN` |
-| `SLACK_CIFEEDBACK_BOT_TOKEN` | job `process_new_failures_with_commit_info` step `Send processed report` env `SLACK_BOT_TOKEN` |
-
-## Jobs
-
-### Setup matrix for finding commits (`setup_check_new_failures`)
-
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-22.04` |
-
-<details>
-<summary>Steps (2)</summary>
-
-1. **actions/download-artifact@v8.0.1** `[continue-on-error]`
-   - With:
-     - `name`: `ci_results_${{ inputs.job }}`
-     - `path`: `ci_results_${{ inputs.job }}`
-
-2. **Set matrix**
-   - ID: `set-matrix`
-   - Env:
-     - `job`: `${{ inputs.job }}`
-     - `max_num_runners`: `${{ inputs.max_num_runners }}`
-
-</details>
-
-### Find commits for new failing tests (`check_new_failures`)
-
-| Property | Value |
-|----------|-------|
-| Matrix | `run_idx`: ${{ fromJson(needs.setup_check_new_failures.outputs.matrix) }} |
-| Depends on | `setup_check_new_failures` |
-| Condition | `needs.setup_check_new_failures.outputs.process == 'true'` |
-
-<details>
-<summary>Steps (16)</summary>
-
-1. **actions/download-artifact@v8.0.1**
-   - With:
-     - `name`: `ci_results_${{ inputs.job }}`
-     - `path`: `/transformers/ci_results_${{ inputs.job }}`
-
-2. **actions/download-artifact@v8.0.1**
-   - With:
-     - `pattern`: `setup_values*`
-     - `path`: `setup_values`
-     - `merge-multiple`: `true`
-     - `github-token`: `${{ secrets.GITHUB_TOKEN }}`
-   - Env:
-     - `ACTIONS_ARTIFACT_MAX_ARTIFACT_COUNT`: `2000`
-
-3. **Prepare some setup values**
-
-4. **Update clone**
-   - Env:
-     - `commit_sha`: `${{ inputs.commit_sha || github.sha }}`
-
-5. **Get \`START\_SHA\`**
-   - Env:
-     - `commit_sha`: `${{ inputs.commit_sha || github.sha }}`
-
-6. **Extract the base commit on \`main\` (of the merge commit created by Github) if it is a PR**
-   - ID: `pr_info`
-   - Uses: `actions/github-script@v6.4.1`
-   - Condition: `${{ inputs.pr_number != '' }}`
-   - With:
-     - `script`: `const pull_number = parseInt(process.env.PR_NUMBER, 10); const commit_sha = process.env.COMMIT_SHA;  const { data: pr } = await github.rest.pulls.get({   owner: context.repo.owner,   repo: context.repo.repo,   pull_number, });  const { data: merge_commit } = await github.rest.repos.getCommit({   owner: pr.base.repo.owner.login,   repo: pr.base.repo.name,   ref: commit_sha, });  core.setOutput('merge_commit_base_sha', merge_commit.parents[0].sha);`
-   - Env:
-     - `PR_NUMBER`: `${{ inputs.pr_number }}`
-     - `COMMIT_SHA`: `${{ inputs.commit_sha }}`
-
-7. **Get \`END\_SHA\` from previous CI runs of the same workflow**
-   - Condition: `${{ inputs.pr_number == '' }}`
-   - Env:
-     - `ACCESS_TOKEN`: `${{ secrets.ACCESS_REPO_INFO_TOKEN }}`
-
-8. **Set \`END\_SHA\`**
-   - Condition: `${{ inputs.pr_number != '' }}`
-   - Env:
-     - `merge_commit_base_sha`: `${{ steps.pr_info.outputs.merge_commit_base_sha }}`
-
-9. **Reinstall transformers in edit mode (remove the one installed during docker image build)**
-
-10. **NVIDIA-SMI**
-
-11. **Environment**
-
-12. **Install pytest-flakefinder**
-
-13. **Show installed libraries and their versions**
-
-14. **Check failed tests**
-   - Env:
-     - `job`: `${{ inputs.job }}`
-     - `n_runners`: `${{ needs.setup_check_new_failures.outputs.n_runners }}`
-     - `run_idx`: `${{ matrix.run_idx }}`
-     - `pr_number`: `${{ inputs.pr_number }}`
-
-15. **Show results**
-   - Env:
-     - `job`: `${{ inputs.job }}`
-     - `run_idx`: `${{ matrix.run_idx }}`
-
-16. **Upload artifacts**
-   - Uses: `actions/upload-artifact@v4.6.2`
-   - With:
-     - `name`: `new_failures_with_bad_commit_${{ inputs.job }}_${{ matrix.run_idx }}`
-     - `path`: `/transformers/new_failures_with_bad_commit_${{ inputs.job }}_${{ matrix.run_idx }}.json`
-
-</details>
-
-### process bad commit reports (`process_new_failures_with_commit_info`)
-
-| Property | Value |
-|----------|-------|
-| Depends on | `check_new_failures` |
-| Condition | `needs.check_new_failures.outputs.process == 'true'` |
-
-<details>
-<summary>Steps (10)</summary>
-
-1. **actions/download-artifact@v8.0.1**
-   - With:
-     - `name`: `ci_results_${{ inputs.job }}`
-     - `path`: `/transformers/ci_results_${{ inputs.job }}`
-
-2. **actions/download-artifact@v8.0.1**
-   - With:
-     - `pattern`: `new_failures_with_bad_commit_${{ inputs.job }}*`
-     - `path`: `/transformers/new_failures_with_bad_commit_${{ inputs.job }}`
-     - `merge-multiple`: `true`
-     - `github-token`: `${{ secrets.GITHUB_TOKEN }}`
-   - Env:
-     - `ACTIONS_ARTIFACT_MAX_ARTIFACT_COUNT`: `2000`
-
-3. **Check files**
-   - Env:
-     - `job`: `${{ inputs.job }}`
-
-4. **Merge files**
-   - Env:
-     - `job`: `${{ inputs.job }}`
-
-5. **Update clone**
-   - Env:
-     - `commit_sha`: `${{ inputs.commit_sha || github.sha }}`
-
-6. **Process report**
-   - Env:
-     - `ACCESS_REPO_INFO_TOKEN`: `${{ secrets.ACCESS_REPO_INFO_TOKEN }}`
-     - `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN`: `${{ secrets.TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN }}`
-     - `JOB_NAME`: `${{ inputs.job }}`
-     - `REPORT_REPO_ID`: `${{ inputs.report_repo_id }}`
-
-7. **Show results**
-
-8. **Upload artifacts**
-   - Uses: `actions/upload-artifact@v4.6.2`
-   - With:
-     - `name`: `new_failures_with_bad_commit_${{ inputs.job }}`
-     - `path`: `/transformers/new_failures_with_bad_commit.json /transformers/new_failures_with_bad_commit_url.txt`
-
-9. **Prepare Slack report title**
-   - Env:
-     - `ci_event`: `${{ inputs.ci_event }}`
-     - `job`: `${{ inputs.job }}`
-
-10. **Send processed report**
-   - Uses: `slackapi/slack-github-action@6c661ce58804a1a20f6dc5fbee7f0381b469e001`
-   - Condition: `${{ !endsWith(env.REPORT_TEXT, '{}') }}`
-   - With:
-     - `channel-id`: `#${{ inputs.slack_report_channel }}`
-     - `payload`: `{   "blocks": [     {       "type": "header",       "text": {         "type": "plain_text",         "text": "${{ env.title }}"       }     },     {       "type": "section",       "text": {         "type": "mrkdwn",         "text": "${{ env.REPORT_TEXT }}"       }     }   ] }`
-   - Env:
-     - `SLACK_BOT_TOKEN`: `${{ secrets.SLACK_CIFEEDBACK_BOT_TOKEN }}`
-
-</details>
 
 [Back to top](#contents)
 
@@ -1870,164 +1547,6 @@ External workflows referenced: `huggingface/security-workflows/.github/workflows
 - `languages`: `["actions"]`
 - `queries`: `security-extended,security-and-quality`
 - `runner`: `ubuntu-latest`
-
-[Back to top](#contents)
-
-# CI collated reports
-
-**Triggers:** `workflow_call`
-
-| Property | Value |
-|----------|-------|
-| File | `collated-reports.yml` |
-
-## Workflow call API
-
-**Inputs:**
-
-| Name | Type | Required | Default | Description |
-|------|------|----------|---------|-------------|
-| `job` | string | Yes | - | - |
-| `report_repo_id` | string | Yes | - | - |
-| `machine_type` | string | Yes | - | - |
-| `gpu_name` | string | Yes | - | Name of the GPU used for the job. Its enough that the value contains the name of the GPU, e.g. "noise-h100-more-noise". Case insensitive. |
-
-## Permissions
-
-- `contents`: `read`
-
-## Called by
-
-`collated-reports.yml`
-
-- [model_jobs.yml](#collated-reports-collated_reports-1) (job: `collated_reports`)
-  - **[self-scheduled.yml](#nvidia-ci-job-definitions)** (x2)
-    - [push-important-models.yml](#model-ci-model-ci) (job: `model-ci`) - entry point
-    - **[self-comment-ci.yml](#pr-comment-github-ci)** - entry point (x2)
-    - [self-nightly-caller.yml](#model-ci-model-ci-2) (job: `model-ci`) - entry point
-    - **[self-past-caller.yml](#self-hosted-runner-past-ci)** (x2)
-      - **[self-nightly-past-ci-caller.yml](#self-hosted-runner-nightly-past-ci-caller)** - entry point (x7)
-    - **[self-scheduled-caller.yml](#nvidia-ci)** - entry point (x7)
-    - [self-scheduled-flash-attn-caller.yml](#model-ci-model-ci-8) (job: `model-ci`) - entry point
-
-## Referenced secrets and variables
-
-**Secrets:**
-
-| Name | Used by |
-|------|---------|
-| `ACCESS_REPO_INFO_TOKEN` | job `collated_reports` step `Collated reports` env `ACCESS_REPO_INFO_TOKEN` |
-| `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN` | job `collated_reports` step `Collated reports` env `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN` |
-
-## Jobs
-
-### Collated reports (`collated_reports`)
-
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-22.04` |
-| Condition | `always()` |
-
-<details>
-<summary>Steps (3)</summary>
-
-1. **actions/checkout@v4.3.1**
-   - With:
-     - `persist-credentials`: `false`
-
-2. **actions/download-artifact@v4.3.0**
-
-3. **Collated reports**
-   - Env:
-     - `ACCESS_REPO_INFO_TOKEN`: `${{ secrets.ACCESS_REPO_INFO_TOKEN }}`
-     - `CI_SHA`: `${{ github.sha }}`
-     - `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN`: `${{ secrets.TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN }}`
-     - `MACHINE_TYPE`: `${{ inputs.machine_type }}`
-     - `JOB`: `${{ inputs.job }}`
-     - `REPORT_REPO_ID`: `${{ inputs.report_repo_id }}`
-     - `GPU_NAME`: `${{ inputs.gpu_name }}`
-
-</details>
-
-[Back to top](#contents)
-
-# Doctest job
-
-**Triggers:** `workflow_call`
-
-| Property | Value |
-|----------|-------|
-| File | `doctest_job.yml` |
-
-## Workflow call API
-
-**Inputs:**
-
-| Name | Type | Required | Default | Description |
-|------|------|----------|---------|-------------|
-| `job_splits` | string | Yes | - | - |
-| `split_keys` | string | Yes | - | - |
-
-## Permissions
-
-- `contents`: `read`
-
-## Environment (`env`)
-
-| Variable | Value |
-|----------|-------|
-| `HF_HOME` | `/mnt/cache` |
-| `TRANSFORMERS_IS_CI` | `yes` |
-| `RUN_SLOW` | `yes` |
-| `OMP_NUM_THREADS` | `16` |
-| `MKL_NUM_THREADS` | `16` |
-| `TF_FORCE_GPU_ALLOW_GROWTH` | `true` |
-
-## Called by
-
-`doctest_job.yml`
-
-- [doctests.yml](#call-doctest-jobs-call_doctest_job) (job: `call_doctest_job`) - entry point
-
-## Jobs
-
-### `run_doctests`
-
-| Property | Value |
-|----------|-------|
-| Runs on | `group: aws-g5-4xlarge-cache` |
-| Matrix | `split_keys`: ${{ fromJson(inputs.split_keys) }} |
-
-<details>
-<summary>Steps (9)</summary>
-
-1. **Update clone**
-
-2. **Reinstall transformers in edit mode (remove the one installed during docker image build)**
-
-3. **GPU visibility**
-
-4. **Show installed libraries and their versions**
-
-5. **Get doctest files**
-
-6. **Set \`split\_keys\`**
-   - Env:
-     - `MATRIX_SPLIT_KEYS`: `${{ matrix.split_keys }}`
-
-7. **Run doctests**
-
-8. **Failure short reports** `[continue-on-error]`
-   - Condition: `${{ failure() }}`
-
-9. **Test suite reports artifacts: doc\_tests\_gpu\_test\_reports\_${{ env.split\_keys }}**
-   - Uses: `actions/upload-artifact@v4.6.2`
-   - Condition: `${{ always() }}`
-   - With:
-     - `name`: `doc_tests_gpu_test_reports_${{ env.split_keys }}`
-     - `path`: `/transformers/reports/doc_tests_gpu_${{ env.split_keys }}`
-
-</details>
 
 [Back to top](#contents)
 
@@ -2316,426 +1835,6 @@ Permissions declared across the chain: `contents: read`
 
 [Back to top](#contents)
 
-# Get PR commit SHA
-
-**Triggers:** `workflow_call`
-
-| Property | Value |
-|----------|-------|
-| File | `get-pr-info.yml` |
-
-## Workflow call API
-
-**Inputs:**
-
-| Name | Type | Required | Default | Description |
-|------|------|----------|---------|-------------|
-| `pr_number` | string | Yes | - | - |
-
-**Outputs:**
-
-| Name | Description | Value |
-|------|-------------|-------|
-| `PR_HEAD_REPO_FULL_NAME` | The full name of the repository from which the pull request is created | `${{ jobs.get-pr-info.outputs.PR_HEAD_REPO_FULL_NAME }}` |
-| `PR_BASE_REPO_FULL_NAME` | The full name of the repository to which the pull request is created | `${{ jobs.get-pr-info.outputs.PR_BASE_REPO_FULL_NAME }}` |
-| `PR_HEAD_REPO_OWNER` | The owner of the repository from which the pull request is created | `${{ jobs.get-pr-info.outputs.PR_HEAD_REPO_OWNER }}` |
-| `PR_BASE_REPO_OWNER` | The owner of the repository to which the pull request is created | `${{ jobs.get-pr-info.outputs.PR_BASE_REPO_OWNER }}` |
-| `PR_HEAD_REPO_NAME` | The name of the repository from which the pull request is created | `${{ jobs.get-pr-info.outputs.PR_HEAD_REPO_NAME }}` |
-| `PR_BASE_REPO_NAME` | The name of the repository to which the pull request is created | `${{ jobs.get-pr-info.outputs.PR_BASE_REPO_NAME }}` |
-| `PR_HEAD_REF` | The branch name of the pull request in the head repository | `${{ jobs.get-pr-info.outputs.PR_HEAD_REF }}` |
-| `PR_BASE_REF` | The branch name in the base repository (to merge into) | `${{ jobs.get-pr-info.outputs.PR_BASE_REF }}` |
-| `PR_HEAD_SHA` | The head sha of the pull request branch in the head repository | `${{ jobs.get-pr-info.outputs.PR_HEAD_SHA }}` |
-| `PR_BASE_SHA` | The head sha of the target branch in the base repository | `${{ jobs.get-pr-info.outputs.PR_BASE_SHA }}` |
-| `PR_MERGE_COMMIT_SHA` | The sha of the merge commit for the pull request (created by GitHub) in the base repository | `${{ jobs.get-pr-info.outputs.PR_MERGE_COMMIT_SHA }}` |
-| `PR_MERGE_COMMIT_BASE_SHA` | The sha of the parent commit of the merge commit on the target branch in the base repository | `${{ jobs.get-pr-info.outputs.PR_MERGE_COMMIT_BASE_SHA }}` |
-| `PR_HEAD_COMMIT_DATE` | The date of the head sha of the pull request branch in the head repository | `${{ jobs.get-pr-info.outputs.PR_HEAD_COMMIT_DATE }}` |
-| `PR_MERGE_COMMIT_DATE` | The date of the merge commit for the pull request (created by GitHub) in the base repository | `${{ jobs.get-pr-info.outputs.PR_MERGE_COMMIT_DATE }}` |
-| `PR_HEAD_COMMIT_TIMESTAMP` | The timestamp of the head sha of the pull request branch in the head repository | `${{ jobs.get-pr-info.outputs.PR_HEAD_COMMIT_TIMESTAMP }}` |
-| `PR_MERGE_COMMIT_TIMESTAMP` | The timestamp of the merge commit for the pull request (created by GitHub) in the base repository | `${{ jobs.get-pr-info.outputs.PR_MERGE_COMMIT_TIMESTAMP }}` |
-| `PR` | The PR | `${{ jobs.get-pr-info.outputs.PR }}` |
-| `PR_FILES` | The files touched in the PR | `${{ jobs.get-pr-info.outputs.PR_FILES }}` |
-
-## Permissions
-
-- `contents`: `read`
-
-## Called by
-
-`get-pr-info.yml`
-
-- [pr-repo-consistency-bot.yml](#get-pr-commit-sha-get-pr-info) (job: `get-pr-info`) - entry point
-- [pr_build_doc_with_comment.yml](#get-pr-commit-sha-get-pr-info-1) (job: `get-pr-info`) - entry point
-- [pr_slow_ci_suggestion.yml](#get-pr-commit-sha-get-pr-info-2) (job: `get-pr-info`) - entry point
-- [self-comment-ci.yml](#get-pr-commit-sha-get-pr-info-3) (job: `get-pr-info`) - entry point
-
-## Jobs
-
-### Get PR commit SHA better (`get-pr-info`)
-
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-22.04` |
-| Condition | `${{ inputs.pr_number != '' }}` |
-
-<details>
-<summary>Steps (2)</summary>
-
-1. **Extract PR details**
-   - ID: `pr_info`
-   - Uses: `actions/github-script@v6.4.1`
-   - With:
-     - `script`: `const pull_number = parseInt(process.env.PR_NUMBER, 10);  const { data: pr } = await github.rest.pulls.get({   owner: context.repo.owner,   repo: context.repo.repo,   pull_number, });  const { data: head_commit } = await github.rest.repos.getCommit({   owner: pr.head.repo.owner.login,   repo: pr.head.repo.name,   ref: pr.head.ref });  const { data: merge_commit } = await github.rest.repos.getCommit({   owner: pr.base.repo.owner.login,   repo: pr.base.repo.name,   ref: pr.merge_commit_sha, });  const { data: files } = await github.rest.pulls.listFiles({   owner: context.repo.owner,   repo: context.repo.repo,   pull_number, });  core.setOutput('head_repo_full_name', pr.head.repo.full_name); core.setOutput('base_repo_full_name', pr.base.repo.full_name); core.setOutput('head_repo_owner', pr.head.repo.owner.login); core.setOutput('base_repo_owner', pr.base.repo.owner.login); core.setOutput('head_repo_name', pr.head.repo.name); core.setOutput('base_repo_name', pr.base.repo.name); core.setOutput('head_ref', pr.head.ref); core.setOutput('base_ref', pr.base.ref); core.setOutput('head_sha', pr.head.sha); core.setOutput('base_sha', pr.base.sha); core.setOutput('merge_commit_base_sha', merge_commit.parents[0].sha); core.setOutput('merge_commit_sha', pr.merge_commit_sha); core.setOutput('pr', pr);  core.setOutput('head_commit_date', head_commit.commit.committer.date); core.setOutput('merge_commit_date', merge_commit.commit.committer.date);  core.setOutput('files', files);              console.log('PR head commit:', {   head_commit: head_commit,   commit: head_commit.commit,   date: head_commit.commit.committer.date });  console.log('PR merge commit:', {   merge_commit: merge_commit,   commit: merge_commit.commit,   date: merge_commit.commit.committer.date });  console.log('PR Info:', {   pr_info: pr });`
-   - Env:
-     - `PR_NUMBER`: `${{ inputs.pr_number }}`
-
-2. **Convert dates to timestamps**
-   - ID: `get_timestamps`
-   - Env:
-     - `head_commit_date`: `${{ steps.pr_info.outputs.head_commit_date }}`
-     - `merge_commit_date`: `${{ steps.pr_info.outputs.merge_commit_date }}`
-
-</details>
-
-[Back to top](#contents)
-
-# Get PR number
-
-**Triggers:** `workflow_call`
-
-| Property | Value |
-|----------|-------|
-| File | `get-pr-number.yml` |
-
-## Workflow call API
-
-**Outputs:**
-
-| Name | Description | Value |
-|------|-------------|-------|
-| `PR_NUMBER` | The extracted PR number | `${{ jobs.get-pr-number.outputs.PR_NUMBER }}` |
-
-## Permissions
-
-- `contents`: `read`
-
-## Called by
-
-`get-pr-number.yml`
-
-- [pr-repo-consistency-bot.yml](#get-pr-number-get-pr-number-1) (job: `get-pr-number`) - entry point
-- [pr_build_doc_with_comment.yml](#get-pr-number-get-pr-number-2) (job: `get-pr-number`) - entry point
-- [pr_slow_ci_suggestion.yml](#get-pr-number-get-pr-number-3) (job: `get-pr-number`) - entry point
-- [self-comment-ci.yml](#get-pr-number-get-pr-number-4) (job: `get-pr-number`) - entry point
-
-## Jobs
-
-### Get PR number (`get-pr-number`)
-
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-22.04` |
-
-<details>
-<summary>Steps (3)</summary>
-
-1. **Get PR number**
-   - Env:
-     - `issue_number`: `${{ github.event.issue.number }}`
-     - `is_pull_request_issue`: `${{ github.event.issue.pull_request != null }}`
-     - `pr_number`: `${{ github.event.pull_request.number }}`
-     - `is_pull_request`: `${{ github.event.pull_request != null }}`
-     - `event_number`: `${{ github.event.number }}`
-
-2. **Check PR number**
-
-3. **Set PR number**
-   - ID: `set_pr_number`
-
-</details>
-
-[Back to top](#contents)
-
-# model jobs
-
-**Triggers:** `workflow_call`
-
-| Property | Value |
-|----------|-------|
-| File | `model_jobs.yml` |
-
-**Jobs:** [`run_models_gpu`](#run_models_gpu), [Collated Reports](#collated-reports-collated_reports-1)
-
-## Workflow call API
-
-**Inputs:**
-
-| Name | Type | Required | Default | Description |
-|------|------|----------|---------|-------------|
-| `folder_slices` | string | Yes | - | - |
-| `machine_type` | string | Yes | - | - |
-| `slice_id` | number | Yes | - | - |
-| `docker` | string | Yes | - | - |
-| `commit_sha` | string | No | - | - |
-| `report_name_prefix` | string | No | `run_models_gpu` | - |
-| `runner_type` | string | No | - | - |
-| `report_repo_id` | string | No | - | - |
-| `pytest_marker` | string | No | - | - |
-
-## Permissions
-
-- `contents`: `read`
-
-## Environment (`env`)
-
-| Variable | Value |
-|----------|-------|
-| `HF_HOME` | `/mnt/cache` |
-| `TRANSFORMERS_IS_CI` | `yes` |
-| `OMP_NUM_THREADS` | `8` |
-| `MKL_NUM_THREADS` | `8` |
-| `RUN_SLOW` | `yes` |
-| `HF_TOKEN` | `${{ secrets.HF_HUB_READ_TOKEN }}` |
-| `TF_FORCE_GPU_ALLOW_GROWTH` | `true` |
-| `CUDA_VISIBLE_DEVICES` | `0,1` |
-
-## Called by
-
-`model_jobs.yml`
-
-- **[self-scheduled.yml](#nvidia-ci-job-definitions)** (x2)
-  - [push-important-models.yml](#model-ci-model-ci) (job: `model-ci`) - entry point
-  - **[self-comment-ci.yml](#pr-comment-github-ci)** - entry point (x2)
-  - [self-nightly-caller.yml](#model-ci-model-ci-2) (job: `model-ci`) - entry point
-  - **[self-past-caller.yml](#self-hosted-runner-past-ci)** (x2)
-    - **[self-nightly-past-ci-caller.yml](#self-hosted-runner-nightly-past-ci-caller)** - entry point (x7)
-  - **[self-scheduled-caller.yml](#nvidia-ci)** - entry point (x7)
-  - [self-scheduled-flash-attn-caller.yml](#model-ci-model-ci-8) (job: `model-ci`) - entry point
-
-## Referenced secrets and variables
-
-**Secrets:**
-
-| Name | Used by |
-|------|---------|
-| `HF_HUB_READ_TOKEN` | workflow env `HF_TOKEN` |
-
-## Jobs
-
-### `run_models_gpu`
-
-| Property | Value |
-|----------|-------|
-| Runs on | `group: ${{ inputs.machine_type }}` |
-| Matrix | `folders`: ${{ fromJson(inputs.folder_slices)[inputs.slice_id] }} |
-
-<details>
-<summary>Steps (16)</summary>
-
-1. **Echo input and matrix info**
-   - Env:
-     - `folder_slices`: `${{ inputs.folder_slices }}`
-     - `matrix_folders`: `${{ matrix.folders }}`
-     - `slice_data`: `${{ toJson(fromJson(inputs.folder_slices)[inputs.slice_id]) }}`
-
-2. **Echo folder ${{ matrix.folders }}**
-   - Env:
-     - `matrix_folders_raw`: `${{ matrix.folders }}`
-
-3. **Update clone**
-   - Env:
-     - `commit_sha`: `${{ inputs.commit_sha || github.sha }}`
-
-4. **Reinstall transformers in edit mode (remove the one installed during docker image build)**
-
-5. **Update / Install some packages (for Past CI)**
-   - Condition: `${{ contains(inputs.docker, '-past-') }}`
-
-6. **Update / Install some packages (for Past CI)**
-   - Condition: `${{ contains(inputs.docker, '-past-') && contains(inputs.docker, '-pytorch-') }}`
-
-7. **NVIDIA-SMI**
-
-8. **Environment**
-
-9. **Show installed libraries and their versions**
-
-10. **Set \`machine\_type\` for report and artifact names**
-   - ID: `set_machine_type`
-   - Env:
-     - `input_machine_type`: `${{ inputs.machine_type }}`
-
-11. **Create report directory if it doesn't exist**
-   - Env:
-     - `report_name_prefix`: `${{ inputs.report_name_prefix }}`
-
-12. **Run all tests on GPU**
-   - Env:
-     - `report_name_prefix`: `${{ inputs.report_name_prefix }}`
-     - `pytest_marker`: `${{ inputs.pytest_marker }}`
-     - `model`: `${{ matrix.folders }}`
-
-13. **Failure short reports** `[continue-on-error]`
-   - Condition: `${{ failure() }}`
-   - Env:
-     - `report_name_prefix`: `${{ inputs.report_name_prefix }}`
-
-14. **Captured information** `[continue-on-error]`
-   - Condition: `${{ failure() }}`
-   - Env:
-     - `report_name_prefix`: `${{ inputs.report_name_prefix }}`
-
-15. **Copy test\_outputs.txt** `[continue-on-error]`
-   - Condition: `${{ always() }}`
-   - Env:
-     - `report_name_prefix`: `${{ inputs.report_name_prefix }}`
-
-16. **Test suite reports artifacts: ${{ env.machine\_type }}\_${{ inputs.report\_name\_prefix }}\_${{ env.matrix\_folders }}\_test\_reports**
-   - Uses: `actions/upload-artifact@v4.6.2`
-   - Condition: `${{ always() }}`
-   - With:
-     - `name`: `${{ env.machine_type }}_${{ inputs.report_name_prefix }}_${{ env.matrix_folders }}_test_reports`
-     - `path`: `/transformers/reports/${{ env.machine_type }}_${{ inputs.report_name_prefix }}_${{ env.matrix_folders }}_test_reports`
-
-</details>
-
-### Collated Reports (`collated_reports`)
-
-| Property | Value |
-|----------|-------|
-| Uses workflow | [CI collated reports](#ci-collated-reports) (`@6abd9725ee7d809dc974991f8ff6c958afb63a3a`) |
-| Depends on | `run_models_gpu` |
-| Condition | `${{ always() && inputs.runner_type != '' }}` |
-
-#### Inputs forwarded
-
-- `job`: `run_models_gpu`
-- `report_repo_id`: `${{ inputs.report_repo_id }}`
-- `gpu_name`: `${{ inputs.runner_type }}`
-- `machine_type`: `${{ needs.run_models_gpu.outputs.machine_type }}`
-
-#### Secrets forwarded
-
-- `secrets: inherit` (all caller secrets are passed to the callee)
-
-[Back to top](#contents)
-
-# model jobs
-
-**Triggers:** `workflow_call`
-
-| Property | Value |
-|----------|-------|
-| File | `model_jobs_intel_gaudi.yml` |
-
-## Workflow call API
-
-**Inputs:**
-
-| Name | Type | Required | Default | Description |
-|------|------|----------|---------|-------------|
-| `folder_slices` | string | Yes | - | - |
-| `slice_id` | number | Yes | - | - |
-| `runner` | string | Yes | - | - |
-| `machine_type` | string | Yes | - | - |
-| `report_name_prefix` | string | No | `run_models_gpu` | - |
-
-## Permissions
-
-- `contents`: `read`
-
-## Environment (`env`)
-
-| Variable | Value |
-|----------|-------|
-| `RUN_SLOW` | `yes` |
-| `PT_HPU_LAZY_MODE` | `0` |
-| `TRANSFORMERS_IS_CI` | `yes` |
-| `PT_ENABLE_INT64_SUPPORT` | `1` |
-| `HF_TOKEN` | `${{ secrets.HF_HUB_READ_TOKEN }}` |
-| `HF_HOME` | `/mnt/cache/.cache/huggingface` |
-
-## Called by
-
-`model_jobs_intel_gaudi.yml`
-
-- **[self-scheduled-intel-gaudi.yml](#self-hosted-runner-scheduled-intel-gaudi)** (x2)
-  - **[self-scheduled-intel-gaudi3-caller.yml](#self-hosted-runner-intel-gaudi3-scheduled-ci-caller)** - entry point (x5)
-
-## Referenced secrets and variables
-
-**Secrets:**
-
-| Name | Used by |
-|------|---------|
-| `HF_HUB_READ_TOKEN` | workflow env `HF_TOKEN` |
-
-## Jobs
-
-### `run_models_gpu`
-
-| Property | Value |
-|----------|-------|
-| Runs on | `group: ${{ inputs.runner }}` |
-| Matrix | `folders`: ${{ fromJson(inputs.folder_slices)[inputs.slice_id] }} |
-
-<details>
-<summary>Steps (12)</summary>
-
-1. **Echo input and matrix info**
-   - Env:
-     - `FOLDER_SLICES`: `${{ inputs.folder_slices }}`
-     - `MATRIX_FOLDERS`: `${{ matrix.folders }}`
-     - `SLICE`: `${{ toJson(fromJson(inputs.folder_slices)[inputs.slice_id]) }}`
-
-2. **Echo folder ${{ matrix.folders }}**
-   - Env:
-     - `MATRIX_FOLDERS`: `${{ matrix.folders }}`
-
-3. **Checkout**
-   - Uses: `actions/checkout@v4.3.1`
-   - With:
-     - `fetch-depth`: `0`
-     - `persist-credentials`: `false`
-
-4. **Install dependencies**
-
-5. **HL-SMI**
-
-6. **Environment**
-
-7. **Show installed libraries and their versions**
-
-8. **Set \`machine\_type\` for report and artifact names**
-   - Env:
-     - `MACHINE_TYPE`: `${{ inputs.machine_type }}`
-
-9. **Run all tests on Gaudi**
-   - Env:
-     - `REPORT_NAME_PREFIX`: `${{ inputs.report_name_prefix }}`
-     - `MATRIX_FOLDERS`: `${{ matrix.folders }}`
-
-10. **Failure short reports** `[continue-on-error]`
-   - Condition: `${{ failure() }}`
-   - Env:
-     - `REPORT_NAME_PREFIX`: `${{ inputs.report_name_prefix }}`
-     - `MATRIX_FOLDERS`: `${{ matrix.folders }}`
-
-11. **Run test**
-   - Env:
-     - `REPORT_NAME_PREFIX`: `${{ inputs.report_name_prefix }}`
-     - `MATRIX_FOLDERS`: `${{ matrix.folders }}`
-
-12. **Test suite reports artifacts: ${{ env.machine\_type }}\_${{ inputs.report\_name\_prefix }}\_${{ env.matrix\_folders }}\_test\_reports**
-   - Uses: `actions/upload-artifact@v4.6.2`
-   - Condition: `${{ always() }}`
-   - With:
-     - `name`: `${{ env.machine_type }}_${{ inputs.report_name_prefix }}_${{ env.matrix_folders }}_test_reports`
-     - `path`: `reports/${{ env.machine_type }}_${{ inputs.report_name_prefix }}_${{ matrix.folders }}_test_reports`
-
-</details>
-
-[Back to top](#contents)
-
 # New model PR merged notification
 
 **Triggers:** `push`
@@ -2801,270 +1900,430 @@ Used to notify core maintainers about new model PR being merged
 
 [Back to top](#contents)
 
-# PR CI
+# Nvidia CI
 
-**Triggers:** `pull_request`
-
-| Property | Value |
-|----------|-------|
-| File | `pr-ci-caller.yml` |
-
-## Permissions
-
-- `contents`: `read`
-
-**Concurrency:** group `${{ github.workflow }}-${{ github.event.pull_request.number }}`, cancel-in-progress: `true`
-
-## Call graph (rooted at this workflow)
-
-`pr-ci-caller.yml` [pull_request]
-
-- `pr-ci` uses `huggingface/transformers-test-ci/.github/workflows/pr-ci_dynamic_caller_example.yml@91d590c4f744e4564a8ae0d3810068c8a35b939e`
-
-## Transitive requirements (from full call graph)
-
-Secrets referenced (literal names): `OTEL_EXPORTER_OTLP_ENDPOINT`, `OTEL_TOKEN`
-
-Permissions declared across the chain: `contents: read`
-
-External workflows referenced: `huggingface/transformers-test-ci/.github/workflows/pr-ci_dynamic_caller_example.yml@91d590c4f744e4564a8ae0d3810068c8a35b939e`
-
-## Referenced secrets and variables
-
-**Secrets:**
-
-| Name | Used by |
-|------|---------|
-| `OTEL_EXPORTER_OTLP_ENDPOINT` | job `pr-ci` secrets `OTEL_EXPORTER_OTLP_ENDPOINT` |
-| `OTEL_TOKEN` | job `pr-ci` secrets `OTEL_TOKEN` |
-
-## Jobs
-
-### `pr-ci`
+**Triggers:** `repository_dispatch`, `schedule`, `push`, `workflow_dispatch`
 
 | Property | Value |
 |----------|-------|
-| Uses workflow | `huggingface/transformers-test-ci/.github/workflows/pr-ci_dynamic_caller_example.yml@91d590c4f744e4564a8ae0d3810068c8a35b939e` (external) |
-| Condition | `contains(fromJSON('["MEMBER","OWNER","COLLABORATOR"]'), github.event.pull_request.author_association) \|\| github.event.pull_request.user.login == 'ydshieh2'` |
+| File | `self-scheduled-caller.yml` |
 
-#### Secrets forwarded
+**Jobs:** [Setup](#setup-setup-1), [Model CI](#model-ci-model-ci), [Torch pipeline CI](#torch-pipeline-ci-torch-pipeline), [Example CI](#example-ci-example-ci), [Trainer/FSDP CI](#trainerfsdp-ci-trainer-fsdp-ci), [DeepSpeed CI](#deepspeed-ci-deepspeed-ci), [Quantization CI](#quantization-ci-quantization-ci), [Kernels CI](#kernels-ci-kernels-ci)
 
-- `OTEL_EXPORTER_OTLP_ENDPOINT`: `${{ secrets.OTEL_EXPORTER_OTLP_ENDPOINT }}`
-- `OTEL_TOKEN`: `${{ secrets.OTEL_TOKEN }}`
+## Manual trigger inputs
 
-[Back to top](#contents)
+Inputs for the `workflow_dispatch` event.
 
-# PR Repo. Consistency Bot
+| Name | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| `prev_workflow_run_id` | string | No | - | previous workflow run id to compare |
+| `other_workflow_run_id` | string | No | - | other workflow run id to compare |
 
-**Triggers:** `issue_comment`
+## Schedule
 
-| Property | Value |
-|----------|-------|
-| File | `pr-repo-consistency-bot.yml` |
-| Default runs-on | `ubuntu-22.04` |
-
-**Jobs:** [Get PR number](#get-pr-number-get-pr-number-1), [Get PR commit SHA](#get-pr-commit-sha-get-pr-info), [Check timestamps (security check)](#check-timestamps-security-check-check-timestamps), [Init Comment on PR](#init-comment-on-pr-init_comment_with_url), [`run-repo-consistency-checks`](#run-repo-consistency-checks), [`commit-and-comment`](#commit-and-comment)
+- `17 2 * * *`
 
 ## Event filters
 
-- **issue_comment**
-  - types: `created`
-  - branches-ignore: `main`
+- **push**
+  - branches: `run_nvidia_ci*`
 
 ## Permissions
 
 - `contents`: `read`
 
-**Concurrency:** group `${{ github.workflow }}-${{ github.event.issue.number }}-${{ startsWith(github.event.comment.body, '@bot /repo') || startsWith(github.event.comment.body, '@bot /style') }}`, cancel-in-progress: `true`
+## Environment (`env`)
+
+| Variable | Value |
+|----------|-------|
+| `prev_workflow_run_id` | - |
+| `other_workflow_run_id` | - |
 
 ## Call graph (rooted at this workflow)
 
-`pr-repo-consistency-bot.yml` [issue_comment]
+`self-scheduled-caller.yml` [repository_dispatch, schedule, push, workflow_dispatch]
 
-- `get-pr-number` uses [get-pr-number.yml](#get-pr-number)
-- `get-pr-info` uses [get-pr-info.yml](#get-pr-commit-sha)
+- uses **[self-scheduled.yml](#nvidia-ci-job-definitions)** (x7)
+  - uses **[model_jobs.yml](#model-jobs)** (x2)
+    - `collated_reports` uses [collated-reports.yml](#ci-collated-reports) (`@6abd9725ee7d809dc974991f8ff6c958afb63a3a`)
+  - `send_results` uses [slack-report.yml](#ci-slack-report)
+  - `check_new_failures` uses [check_failed_tests.yml](#process-failed-tests)
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `HF_STYLE_BOT_ACTION`
+Secrets referenced (literal names): `ACCESS_REPO_INFO_TOKEN`, `CI_SLACK_BOT_TOKEN`, `CI_SLACK_CHANNEL_DUMMY_TESTS`, `CI_SLACK_CHANNEL_ID`, `CI_SLACK_CHANNEL_ID_DAILY`, `GITHUB_TOKEN`, `HF_HUB_READ_TOKEN`, `SLACK_CIFEEDBACK_BOT_TOKEN`, `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN`
 
-Permissions declared across the chain: `contents: read`, `contents: write`, `pull-requests: write`
-
-## Referenced secrets and variables
-
-**Secrets:**
-
-| Name | Used by |
-|------|---------|
-| `HF_STYLE_BOT_ACTION` | job `commit-and-comment` step `Push changes to fork using git` env `GITHUB_TOKEN` |
+Permissions declared across the chain: `contents: read`
 
 ## Jobs
 
-### Get PR number (`get-pr-number`)
+### Setup (`setup`)
 
 | Property | Value |
 |----------|-------|
-| Uses workflow | [Get PR number](#get-pr-number) |
-| Condition | `${{ github.event.issue.state == 'open' && contains(fromJSON('["ydshieh", "ArthurZucker", "zucchini-nlp", "molbap", "gante", "LysandreJik", "Cyrilvallez", "Rocketknight1", "SunMarc", "eustlb", "MekkCyber", "vasqu", "ivarflakstad", "stevhliu", "ebezzam", "remi-or", "itazap", "3outeille", "IlyasMoutawwakil", "tarekziade"]'), github.actor) && (startsWith(github.event.comment.body, '@bot /repo') \|\| startsWith(github.event.comment.body, '@bot /style')) }}` |
-
-### Get PR commit SHA (`get-pr-info`)
-
-| Property | Value |
-|----------|-------|
-| Uses workflow | [Get PR commit SHA](#get-pr-commit-sha) |
-| Depends on | `get-pr-number` |
-| Condition | `${{ needs.get-pr-number.outputs.PR_NUMBER != ''}}` |
-
-#### Inputs forwarded
-
-- `pr_number`: `${{ needs.get-pr-number.outputs.PR_NUMBER }}`
-
-### Check timestamps (security check) (`check-timestamps`)
-
-| Property | Value |
-|----------|-------|
-| Depends on | `get-pr-info` |
-
-<details>
-<summary>Steps (1)</summary>
-
-1. **Verify \`merge\_commit\` timestamp is older than the issue comment timestamp**
-   - Env:
-     - `COMMENT_DATE`: `${{ github.event.comment.created_at }}`
-     - `PR_MERGE_COMMIT_TIMESTAMP`: `${{ needs.get-pr-info.outputs.PR_MERGE_COMMIT_TIMESTAMP }}`
-
-</details>
-
-### Init Comment on PR (`init_comment_with_url`)
-
-| Property | Value |
-|----------|-------|
-| Depends on | `get-pr-number`, `check-timestamps` |
-
-**Permissions:**
-
-- `pull-requests`: `write`
+| Runs on | `ubuntu-22.04` |
 
 <details>
 <summary>Steps (2)</summary>
 
-1. **Delete existing bot comment if it exists**
-   - Uses: `actions/github-script@v6.4.1`
-   - With:
-     - `script`: `` const PR_NUMBER = parseInt(process.env.PR_NUMBER, 10);  // Get all comments on the PR const { data: comments } = await github.rest.issues.listComments({   owner: context.repo.owner,   repo: context.repo.repo,   issue_number: PR_NUMBER });  // Find existing bot comments that start with "Repo. Consistency" or "Style fix" const existingComments = comments.filter(comment =>    comment.user.login === 'github-actions[bot]' &&    (comment.body.startsWith('Repo. Consistency') || comment.body.startsWith('Style fix')) );  if (existingComments.length > 0) {   // Get the most recent comment   const mostRecentComment = existingComments     .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0];      console.log(`Deleting most recent comment #${mostRecentComment.id}`);   await github.rest.issues.deleteComment({     owner: context.repo.owner,     repo: context.repo.repo,     comment_id: mostRecentComment.id   }); } ``
+1. **Setup**
    - Env:
-     - `PR_NUMBER`: `${{ needs.get-pr-number.outputs.PR_NUMBER }}`
+     - `prev_workflow_run_id`: `${{ inputs.prev_workflow_run_id || env.prev_workflow_run_id }}`
+     - `other_workflow_run_id`: `${{ inputs.other_workflow_run_id || env.other_workflow_run_id }}`
 
-2. **Comment on PR with workflow run link**
-   - ID: `init_comment`
-   - Uses: `actions/github-script@v6.4.1`
-   - With:
-     - `script`: `` const PR_NUMBER = parseInt(process.env.PR_NUMBER, 10); const COMMENT_BODY = process.env.COMMENT_BODY; const runUrl = `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`  // Determine which command was used const isStyleFix = COMMENT_BODY.startsWith('@bot /style'); const messagePrefix = isStyleFix ? 'Style fix' : 'Repo. Consistency fix';  const { data: botComment } = await github.rest.issues.createComment({   owner: context.repo.owner,   repo: context.repo.repo,   issue_number: PR_NUMBER,   body: `${messagePrefix} is beginning .... [View the workflow run here](${runUrl}).` }); core.setOutput('comment_id', botComment.id); ``
-   - Env:
-     - `PR_NUMBER`: `${{ needs.get-pr-number.outputs.PR_NUMBER }}`
-     - `COMMENT_BODY`: `${{ github.event.comment.body }}`
-
-</details>
-
-### `run-repo-consistency-checks`
-
-| Property | Value |
-|----------|-------|
-| Depends on | `get-pr-info`, `check-timestamps`, `init_comment_with_url` |
-
-<details>
-<summary>Steps (10)</summary>
-
-1. **Checkout base repository**
-   - Uses: `actions/checkout@v4.3.1`
-   - With:
-     - `ref`: `main`
-     - `persist-credentials`: `false`
-
-2. **Set up Python**
-   - Uses: `actions/setup-python@v4.9.1`
-   - With:
-     - `python-version`: `3.10`
-
-3. **Install dependencies from trusted main branch**
-
-4. **Fetch and checkout PR code manually**
-   - Env:
-     - `PR_HEAD_REPO_FULL_NAME`: `${{ needs.get-pr-info.outputs.PR_HEAD_REPO_FULL_NAME }}`
-     - `PR_HEAD_REF`: `${{ needs.get-pr-info.outputs.PR_HEAD_REF }}`
-     - `PR_HEAD_SHA`: `${{ needs.check-timestamps.outputs.VERIFIED_PR_HEAD_SHA }}`
-
-5. **Copy trusted scripts from main branch**
-
-6. **Install editable transformers from PR branch with copied scripts**
-
-7. **Run repo consistency checks with trusted script**
-   - ID: `run_repo_checks`
-   - Condition: `startsWith(github.event.comment.body, '@bot /repo')`
-
-8. **Run style checks with trusted script**
-   - ID: `run_style_checks`
-   - Condition: `startsWith(github.event.comment.body, '@bot /style')`
-
-9. **Save modified files**
-   - Condition: `steps.run_repo_checks.outputs.changes_detected == 'true' || steps.run_style_checks.outputs.changes_detected == 'true'`
-
-10. **Upload modified files**
+2. **Upload artifacts**
    - Uses: `actions/upload-artifact@v4.6.2`
-   - Condition: `steps.run_repo_checks.outputs.changes_detected == 'true' || steps.run_style_checks.outputs.changes_detected == 'true'`
    - With:
-     - `name`: `modified-files`
-     - `path`: `artifact-staging/`
+     - `name`: `setup_values`
+     - `path`: `setup_values`
 
 </details>
 
-### `commit-and-comment`
+### Model CI (`model-ci`)
 
 | Property | Value |
 |----------|-------|
-| Depends on | `get-pr-number`, `get-pr-info`, `check-timestamps`, `init_comment_with_url`, `run-repo-consistency-checks` |
-| Condition | `always()` |
+| Uses workflow | [Nvidia CI (job definitions)](#nvidia-ci-job-definitions) |
 
-**Permissions:**
+#### Inputs forwarded
 
-- `pull-requests`: `write`
-- `contents`: `write`
+- `job`: `run_models_gpu`
+- `slack_report_channel`: `#transformers-ci-daily-models`
+- `docker`: `huggingface/transformers-all-latest-gpu`
+- `ci_event`: `Daily CI`
+- `runner_type`: `a10`
+- `report_repo_id`: `hf-internal-testing/transformers_daily_ci`
+- `commit_sha`: `${{ github.sha }}`
+
+#### Secrets forwarded
+
+- `secrets: inherit` (all caller secrets are passed to the callee)
+
+### Torch pipeline CI (`torch-pipeline`)
+
+| Property | Value |
+|----------|-------|
+| Uses workflow | [Nvidia CI (job definitions)](#nvidia-ci-job-definitions) |
+
+#### Inputs forwarded
+
+- `job`: `run_pipelines_torch_gpu`
+- `slack_report_channel`: `#transformers-ci-daily-pipeline-torch`
+- `docker`: `huggingface/transformers-all-latest-gpu`
+- `ci_event`: `Daily CI`
+- `report_repo_id`: `hf-internal-testing/transformers_daily_ci`
+- `commit_sha`: `${{ github.sha }}`
+
+#### Secrets forwarded
+
+- `secrets: inherit` (all caller secrets are passed to the callee)
+
+### Example CI (`example-ci`)
+
+| Property | Value |
+|----------|-------|
+| Uses workflow | [Nvidia CI (job definitions)](#nvidia-ci-job-definitions) |
+
+#### Inputs forwarded
+
+- `job`: `run_examples_gpu`
+- `slack_report_channel`: `#transformers-ci-daily-examples`
+- `docker`: `huggingface/transformers-all-latest-gpu`
+- `ci_event`: `Daily CI`
+- `report_repo_id`: `hf-internal-testing/transformers_daily_ci`
+- `commit_sha`: `${{ github.sha }}`
+
+#### Secrets forwarded
+
+- `secrets: inherit` (all caller secrets are passed to the callee)
+
+### Trainer/FSDP CI (`trainer-fsdp-ci`)
+
+| Property | Value |
+|----------|-------|
+| Uses workflow | [Nvidia CI (job definitions)](#nvidia-ci-job-definitions) |
+
+#### Inputs forwarded
+
+- `job`: `run_trainer_and_fsdp_gpu`
+- `slack_report_channel`: `#transformers-ci-daily-training`
+- `docker`: `huggingface/transformers-all-latest-gpu`
+- `runner_type`: `a10`
+- `ci_event`: `Daily CI`
+- `report_repo_id`: `hf-internal-testing/transformers_daily_ci`
+- `commit_sha`: `${{ github.sha }}`
+
+#### Secrets forwarded
+
+- `secrets: inherit` (all caller secrets are passed to the callee)
+
+### DeepSpeed CI (`deepspeed-ci`)
+
+| Property | Value |
+|----------|-------|
+| Uses workflow | [Nvidia CI (job definitions)](#nvidia-ci-job-definitions) |
+
+#### Inputs forwarded
+
+- `job`: `run_torch_cuda_extensions_gpu`
+- `slack_report_channel`: `#transformers-ci-daily-training`
+- `docker`: `huggingface/transformers-pytorch-deepspeed-latest-gpu`
+- `ci_event`: `Daily CI`
+- `working-directory-prefix`: `/workspace`
+- `report_repo_id`: `hf-internal-testing/transformers_daily_ci`
+- `commit_sha`: `${{ github.sha }}`
+
+#### Secrets forwarded
+
+- `secrets: inherit` (all caller secrets are passed to the callee)
+
+### Quantization CI (`quantization-ci`)
+
+| Property | Value |
+|----------|-------|
+| Uses workflow | [Nvidia CI (job definitions)](#nvidia-ci-job-definitions) |
+
+#### Inputs forwarded
+
+- `job`: `run_quantization_torch_gpu`
+- `slack_report_channel`: `#transformers-ci-daily-quantization`
+- `docker`: `huggingface/transformers-quantization-latest-gpu`
+- `ci_event`: `Daily CI`
+- `report_repo_id`: `hf-internal-testing/transformers_daily_ci`
+- `commit_sha`: `${{ github.sha }}`
+
+#### Secrets forwarded
+
+- `secrets: inherit` (all caller secrets are passed to the callee)
+
+### Kernels CI (`kernels-ci`)
+
+| Property | Value |
+|----------|-------|
+| Uses workflow | [Nvidia CI (job definitions)](#nvidia-ci-job-definitions) |
+
+#### Inputs forwarded
+
+- `job`: `run_kernels_gpu`
+- `slack_report_channel`: `#transformers-ci-daily-kernels`
+- `docker`: `huggingface/transformers-all-latest-gpu`
+- `ci_event`: `Daily CI`
+- `report_repo_id`: `hf-internal-testing/transformers_daily_ci`
+- `commit_sha`: `${{ github.sha }}`
+
+#### Secrets forwarded
+
+- `secrets: inherit` (all caller secrets are passed to the callee)
+
+[Back to top](#contents)
+
+# Nvidia CI - Flash Attn
+
+**Triggers:** `repository_dispatch`, `schedule`, `push`, `workflow_dispatch`
+
+| Property | Value |
+|----------|-------|
+| File | `self-scheduled-flash-attn-caller.yml` |
+
+**Jobs:** [Setup](#setup-setup-2), [Model CI](#model-ci-model-ci-1)
+
+## Manual trigger inputs
+
+Inputs for the `workflow_dispatch` event.
+
+| Name | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| `prev_workflow_run_id` | string | No | - | previous workflow run id to compare |
+| `other_workflow_run_id` | string | No | - | other workflow run id to compare |
+
+## Schedule
+
+- `17 2 * * *`
+
+## Event filters
+
+- **push**
+  - branches: `run_nvidia_ci_flash_attn*`
+
+## Permissions
+
+- `contents`: `read`
+
+## Environment (`env`)
+
+| Variable | Value |
+|----------|-------|
+| `prev_workflow_run_id` | - |
+| `other_workflow_run_id` | - |
+
+## Call graph (rooted at this workflow)
+
+`self-scheduled-flash-attn-caller.yml` [repository_dispatch, schedule, push, workflow_dispatch]
+
+- `model-ci` uses [self-scheduled.yml](#nvidia-ci-job-definitions)
+  - uses **[model_jobs.yml](#model-jobs)** (x2)
+    - `collated_reports` uses [collated-reports.yml](#ci-collated-reports) (`@6abd9725ee7d809dc974991f8ff6c958afb63a3a`)
+  - `send_results` uses [slack-report.yml](#ci-slack-report)
+  - `check_new_failures` uses [check_failed_tests.yml](#process-failed-tests)
+
+## Transitive requirements (from full call graph)
+
+Secrets referenced (literal names): `ACCESS_REPO_INFO_TOKEN`, `CI_SLACK_BOT_TOKEN`, `CI_SLACK_CHANNEL_DUMMY_TESTS`, `CI_SLACK_CHANNEL_ID`, `CI_SLACK_CHANNEL_ID_DAILY`, `GITHUB_TOKEN`, `HF_HUB_READ_TOKEN`, `SLACK_CIFEEDBACK_BOT_TOKEN`, `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN`
+
+Permissions declared across the chain: `contents: read`
+
+## Jobs
+
+### Setup (`setup`)
+
+| Property | Value |
+|----------|-------|
+| Runs on | `ubuntu-22.04` |
 
 <details>
-<summary>Steps (4)</summary>
+<summary>Steps (2)</summary>
 
-1. **Download modified files**
-   - Uses: `actions/download-artifact@v4.3.0`
-   - Condition: `needs.run-repo-consistency-checks.outputs.changes_detected == 'true'`
+1. **Setup**
+   - Env:
+     - `PREV_WORKFLOW_RUN_ID`: `${{ inputs.prev_workflow_run_id || env.prev_workflow_run_id }}`
+     - `OTHER_WORKFLOW_RUN_ID`: `${{ inputs.other_workflow_run_id || env.other_workflow_run_id }}`
+
+2. **Upload artifacts**
+   - Uses: `actions/upload-artifact@v4.6.2`
    - With:
-     - `name`: `modified-files`
-
-2. **Push changes to fork using git**
-   - Condition: `needs.run-repo-consistency-checks.outputs.changes_detected == 'true'`
-   - Env:
-     - `PR_HEAD_REF`: `${{ needs.get-pr-info.outputs.PR_HEAD_REF }}`
-     - `PR_HEAD_SHA`: `${{ needs.check-timestamps.outputs.VERIFIED_PR_HEAD_SHA }}`
-     - `PR_HEAD_REPO_FULL_NAME`: `${{ needs.get-pr-info.outputs.PR_HEAD_REPO_FULL_NAME }}`
-     - `GITHUB_TOKEN`: `${{ secrets.HF_STYLE_BOT_ACTION }}`
-
-3. **Prepare final comment message**
-   - ID: `prepare_final_comment`
-   - Condition: `needs.init_comment_with_url.result == 'success'`
-   - Env:
-     - `CHANGES_DETECTED`: `${{ needs.run-repo-consistency-checks.outputs.changes_detected }}`
-     - `COMMENT_BODY`: `${{ github.event.comment.body }}`
-
-4. **Comment on PR**
-   - Uses: `actions/github-script@v6.4.1`
-   - Condition: `needs.init_comment_with_url.result == 'success'`
-   - With:
-     - `script`: `const pr_number = parseInt(process.env.PR_NUMBER, 10); const comment_id = parseInt(process.env.COMMENT_ID, 10); const body = process.env.FINAL_COMMENT; await github.rest.issues.updateComment({   owner: context.repo.owner,   repo: context.repo.repo,   comment_id,   body, });`
-   - Env:
-     - `PR_NUMBER`: `${{ needs.get-pr-number.outputs.PR_NUMBER }}`
-     - `COMMENT_ID`: `${{ needs.init_comment_with_url.outputs.comment_id }}`
-     - `FINAL_COMMENT`: `${{ steps.prepare_final_comment.outputs.final_comment }}`
+     - `name`: `setup_values`
+     - `path`: `setup_values`
 
 </details>
+
+### Model CI (`model-ci`)
+
+| Property | Value |
+|----------|-------|
+| Uses workflow | [Nvidia CI (job definitions)](#nvidia-ci-job-definitions) |
+
+#### Inputs forwarded
+
+- `job`: `run_models_gpu`
+- `slack_report_channel`: `#transformers-ci-flash-attn`
+- `docker`: `huggingface/transformers-all-latest-gpu:flash-attn`
+- `ci_event`: `Daily CI`
+- `runner_type`: `a10`
+- `report_repo_id`: `hf-internal-testing/transformers_flash_attn_ci`
+- `commit_sha`: `${{ github.sha }}`
+- `pytest_marker`: `flash_attn_test or flash_attn_3_test or flash_attn_4_test or all_flash_attn_test`
+
+#### Secrets forwarded
+
+- `secrets: inherit` (all caller secrets are passed to the callee)
+
+[Back to top](#contents)
+
+# Nvidia CI with nightly torch
+
+**Triggers:** `repository_dispatch`, `workflow_run`, `push`
+
+| Property | Value |
+|----------|-------|
+| File | `self-nightly-caller.yml` |
+
+**Jobs:** [Build CI Docker Images with nightly torch](#build-ci-docker-images-with-nightly-torch-build_nightly_torch_ci_images), [Setup](#setup-setup-3), [Model CI](#model-ci-model-ci-2)
+
+## Event filters
+
+- **workflow_run**
+  - workflows: `Nvidia CI`
+  - branches: `main`
+  - types: `completed`
+- **push**
+  - branches: `run_ci_with_nightly_torch*`
+
+## Permissions
+
+- `contents`: `read`
+
+## Environment (`env`)
+
+| Variable | Value |
+|----------|-------|
+| `prev_workflow_run_id` | - |
+| `other_workflow_run_id` | - |
+
+## Call graph (rooted at this workflow)
+
+`self-nightly-caller.yml` [repository_dispatch, workflow_run, push]
+
+- `build_nightly_torch_ci_images` uses [build-nightly-ci-docker-images.yml](#build-docker-images-nightly-ci)
+- `model-ci` uses [self-scheduled.yml](#nvidia-ci-job-definitions)
+  - uses **[model_jobs.yml](#model-jobs)** (x2)
+    - `collated_reports` uses [collated-reports.yml](#ci-collated-reports) (`@6abd9725ee7d809dc974991f8ff6c958afb63a3a`)
+  - `send_results` uses [slack-report.yml](#ci-slack-report)
+  - `check_new_failures` uses [check_failed_tests.yml](#process-failed-tests)
+
+## Transitive requirements (from full call graph)
+
+Secrets referenced (literal names): `ACCESS_REPO_INFO_TOKEN`, `CI_SLACK_BOT_TOKEN`, `CI_SLACK_CHANNEL_DUMMY_TESTS`, `CI_SLACK_CHANNEL_ID`, `CI_SLACK_CHANNEL_ID_DAILY`, `DOCKERHUB_PASSWORD`, `DOCKERHUB_USERNAME`, `GITHUB_TOKEN`, `HF_HUB_READ_TOKEN`, `SLACK_CIFEEDBACK_BOT_TOKEN`, `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN`
+
+Permissions declared across the chain: `contents: read`
+
+## Jobs
+
+### Build CI Docker Images with nightly torch (`build_nightly_torch_ci_images`)
+
+| Property | Value |
+|----------|-------|
+| Uses workflow | [Build docker images (Nightly CI)](#build-docker-images-nightly-ci) |
+
+#### Inputs forwarded
+
+- `job`: `latest-with-torch-nightly-docker`
+
+#### Secrets forwarded
+
+- `secrets: inherit` (all caller secrets are passed to the callee)
+
+### Setup (`setup`)
+
+| Property | Value |
+|----------|-------|
+| Runs on | `ubuntu-22.04` |
+
+<details>
+<summary>Steps (2)</summary>
+
+1. **Setup**
+   - Env:
+     - `PREV_WORKFLOW_RUN_ID`: `${{ inputs.prev_workflow_run_id || env.prev_workflow_run_id }}`
+     - `OTHER_WORKFLOW_RUN_ID`: `${{ inputs.other_workflow_run_id || env.other_workflow_run_id }}`
+
+2. **Upload artifacts**
+   - Uses: `actions/upload-artifact@v4.6.2`
+   - With:
+     - `name`: `setup_values`
+     - `path`: `setup_values`
+
+</details>
+
+### Model CI (`model-ci`)
+
+| Property | Value |
+|----------|-------|
+| Uses workflow | [Nvidia CI (job definitions)](#nvidia-ci-job-definitions) |
+| Depends on | `build_nightly_torch_ci_images` |
+
+#### Inputs forwarded
+
+- `job`: `run_models_gpu`
+- `slack_report_channel`: `#transformers-ci-past-future`
+- `docker`: `huggingface/transformers-all-latest-torch-nightly-gpu`
+- `ci_event`: `Nightly CI`
+- `runner_type`: `a10`
+- `report_repo_id`: `hf-internal-testing/transformers_daily_ci_with_torch_nightly`
+- `commit_sha`: `${{ github.event.workflow_run.head_sha || github.sha }}`
+
+#### Secrets forwarded
+
+- `secrets: inherit` (all caller secrets are passed to the callee)
 
 [Back to top](#contents)
 
@@ -3077,7 +2336,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pul
 | File | `pr_build_doc_with_comment.yml` |
 | Default runs-on | `ubuntu-22.04` |
 
-**Jobs:** [Get PR number](#get-pr-number-get-pr-number-2), [Get PR commit SHA](#get-pr-commit-sha-get-pr-info-1), [Verity PR commit corresponds to a specific event by comparing timestamps](#verity-pr-commit-corresponds-to-a-specific-event-by-comparing-timestamps-verity_pr_commit), [Create run](#create-run-create_run), [Reply to the comment](#reply-to-the-comment-reply_to_comment), [Build doc](#build-doc-build-doc), [Update Check Run Status](#update-check-run-status-update_run_status)
+**Jobs:** [Get PR number](#get-pr-number-get-pr-number), [Get PR commit SHA](#get-pr-commit-sha-get-pr-info), [Verity PR commit corresponds to a specific event by comparing timestamps](#verity-pr-commit-corresponds-to-a-specific-event-by-comparing-timestamps-verity_pr_commit), [Create run](#create-run-create_run), [Reply to the comment](#reply-to-the-comment-reply_to_comment), [Build doc](#build-doc-build-doc), [Update Check Run Status](#update-check-run-status-update_run_status)
 
 ## Event filters
 
@@ -3250,231 +2509,33 @@ External workflows referenced: `huggingface/doc-builder/.github/workflows/build_
 
 [Back to top](#contents)
 
-# PR slow CI - Suggestion
+# PR CI
 
-**Triggers:** `pull_request_target`
+**Triggers:** `pull_request`
 
 | Property | Value |
 |----------|-------|
-| File | `pr_slow_ci_suggestion.yml` |
-| Default runs-on | `ubuntu-22.04` |
-
-**Jobs:** [Get PR number](#get-pr-number-get-pr-number-3), [Get PR commit SHA](#get-pr-commit-sha-get-pr-info-2), [Get test files to run](#get-test-files-to-run-get-jobs), [Send a comment to suggest jobs to run](#send-a-comment-to-suggest-jobs-to-run-send_comment)
-
-## Event filters
-
-- **pull_request_target**
-  - types: `opened`, `synchronize`, `reopened`
+| File | `pr-ci-caller.yml` |
 
 ## Permissions
 
 - `contents`: `read`
 
-## Call graph (rooted at this workflow)
-
-`pr_slow_ci_suggestion.yml` [pull_request_target]
-
-- `get-pr-number` uses [get-pr-number.yml](#get-pr-number)
-- `get-pr-info` uses [get-pr-info.yml](#get-pr-commit-sha)
-
-## Transitive requirements (from full call graph)
-
-Permissions declared across the chain: `contents: read`, `pull-requests: write`
-
-## Jobs
-
-### Get PR number (`get-pr-number`)
-
-| Property | Value |
-|----------|-------|
-| Uses workflow | [Get PR number](#get-pr-number) |
-
-### Get PR commit SHA (`get-pr-info`)
-
-| Property | Value |
-|----------|-------|
-| Uses workflow | [Get PR commit SHA](#get-pr-commit-sha) |
-| Depends on | `get-pr-number` |
-| Condition | `${{ needs.get-pr-number.outputs.PR_NUMBER != ''}}` |
-
-#### Inputs forwarded
-
-- `pr_number`: `${{ needs.get-pr-number.outputs.PR_NUMBER }}`
-
-### Get test files to run (`get-jobs`)
-
-| Property | Value |
-|----------|-------|
-| Depends on | `get-pr-number`, `get-pr-info` |
-
-<details>
-<summary>Steps (4)</summary>
-
-1. **actions/checkout@v4.3.1**
-   - With:
-     - `fetch-depth`: `0`
-     - `persist-credentials`: `false`
-
-2. **Write pr\_files file**
-   - Uses: `actions/github-script@v6.4.1`
-   - With:
-     - `script`: `const fs = require('node:fs'); const files = await github.paginate(github.rest.pulls.listFiles, {   owner: context.repo.owner,   repo: context.repo.repo,   pull_number: parseInt(process.env.PR_NUMBER, 10), }); fs.writeFileSync('pr_files.txt', JSON.stringify(files));`
-   - Env:
-     - `PR_NUMBER`: `${{ needs.get-pr-number.outputs.PR_NUMBER }}`
-
-3. **Get repository content**
-   - ID: `repo_content`
-   - Uses: `actions/github-script@v6.4.1`
-   - With:
-     - `script`: `const fs = require('node:fs'); const { PR_HEAD_REPO_OWNER, PR_HEAD_REPO_NAME, PR_HEAD_SHA } = process.env;  const { data: tests_dir } = await github.rest.repos.getContent({   owner: PR_HEAD_REPO_OWNER,   repo: PR_HEAD_REPO_NAME,   path: 'tests',   ref: PR_HEAD_SHA, });  const { data: tests_models_dir } = await github.rest.repos.getContent({   owner: PR_HEAD_REPO_OWNER,   repo: PR_HEAD_REPO_NAME,   path: 'tests/models',   ref: PR_HEAD_SHA, });  const { data: tests_quantization_dir } = await github.rest.repos.getContent({   owner: PR_HEAD_REPO_OWNER,   repo: PR_HEAD_REPO_NAME,   path: 'tests/quantization',   ref: PR_HEAD_SHA, });  // Write to files instead of outputs fs.writeFileSync('tests_dir.txt', JSON.stringify(tests_dir, null, 2)); fs.writeFileSync('tests_models_dir.txt', JSON.stringify(tests_models_dir, null, 2)); fs.writeFileSync('tests_quantization_dir.txt', JSON.stringify(tests_quantization_dir, null, 2));`
-   - Env:
-     - `PR_HEAD_REPO_OWNER`: `${{ needs.get-pr-info.outputs.PR_HEAD_REPO_OWNER }}`
-     - `PR_HEAD_REPO_NAME`: `${{ needs.get-pr-info.outputs.PR_HEAD_REPO_NAME }}`
-     - `PR_HEAD_SHA`: `${{ needs.get-pr-info.outputs.PR_HEAD_SHA }}`
-
-4. **Run script to get jobs to run**
-   - ID: `get_jobs`
-
-</details>
-
-### Send a comment to suggest jobs to run (`send_comment`)
-
-| Property | Value |
-|----------|-------|
-| Depends on | `get-pr-number`, `get-jobs` |
-| Condition | `${{ needs.get-jobs.outputs.jobs != '' }}` |
-
-**Permissions:**
-
-- `pull-requests`: `write`
-
-<details>
-<summary>Steps (1)</summary>
-
-1. **Check and update comment if needed**
-   - Uses: `actions/github-script@v7.1.0`
-   - With:
-     - `script`: `` const prNumber = parseInt(process.env.PR_NUMBER, 10); const commentPrefix = "**[For maintainers]** Suggested jobs to run (before merge)"; const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000); // 30 minutes ago const newBody = `${commentPrefix}${process.env.BODY}`;  // Get all comments on the PR const { data: comments } = await github.rest.issues.listComments({   owner: context.repo.owner,   repo: context.repo.repo,   issue_number: prNumber });  // Find existing comments that start with our prefix const existingComments = comments.filter(comment =>   comment.user.login === 'github-actions[bot]' &&   comment.body.startsWith(commentPrefix) );  let shouldCreateNewComment = true; let commentsToDelete = [];  if (existingComments.length > 0) {   // Get the most recent comment   const mostRecentComment = existingComments     .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0];    const commentDate = new Date(mostRecentComment.created_at);   const isOld = commentDate < thirtyMinutesAgo;   const isDifferentContent = mostRecentComment.body !== newBody;    console.log(`Most recent comment created: ${mostRecentComment.created_at}`);   console.log(`Is older than 30 minutes: ${isOld}`);   console.log(`Has different content: ${isDifferentContent}`);    if (isOld || isDifferentContent) {     // Delete all existing comments and create new one     commentsToDelete = existingComments;     console.log(`Will delete ${commentsToDelete.length} existing comment(s) and create new one`);   } else {     // Content is same and comment is recent, skip     shouldCreateNewComment = false;     console.log('Comment is recent and content unchanged, skipping update');   } } else {   console.log('No existing comments found, will create new one'); }  // Delete old comments if needed for (const comment of commentsToDelete) {   console.log(`Deleting comment #${comment.id} (created: ${comment.created_at})`);   await github.rest.issues.deleteComment({     owner: context.repo.owner,     repo: context.repo.repo,     comment_id: comment.id   }); }  // Create new comment if needed if (shouldCreateNewComment) {   await github.rest.issues.createComment({     owner: context.repo.owner,     repo: context.repo.repo,     issue_number: prNumber,     body: newBody   });   console.log('✅ New comment created'); } else {   console.log('ℹ️ No comment update needed'); } ``
-   - Env:
-     - `BODY`: `run-slow: ${{ needs.get-jobs.outputs.jobs }}`
-     - `PR_NUMBER`: `${{ needs.get-pr-number.outputs.PR_NUMBER }}`
-
-</details>
-
-[Back to top](#contents)
-
-# Slow tests on important models (on Push - A10)
-
-**Triggers:** `push`
-
-| Property | Value |
-|----------|-------|
-| File | `push-important-models.yml` |
-
-**Jobs:** [Get all modified files](#get-all-modified-files-get_modified_models), [Model CI](#model-ci-model-ci)
-
-## Event filters
-
-- **push**
-  - branches: `main`
-
-## Permissions
-
-- `contents`: `read`
+**Concurrency:** group `${{ github.workflow }}-${{ github.event.pull_request.number }}`, cancel-in-progress: `true`
 
 ## Call graph (rooted at this workflow)
 
-`push-important-models.yml` [push]
+`pr-ci-caller.yml` [pull_request]
 
-- `model-ci` uses [self-scheduled.yml](#nvidia-ci-job-definitions)
-  - uses **[model_jobs.yml](#model-jobs)** (x2)
-    - `collated_reports` uses [collated-reports.yml](#ci-collated-reports) (`@6abd9725ee7d809dc974991f8ff6c958afb63a3a`)
-  - `send_results` uses [slack-report.yml](#ci-slack-report)
-  - `check_new_failures` uses [check_failed_tests.yml](#process-failed-tests)
+- `pr-ci` uses `huggingface/transformers-test-ci/.github/workflows/pr-ci_dynamic_caller_example.yml@91d590c4f744e4564a8ae0d3810068c8a35b939e`
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `ACCESS_REPO_INFO_TOKEN`, `CI_SLACK_BOT_TOKEN`, `CI_SLACK_CHANNEL_DUMMY_TESTS`, `CI_SLACK_CHANNEL_ID`, `CI_SLACK_CHANNEL_ID_DAILY`, `GITHUB_TOKEN`, `HF_HUB_READ_TOKEN`, `SLACK_CIFEEDBACK_BOT_TOKEN`, `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN`
+Secrets referenced (literal names): `OTEL_EXPORTER_OTLP_ENDPOINT`, `OTEL_TOKEN`
 
 Permissions declared across the chain: `contents: read`
 
-## Jobs
-
-### Get all modified files (`get_modified_models`)
-
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-latest` |
-
-<details>
-<summary>Steps (3)</summary>
-
-1. **Check out code**
-   - Uses: `actions/checkout@v4.3.1`
-   - With:
-     - `persist-credentials`: `false`
-
-2. **Get changed files using \`actions/github-script\`**
-   - ID: `get-changed-files`
-   - Uses: `actions/github-script@v7.1.0`
-   - With:
-     - `script`: `` let files = [];  // Only handle push events if (context.eventName === 'push') {   const afterSha = context.payload.after;   const branchName = context.payload.ref.replace('refs/heads/', '');      let baseSha;      if (branchName === 'main') {     console.log('Push to main branch, comparing to parent commit');     // Get the parent commit of the pushed commit     const { data: commit } = await github.rest.repos.getCommit({       owner: context.repo.owner,       repo: context.repo.repo,       ref: afterSha     });     baseSha = commit.parents[0]?.sha;     if (!baseSha) {       throw new Error('No parent commit found for the pushed commit');     }   } else {     console.log(`Push to branch ${branchName}, comparing to main`);     baseSha = 'main';   }      const { data: comparison } = await github.rest.repos.compareCommits({     owner: context.repo.owner,     repo: context.repo.repo,     base: baseSha,     head: afterSha   });      // Include added, modified, and renamed files   files = comparison.files     .filter(file => file.status === 'added' || file.status === 'modified' || file.status === 'renamed')     .map(file => file.filename); }  // Include all files under src/transformers/ (not just models subdirectory) const filteredFiles = files.filter(file =>    file.startsWith('src/transformers/') );  core.setOutput('changed_files', filteredFiles.join(' ')); core.setOutput('any_changed', filteredFiles.length > 0 ? 'true' : 'false'); ``
-
-3. **Parse changed files with Python**
-   - ID: `set-matrix`
-   - Condition: `steps.get-changed-files.outputs.any_changed == 'true'`
-   - Env:
-     - `CHANGED_FILES`: `${{ steps.get-changed-files.outputs.changed_files }}`
-
-</details>
-
-### Model CI (`model-ci`)
-
-| Property | Value |
-|----------|-------|
-| Uses workflow | [Nvidia CI (job definitions)](#nvidia-ci-job-definitions) |
-| Depends on | `get_modified_models` |
-| Condition | `needs.get_modified_models.outputs.matrix != '' && needs.get_modified_models.outputs.matrix != '[]'` |
-
-#### Inputs forwarded
-
-- `job`: `run_models_gpu`
-- `slack_report_channel`: `#transformers-ci-push`
-- `docker`: `huggingface/transformers-all-latest-gpu:flash-attn`
-- `ci_event`: `push`
-- `report_repo_id`: `hf-internal-testing/transformers_ci_push`
-- `commit_sha`: `${{ github.sha }}`
-- `subdirs`: `${{ needs.get_modified_models.outputs.matrix }}`
-
-#### Secrets forwarded
-
-- `secrets: inherit` (all caller secrets are passed to the callee)
-
-[Back to top](#contents)
-
-# Release - Conda
-
-**Triggers:** `push`
-
-| Property | Value |
-|----------|-------|
-| File | `release-conda.yml` |
-
-## Event filters
-
-- **push**
-  - tags: `v*`
-  - branches: `conda_*`
-
-## Permissions
-
-- `contents`: `read`
-
-## Environment (`env`)
-
-| Variable | Value |
-|----------|-------|
-| `ANACONDA_API_TOKEN` | `${{ secrets.ANACONDA_API_TOKEN }}` |
+External workflows referenced: `huggingface/transformers-test-ci/.github/workflows/pr-ci_dynamic_caller_example.yml@91d590c4f744e4564a8ae0d3810068c8a35b939e`
 
 ## Referenced secrets and variables
 
@@ -3482,144 +2543,22 @@ Permissions declared across the chain: `contents: read`
 
 | Name | Used by |
 |------|---------|
-| `ANACONDA_API_TOKEN` | workflow env `ANACONDA_API_TOKEN` |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | job `pr-ci` secrets `OTEL_EXPORTER_OTLP_ENDPOINT` |
+| `OTEL_TOKEN` | job `pr-ci` secrets `OTEL_TOKEN` |
 
 ## Jobs
 
-### `build_and_package`
+### `pr-ci`
 
 | Property | Value |
 |----------|-------|
-| Runs on | `ubuntu-22.04` |
+| Uses workflow | `huggingface/transformers-test-ci/.github/workflows/pr-ci_dynamic_caller_example.yml@91d590c4f744e4564a8ae0d3810068c8a35b939e` (external) |
+| Condition | `contains(fromJSON('["MEMBER","OWNER","COLLABORATOR"]'), github.event.pull_request.author_association) \|\| github.event.pull_request.user.login == 'ydshieh2'` |
 
-**Defaults:** shell `bash -l {0}`
+#### Secrets forwarded
 
-<details>
-<summary>Steps (6)</summary>
-
-1. **Checkout repository**
-   - Uses: `actions/checkout@v6.0.2`
-   - With:
-     - `persist-credentials`: `false`
-
-2. **Install miniconda**
-   - Uses: `conda-incubator/setup-miniconda@v2.3.0`
-   - With:
-     - `auto-update-conda`: `true`
-     - `auto-activate-base`: `false`
-     - `python-version`: `3.8`
-     - `activate-environment`: `build-transformers`
-     - `channels`: `huggingface`
-
-3. **Setup conda env**
-
-4. **Extract version**
-
-5. **Build conda packages**
-
-6. **Upload to Anaconda**
-
-</details>
-
-[Back to top](#contents)
-
-# Release
-
-**Triggers:** `push`
-
-| Property | Value |
-|----------|-------|
-| File | `release.yml` |
-| Default runs-on | `ubuntu-latest` |
-
-**Jobs:** [build release](#build-release-build_and_test), [`upload_package`](#upload_package)
-
-## Event filters
-
-- **push**
-  - tags: `v*`
-  - branches: `v*-release`
-
-## Permissions
-
-- `contents`: `read`
-
-## Jobs
-
-### build release (`build_and_test`)
-
-<details>
-<summary>Steps (13)</summary>
-
-1. **actions/checkout@v6.0.2**
-   - With:
-     - `persist-credentials`: `false`
-
-2. **set up python**
-   - Uses: `actions/setup-python@v5.6.0`
-   - With:
-     - `python-version`: `3.13`
-
-3. **pip install setuptools**
-
-4. **pip install -e .**
-
-5. **make build-release**
-
-6. **pip uninstall -y transformers**
-
-7. **pip install dist/\*.whl**
-
-8. **python -c "from transformers import \*"**
-
-9. **pip install -e .[torch]**
-
-10. **python -c "from transformers import pipeline; classifier ...**
-
-11. **pip install twine**
-
-12. **twine check --strict dist/\***
-
-13. **Upload build artifacts**
-   - Uses: `actions/upload-artifact@v4.6.2`
-   - With:
-     - `name`: `python-dist`
-     - `path`: `dist/** build/**`
-
-</details>
-
-### `upload_package`
-
-| Property | Value |
-|----------|-------|
-| Depends on | `build_and_test` |
-| Condition | `startsWith(github.ref, 'refs/tags/')` |
-
-**Deploys to environment:** `pypi-release` [gated]
-
-**Permissions:**
-
-- `id-token`: `write` (OIDC)
-
-<details>
-<summary>Steps (3)</summary>
-
-1. **actions/checkout@v6.0.2**
-   - With:
-     - `persist-credentials`: `false`
-
-2. **Download build artifacts**
-   - Uses: `actions/download-artifact@v4.3.0`
-   - With:
-     - `name`: `python-dist`
-     - `path`: `.`
-
-3. **Publish package distributions to TestPyPI**
-   - Uses: `pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e`
-   - With:
-     - `verbose`: `true`
-
-</details>
+- `OTEL_EXPORTER_OTLP_ENDPOINT`: `${{ secrets.OTEL_EXPORTER_OTLP_ENDPOINT }}`
+- `OTEL_TOKEN`: `${{ secrets.OTEL_TOKEN }}`
 
 [Back to top](#contents)
 
@@ -3632,7 +2571,7 @@ Permissions declared across the chain: `contents: read`
 | File | `self-comment-ci.yml` |
 | Default runs-on | `ubuntu-22.04` |
 
-**Jobs:** [Get PR number](#get-pr-number-get-pr-number-4), [Get PR commit SHA](#get-pr-commit-sha-get-pr-info-3), [Check timestamps (security check)](#check-timestamps-security-check-check-timestamps-1), [`get-tests`](#get-tests), [Report error earlier](#report-error-earlier-report_error_earlier), [Reply to the comment](#reply-to-the-comment-reply_to_comment-1), [Create run](#create-run-create_run-1), [Model CI](#model-ci-model-ci-1), [Quantization CI](#quantization-ci-quantization-ci), [Check & Report](#check--report-report)
+**Jobs:** [Get PR number](#get-pr-number-get-pr-number-1), [Get PR commit SHA](#get-pr-commit-sha-get-pr-info-1), [Check timestamps (security check)](#check-timestamps-security-check-check-timestamps), [`get-tests`](#get-tests), [Report error earlier](#report-error-earlier-report_error_earlier), [Reply to the comment](#reply-to-the-comment-reply_to_comment-1), [Create run](#create-run-create_run-1), [Model CI](#model-ci-model-ci-3), [Quantization CI](#quantization-ci-quantization-ci-1), [Check & Report](#check--report-report)
 
 ## Event filters
 
@@ -3922,24 +2861,446 @@ Permissions declared across the chain: `contents: read`, `pull-requests: write`,
 
 [Back to top](#contents)
 
-# Nvidia CI with nightly torch
+# PR Repo. Consistency Bot
 
-**Triggers:** `repository_dispatch`, `workflow_run`, `push`
+**Triggers:** `issue_comment`
 
 | Property | Value |
 |----------|-------|
-| File | `self-nightly-caller.yml` |
+| File | `pr-repo-consistency-bot.yml` |
+| Default runs-on | `ubuntu-22.04` |
 
-**Jobs:** [Build CI Docker Images with nightly torch](#build-ci-docker-images-with-nightly-torch-build_nightly_torch_ci_images), [Setup](#setup-setup-1), [Model CI](#model-ci-model-ci-2)
+**Jobs:** [Get PR number](#get-pr-number-get-pr-number-2), [Get PR commit SHA](#get-pr-commit-sha-get-pr-info-2), [Check timestamps (security check)](#check-timestamps-security-check-check-timestamps-1), [Init Comment on PR](#init-comment-on-pr-init_comment_with_url), [`run-repo-consistency-checks`](#run-repo-consistency-checks), [`commit-and-comment`](#commit-and-comment)
 
 ## Event filters
 
-- **workflow_run**
-  - workflows: `Nvidia CI`
-  - branches: `main`
-  - types: `completed`
+- **issue_comment**
+  - types: `created`
+  - branches-ignore: `main`
+
+## Permissions
+
+- `contents`: `read`
+
+**Concurrency:** group `${{ github.workflow }}-${{ github.event.issue.number }}-${{ startsWith(github.event.comment.body, '@bot /repo') || startsWith(github.event.comment.body, '@bot /style') }}`, cancel-in-progress: `true`
+
+## Call graph (rooted at this workflow)
+
+`pr-repo-consistency-bot.yml` [issue_comment]
+
+- `get-pr-number` uses [get-pr-number.yml](#get-pr-number)
+- `get-pr-info` uses [get-pr-info.yml](#get-pr-commit-sha)
+
+## Transitive requirements (from full call graph)
+
+Secrets referenced (literal names): `HF_STYLE_BOT_ACTION`
+
+Permissions declared across the chain: `contents: read`, `contents: write`, `pull-requests: write`
+
+## Referenced secrets and variables
+
+**Secrets:**
+
+| Name | Used by |
+|------|---------|
+| `HF_STYLE_BOT_ACTION` | job `commit-and-comment` step `Push changes to fork using git` env `GITHUB_TOKEN` |
+
+## Jobs
+
+### Get PR number (`get-pr-number`)
+
+| Property | Value |
+|----------|-------|
+| Uses workflow | [Get PR number](#get-pr-number) |
+| Condition | `${{ github.event.issue.state == 'open' && contains(fromJSON('["ydshieh", "ArthurZucker", "zucchini-nlp", "molbap", "gante", "LysandreJik", "Cyrilvallez", "Rocketknight1", "SunMarc", "eustlb", "MekkCyber", "vasqu", "ivarflakstad", "stevhliu", "ebezzam", "remi-or", "itazap", "3outeille", "IlyasMoutawwakil", "tarekziade"]'), github.actor) && (startsWith(github.event.comment.body, '@bot /repo') \|\| startsWith(github.event.comment.body, '@bot /style')) }}` |
+
+### Get PR commit SHA (`get-pr-info`)
+
+| Property | Value |
+|----------|-------|
+| Uses workflow | [Get PR commit SHA](#get-pr-commit-sha) |
+| Depends on | `get-pr-number` |
+| Condition | `${{ needs.get-pr-number.outputs.PR_NUMBER != ''}}` |
+
+#### Inputs forwarded
+
+- `pr_number`: `${{ needs.get-pr-number.outputs.PR_NUMBER }}`
+
+### Check timestamps (security check) (`check-timestamps`)
+
+| Property | Value |
+|----------|-------|
+| Depends on | `get-pr-info` |
+
+<details>
+<summary>Steps (1)</summary>
+
+1. **Verify \`merge\_commit\` timestamp is older than the issue comment timestamp**
+   - Env:
+     - `COMMENT_DATE`: `${{ github.event.comment.created_at }}`
+     - `PR_MERGE_COMMIT_TIMESTAMP`: `${{ needs.get-pr-info.outputs.PR_MERGE_COMMIT_TIMESTAMP }}`
+
+</details>
+
+### Init Comment on PR (`init_comment_with_url`)
+
+| Property | Value |
+|----------|-------|
+| Depends on | `get-pr-number`, `check-timestamps` |
+
+**Permissions:**
+
+- `pull-requests`: `write`
+
+<details>
+<summary>Steps (2)</summary>
+
+1. **Delete existing bot comment if it exists**
+   - Uses: `actions/github-script@v6.4.1`
+   - With:
+     - `script`: `` const PR_NUMBER = parseInt(process.env.PR_NUMBER, 10);  // Get all comments on the PR const { data: comments } = await github.rest.issues.listComments({   owner: context.repo.owner,   repo: context.repo.repo,   issue_number: PR_NUMBER });  // Find existing bot comments that start with "Repo. Consistency" or "Style fix" const existingComments = comments.filter(comment =>    comment.user.login === 'github-actions[bot]' &&    (comment.body.startsWith('Repo. Consistency') || comment.body.startsWith('Style fix')) );  if (existingComments.length > 0) {   // Get the most recent comment   const mostRecentComment = existingComments     .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0];      console.log(`Deleting most recent comment #${mostRecentComment.id}`);   await github.rest.issues.deleteComment({     owner: context.repo.owner,     repo: context.repo.repo,     comment_id: mostRecentComment.id   }); } ``
+   - Env:
+     - `PR_NUMBER`: `${{ needs.get-pr-number.outputs.PR_NUMBER }}`
+
+2. **Comment on PR with workflow run link**
+   - ID: `init_comment`
+   - Uses: `actions/github-script@v6.4.1`
+   - With:
+     - `script`: `` const PR_NUMBER = parseInt(process.env.PR_NUMBER, 10); const COMMENT_BODY = process.env.COMMENT_BODY; const runUrl = `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`  // Determine which command was used const isStyleFix = COMMENT_BODY.startsWith('@bot /style'); const messagePrefix = isStyleFix ? 'Style fix' : 'Repo. Consistency fix';  const { data: botComment } = await github.rest.issues.createComment({   owner: context.repo.owner,   repo: context.repo.repo,   issue_number: PR_NUMBER,   body: `${messagePrefix} is beginning .... [View the workflow run here](${runUrl}).` }); core.setOutput('comment_id', botComment.id); ``
+   - Env:
+     - `PR_NUMBER`: `${{ needs.get-pr-number.outputs.PR_NUMBER }}`
+     - `COMMENT_BODY`: `${{ github.event.comment.body }}`
+
+</details>
+
+### `run-repo-consistency-checks`
+
+| Property | Value |
+|----------|-------|
+| Depends on | `get-pr-info`, `check-timestamps`, `init_comment_with_url` |
+
+<details>
+<summary>Steps (10)</summary>
+
+1. **Checkout base repository**
+   - Uses: `actions/checkout@v4.3.1`
+   - With:
+     - `ref`: `main`
+     - `persist-credentials`: `false`
+
+2. **Set up Python**
+   - Uses: `actions/setup-python@v4.9.1`
+   - With:
+     - `python-version`: `3.10`
+
+3. **Install dependencies from trusted main branch**
+
+4. **Fetch and checkout PR code manually**
+   - Env:
+     - `PR_HEAD_REPO_FULL_NAME`: `${{ needs.get-pr-info.outputs.PR_HEAD_REPO_FULL_NAME }}`
+     - `PR_HEAD_REF`: `${{ needs.get-pr-info.outputs.PR_HEAD_REF }}`
+     - `PR_HEAD_SHA`: `${{ needs.check-timestamps.outputs.VERIFIED_PR_HEAD_SHA }}`
+
+5. **Copy trusted scripts from main branch**
+
+6. **Install editable transformers from PR branch with copied scripts**
+
+7. **Run repo consistency checks with trusted script**
+   - ID: `run_repo_checks`
+   - Condition: `startsWith(github.event.comment.body, '@bot /repo')`
+
+8. **Run style checks with trusted script**
+   - ID: `run_style_checks`
+   - Condition: `startsWith(github.event.comment.body, '@bot /style')`
+
+9. **Save modified files**
+   - Condition: `steps.run_repo_checks.outputs.changes_detected == 'true' || steps.run_style_checks.outputs.changes_detected == 'true'`
+
+10. **Upload modified files**
+   - Uses: `actions/upload-artifact@v4.6.2`
+   - Condition: `steps.run_repo_checks.outputs.changes_detected == 'true' || steps.run_style_checks.outputs.changes_detected == 'true'`
+   - With:
+     - `name`: `modified-files`
+     - `path`: `artifact-staging/`
+
+</details>
+
+### `commit-and-comment`
+
+| Property | Value |
+|----------|-------|
+| Depends on | `get-pr-number`, `get-pr-info`, `check-timestamps`, `init_comment_with_url`, `run-repo-consistency-checks` |
+| Condition | `always()` |
+
+**Permissions:**
+
+- `pull-requests`: `write`
+- `contents`: `write`
+
+<details>
+<summary>Steps (4)</summary>
+
+1. **Download modified files**
+   - Uses: `actions/download-artifact@v4.3.0`
+   - Condition: `needs.run-repo-consistency-checks.outputs.changes_detected == 'true'`
+   - With:
+     - `name`: `modified-files`
+
+2. **Push changes to fork using git**
+   - Condition: `needs.run-repo-consistency-checks.outputs.changes_detected == 'true'`
+   - Env:
+     - `PR_HEAD_REF`: `${{ needs.get-pr-info.outputs.PR_HEAD_REF }}`
+     - `PR_HEAD_SHA`: `${{ needs.check-timestamps.outputs.VERIFIED_PR_HEAD_SHA }}`
+     - `PR_HEAD_REPO_FULL_NAME`: `${{ needs.get-pr-info.outputs.PR_HEAD_REPO_FULL_NAME }}`
+     - `GITHUB_TOKEN`: `${{ secrets.HF_STYLE_BOT_ACTION }}`
+
+3. **Prepare final comment message**
+   - ID: `prepare_final_comment`
+   - Condition: `needs.init_comment_with_url.result == 'success'`
+   - Env:
+     - `CHANGES_DETECTED`: `${{ needs.run-repo-consistency-checks.outputs.changes_detected }}`
+     - `COMMENT_BODY`: `${{ github.event.comment.body }}`
+
+4. **Comment on PR**
+   - Uses: `actions/github-script@v6.4.1`
+   - Condition: `needs.init_comment_with_url.result == 'success'`
+   - With:
+     - `script`: `const pr_number = parseInt(process.env.PR_NUMBER, 10); const comment_id = parseInt(process.env.COMMENT_ID, 10); const body = process.env.FINAL_COMMENT; await github.rest.issues.updateComment({   owner: context.repo.owner,   repo: context.repo.repo,   comment_id,   body, });`
+   - Env:
+     - `PR_NUMBER`: `${{ needs.get-pr-number.outputs.PR_NUMBER }}`
+     - `COMMENT_ID`: `${{ needs.init_comment_with_url.outputs.comment_id }}`
+     - `FINAL_COMMENT`: `${{ steps.prepare_final_comment.outputs.final_comment }}`
+
+</details>
+
+[Back to top](#contents)
+
+# PR slow CI - Suggestion
+
+**Triggers:** `pull_request_target`
+
+| Property | Value |
+|----------|-------|
+| File | `pr_slow_ci_suggestion.yml` |
+| Default runs-on | `ubuntu-22.04` |
+
+**Jobs:** [Get PR number](#get-pr-number-get-pr-number-3), [Get PR commit SHA](#get-pr-commit-sha-get-pr-info-3), [Get test files to run](#get-test-files-to-run-get-jobs), [Send a comment to suggest jobs to run](#send-a-comment-to-suggest-jobs-to-run-send_comment)
+
+## Event filters
+
+- **pull_request_target**
+  - types: `opened`, `synchronize`, `reopened`
+
+## Permissions
+
+- `contents`: `read`
+
+## Call graph (rooted at this workflow)
+
+`pr_slow_ci_suggestion.yml` [pull_request_target]
+
+- `get-pr-number` uses [get-pr-number.yml](#get-pr-number)
+- `get-pr-info` uses [get-pr-info.yml](#get-pr-commit-sha)
+
+## Transitive requirements (from full call graph)
+
+Permissions declared across the chain: `contents: read`, `pull-requests: write`
+
+## Jobs
+
+### Get PR number (`get-pr-number`)
+
+| Property | Value |
+|----------|-------|
+| Uses workflow | [Get PR number](#get-pr-number) |
+
+### Get PR commit SHA (`get-pr-info`)
+
+| Property | Value |
+|----------|-------|
+| Uses workflow | [Get PR commit SHA](#get-pr-commit-sha) |
+| Depends on | `get-pr-number` |
+| Condition | `${{ needs.get-pr-number.outputs.PR_NUMBER != ''}}` |
+
+#### Inputs forwarded
+
+- `pr_number`: `${{ needs.get-pr-number.outputs.PR_NUMBER }}`
+
+### Get test files to run (`get-jobs`)
+
+| Property | Value |
+|----------|-------|
+| Depends on | `get-pr-number`, `get-pr-info` |
+
+<details>
+<summary>Steps (4)</summary>
+
+1. **actions/checkout@v4.3.1**
+   - With:
+     - `fetch-depth`: `0`
+     - `persist-credentials`: `false`
+
+2. **Write pr\_files file**
+   - Uses: `actions/github-script@v6.4.1`
+   - With:
+     - `script`: `const fs = require('node:fs'); const files = await github.paginate(github.rest.pulls.listFiles, {   owner: context.repo.owner,   repo: context.repo.repo,   pull_number: parseInt(process.env.PR_NUMBER, 10), }); fs.writeFileSync('pr_files.txt', JSON.stringify(files));`
+   - Env:
+     - `PR_NUMBER`: `${{ needs.get-pr-number.outputs.PR_NUMBER }}`
+
+3. **Get repository content**
+   - ID: `repo_content`
+   - Uses: `actions/github-script@v6.4.1`
+   - With:
+     - `script`: `const fs = require('node:fs'); const { PR_HEAD_REPO_OWNER, PR_HEAD_REPO_NAME, PR_HEAD_SHA } = process.env;  const { data: tests_dir } = await github.rest.repos.getContent({   owner: PR_HEAD_REPO_OWNER,   repo: PR_HEAD_REPO_NAME,   path: 'tests',   ref: PR_HEAD_SHA, });  const { data: tests_models_dir } = await github.rest.repos.getContent({   owner: PR_HEAD_REPO_OWNER,   repo: PR_HEAD_REPO_NAME,   path: 'tests/models',   ref: PR_HEAD_SHA, });  const { data: tests_quantization_dir } = await github.rest.repos.getContent({   owner: PR_HEAD_REPO_OWNER,   repo: PR_HEAD_REPO_NAME,   path: 'tests/quantization',   ref: PR_HEAD_SHA, });  // Write to files instead of outputs fs.writeFileSync('tests_dir.txt', JSON.stringify(tests_dir, null, 2)); fs.writeFileSync('tests_models_dir.txt', JSON.stringify(tests_models_dir, null, 2)); fs.writeFileSync('tests_quantization_dir.txt', JSON.stringify(tests_quantization_dir, null, 2));`
+   - Env:
+     - `PR_HEAD_REPO_OWNER`: `${{ needs.get-pr-info.outputs.PR_HEAD_REPO_OWNER }}`
+     - `PR_HEAD_REPO_NAME`: `${{ needs.get-pr-info.outputs.PR_HEAD_REPO_NAME }}`
+     - `PR_HEAD_SHA`: `${{ needs.get-pr-info.outputs.PR_HEAD_SHA }}`
+
+4. **Run script to get jobs to run**
+   - ID: `get_jobs`
+
+</details>
+
+### Send a comment to suggest jobs to run (`send_comment`)
+
+| Property | Value |
+|----------|-------|
+| Depends on | `get-pr-number`, `get-jobs` |
+| Condition | `${{ needs.get-jobs.outputs.jobs != '' }}` |
+
+**Permissions:**
+
+- `pull-requests`: `write`
+
+<details>
+<summary>Steps (1)</summary>
+
+1. **Check and update comment if needed**
+   - Uses: `actions/github-script@v7.1.0`
+   - With:
+     - `script`: `` const prNumber = parseInt(process.env.PR_NUMBER, 10); const commentPrefix = "**[For maintainers]** Suggested jobs to run (before merge)"; const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000); // 30 minutes ago const newBody = `${commentPrefix}${process.env.BODY}`;  // Get all comments on the PR const { data: comments } = await github.rest.issues.listComments({   owner: context.repo.owner,   repo: context.repo.repo,   issue_number: prNumber });  // Find existing comments that start with our prefix const existingComments = comments.filter(comment =>   comment.user.login === 'github-actions[bot]' &&   comment.body.startsWith(commentPrefix) );  let shouldCreateNewComment = true; let commentsToDelete = [];  if (existingComments.length > 0) {   // Get the most recent comment   const mostRecentComment = existingComments     .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0];    const commentDate = new Date(mostRecentComment.created_at);   const isOld = commentDate < thirtyMinutesAgo;   const isDifferentContent = mostRecentComment.body !== newBody;    console.log(`Most recent comment created: ${mostRecentComment.created_at}`);   console.log(`Is older than 30 minutes: ${isOld}`);   console.log(`Has different content: ${isDifferentContent}`);    if (isOld || isDifferentContent) {     // Delete all existing comments and create new one     commentsToDelete = existingComments;     console.log(`Will delete ${commentsToDelete.length} existing comment(s) and create new one`);   } else {     // Content is same and comment is recent, skip     shouldCreateNewComment = false;     console.log('Comment is recent and content unchanged, skipping update');   } } else {   console.log('No existing comments found, will create new one'); }  // Delete old comments if needed for (const comment of commentsToDelete) {   console.log(`Deleting comment #${comment.id} (created: ${comment.created_at})`);   await github.rest.issues.deleteComment({     owner: context.repo.owner,     repo: context.repo.repo,     comment_id: comment.id   }); }  // Create new comment if needed if (shouldCreateNewComment) {   await github.rest.issues.createComment({     owner: context.repo.owner,     repo: context.repo.repo,     issue_number: prNumber,     body: newBody   });   console.log('✅ New comment created'); } else {   console.log('ℹ️ No comment update needed'); } ``
+   - Env:
+     - `BODY`: `run-slow: ${{ needs.get-jobs.outputs.jobs }}`
+     - `PR_NUMBER`: `${{ needs.get-pr-number.outputs.PR_NUMBER }}`
+
+</details>
+
+[Back to top](#contents)
+
+# Release
+
+**Triggers:** `push`
+
+| Property | Value |
+|----------|-------|
+| File | `release.yml` |
+| Default runs-on | `ubuntu-latest` |
+
+**Jobs:** [build release](#build-release-build_and_test), [`upload_package`](#upload_package)
+
+## Event filters
+
 - **push**
-  - branches: `run_ci_with_nightly_torch*`
+  - tags: `v*`
+  - branches: `v*-release`
+
+## Permissions
+
+- `contents`: `read`
+
+## Jobs
+
+### build release (`build_and_test`)
+
+<details>
+<summary>Steps (13)</summary>
+
+1. **actions/checkout@v6.0.2**
+   - With:
+     - `persist-credentials`: `false`
+
+2. **set up python**
+   - Uses: `actions/setup-python@v5.6.0`
+   - With:
+     - `python-version`: `3.13`
+
+3. **pip install setuptools**
+
+4. **pip install -e .**
+
+5. **make build-release**
+
+6. **pip uninstall -y transformers**
+
+7. **pip install dist/\*.whl**
+
+8. **python -c "from transformers import \*"**
+
+9. **pip install -e .[torch]**
+
+10. **python -c "from transformers import pipeline; classifier ...**
+
+11. **pip install twine**
+
+12. **twine check --strict dist/\***
+
+13. **Upload build artifacts**
+   - Uses: `actions/upload-artifact@v4.6.2`
+   - With:
+     - `name`: `python-dist`
+     - `path`: `dist/** build/**`
+
+</details>
+
+### `upload_package`
+
+| Property | Value |
+|----------|-------|
+| Depends on | `build_and_test` |
+| Condition | `startsWith(github.ref, 'refs/tags/')` |
+
+**Deploys to environment:** `pypi-release` [gated]
+
+**Permissions:**
+
+- `id-token`: `write` (OIDC)
+
+<details>
+<summary>Steps (3)</summary>
+
+1. **actions/checkout@v6.0.2**
+   - With:
+     - `persist-credentials`: `false`
+
+2. **Download build artifacts**
+   - Uses: `actions/download-artifact@v4.3.0`
+   - With:
+     - `name`: `python-dist`
+     - `path`: `.`
+
+3. **Publish package distributions to TestPyPI**
+   - Uses: `pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e`
+   - With:
+     - `verbose`: `true`
+
+</details>
+
+[Back to top](#contents)
+
+# Release - Conda
+
+**Triggers:** `push`
+
+| Property | Value |
+|----------|-------|
+| File | `release-conda.yml` |
+
+## Event filters
+
+- **push**
+  - tags: `v*`
+  - branches: `conda_*`
 
 ## Permissions
 
@@ -3949,80 +3310,432 @@ Permissions declared across the chain: `contents: read`, `pull-requests: write`,
 
 | Variable | Value |
 |----------|-------|
-| `prev_workflow_run_id` | - |
-| `other_workflow_run_id` | - |
+| `ANACONDA_API_TOKEN` | `${{ secrets.ANACONDA_API_TOKEN }}` |
 
-## Call graph (rooted at this workflow)
+## Referenced secrets and variables
 
-`self-nightly-caller.yml` [repository_dispatch, workflow_run, push]
+**Secrets:**
 
-- `build_nightly_torch_ci_images` uses [build-nightly-ci-docker-images.yml](#build-docker-images-nightly-ci)
-- `model-ci` uses [self-scheduled.yml](#nvidia-ci-job-definitions)
-  - uses **[model_jobs.yml](#model-jobs)** (x2)
-    - `collated_reports` uses [collated-reports.yml](#ci-collated-reports) (`@6abd9725ee7d809dc974991f8ff6c958afb63a3a`)
-  - `send_results` uses [slack-report.yml](#ci-slack-report)
-  - `check_new_failures` uses [check_failed_tests.yml](#process-failed-tests)
-
-## Transitive requirements (from full call graph)
-
-Secrets referenced (literal names): `ACCESS_REPO_INFO_TOKEN`, `CI_SLACK_BOT_TOKEN`, `CI_SLACK_CHANNEL_DUMMY_TESTS`, `CI_SLACK_CHANNEL_ID`, `CI_SLACK_CHANNEL_ID_DAILY`, `DOCKERHUB_PASSWORD`, `DOCKERHUB_USERNAME`, `GITHUB_TOKEN`, `HF_HUB_READ_TOKEN`, `SLACK_CIFEEDBACK_BOT_TOKEN`, `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN`
-
-Permissions declared across the chain: `contents: read`
+| Name | Used by |
+|------|---------|
+| `ANACONDA_API_TOKEN` | workflow env `ANACONDA_API_TOKEN` |
 
 ## Jobs
 
-### Build CI Docker Images with nightly torch (`build_nightly_torch_ci_images`)
-
-| Property | Value |
-|----------|-------|
-| Uses workflow | [Build docker images (Nightly CI)](#build-docker-images-nightly-ci) |
-
-#### Inputs forwarded
-
-- `job`: `latest-with-torch-nightly-docker`
-
-#### Secrets forwarded
-
-- `secrets: inherit` (all caller secrets are passed to the callee)
-
-### Setup (`setup`)
+### `build_and_package`
 
 | Property | Value |
 |----------|-------|
 | Runs on | `ubuntu-22.04` |
 
+**Defaults:** shell `bash -l {0}`
+
+<details>
+<summary>Steps (6)</summary>
+
+1. **Checkout repository**
+   - Uses: `actions/checkout@v6.0.2`
+   - With:
+     - `persist-credentials`: `false`
+
+2. **Install miniconda**
+   - Uses: `conda-incubator/setup-miniconda@v2.3.0`
+   - With:
+     - `auto-update-conda`: `true`
+     - `auto-activate-base`: `false`
+     - `python-version`: `3.8`
+     - `activate-environment`: `build-transformers`
+     - `channels`: `huggingface`
+
+3. **Setup conda env**
+
+4. **Extract version**
+
+5. **Build conda packages**
+
+6. **Upload to Anaconda**
+
+</details>
+
+[Back to top](#contents)
+
+# Secret Leaks
+
+**Triggers:** `push`
+
+| Property | Value |
+|----------|-------|
+| File | `trufflehog.yml` |
+
+## Permissions
+
+- `contents`: `read`
+
+## Jobs
+
+### `trufflehog`
+
+| Property | Value |
+|----------|-------|
+| Runs on | `ubuntu-latest` |
+
 <details>
 <summary>Steps (2)</summary>
 
-1. **Setup**
-   - Env:
-     - `PREV_WORKFLOW_RUN_ID`: `${{ inputs.prev_workflow_run_id || env.prev_workflow_run_id }}`
-     - `OTHER_WORKFLOW_RUN_ID`: `${{ inputs.other_workflow_run_id || env.other_workflow_run_id }}`
-
-2. **Upload artifacts**
-   - Uses: `actions/upload-artifact@v4.6.2`
+1. **Checkout code**
+   - Uses: `actions/checkout@v6.0.2`
    - With:
-     - `name`: `setup_values`
-     - `path`: `setup_values`
+     - `fetch-depth`: `0`
+     - `persist-credentials`: `false`
+
+2. **Secret Scanning**
+   - Uses: `trufflesecurity/trufflehog@6bd2d14f7a4bc1e569fa3550efa7ec632a4fa67b`
+   - With:
+     - `extra_args`: `--results=verified,unknown`
 
 </details>
+
+[Back to top](#contents)
+
+# Self-hosted runner (AMD mi250 scheduled CI caller)
+
+**Triggers:** `workflow_run`, `push`
+
+| Property | Value |
+|----------|-------|
+| File | `self-scheduled-amd-mi250-caller.yml` |
+
+**Jobs:** [Model CI](#model-ci-model-ci-4), [Torch pipeline CI](#torch-pipeline-ci-torch-pipeline-1), [Example CI](#example-ci-example-ci-1), [DeepSpeed CI](#deepspeed-ci-deepspeed-ci-1)
+
+## Event filters
+
+- **workflow_run**
+  - workflows: `Self-hosted runner (AMD scheduled CI caller)`
+  - branches: `main`
+  - types: `completed`
+- **push**
+  - branches: `run_amd_scheduled_ci_caller*`
+
+## Permissions
+
+- `contents`: `read`
+
+## Call graph (rooted at this workflow)
+
+`self-scheduled-amd-mi250-caller.yml` [workflow_run, push]
+
+- uses **`huggingface/hf-workflows/.github/workflows/transformers_amd_ci_scheduled.yaml@63657f571a92cc9759159442936061c51d6d9ae4`** (x4)
+
+## Transitive requirements (from full call graph)
+
+Permissions declared across the chain: `contents: read`
+
+External workflows referenced: `huggingface/hf-workflows/.github/workflows/transformers_amd_ci_scheduled.yaml@63657f571a92cc9759159442936061c51d6d9ae4`
+
+## Jobs
 
 ### Model CI (`model-ci`)
 
 | Property | Value |
 |----------|-------|
-| Uses workflow | [Nvidia CI (job definitions)](#nvidia-ci-job-definitions) |
-| Depends on | `build_nightly_torch_ci_images` |
+| Uses workflow | `huggingface/hf-workflows/.github/workflows/transformers_amd_ci_scheduled.yaml@63657f571a92cc9759159442936061c51d6d9ae4` (external) |
 
 #### Inputs forwarded
 
 - `job`: `run_models_gpu`
-- `slack_report_channel`: `#transformers-ci-past-future`
-- `docker`: `huggingface/transformers-all-latest-torch-nightly-gpu`
-- `ci_event`: `Nightly CI`
-- `runner_type`: `a10`
-- `report_repo_id`: `hf-internal-testing/transformers_daily_ci_with_torch_nightly`
-- `commit_sha`: `${{ github.event.workflow_run.head_sha || github.sha }}`
+- `slack_report_channel`: `#transformers-ci-daily-amd`
+- `runner`: `mi250`
+- `docker`: `huggingface/transformers-pytorch-amd-gpu`
+- `ci_event`: `Scheduled CI (AMD) - mi250`
+- `report_repo_id`: `optimum-amd/transformers_daily_ci`
+
+#### Secrets forwarded
+
+- `secrets: inherit` (all caller secrets are passed to the callee)
+
+### Torch pipeline CI (`torch-pipeline`)
+
+| Property | Value |
+|----------|-------|
+| Uses workflow | `huggingface/hf-workflows/.github/workflows/transformers_amd_ci_scheduled.yaml@63657f571a92cc9759159442936061c51d6d9ae4` (external) |
+
+#### Inputs forwarded
+
+- `job`: `run_pipelines_torch_gpu`
+- `slack_report_channel`: `#transformers-ci-daily-amd`
+- `runner`: `mi250`
+- `docker`: `huggingface/transformers-pytorch-amd-gpu`
+- `ci_event`: `Scheduled CI (AMD) - mi250`
+- `report_repo_id`: `optimum-amd/transformers_daily_ci`
+
+#### Secrets forwarded
+
+- `secrets: inherit` (all caller secrets are passed to the callee)
+
+### Example CI (`example-ci`)
+
+| Property | Value |
+|----------|-------|
+| Uses workflow | `huggingface/hf-workflows/.github/workflows/transformers_amd_ci_scheduled.yaml@63657f571a92cc9759159442936061c51d6d9ae4` (external) |
+
+#### Inputs forwarded
+
+- `job`: `run_examples_gpu`
+- `slack_report_channel`: `#transformers-ci-daily-amd`
+- `runner`: `mi250`
+- `docker`: `huggingface/transformers-pytorch-amd-gpu`
+- `ci_event`: `Scheduled CI (AMD) - mi250`
+- `report_repo_id`: `optimum-amd/transformers_daily_ci`
+
+#### Secrets forwarded
+
+- `secrets: inherit` (all caller secrets are passed to the callee)
+
+### DeepSpeed CI (`deepspeed-ci`)
+
+| Property | Value |
+|----------|-------|
+| Uses workflow | `huggingface/hf-workflows/.github/workflows/transformers_amd_ci_scheduled.yaml@63657f571a92cc9759159442936061c51d6d9ae4` (external) |
+
+#### Inputs forwarded
+
+- `job`: `run_torch_cuda_extensions_gpu`
+- `slack_report_channel`: `#transformers-ci-daily-amd`
+- `runner`: `mi250`
+- `docker`: `huggingface/transformers-pytorch-deepspeed-amd-gpu`
+- `ci_event`: `Scheduled CI (AMD) - mi250`
+- `report_repo_id`: `optimum-amd/transformers_daily_ci`
+
+#### Secrets forwarded
+
+- `secrets: inherit` (all caller secrets are passed to the callee)
+
+[Back to top](#contents)
+
+# Self-hosted runner (AMD scheduled CI caller)
+
+**Triggers:** `schedule`
+
+| Property | Value |
+|----------|-------|
+| File | `self-scheduled-amd-caller.yml` |
+
+## Schedule
+
+- `17 5 * * *`
+
+## Permissions
+
+- `contents`: `read`
+
+## Jobs
+
+### Trigger Scheduled AMD CI (`run_scheduled_amd_ci`)
+
+| Property | Value |
+|----------|-------|
+| Runs on | `ubuntu-22.04` |
+| Condition | `${{ always() }}` |
+
+<details>
+<summary>Steps (1)</summary>
+
+1. **Trigger scheduled AMD CI via workflow\_run**
+
+</details>
+
+[Back to top](#contents)
+
+# Self-hosted runner (benchmark)
+
+**Triggers:** `push`, `pull_request`
+
+| Property | Value |
+|----------|-------|
+| File | `benchmark.yml` |
+
+## Event filters
+
+- **push**
+  - branches: `main`
+- **pull_request**
+  - types: `opened`, `labeled`, `reopened`, `synchronize`
+
+## Permissions
+
+- `contents`: `read`
+
+## Environment (`env`)
+
+| Variable | Value |
+|----------|-------|
+| `HF_HOME` | `/mnt/cache` |
+| `DATASET_ID` | `hf-benchmarks/transformers` |
+| `MODEL_ID` | `meta-llama/Llama-3.1-8B-Instruct` |
+
+**Concurrency:** group `${{ github.workflow }}-${{ github.head_ref || github.run_id }}`, cancel-in-progress: `true`
+
+## Referenced secrets and variables
+
+**Secrets:**
+
+| Name | Used by |
+|------|---------|
+| `HF_HUB_READ_TOKEN` | job `benchmark` step `Run benchmark` env `HF_TOKEN` |
+| `PUSH_TO_HUB_TOKEN` | job `benchmark` step `Run benchmark` env `PUSH_TO_HUB_TOKEN` |
+
+## Jobs
+
+### Benchmark (`benchmark`)
+
+| Property | Value |
+|----------|-------|
+| Runs on | `group: ${{ matrix.group }}` |
+| Matrix | `group`: aws-g5-4xlarge-cache |
+| Condition | `(github.event_name == 'pull_request' && contains( github.event.pull_request.labels.*.name, 'run-benchmark') )\|\|<br>(github.event_name == 'push' && github.ref == 'refs/heads/main')` |
+
+<details>
+<summary>Steps (4)</summary>
+
+1. **Get repo**
+   - Uses: `actions/checkout@v6.0.2`
+   - With:
+     - `fetch-depth`: `1`
+     - `persist-credentials`: `false`
+
+2. **Install benchmark script dependencies**
+
+3. **Reinstall transformers in edit mode (remove the one installed during docker image build)**
+
+4. **Run benchmark**
+   - Env:
+     - `HF_TOKEN`: `${{ secrets.HF_HUB_READ_TOKEN }}`
+     - `PUSH_TO_HUB_TOKEN`: `${{ secrets.PUSH_TO_HUB_TOKEN }}`
+     - `BRANCH_NAME`: `${{ github.head_ref || github.ref_name }}`
+
+</details>
+
+[Back to top](#contents)
+
+# Self-hosted runner (Intel Gaudi3 scheduled CI caller)
+
+**Triggers:** `repository_dispatch`, `workflow_dispatch`, `schedule`
+
+| Property | Value |
+|----------|-------|
+| File | `self-scheduled-intel-gaudi3-caller.yml` |
+
+**Jobs:** [Model CI](#model-ci-model-ci-5), [Pipeline CI](#pipeline-ci-pipeline-ci), [Example CI](#example-ci-example-ci-2), [DeepSpeed CI](#deepspeed-ci-deepspeed-ci-2), [Trainer/FSDP CI](#trainerfsdp-ci-trainer-fsdp-ci-1)
+
+## Schedule
+
+- `17 2 * * *`
+
+## Permissions
+
+- `contents`: `read`
+
+## Call graph (rooted at this workflow)
+
+`self-scheduled-intel-gaudi3-caller.yml` [repository_dispatch, workflow_dispatch, schedule]
+
+- uses **[self-scheduled-intel-gaudi.yml](#self-hosted-runner-scheduled-intel-gaudi)** (x5)
+  - uses **[model_jobs_intel_gaudi.yml](#model-jobs-1)** (x2)
+  - `send_results` uses [slack-report.yml](#ci-slack-report)
+
+## Transitive requirements (from full call graph)
+
+Secrets referenced (literal names): `ACCESS_REPO_INFO_TOKEN`, `CI_SLACK_BOT_TOKEN`, `CI_SLACK_CHANNEL_DUMMY_TESTS`, `CI_SLACK_CHANNEL_ID`, `CI_SLACK_CHANNEL_ID_DAILY`, `GITHUB_TOKEN`, `HF_HUB_READ_TOKEN`, `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN`
+
+Permissions declared across the chain: `contents: read`
+
+## Jobs
+
+### Model CI (`model-ci`)
+
+| Property | Value |
+|----------|-------|
+| Uses workflow | [Self-hosted runner (scheduled-intel-gaudi)](#self-hosted-runner-scheduled-intel-gaudi) |
+
+#### Inputs forwarded
+
+- `job`: `run_models_gpu`
+- `ci_event`: `Scheduled CI (Intel) - Gaudi3`
+- `runner_scale_set`: `itac-bm-emr-gaudi3-dell`
+- `slack_report_channel`: `#transformers-ci-daily-intel-gaudi3`
+- `report_repo_id`: `optimum-intel/transformers_daily_ci_intel_gaudi3`
+
+#### Secrets forwarded
+
+- `secrets: inherit` (all caller secrets are passed to the callee)
+
+### Pipeline CI (`pipeline-ci`)
+
+| Property | Value |
+|----------|-------|
+| Uses workflow | [Self-hosted runner (scheduled-intel-gaudi)](#self-hosted-runner-scheduled-intel-gaudi) |
+
+#### Inputs forwarded
+
+- `job`: `run_pipelines_torch_gpu`
+- `ci_event`: `Scheduled CI (Intel) - Gaudi3`
+- `runner_scale_set`: `itac-bm-emr-gaudi3-dell`
+- `slack_report_channel`: `#transformers-ci-daily-intel-gaudi3`
+- `report_repo_id`: `optimum-intel/transformers_daily_ci_intel_gaudi3`
+
+#### Secrets forwarded
+
+- `secrets: inherit` (all caller secrets are passed to the callee)
+
+### Example CI (`example-ci`)
+
+| Property | Value |
+|----------|-------|
+| Uses workflow | [Self-hosted runner (scheduled-intel-gaudi)](#self-hosted-runner-scheduled-intel-gaudi) |
+
+#### Inputs forwarded
+
+- `job`: `run_examples_gpu`
+- `ci_event`: `Scheduled CI (Intel) - Gaudi3`
+- `runner_scale_set`: `itac-bm-emr-gaudi3-dell`
+- `slack_report_channel`: `#transformers-ci-daily-intel-gaudi3`
+- `report_repo_id`: `optimum-intel/transformers_daily_ci_intel_gaudi3`
+
+#### Secrets forwarded
+
+- `secrets: inherit` (all caller secrets are passed to the callee)
+
+### DeepSpeed CI (`deepspeed-ci`)
+
+| Property | Value |
+|----------|-------|
+| Uses workflow | [Self-hosted runner (scheduled-intel-gaudi)](#self-hosted-runner-scheduled-intel-gaudi) |
+
+#### Inputs forwarded
+
+- `job`: `run_torch_cuda_extensions_gpu`
+- `ci_event`: `Scheduled CI (Intel) - Gaudi3`
+- `runner_scale_set`: `itac-bm-emr-gaudi3-dell`
+- `slack_report_channel`: `#transformers-ci-daily-intel-gaudi3`
+- `report_repo_id`: `optimum-intel/transformers_daily_ci_intel_gaudi3`
+
+#### Secrets forwarded
+
+- `secrets: inherit` (all caller secrets are passed to the callee)
+
+### Trainer/FSDP CI (`trainer-fsdp-ci`)
+
+| Property | Value |
+|----------|-------|
+| Uses workflow | [Self-hosted runner (scheduled-intel-gaudi)](#self-hosted-runner-scheduled-intel-gaudi) |
+
+#### Inputs forwarded
+
+- `job`: `run_trainer_and_fsdp_gpu`
+- `ci_event`: `Scheduled CI (Intel) - Gaudi3`
+- `runner_scale_set`: `itac-bm-emr-gaudi3-dell`
+- `slack_report_channel`: `#transformers-ci-daily-intel-gaudi3`
+- `report_repo_id`: `optimum-intel/transformers_daily_ci_intel_gaudi3`
 
 #### Secrets forwarded
 
@@ -4214,225 +3927,6 @@ Permissions declared across the chain: `contents: read`
 
 [Back to top](#contents)
 
-# Self-hosted runner (past-ci)
-
-**Triggers:** `workflow_call`
-
-| Property | Value |
-|----------|-------|
-| File | `self-past-caller.yml` |
-
-**Jobs:** [Model CI](#model-ci-model-ci-3), [DeepSpeed CI](#deepspeed-ci-deepspeed-ci)
-
-## Workflow call API
-
-**Inputs:**
-
-| Name | Type | Required | Default | Description |
-|------|------|----------|---------|-------------|
-| `framework` | string | Yes | - | - |
-| `version` | string | Yes | - | - |
-| `sha` | string | No | `main` | - |
-
-## Permissions
-
-- `contents`: `read`
-
-## Called by
-
-`self-past-caller.yml`
-
-- **[self-nightly-past-ci-caller.yml](#self-hosted-runner-nightly-past-ci-caller)** - entry point (x7)
-
-## Jobs
-
-### Model CI (`model-ci`)
-
-| Property | Value |
-|----------|-------|
-| Uses workflow | [Nvidia CI (job definitions)](#nvidia-ci-job-definitions) |
-
-#### Inputs forwarded
-
-- `job`: `run_models_gpu`
-- `slack_report_channel`: `#transformers-ci-past-future`
-- `runner`: `past-ci`
-- `docker`: `huggingface/transformers-${{ inputs.framework }}-past-${{ inputs.version }}-gpu`
-- `ci_event`: `Past CI - ${{ inputs.framework }}-${{ inputs.version }}`
-
-#### Secrets forwarded
-
-- `secrets: inherit` (all caller secrets are passed to the callee)
-
-### DeepSpeed CI (`deepspeed-ci`)
-
-| Property | Value |
-|----------|-------|
-| Uses workflow | [Nvidia CI (job definitions)](#nvidia-ci-job-definitions) |
-
-#### Inputs forwarded
-
-- `job`: `run_torch_cuda_extensions_gpu`
-- `slack_report_channel`: `#transformers-ci-past-future`
-- `runner`: `past-ci`
-- `docker`: `huggingface/transformers-${{ inputs.framework }}-past-${{ inputs.version }}-gpu`
-- `ci_event`: `Past CI - ${{ inputs.framework }}-${{ inputs.version }}`
-
-#### Secrets forwarded
-
-- `secrets: inherit` (all caller secrets are passed to the callee)
-
-[Back to top](#contents)
-
-# Self-hosted runner (AMD scheduled CI caller)
-
-**Triggers:** `schedule`
-
-| Property | Value |
-|----------|-------|
-| File | `self-scheduled-amd-caller.yml` |
-
-## Schedule
-
-- `17 5 * * *`
-
-## Permissions
-
-- `contents`: `read`
-
-## Jobs
-
-### Trigger Scheduled AMD CI (`run_scheduled_amd_ci`)
-
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-22.04` |
-| Condition | `${{ always() }}` |
-
-<details>
-<summary>Steps (1)</summary>
-
-1. **Trigger scheduled AMD CI via workflow\_run**
-
-</details>
-
-[Back to top](#contents)
-
-# Self-hosted runner (AMD mi250 scheduled CI caller)
-
-**Triggers:** `workflow_run`, `push`
-
-| Property | Value |
-|----------|-------|
-| File | `self-scheduled-amd-mi250-caller.yml` |
-
-**Jobs:** [Model CI](#model-ci-model-ci-4), [Torch pipeline CI](#torch-pipeline-ci-torch-pipeline), [Example CI](#example-ci-example-ci), [DeepSpeed CI](#deepspeed-ci-deepspeed-ci-1)
-
-## Event filters
-
-- **workflow_run**
-  - workflows: `Self-hosted runner (AMD scheduled CI caller)`
-  - branches: `main`
-  - types: `completed`
-- **push**
-  - branches: `run_amd_scheduled_ci_caller*`
-
-## Permissions
-
-- `contents`: `read`
-
-## Call graph (rooted at this workflow)
-
-`self-scheduled-amd-mi250-caller.yml` [workflow_run, push]
-
-- uses **`huggingface/hf-workflows/.github/workflows/transformers_amd_ci_scheduled.yaml@63657f571a92cc9759159442936061c51d6d9ae4`** (x4)
-
-## Transitive requirements (from full call graph)
-
-Permissions declared across the chain: `contents: read`
-
-External workflows referenced: `huggingface/hf-workflows/.github/workflows/transformers_amd_ci_scheduled.yaml@63657f571a92cc9759159442936061c51d6d9ae4`
-
-## Jobs
-
-### Model CI (`model-ci`)
-
-| Property | Value |
-|----------|-------|
-| Uses workflow | `huggingface/hf-workflows/.github/workflows/transformers_amd_ci_scheduled.yaml@63657f571a92cc9759159442936061c51d6d9ae4` (external) |
-
-#### Inputs forwarded
-
-- `job`: `run_models_gpu`
-- `slack_report_channel`: `#transformers-ci-daily-amd`
-- `runner`: `mi250`
-- `docker`: `huggingface/transformers-pytorch-amd-gpu`
-- `ci_event`: `Scheduled CI (AMD) - mi250`
-- `report_repo_id`: `optimum-amd/transformers_daily_ci`
-
-#### Secrets forwarded
-
-- `secrets: inherit` (all caller secrets are passed to the callee)
-
-### Torch pipeline CI (`torch-pipeline`)
-
-| Property | Value |
-|----------|-------|
-| Uses workflow | `huggingface/hf-workflows/.github/workflows/transformers_amd_ci_scheduled.yaml@63657f571a92cc9759159442936061c51d6d9ae4` (external) |
-
-#### Inputs forwarded
-
-- `job`: `run_pipelines_torch_gpu`
-- `slack_report_channel`: `#transformers-ci-daily-amd`
-- `runner`: `mi250`
-- `docker`: `huggingface/transformers-pytorch-amd-gpu`
-- `ci_event`: `Scheduled CI (AMD) - mi250`
-- `report_repo_id`: `optimum-amd/transformers_daily_ci`
-
-#### Secrets forwarded
-
-- `secrets: inherit` (all caller secrets are passed to the callee)
-
-### Example CI (`example-ci`)
-
-| Property | Value |
-|----------|-------|
-| Uses workflow | `huggingface/hf-workflows/.github/workflows/transformers_amd_ci_scheduled.yaml@63657f571a92cc9759159442936061c51d6d9ae4` (external) |
-
-#### Inputs forwarded
-
-- `job`: `run_examples_gpu`
-- `slack_report_channel`: `#transformers-ci-daily-amd`
-- `runner`: `mi250`
-- `docker`: `huggingface/transformers-pytorch-amd-gpu`
-- `ci_event`: `Scheduled CI (AMD) - mi250`
-- `report_repo_id`: `optimum-amd/transformers_daily_ci`
-
-#### Secrets forwarded
-
-- `secrets: inherit` (all caller secrets are passed to the callee)
-
-### DeepSpeed CI (`deepspeed-ci`)
-
-| Property | Value |
-|----------|-------|
-| Uses workflow | `huggingface/hf-workflows/.github/workflows/transformers_amd_ci_scheduled.yaml@63657f571a92cc9759159442936061c51d6d9ae4` (external) |
-
-#### Inputs forwarded
-
-- `job`: `run_torch_cuda_extensions_gpu`
-- `slack_report_channel`: `#transformers-ci-daily-amd`
-- `runner`: `mi250`
-- `docker`: `huggingface/transformers-pytorch-deepspeed-amd-gpu`
-- `ci_event`: `Scheduled CI (AMD) - mi250`
-- `report_repo_id`: `optimum-amd/transformers_daily_ci`
-
-#### Secrets forwarded
-
-- `secrets: inherit` (all caller secrets are passed to the callee)
-
-[Back to top](#contents)
-
 # Self-hosted runner scale set (AMD mi325 scheduled CI caller)
 
 **Triggers:** `workflow_run`, `push`
@@ -4441,7 +3935,7 @@ External workflows referenced: `huggingface/hf-workflows/.github/workflows/trans
 |----------|-------|
 | File | `self-scheduled-amd-mi325-caller.yml` |
 
-**Jobs:** [Model CI](#model-ci-model-ci-5), [Torch pipeline CI](#torch-pipeline-ci-torch-pipeline-1), [Example CI](#example-ci-example-ci-1), [DeepSpeed CI](#deepspeed-ci-deepspeed-ci-2)
+**Jobs:** [Model CI](#model-ci-model-ci-6), [Torch pipeline CI](#torch-pipeline-ci-torch-pipeline-2), [Example CI](#example-ci-example-ci-3), [DeepSpeed CI](#deepspeed-ci-deepspeed-ci-3)
 
 ## Event filters
 
@@ -4560,7 +4054,7 @@ External workflows referenced: `huggingface/hf-workflows/.github/workflows/trans
 |----------|-------|
 | File | `self-scheduled-amd-mi355-caller.yml` |
 
-**Jobs:** [Model CI](#model-ci-model-ci-6), [Torch pipeline CI](#torch-pipeline-ci-torch-pipeline-2), [Example CI](#example-ci-example-ci-2), [DeepSpeed CI](#deepspeed-ci-deepspeed-ci-3)
+**Jobs:** [Model CI](#model-ci-model-ci-7), [Torch pipeline CI](#torch-pipeline-ci-torch-pipeline-3), [Example CI](#example-ci-example-ci-4), [DeepSpeed CI](#deepspeed-ci-deepspeed-ci-4)
 
 ## Event filters
 
@@ -4667,265 +4161,28 @@ External workflows referenced: `huggingface/hf-workflows/.github/workflows/trans
 
 [Back to top](#contents)
 
-# Nvidia CI
+# Slow tests on important models (on Push - A10)
 
-**Triggers:** `repository_dispatch`, `schedule`, `push`, `workflow_dispatch`
+**Triggers:** `push`
 
 | Property | Value |
 |----------|-------|
-| File | `self-scheduled-caller.yml` |
+| File | `push-important-models.yml` |
 
-**Jobs:** [Setup](#setup-setup-2), [Model CI](#model-ci-model-ci-7), [Torch pipeline CI](#torch-pipeline-ci-torch-pipeline-3), [Example CI](#example-ci-example-ci-3), [Trainer/FSDP CI](#trainerfsdp-ci-trainer-fsdp-ci), [DeepSpeed CI](#deepspeed-ci-deepspeed-ci-4), [Quantization CI](#quantization-ci-quantization-ci-1), [Kernels CI](#kernels-ci-kernels-ci)
-
-## Manual trigger inputs
-
-Inputs for the `workflow_dispatch` event.
-
-| Name | Type | Required | Default | Description |
-|------|------|----------|---------|-------------|
-| `prev_workflow_run_id` | string | No | - | previous workflow run id to compare |
-| `other_workflow_run_id` | string | No | - | other workflow run id to compare |
-
-## Schedule
-
-- `17 2 * * *`
+**Jobs:** [Get all modified files](#get-all-modified-files-get_modified_models), [Model CI](#model-ci-model-ci-8)
 
 ## Event filters
 
 - **push**
-  - branches: `run_nvidia_ci*`
+  - branches: `main`
 
 ## Permissions
 
 - `contents`: `read`
 
-## Environment (`env`)
-
-| Variable | Value |
-|----------|-------|
-| `prev_workflow_run_id` | - |
-| `other_workflow_run_id` | - |
-
 ## Call graph (rooted at this workflow)
 
-`self-scheduled-caller.yml` [repository_dispatch, schedule, push, workflow_dispatch]
-
-- uses **[self-scheduled.yml](#nvidia-ci-job-definitions)** (x7)
-  - uses **[model_jobs.yml](#model-jobs)** (x2)
-    - `collated_reports` uses [collated-reports.yml](#ci-collated-reports) (`@6abd9725ee7d809dc974991f8ff6c958afb63a3a`)
-  - `send_results` uses [slack-report.yml](#ci-slack-report)
-  - `check_new_failures` uses [check_failed_tests.yml](#process-failed-tests)
-
-## Transitive requirements (from full call graph)
-
-Secrets referenced (literal names): `ACCESS_REPO_INFO_TOKEN`, `CI_SLACK_BOT_TOKEN`, `CI_SLACK_CHANNEL_DUMMY_TESTS`, `CI_SLACK_CHANNEL_ID`, `CI_SLACK_CHANNEL_ID_DAILY`, `GITHUB_TOKEN`, `HF_HUB_READ_TOKEN`, `SLACK_CIFEEDBACK_BOT_TOKEN`, `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN`
-
-Permissions declared across the chain: `contents: read`
-
-## Jobs
-
-### Setup (`setup`)
-
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-22.04` |
-
-<details>
-<summary>Steps (2)</summary>
-
-1. **Setup**
-   - Env:
-     - `prev_workflow_run_id`: `${{ inputs.prev_workflow_run_id || env.prev_workflow_run_id }}`
-     - `other_workflow_run_id`: `${{ inputs.other_workflow_run_id || env.other_workflow_run_id }}`
-
-2. **Upload artifacts**
-   - Uses: `actions/upload-artifact@v4.6.2`
-   - With:
-     - `name`: `setup_values`
-     - `path`: `setup_values`
-
-</details>
-
-### Model CI (`model-ci`)
-
-| Property | Value |
-|----------|-------|
-| Uses workflow | [Nvidia CI (job definitions)](#nvidia-ci-job-definitions) |
-
-#### Inputs forwarded
-
-- `job`: `run_models_gpu`
-- `slack_report_channel`: `#transformers-ci-daily-models`
-- `docker`: `huggingface/transformers-all-latest-gpu`
-- `ci_event`: `Daily CI`
-- `runner_type`: `a10`
-- `report_repo_id`: `hf-internal-testing/transformers_daily_ci`
-- `commit_sha`: `${{ github.sha }}`
-
-#### Secrets forwarded
-
-- `secrets: inherit` (all caller secrets are passed to the callee)
-
-### Torch pipeline CI (`torch-pipeline`)
-
-| Property | Value |
-|----------|-------|
-| Uses workflow | [Nvidia CI (job definitions)](#nvidia-ci-job-definitions) |
-
-#### Inputs forwarded
-
-- `job`: `run_pipelines_torch_gpu`
-- `slack_report_channel`: `#transformers-ci-daily-pipeline-torch`
-- `docker`: `huggingface/transformers-all-latest-gpu`
-- `ci_event`: `Daily CI`
-- `report_repo_id`: `hf-internal-testing/transformers_daily_ci`
-- `commit_sha`: `${{ github.sha }}`
-
-#### Secrets forwarded
-
-- `secrets: inherit` (all caller secrets are passed to the callee)
-
-### Example CI (`example-ci`)
-
-| Property | Value |
-|----------|-------|
-| Uses workflow | [Nvidia CI (job definitions)](#nvidia-ci-job-definitions) |
-
-#### Inputs forwarded
-
-- `job`: `run_examples_gpu`
-- `slack_report_channel`: `#transformers-ci-daily-examples`
-- `docker`: `huggingface/transformers-all-latest-gpu`
-- `ci_event`: `Daily CI`
-- `report_repo_id`: `hf-internal-testing/transformers_daily_ci`
-- `commit_sha`: `${{ github.sha }}`
-
-#### Secrets forwarded
-
-- `secrets: inherit` (all caller secrets are passed to the callee)
-
-### Trainer/FSDP CI (`trainer-fsdp-ci`)
-
-| Property | Value |
-|----------|-------|
-| Uses workflow | [Nvidia CI (job definitions)](#nvidia-ci-job-definitions) |
-
-#### Inputs forwarded
-
-- `job`: `run_trainer_and_fsdp_gpu`
-- `slack_report_channel`: `#transformers-ci-daily-training`
-- `docker`: `huggingface/transformers-all-latest-gpu`
-- `runner_type`: `a10`
-- `ci_event`: `Daily CI`
-- `report_repo_id`: `hf-internal-testing/transformers_daily_ci`
-- `commit_sha`: `${{ github.sha }}`
-
-#### Secrets forwarded
-
-- `secrets: inherit` (all caller secrets are passed to the callee)
-
-### DeepSpeed CI (`deepspeed-ci`)
-
-| Property | Value |
-|----------|-------|
-| Uses workflow | [Nvidia CI (job definitions)](#nvidia-ci-job-definitions) |
-
-#### Inputs forwarded
-
-- `job`: `run_torch_cuda_extensions_gpu`
-- `slack_report_channel`: `#transformers-ci-daily-training`
-- `docker`: `huggingface/transformers-pytorch-deepspeed-latest-gpu`
-- `ci_event`: `Daily CI`
-- `working-directory-prefix`: `/workspace`
-- `report_repo_id`: `hf-internal-testing/transformers_daily_ci`
-- `commit_sha`: `${{ github.sha }}`
-
-#### Secrets forwarded
-
-- `secrets: inherit` (all caller secrets are passed to the callee)
-
-### Quantization CI (`quantization-ci`)
-
-| Property | Value |
-|----------|-------|
-| Uses workflow | [Nvidia CI (job definitions)](#nvidia-ci-job-definitions) |
-
-#### Inputs forwarded
-
-- `job`: `run_quantization_torch_gpu`
-- `slack_report_channel`: `#transformers-ci-daily-quantization`
-- `docker`: `huggingface/transformers-quantization-latest-gpu`
-- `ci_event`: `Daily CI`
-- `report_repo_id`: `hf-internal-testing/transformers_daily_ci`
-- `commit_sha`: `${{ github.sha }}`
-
-#### Secrets forwarded
-
-- `secrets: inherit` (all caller secrets are passed to the callee)
-
-### Kernels CI (`kernels-ci`)
-
-| Property | Value |
-|----------|-------|
-| Uses workflow | [Nvidia CI (job definitions)](#nvidia-ci-job-definitions) |
-
-#### Inputs forwarded
-
-- `job`: `run_kernels_gpu`
-- `slack_report_channel`: `#transformers-ci-daily-kernels`
-- `docker`: `huggingface/transformers-all-latest-gpu`
-- `ci_event`: `Daily CI`
-- `report_repo_id`: `hf-internal-testing/transformers_daily_ci`
-- `commit_sha`: `${{ github.sha }}`
-
-#### Secrets forwarded
-
-- `secrets: inherit` (all caller secrets are passed to the callee)
-
-[Back to top](#contents)
-
-# Nvidia CI - Flash Attn
-
-**Triggers:** `repository_dispatch`, `schedule`, `push`, `workflow_dispatch`
-
-| Property | Value |
-|----------|-------|
-| File | `self-scheduled-flash-attn-caller.yml` |
-
-**Jobs:** [Setup](#setup-setup-3), [Model CI](#model-ci-model-ci-8)
-
-## Manual trigger inputs
-
-Inputs for the `workflow_dispatch` event.
-
-| Name | Type | Required | Default | Description |
-|------|------|----------|---------|-------------|
-| `prev_workflow_run_id` | string | No | - | previous workflow run id to compare |
-| `other_workflow_run_id` | string | No | - | other workflow run id to compare |
-
-## Schedule
-
-- `17 2 * * *`
-
-## Event filters
-
-- **push**
-  - branches: `run_nvidia_ci_flash_attn*`
-
-## Permissions
-
-- `contents`: `read`
-
-## Environment (`env`)
-
-| Variable | Value |
-|----------|-------|
-| `prev_workflow_run_id` | - |
-| `other_workflow_run_id` | - |
-
-## Call graph (rooted at this workflow)
-
-`self-scheduled-flash-attn-caller.yml` [repository_dispatch, schedule, push, workflow_dispatch]
+`push-important-models.yml` [push]
 
 - `model-ci` uses [self-scheduled.yml](#nvidia-ci-job-definitions)
   - uses **[model_jobs.yml](#model-jobs)** (x2)
@@ -4941,25 +4198,31 @@ Permissions declared across the chain: `contents: read`
 
 ## Jobs
 
-### Setup (`setup`)
+### Get all modified files (`get_modified_models`)
 
 | Property | Value |
 |----------|-------|
-| Runs on | `ubuntu-22.04` |
+| Runs on | `ubuntu-latest` |
 
 <details>
-<summary>Steps (2)</summary>
+<summary>Steps (3)</summary>
 
-1. **Setup**
-   - Env:
-     - `PREV_WORKFLOW_RUN_ID`: `${{ inputs.prev_workflow_run_id || env.prev_workflow_run_id }}`
-     - `OTHER_WORKFLOW_RUN_ID`: `${{ inputs.other_workflow_run_id || env.other_workflow_run_id }}`
-
-2. **Upload artifacts**
-   - Uses: `actions/upload-artifact@v4.6.2`
+1. **Check out code**
+   - Uses: `actions/checkout@v4.3.1`
    - With:
-     - `name`: `setup_values`
-     - `path`: `setup_values`
+     - `persist-credentials`: `false`
+
+2. **Get changed files using \`actions/github-script\`**
+   - ID: `get-changed-files`
+   - Uses: `actions/github-script@v7.1.0`
+   - With:
+     - `script`: `` let files = [];  // Only handle push events if (context.eventName === 'push') {   const afterSha = context.payload.after;   const branchName = context.payload.ref.replace('refs/heads/', '');      let baseSha;      if (branchName === 'main') {     console.log('Push to main branch, comparing to parent commit');     // Get the parent commit of the pushed commit     const { data: commit } = await github.rest.repos.getCommit({       owner: context.repo.owner,       repo: context.repo.repo,       ref: afterSha     });     baseSha = commit.parents[0]?.sha;     if (!baseSha) {       throw new Error('No parent commit found for the pushed commit');     }   } else {     console.log(`Push to branch ${branchName}, comparing to main`);     baseSha = 'main';   }      const { data: comparison } = await github.rest.repos.compareCommits({     owner: context.repo.owner,     repo: context.repo.repo,     base: baseSha,     head: afterSha   });      // Include added, modified, and renamed files   files = comparison.files     .filter(file => file.status === 'added' || file.status === 'modified' || file.status === 'renamed')     .map(file => file.filename); }  // Include all files under src/transformers/ (not just models subdirectory) const filteredFiles = files.filter(file =>    file.startsWith('src/transformers/') );  core.setOutput('changed_files', filteredFiles.join(' ')); core.setOutput('any_changed', filteredFiles.length > 0 ? 'true' : 'false'); ``
+
+3. **Parse changed files with Python**
+   - ID: `set-matrix`
+   - Condition: `steps.get-changed-files.outputs.any_changed == 'true'`
+   - Env:
+     - `CHANGED_FILES`: `${{ steps.get-changed-files.outputs.changed_files }}`
 
 </details>
 
@@ -4968,17 +4231,18 @@ Permissions declared across the chain: `contents: read`
 | Property | Value |
 |----------|-------|
 | Uses workflow | [Nvidia CI (job definitions)](#nvidia-ci-job-definitions) |
+| Depends on | `get_modified_models` |
+| Condition | `needs.get_modified_models.outputs.matrix != '' && needs.get_modified_models.outputs.matrix != '[]'` |
 
 #### Inputs forwarded
 
 - `job`: `run_models_gpu`
-- `slack_report_channel`: `#transformers-ci-flash-attn`
+- `slack_report_channel`: `#transformers-ci-push`
 - `docker`: `huggingface/transformers-all-latest-gpu:flash-attn`
-- `ci_event`: `Daily CI`
-- `runner_type`: `a10`
-- `report_repo_id`: `hf-internal-testing/transformers_flash_attn_ci`
+- `ci_event`: `push`
+- `report_repo_id`: `hf-internal-testing/transformers_ci_push`
 - `commit_sha`: `${{ github.sha }}`
-- `pytest_marker`: `flash_attn_test or flash_attn_3_test or flash_attn_4_test or all_flash_attn_test`
+- `subdirs`: `${{ needs.get_modified_models.outputs.matrix }}`
 
 #### Secrets forwarded
 
@@ -4986,28 +4250,25 @@ Permissions declared across the chain: `contents: read`
 
 [Back to top](#contents)
 
-# Self-hosted runner (scheduled-intel-gaudi)
+# SSH into our runners
 
-**Triggers:** `workflow_call`
+**Triggers:** `workflow_dispatch`
 
 | Property | Value |
 |----------|-------|
-| File | `self-scheduled-intel-gaudi.yml` |
-| Default runs-on | `group: ${{ inputs.runner_scale_set }}-${{ matrix.machine_type }}` |
+| File | `ssh-runner.yml` |
 
-**Jobs:** [Setup](#setup-setup-4), [`run_models_gpu`](#run_models_gpu-2), [`run_trainer_and_fsdp_gpu`](#run_trainer_and_fsdp_gpu), [Pipelines](#pipelines-run_pipelines_torch_gpu), [Examples directory](#examples-directory-run_examples_gpu), [Intel Gaudi deepspeed tests](#intel-gaudi-deepspeed-tests-run_torch_cuda_extensions_gpu), [Slack Report](#slack-report-send_results)
+**Jobs:** [Get runner to use](#get-runner-to-use-get_runner), [SSH](#ssh-ssh_runner)
 
-## Workflow call API
+## Manual trigger inputs
 
-**Inputs:**
+Inputs for the `workflow_dispatch` event.
 
 | Name | Type | Required | Default | Description |
 |------|------|----------|---------|-------------|
-| `job` | string | Yes | - | - |
-| `slack_report_channel` | string | Yes | - | - |
-| `runner_scale_set` | string | Yes | - | - |
-| `ci_event` | string | Yes | - | - |
-| `report_repo_id` | string | Yes | - | - |
+| `runner_type` | - | Yes | - | Type of runner to test (a10) |
+| `docker_image` | - | Yes | - | Name of the Docker image |
+| `num_gpus` | - | Yes | - | Type of the number of gpus to use (`single` or `multi`) |
 
 ## Permissions
 
@@ -5017,19 +4278,831 @@ Permissions declared across the chain: `contents: read`
 
 | Variable | Value |
 |----------|-------|
-| `NUM_SLICES` | `2` |
-| `RUN_SLOW` | `yes` |
-| `PT_HPU_LAZY_MODE` | `0` |
-| `TRANSFORMERS_IS_CI` | `yes` |
-| `PT_ENABLE_INT64_SUPPORT` | `1` |
 | `HF_TOKEN` | `${{ secrets.HF_HUB_READ_TOKEN }}` |
-| `HF_HOME` | `/mnt/cache/.cache/huggingface` |
+| `HF_HOME` | `/mnt/cache` |
+| `TRANSFORMERS_IS_CI` | `yes` |
+| `OMP_NUM_THREADS` | `8` |
+| `MKL_NUM_THREADS` | `8` |
+| `RUN_SLOW` | `yes` |
+| `TF_FORCE_GPU_ALLOW_GROWTH` | `true` |
+| `CUDA_VISIBLE_DEVICES` | `0,1` |
+
+## Referenced secrets and variables
+
+**Secrets:**
+
+| Name | Used by |
+|------|---------|
+| `HF_HUB_READ_TOKEN` | workflow env `HF_TOKEN` |
+| `SLACK_CIFEEDBACK_CHANNEL` | job `ssh_runner` step `Store Slack infos` env `default_slack_channel` |
+| `TAILSCALE_SSH_AUTHKEY` | job `ssh_runner` step `Tailscale` with `authkey` |
+| `SLACK_CIFEEDBACK_BOT_TOKEN` | job `ssh_runner` step `Tailscale` with `slackToken` |
+
+## Jobs
+
+### Get runner to use (`get_runner`)
+
+| Property | Value |
+|----------|-------|
+| Runs on | `ubuntu-22.04` |
+
+<details>
+<summary>Steps (2)</summary>
+
+1. **Get runner to use**
+   - Env:
+     - `NUM_GPUS`: `${{ github.event.inputs.num_gpus }}`
+     - `RUNNER_TYPE`: `${{ github.event.inputs.runner_type }}`
+
+2. **Set runner to use**
+   - ID: `set_runner`
+
+</details>
+
+### SSH (`ssh_runner`)
+
+| Property | Value |
+|----------|-------|
+| Runs on | `group: ${{ needs.get_runner.outputs.RUNNER }}` |
+| Depends on | `get_runner` |
+
+<details>
+<summary>Steps (13)</summary>
+
+1. **Update clone**
+   - Env:
+     - `commit_sha`: `${{ github.sha }}`
+
+2. **Cleanup**
+
+3. **Show installed libraries and their versions**
+
+4. **NVIDIA-SMI**
+
+5. **Create python alias**
+
+6. **Install psutil for memory monitor**
+
+7. **Download memory monitor script**
+
+8. **Start memory monitor** `[continue-on-error]`
+
+9. **Install utilities**
+
+10. **Store Slack infos**
+   - Env:
+     - `GITHUB_ACTOR`: `${{ github.actor }}`
+
+11. **Setup automatic environment for SSH login**
+
+12. **Store Slack infos**
+   - Env:
+     - `user_slack_id`: `${{ secrets[format('{0}_{1}', env.github_actor, 'SLACK_ID')] }}`
+     - `default_slack_channel`: `${{ secrets.SLACK_CIFEEDBACK_CHANNEL }}`
+
+13. **Tailscale**
+   - Uses: `huggingface/tailscale-action@7d53c9737e53934c30290b5524d1c9b4a7c98c8a`
+   - With:
+     - `authkey`: `${{ secrets.TAILSCALE_SSH_AUTHKEY }}`
+     - `slackChannel`: `${{ env.SLACKCHANNEL }}`
+     - `slackToken`: `${{ secrets.SLACK_CIFEEDBACK_BOT_TOKEN }}`
+     - `waitForSSH`: `true`
+     - `sshTimeout`: `15m`
+
+</details>
+
+[Back to top](#contents)
+
+# Stale Bot
+
+**Triggers:** `schedule`
+
+| Property | Value |
+|----------|-------|
+| File | `stale.yml` |
+
+## Schedule
+
+- `0 8 * * *`
+
+## Permissions
+
+- `contents`: `read`
+
+## Referenced secrets and variables
+
+**Secrets:**
+
+| Name | Used by |
+|------|---------|
+| `GITHUB_TOKEN` | job `close_stale_issues` env `GITHUB_TOKEN` |
+
+## Jobs
+
+### Close Stale Issues (`close_stale_issues`)
+
+| Property | Value |
+|----------|-------|
+| Runs on | `ubuntu-22.04` |
+| Condition | `github.repository == 'huggingface/transformers'` |
+
+**Permissions:**
+
+- `issues`: `write`
+
+**Environment (`env`):**
+
+| Variable | Value |
+|----------|-------|
+| `GITHUB_TOKEN` | `${{ secrets.GITHUB_TOKEN }}` |
+
+<details>
+<summary>Steps (4)</summary>
+
+1. **actions/checkout@v4.3.1**
+   - With:
+     - `persist-credentials`: `false`
+
+2. **Setup Python**
+   - Uses: `actions/setup-python@v5.6.0`
+   - With:
+     - `python-version`: `3.8`
+
+3. **Install requirements**
+
+4. **Close stale issues**
+
+</details>
+
+[Back to top](#contents)
+
+# TRL CI bot
+
+**Triggers:** `issue_comment`
+
+This workflow allows trusted contributors to trigger TRL CI runs against specific Transformers commits by commenting `/trl-ci` on a PR in the TRL repo. It is meant to be used during the ongoing Trainer refactor/unbloat in Transformers, to help evaluate the downstream impact on TRL.
+
+| Property | Value |
+|----------|-------|
+| File | `trl-ci-bot.yml` |
+
+## Event filters
+
+- **issue_comment**
+  - types: `created`
+
+## Permissions
+
+- `contents`: `read`
+- `pull-requests`: `read`
+- `issues`: `read`
+
+## Referenced secrets and variables
+
+**Secrets:**
+
+| Name | Used by |
+|------|---------|
+| `TRL_CI_DISPATCH_TOKEN` | job `dispatch` step `Dispatch TRL workflow` env `GH_TOKEN`; job `dispatch` step `Find TRL workflow run URL` env `GH_TOKEN` |
+
+## Jobs
+
+### `dispatch`
+
+| Property | Value |
+|----------|-------|
+| Runs on | `ubuntu-latest` |
+| Condition | `github.event.issue.pull_request && contains(github.event.comment.body, '/trl-ci')` |
+
+<details>
+<summary>Steps (6)</summary>
+
+1. **Gate on trusted commenter**
+   - ID: `trust`
+
+2. **Reject untrusted commenter**
+   - Condition: `steps.trust.outputs.trusted != 'true'`
+
+3. **Fetch PR head SHA + number**
+   - ID: `pr`
+   - Condition: `steps.trust.outputs.trusted == 'true'`
+   - Env:
+     - `GH_TOKEN`: `${{ github.token }}`
+     - `PR_URL`: `${{ github.event.issue.pull_request.url }}`
+
+4. **Dispatch TRL workflow**
+   - ID: `dispatch`
+   - Condition: `steps.trust.outputs.trusted == 'true'`
+   - Env:
+     - `GH_TOKEN`: `${{ secrets.TRL_CI_DISPATCH_TOKEN }}`
+     - `STEPS_PR_OUTPUTS_SHA`: `${{ steps.pr.outputs.sha }}`
+
+5. **Find TRL workflow run URL**
+   - ID: `find_run`
+   - Condition: `steps.trust.outputs.trusted == 'true'`
+   - Env:
+     - `GH_TOKEN`: `${{ secrets.TRL_CI_DISPATCH_TOKEN }}`
+
+6. **Comment back on PR with link**
+   - Condition: `steps.trust.outputs.trusted == 'true'`
+   - Env:
+     - `GH_TOKEN`: `${{ github.token }}`
+     - `STEPS_PR_OUTPUTS_SHA`: `${{ steps.pr.outputs.sha }}`
+     - `STEPS_FIND_RUN_OUTPUTS_URL`: `${{ steps.find_run.outputs.url }}`
+
+</details>
+
+[Back to top](#contents)
+
+# Update Transformers metadata
+
+**Triggers:** `push`
+
+| Property | Value |
+|----------|-------|
+| File | `update_metdata.yml` |
+
+## Event filters
+
+- **push**
+  - branches: `main`, `update_transformers_metadata*`
+
+## Permissions
+
+- `contents`: `read`
+
+## Referenced secrets and variables
+
+**Secrets:**
+
+| Name | Used by |
+|------|---------|
+| `LYSANDRE_HF_TOKEN` | job `build_and_package` step `Update metadata` env `HF_TOKEN` |
+
+## Jobs
+
+### `build_and_package`
+
+| Property | Value |
+|----------|-------|
+| Runs on | `ubuntu-22.04` |
+
+**Defaults:** shell `bash -l {0}`
+
+<details>
+<summary>Steps (3)</summary>
+
+1. **actions/checkout@v4.3.1**
+   - With:
+     - `persist-credentials`: `false`
+
+2. **Setup environment**
+
+3. **Update metadata**
+   - Env:
+     - `HF_TOKEN`: `${{ secrets.LYSANDRE_HF_TOKEN }}`
+
+</details>
+
+[Back to top](#contents)
+
+# Upload PR Documentation
+
+**Triggers:** `workflow_run`
+
+| Property | Value |
+|----------|-------|
+| File | `upload_pr_documentation.yml` |
+
+## Event filters
+
+- **workflow_run**
+  - workflows: `Build PR Documentation`
+  - types: `completed`
+
+## Permissions
+
+- `contents`: `read`
+
+## Call graph (rooted at this workflow)
+
+`upload_pr_documentation.yml` [workflow_run]
+
+- `build` uses `huggingface/doc-builder/.github/workflows/upload_pr_documentation.yml@9ad2de8582b56c017cb530c1165116d40433f1c6`
+
+## Transitive requirements (from full call graph)
+
+Secrets referenced (literal names): `COMMENT_BOT_TOKEN`, `HF_DOC_BUILD_PUSH`, `comment_bot_token`, `hf_token`
+
+Permissions declared across the chain: `contents: read`
+
+External workflows referenced: `huggingface/doc-builder/.github/workflows/upload_pr_documentation.yml@9ad2de8582b56c017cb530c1165116d40433f1c6`
+
+## Referenced secrets and variables
+
+**Secrets:**
+
+| Name | Used by |
+|------|---------|
+| `HF_DOC_BUILD_PUSH` | job `build` secrets `hf_token` |
+| `COMMENT_BOT_TOKEN` | job `build` secrets `comment_bot_token` |
+
+## Jobs
+
+### `build`
+
+| Property | Value |
+|----------|-------|
+| Uses workflow | `huggingface/doc-builder/.github/workflows/upload_pr_documentation.yml@9ad2de8582b56c017cb530c1165116d40433f1c6` (external) |
+
+#### Inputs forwarded
+
+- `package_name`: `transformers`
+
+#### Secrets forwarded
+
+- `hf_token`: `${{ secrets.HF_DOC_BUILD_PUSH }}`
+- `comment_bot_token`: `${{ secrets.COMMENT_BOT_TOKEN }}`
+
+[Back to top](#contents)
+
+# CI collated reports
+
+**Triggers:** `workflow_call`
+
+| Property | Value |
+|----------|-------|
+| File | `collated-reports.yml` |
+
+## Workflow call API
+
+**Inputs:**
+
+| Name | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| `job` | string | Yes | - | - |
+| `report_repo_id` | string | Yes | - | - |
+| `machine_type` | string | Yes | - | - |
+| `gpu_name` | string | Yes | - | Name of the GPU used for the job. Its enough that the value contains the name of the GPU, e.g. "noise-h100-more-noise". Case insensitive. |
+
+## Permissions
+
+- `contents`: `read`
 
 ## Called by
 
-`self-scheduled-intel-gaudi.yml`
+`collated-reports.yml`
 
-- **[self-scheduled-intel-gaudi3-caller.yml](#self-hosted-runner-intel-gaudi3-scheduled-ci-caller)** - entry point (x5)
+- [model_jobs.yml](#collated-reports-collated_reports-1) (job: `collated_reports`)
+  - **[self-scheduled.yml](#nvidia-ci-job-definitions)** (x2)
+    - [push-important-models.yml](#model-ci-model-ci-8) (job: `model-ci`) - entry point
+    - **[self-comment-ci.yml](#pr-comment-github-ci)** - entry point (x2)
+    - [self-nightly-caller.yml](#model-ci-model-ci-2) (job: `model-ci`) - entry point
+    - **[self-past-caller.yml](#self-hosted-runner-past-ci)** (x2)
+      - **[self-nightly-past-ci-caller.yml](#self-hosted-runner-nightly-past-ci-caller)** - entry point (x7)
+    - **[self-scheduled-caller.yml](#nvidia-ci)** - entry point (x7)
+    - [self-scheduled-flash-attn-caller.yml](#model-ci-model-ci-1) (job: `model-ci`) - entry point
+
+## Referenced secrets and variables
+
+**Secrets:**
+
+| Name | Used by |
+|------|---------|
+| `ACCESS_REPO_INFO_TOKEN` | job `collated_reports` step `Collated reports` env `ACCESS_REPO_INFO_TOKEN` |
+| `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN` | job `collated_reports` step `Collated reports` env `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN` |
+
+## Jobs
+
+### Collated reports (`collated_reports`)
+
+| Property | Value |
+|----------|-------|
+| Runs on | `ubuntu-22.04` |
+| Condition | `always()` |
+
+<details>
+<summary>Steps (3)</summary>
+
+1. **actions/checkout@v4.3.1**
+   - With:
+     - `persist-credentials`: `false`
+
+2. **actions/download-artifact@v4.3.0**
+
+3. **Collated reports**
+   - Env:
+     - `ACCESS_REPO_INFO_TOKEN`: `${{ secrets.ACCESS_REPO_INFO_TOKEN }}`
+     - `CI_SHA`: `${{ github.sha }}`
+     - `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN`: `${{ secrets.TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN }}`
+     - `MACHINE_TYPE`: `${{ inputs.machine_type }}`
+     - `JOB`: `${{ inputs.job }}`
+     - `REPORT_REPO_ID`: `${{ inputs.report_repo_id }}`
+     - `GPU_NAME`: `${{ inputs.gpu_name }}`
+
+</details>
+
+[Back to top](#contents)
+
+# CI slack report
+
+**Triggers:** `workflow_call`
+
+| Property | Value |
+|----------|-------|
+| File | `slack-report.yml` |
+
+## Workflow call API
+
+**Inputs:**
+
+| Name | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| `job` | string | Yes | - | - |
+| `slack_report_channel` | string | Yes | - | - |
+| `setup_status` | string | Yes | - | - |
+| `folder_slices` | string | Yes | - | - |
+| `quantization_matrix` | string | Yes | - | - |
+| `ci_event` | string | Yes | - | - |
+| `report_repo_id` | string | Yes | - | - |
+| `commit_sha` | string | No | - | - |
+
+**Outputs:**
+
+| Name | Description | Value |
+|------|-------------|-------|
+| `is_slack_reporting_job_ok` | Whether the send_results job succeeded (not failed) | `${{ jobs.send_results.result != 'failure' }}` |
+
+## Permissions
+
+- `contents`: `read`
+
+## Environment (`env`)
+
+| Variable | Value |
+|----------|-------|
+| `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN` | `${{ secrets.TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN }}` |
+
+## Called by
+
+`slack-report.yml`
+
+- [self-scheduled-intel-gaudi.yml](#slack-report-send_results-1) (job: `send_results`)
+  - **[self-scheduled-intel-gaudi3-caller.yml](#self-hosted-runner-intel-gaudi3-scheduled-ci-caller)** - entry point (x5)
+- [self-scheduled.yml](#slack-report-send_results) (job: `send_results`)
+  - [push-important-models.yml](#model-ci-model-ci-8) (job: `model-ci`) - entry point
+  - **[self-comment-ci.yml](#pr-comment-github-ci)** - entry point (x2)
+  - [self-nightly-caller.yml](#model-ci-model-ci-2) (job: `model-ci`) - entry point
+  - **[self-past-caller.yml](#self-hosted-runner-past-ci)** (x2)
+    - **[self-nightly-past-ci-caller.yml](#self-hosted-runner-nightly-past-ci-caller)** - entry point (x7)
+  - **[self-scheduled-caller.yml](#nvidia-ci)** - entry point (x7)
+  - [self-scheduled-flash-attn-caller.yml](#model-ci-model-ci-1) (job: `model-ci`) - entry point
+
+## Referenced secrets and variables
+
+**Secrets:**
+
+| Name | Used by |
+|------|---------|
+| `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN` | workflow env `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN` |
+| `GITHUB_TOKEN` | job `send_results` step `actions/download-artifact@v8.0.1` with `github-token` |
+| `CI_SLACK_BOT_TOKEN` | job `send_results` step `Send message to Slack` env `CI_SLACK_BOT_TOKEN` |
+| `CI_SLACK_CHANNEL_ID` | job `send_results` step `Send message to Slack` env `CI_SLACK_CHANNEL_ID` |
+| `CI_SLACK_CHANNEL_ID_DAILY` | job `send_results` step `Send message to Slack` env `CI_SLACK_CHANNEL_ID_DAILY` |
+| `CI_SLACK_CHANNEL_DUMMY_TESTS` | job `send_results` step `Send message to Slack` env `CI_SLACK_CHANNEL_DUMMY_TESTS` |
+| `ACCESS_REPO_INFO_TOKEN` | job `send_results` step `Send message to Slack` env `ACCESS_REPO_INFO_TOKEN` |
+
+## Jobs
+
+### Send results to webhook (`send_results`)
+
+| Property | Value |
+|----------|-------|
+| Runs on | `ubuntu-22.04` |
+| Condition | `always() && !cancelled()` |
+
+<details>
+<summary>Steps (6)</summary>
+
+1. **Preliminary job status**
+   - Env:
+     - `setup_status`: `${{ inputs.setup_status }}`
+
+2. **actions/checkout@v4.3.1**
+   - With:
+     - `fetch-depth`: `2`
+     - `ref`: `${{ (github.event_name == 'issue_comment' || github.event_name == 'pull_request_target') && 'main' || (inputs.commit_sha || github.sha) }}`
+     - `persist-credentials`: `false`
+
+3. **actions/download-artifact@v8.0.1**
+   - With:
+     - `github-token`: `${{ secrets.GITHUB_TOKEN }}`
+   - Env:
+     - `ACTIONS_ARTIFACT_MAX_ARTIFACT_COUNT`: `2000`
+
+4. **Prepare some setup values**
+
+5. **Send message to Slack**
+   - Env:
+     - `CI_SLACK_BOT_TOKEN`: `${{ secrets.CI_SLACK_BOT_TOKEN }}`
+     - `CI_SLACK_CHANNEL_ID`: `${{ secrets.CI_SLACK_CHANNEL_ID }}`
+     - `CI_SLACK_CHANNEL_ID_DAILY`: `${{ secrets.CI_SLACK_CHANNEL_ID_DAILY }}`
+     - `CI_SLACK_CHANNEL_DUMMY_TESTS`: `${{ secrets.CI_SLACK_CHANNEL_DUMMY_TESTS }}`
+     - `SLACK_REPORT_CHANNEL`: `${{ inputs.slack_report_channel }}`
+     - `ACCESS_REPO_INFO_TOKEN`: `${{ secrets.ACCESS_REPO_INFO_TOKEN }}`
+     - `CI_EVENT`: `${{ inputs.ci_event }}`
+     - `CI_TITLE`: `${{ github.event.head_commit.message }}`
+     - `CI_SHA`: `${{ inputs.commit_sha || github.sha }}`
+     - `CI_TEST_JOB`: `${{ inputs.job }}`
+     - `SETUP_STATUS`: `${{ inputs.setup_status }}`
+     - `REPORT_REPO_ID`: `${{ inputs.report_repo_id }}`
+     - `quantization_matrix`: `${{ inputs.quantization_matrix }}`
+     - `folder_slices`: `${{ inputs.folder_slices }}`
+
+6. **Failure table artifacts**
+   - Uses: `actions/upload-artifact@v4.6.2`
+   - With:
+     - `name`: `ci_results_${{ inputs.job }}`
+     - `path`: `ci_results_${{ inputs.job }}`
+
+</details>
+
+[Back to top](#contents)
+
+# Doctest job
+
+**Triggers:** `workflow_call`
+
+| Property | Value |
+|----------|-------|
+| File | `doctest_job.yml` |
+
+## Workflow call API
+
+**Inputs:**
+
+| Name | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| `job_splits` | string | Yes | - | - |
+| `split_keys` | string | Yes | - | - |
+
+## Permissions
+
+- `contents`: `read`
+
+## Environment (`env`)
+
+| Variable | Value |
+|----------|-------|
+| `HF_HOME` | `/mnt/cache` |
+| `TRANSFORMERS_IS_CI` | `yes` |
+| `RUN_SLOW` | `yes` |
+| `OMP_NUM_THREADS` | `16` |
+| `MKL_NUM_THREADS` | `16` |
+| `TF_FORCE_GPU_ALLOW_GROWTH` | `true` |
+
+## Called by
+
+`doctest_job.yml`
+
+- [doctests.yml](#call-doctest-jobs-call_doctest_job) (job: `call_doctest_job`) - entry point
+
+## Jobs
+
+### `run_doctests`
+
+| Property | Value |
+|----------|-------|
+| Runs on | `group: aws-g5-4xlarge-cache` |
+| Matrix | `split_keys`: ${{ fromJson(inputs.split_keys) }} |
+
+<details>
+<summary>Steps (9)</summary>
+
+1. **Update clone**
+
+2. **Reinstall transformers in edit mode (remove the one installed during docker image build)**
+
+3. **GPU visibility**
+
+4. **Show installed libraries and their versions**
+
+5. **Get doctest files**
+
+6. **Set \`split\_keys\`**
+   - Env:
+     - `MATRIX_SPLIT_KEYS`: `${{ matrix.split_keys }}`
+
+7. **Run doctests**
+
+8. **Failure short reports** `[continue-on-error]`
+   - Condition: `${{ failure() }}`
+
+9. **Test suite reports artifacts: doc\_tests\_gpu\_test\_reports\_${{ env.split\_keys }}**
+   - Uses: `actions/upload-artifact@v4.6.2`
+   - Condition: `${{ always() }}`
+   - With:
+     - `name`: `doc_tests_gpu_test_reports_${{ env.split_keys }}`
+     - `path`: `/transformers/reports/doc_tests_gpu_${{ env.split_keys }}`
+
+</details>
+
+[Back to top](#contents)
+
+# Get PR commit SHA
+
+**Triggers:** `workflow_call`
+
+| Property | Value |
+|----------|-------|
+| File | `get-pr-info.yml` |
+
+## Workflow call API
+
+**Inputs:**
+
+| Name | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| `pr_number` | string | Yes | - | - |
+
+**Outputs:**
+
+| Name | Description | Value |
+|------|-------------|-------|
+| `PR_HEAD_REPO_FULL_NAME` | The full name of the repository from which the pull request is created | `${{ jobs.get-pr-info.outputs.PR_HEAD_REPO_FULL_NAME }}` |
+| `PR_BASE_REPO_FULL_NAME` | The full name of the repository to which the pull request is created | `${{ jobs.get-pr-info.outputs.PR_BASE_REPO_FULL_NAME }}` |
+| `PR_HEAD_REPO_OWNER` | The owner of the repository from which the pull request is created | `${{ jobs.get-pr-info.outputs.PR_HEAD_REPO_OWNER }}` |
+| `PR_BASE_REPO_OWNER` | The owner of the repository to which the pull request is created | `${{ jobs.get-pr-info.outputs.PR_BASE_REPO_OWNER }}` |
+| `PR_HEAD_REPO_NAME` | The name of the repository from which the pull request is created | `${{ jobs.get-pr-info.outputs.PR_HEAD_REPO_NAME }}` |
+| `PR_BASE_REPO_NAME` | The name of the repository to which the pull request is created | `${{ jobs.get-pr-info.outputs.PR_BASE_REPO_NAME }}` |
+| `PR_HEAD_REF` | The branch name of the pull request in the head repository | `${{ jobs.get-pr-info.outputs.PR_HEAD_REF }}` |
+| `PR_BASE_REF` | The branch name in the base repository (to merge into) | `${{ jobs.get-pr-info.outputs.PR_BASE_REF }}` |
+| `PR_HEAD_SHA` | The head sha of the pull request branch in the head repository | `${{ jobs.get-pr-info.outputs.PR_HEAD_SHA }}` |
+| `PR_BASE_SHA` | The head sha of the target branch in the base repository | `${{ jobs.get-pr-info.outputs.PR_BASE_SHA }}` |
+| `PR_MERGE_COMMIT_SHA` | The sha of the merge commit for the pull request (created by GitHub) in the base repository | `${{ jobs.get-pr-info.outputs.PR_MERGE_COMMIT_SHA }}` |
+| `PR_MERGE_COMMIT_BASE_SHA` | The sha of the parent commit of the merge commit on the target branch in the base repository | `${{ jobs.get-pr-info.outputs.PR_MERGE_COMMIT_BASE_SHA }}` |
+| `PR_HEAD_COMMIT_DATE` | The date of the head sha of the pull request branch in the head repository | `${{ jobs.get-pr-info.outputs.PR_HEAD_COMMIT_DATE }}` |
+| `PR_MERGE_COMMIT_DATE` | The date of the merge commit for the pull request (created by GitHub) in the base repository | `${{ jobs.get-pr-info.outputs.PR_MERGE_COMMIT_DATE }}` |
+| `PR_HEAD_COMMIT_TIMESTAMP` | The timestamp of the head sha of the pull request branch in the head repository | `${{ jobs.get-pr-info.outputs.PR_HEAD_COMMIT_TIMESTAMP }}` |
+| `PR_MERGE_COMMIT_TIMESTAMP` | The timestamp of the merge commit for the pull request (created by GitHub) in the base repository | `${{ jobs.get-pr-info.outputs.PR_MERGE_COMMIT_TIMESTAMP }}` |
+| `PR` | The PR | `${{ jobs.get-pr-info.outputs.PR }}` |
+| `PR_FILES` | The files touched in the PR | `${{ jobs.get-pr-info.outputs.PR_FILES }}` |
+
+## Permissions
+
+- `contents`: `read`
+
+## Called by
+
+`get-pr-info.yml`
+
+- [pr-repo-consistency-bot.yml](#get-pr-commit-sha-get-pr-info-2) (job: `get-pr-info`) - entry point
+- [pr_build_doc_with_comment.yml](#get-pr-commit-sha-get-pr-info) (job: `get-pr-info`) - entry point
+- [pr_slow_ci_suggestion.yml](#get-pr-commit-sha-get-pr-info-3) (job: `get-pr-info`) - entry point
+- [self-comment-ci.yml](#get-pr-commit-sha-get-pr-info-1) (job: `get-pr-info`) - entry point
+
+## Jobs
+
+### Get PR commit SHA better (`get-pr-info`)
+
+| Property | Value |
+|----------|-------|
+| Runs on | `ubuntu-22.04` |
+| Condition | `${{ inputs.pr_number != '' }}` |
+
+<details>
+<summary>Steps (2)</summary>
+
+1. **Extract PR details**
+   - ID: `pr_info`
+   - Uses: `actions/github-script@v6.4.1`
+   - With:
+     - `script`: `const pull_number = parseInt(process.env.PR_NUMBER, 10);  const { data: pr } = await github.rest.pulls.get({   owner: context.repo.owner,   repo: context.repo.repo,   pull_number, });  const { data: head_commit } = await github.rest.repos.getCommit({   owner: pr.head.repo.owner.login,   repo: pr.head.repo.name,   ref: pr.head.ref });  const { data: merge_commit } = await github.rest.repos.getCommit({   owner: pr.base.repo.owner.login,   repo: pr.base.repo.name,   ref: pr.merge_commit_sha, });  const { data: files } = await github.rest.pulls.listFiles({   owner: context.repo.owner,   repo: context.repo.repo,   pull_number, });  core.setOutput('head_repo_full_name', pr.head.repo.full_name); core.setOutput('base_repo_full_name', pr.base.repo.full_name); core.setOutput('head_repo_owner', pr.head.repo.owner.login); core.setOutput('base_repo_owner', pr.base.repo.owner.login); core.setOutput('head_repo_name', pr.head.repo.name); core.setOutput('base_repo_name', pr.base.repo.name); core.setOutput('head_ref', pr.head.ref); core.setOutput('base_ref', pr.base.ref); core.setOutput('head_sha', pr.head.sha); core.setOutput('base_sha', pr.base.sha); core.setOutput('merge_commit_base_sha', merge_commit.parents[0].sha); core.setOutput('merge_commit_sha', pr.merge_commit_sha); core.setOutput('pr', pr);  core.setOutput('head_commit_date', head_commit.commit.committer.date); core.setOutput('merge_commit_date', merge_commit.commit.committer.date);  core.setOutput('files', files);              console.log('PR head commit:', {   head_commit: head_commit,   commit: head_commit.commit,   date: head_commit.commit.committer.date });  console.log('PR merge commit:', {   merge_commit: merge_commit,   commit: merge_commit.commit,   date: merge_commit.commit.committer.date });  console.log('PR Info:', {   pr_info: pr });`
+   - Env:
+     - `PR_NUMBER`: `${{ inputs.pr_number }}`
+
+2. **Convert dates to timestamps**
+   - ID: `get_timestamps`
+   - Env:
+     - `head_commit_date`: `${{ steps.pr_info.outputs.head_commit_date }}`
+     - `merge_commit_date`: `${{ steps.pr_info.outputs.merge_commit_date }}`
+
+</details>
+
+[Back to top](#contents)
+
+# Get PR number
+
+**Triggers:** `workflow_call`
+
+| Property | Value |
+|----------|-------|
+| File | `get-pr-number.yml` |
+
+## Workflow call API
+
+**Outputs:**
+
+| Name | Description | Value |
+|------|-------------|-------|
+| `PR_NUMBER` | The extracted PR number | `${{ jobs.get-pr-number.outputs.PR_NUMBER }}` |
+
+## Permissions
+
+- `contents`: `read`
+
+## Called by
+
+`get-pr-number.yml`
+
+- [pr-repo-consistency-bot.yml](#get-pr-number-get-pr-number-2) (job: `get-pr-number`) - entry point
+- [pr_build_doc_with_comment.yml](#get-pr-number-get-pr-number) (job: `get-pr-number`) - entry point
+- [pr_slow_ci_suggestion.yml](#get-pr-number-get-pr-number-3) (job: `get-pr-number`) - entry point
+- [self-comment-ci.yml](#get-pr-number-get-pr-number-1) (job: `get-pr-number`) - entry point
+
+## Jobs
+
+### Get PR number (`get-pr-number`)
+
+| Property | Value |
+|----------|-------|
+| Runs on | `ubuntu-22.04` |
+
+<details>
+<summary>Steps (3)</summary>
+
+1. **Get PR number**
+   - Env:
+     - `issue_number`: `${{ github.event.issue.number }}`
+     - `is_pull_request_issue`: `${{ github.event.issue.pull_request != null }}`
+     - `pr_number`: `${{ github.event.pull_request.number }}`
+     - `is_pull_request`: `${{ github.event.pull_request != null }}`
+     - `event_number`: `${{ github.event.number }}`
+
+2. **Check PR number**
+
+3. **Set PR number**
+   - ID: `set_pr_number`
+
+</details>
+
+[Back to top](#contents)
+
+# model jobs
+
+**Triggers:** `workflow_call`
+
+| Property | Value |
+|----------|-------|
+| File | `model_jobs.yml` |
+
+**Jobs:** [`run_models_gpu`](#run_models_gpu), [Collated Reports](#collated-reports-collated_reports-1)
+
+## Workflow call API
+
+**Inputs:**
+
+| Name | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| `folder_slices` | string | Yes | - | - |
+| `machine_type` | string | Yes | - | - |
+| `slice_id` | number | Yes | - | - |
+| `docker` | string | Yes | - | - |
+| `commit_sha` | string | No | - | - |
+| `report_name_prefix` | string | No | `run_models_gpu` | - |
+| `runner_type` | string | No | - | - |
+| `report_repo_id` | string | No | - | - |
+| `pytest_marker` | string | No | - | - |
+
+## Permissions
+
+- `contents`: `read`
+
+## Environment (`env`)
+
+| Variable | Value |
+|----------|-------|
+| `HF_HOME` | `/mnt/cache` |
+| `TRANSFORMERS_IS_CI` | `yes` |
+| `OMP_NUM_THREADS` | `8` |
+| `MKL_NUM_THREADS` | `8` |
+| `RUN_SLOW` | `yes` |
+| `HF_TOKEN` | `${{ secrets.HF_HUB_READ_TOKEN }}` |
+| `TF_FORCE_GPU_ALLOW_GROWTH` | `true` |
+| `CUDA_VISIBLE_DEVICES` | `0,1` |
+
+## Called by
+
+`model_jobs.yml`
+
+- **[self-scheduled.yml](#nvidia-ci-job-definitions)** (x2)
+  - [push-important-models.yml](#model-ci-model-ci-8) (job: `model-ci`) - entry point
+  - **[self-comment-ci.yml](#pr-comment-github-ci)** - entry point (x2)
+  - [self-nightly-caller.yml](#model-ci-model-ci-2) (job: `model-ci`) - entry point
+  - **[self-past-caller.yml](#self-hosted-runner-past-ci)** (x2)
+    - **[self-nightly-past-ci-caller.yml](#self-hosted-runner-nightly-past-ci-caller)** - entry point (x7)
+  - **[self-scheduled-caller.yml](#nvidia-ci)** - entry point (x7)
+  - [self-scheduled-flash-attn-caller.yml](#model-ci-model-ci-1) (job: `model-ci`) - entry point
 
 ## Referenced secrets and variables
 
@@ -5041,217 +5114,97 @@ Permissions declared across the chain: `contents: read`
 
 ## Jobs
 
-### Setup (`setup`)
-
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-latest` |
-| Condition | `contains(fromJSON('["run_models_gpu", "run_trainer_and_fsdp_gpu"]'), inputs.job)` |
-
-<details>
-<summary>Steps (4)</summary>
-
-1. **Checkout**
-   - Uses: `actions/checkout@v4.3.1`
-   - With:
-     - `fetch-depth`: `0`
-     - `persist-credentials`: `false`
-
-2. **Set up Python**
-   - Uses: `actions/setup-python@v5.6.0`
-   - With:
-     - `python-version`: `3.10`
-
-3. **Identify models to test**
-   - ID: `set-matrix`
-   - Condition: `contains(fromJSON('["run_models_gpu", "run_trainer_and_fsdp_gpu"]'), inputs.job)`
-   - Env:
-     - `JOB`: `${{ inputs.job }}`
-
-4. **Identify quantization method to test**
-   - ID: `set-matrix-quantization`
-   - Condition: `${{ inputs.job == 'run_quantization_torch_gpu' }}`
-
-</details>
-
 ### `run_models_gpu`
 
 | Property | Value |
 |----------|-------|
-| Uses workflow | [model jobs](#model-jobs-1) |
-| Matrix | `machine_type`: 1gaudi, 2gaudi; `slice_id`: ${{ fromJSON(needs.setup.outputs.slice_ids) }} |
-| Depends on | `setup` |
-| Condition | `${{ inputs.job == 'run_models_gpu' }}` |
-
-#### Inputs forwarded
-
-- `slice_id`: `${{ matrix.slice_id }}`
-- `machine_type`: `${{ matrix.machine_type }}`
-- `folder_slices`: `${{ needs.setup.outputs.folder_slices }}`
-- `runner`: `${{ inputs.runner_scale_set }}-${{ matrix.machine_type }}`
-
-#### Secrets forwarded
-
-- `secrets: inherit` (all caller secrets are passed to the callee)
-
-### `run_trainer_and_fsdp_gpu`
-
-| Property | Value |
-|----------|-------|
-| Uses workflow | [model jobs](#model-jobs-1) |
-| Matrix | `machine_type`: 1gaudi, 2gaudi; `slice_id`: ${{ fromJSON(needs.setup.outputs.slice_ids) }} |
-| Depends on | `setup` |
-| Condition | `${{ inputs.job == 'run_trainer_and_fsdp_gpu' }}` |
-
-#### Inputs forwarded
-
-- `slice_id`: `${{ matrix.slice_id }}`
-- `machine_type`: `${{ matrix.machine_type }}`
-- `folder_slices`: `${{ needs.setup.outputs.folder_slices }}`
-- `runner`: `${{ inputs.runner_scale_set }}-${{ matrix.machine_type }}`
-- `report_name_prefix`: `run_trainer_and_fsdp_gpu`
-
-#### Secrets forwarded
-
-- `secrets: inherit` (all caller secrets are passed to the callee)
-
-### Pipelines (`run_pipelines_torch_gpu`)
-
-| Property | Value |
-|----------|-------|
-| Matrix | `machine_type`: 1gaudi, 2gaudi |
-| Condition | `${{ inputs.job == 'run_pipelines_torch_gpu' }}` |
+| Runs on | `group: ${{ inputs.machine_type }}` |
+| Matrix | `folders`: ${{ fromJson(inputs.folder_slices)[inputs.slice_id] }} |
 
 <details>
-<summary>Steps (9)</summary>
+<summary>Steps (16)</summary>
 
-1. **Checkout**
-   - Uses: `actions/checkout@v4.3.1`
-   - With:
-     - `fetch-depth`: `0`
-     - `persist-credentials`: `false`
+1. **Echo input and matrix info**
+   - Env:
+     - `folder_slices`: `${{ inputs.folder_slices }}`
+     - `matrix_folders`: `${{ matrix.folders }}`
+     - `slice_data`: `${{ toJson(fromJson(inputs.folder_slices)[inputs.slice_id]) }}`
 
-2. **Install dependencies**
+2. **Echo folder ${{ matrix.folders }}**
+   - Env:
+     - `matrix_folders_raw`: `${{ matrix.folders }}`
 
-3. **HL-SMI**
+3. **Update clone**
+   - Env:
+     - `commit_sha`: `${{ inputs.commit_sha || github.sha }}`
 
-4. **Environment**
+4. **Reinstall transformers in edit mode (remove the one installed during docker image build)**
 
-5. **Show installed libraries and their versions**
+5. **Update / Install some packages (for Past CI)**
+   - Condition: `${{ contains(inputs.docker, '-past-') }}`
 
-6. **Set \`machine\_type\` for report and artifact names**
+6. **Update / Install some packages (for Past CI)**
+   - Condition: `${{ contains(inputs.docker, '-past-') && contains(inputs.docker, '-pytorch-') }}`
 
-7. **Run all pipeline tests on Intel Gaudi**
+7. **NVIDIA-SMI**
 
-8. **Failure short reports** `[continue-on-error]`
+8. **Environment**
+
+9. **Show installed libraries and their versions**
+
+10. **Set \`machine\_type\` for report and artifact names**
+   - ID: `set_machine_type`
+   - Env:
+     - `input_machine_type`: `${{ inputs.machine_type }}`
+
+11. **Create report directory if it doesn't exist**
+   - Env:
+     - `report_name_prefix`: `${{ inputs.report_name_prefix }}`
+
+12. **Run all tests on GPU**
+   - Env:
+     - `report_name_prefix`: `${{ inputs.report_name_prefix }}`
+     - `pytest_marker`: `${{ inputs.pytest_marker }}`
+     - `model`: `${{ matrix.folders }}`
+
+13. **Failure short reports** `[continue-on-error]`
    - Condition: `${{ failure() }}`
+   - Env:
+     - `report_name_prefix`: `${{ inputs.report_name_prefix }}`
 
-9. **Test suite reports artifacts: ${{ env.machine\_type }}\_run\_pipelines\_torch\_gpu\_test\_reports**
+14. **Captured information** `[continue-on-error]`
+   - Condition: `${{ failure() }}`
+   - Env:
+     - `report_name_prefix`: `${{ inputs.report_name_prefix }}`
+
+15. **Copy test\_outputs.txt** `[continue-on-error]`
+   - Condition: `${{ always() }}`
+   - Env:
+     - `report_name_prefix`: `${{ inputs.report_name_prefix }}`
+
+16. **Test suite reports artifacts: ${{ env.machine\_type }}\_${{ inputs.report\_name\_prefix }}\_${{ env.matrix\_folders }}\_test\_reports**
    - Uses: `actions/upload-artifact@v4.6.2`
    - Condition: `${{ always() }}`
    - With:
-     - `name`: `${{ env.machine_type }}_run_pipelines_torch_gpu_test_reports`
-     - `path`: `reports/${{ env.machine_type }}_run_pipelines_torch_gpu_test_reports`
+     - `name`: `${{ env.machine_type }}_${{ inputs.report_name_prefix }}_${{ env.matrix_folders }}_test_reports`
+     - `path`: `/transformers/reports/${{ env.machine_type }}_${{ inputs.report_name_prefix }}_${{ env.matrix_folders }}_test_reports`
 
 </details>
 
-### Examples directory (`run_examples_gpu`)
+### Collated Reports (`collated_reports`)
 
 | Property | Value |
 |----------|-------|
-| Matrix | `machine_type`: 1gaudi |
-| Condition | `${{ inputs.job == 'run_examples_gpu' }}` |
-
-<details>
-<summary>Steps (9)</summary>
-
-1. **Checkout**
-   - Uses: `actions/checkout@v4.3.1`
-   - With:
-     - `fetch-depth`: `0`
-     - `persist-credentials`: `false`
-
-2. **Install dependencies**
-
-3. **HL-SMI**
-
-4. **Environment**
-
-5. **Show installed libraries and their versions**
-
-6. **Set \`machine\_type\` for report and artifact names**
-
-7. **Run examples tests on Intel Gaudi**
-
-8. **Failure short reports** `[continue-on-error]`
-   - Condition: `${{ failure() }}`
-
-9. **Test suite reports artifacts: ${{ env.machine\_type }}\_run\_examples\_gpu\_test\_reports**
-   - Uses: `actions/upload-artifact@v4.6.2`
-   - Condition: `${{ always() }}`
-   - With:
-     - `name`: `${{ env.machine_type }}_run_examples_gpu_test_reports`
-     - `path`: `reports/${{ env.machine_type }}_run_examples_gpu_test_reports`
-
-</details>
-
-### Intel Gaudi deepspeed tests (`run_torch_cuda_extensions_gpu`)
-
-| Property | Value |
-|----------|-------|
-| Matrix | `machine_type`: 1gaudi, 2gaudi |
-| Condition | `${{ inputs.job == 'run_torch_cuda_extensions_gpu' }}` |
-
-<details>
-<summary>Steps (9)</summary>
-
-1. **Checkout**
-   - Uses: `actions/checkout@v4.3.1`
-   - With:
-     - `fetch-depth`: `0`
-     - `persist-credentials`: `false`
-
-2. **Install dependencies**
-
-3. **HL-SMI**
-
-4. **Environment**
-
-5. **Show installed libraries and their versions**
-
-6. **Set \`machine\_type\` for report and artifact names**
-
-7. **Run all deepspeed tests on intel Gaudi**
-
-8. **Failure short reports** `[continue-on-error]`
-   - Condition: `${{ failure() }}`
-
-9. **Test suite reports artifacts: ${{ env.machine\_type }}\_run\_torch\_cuda\_extensions\_gpu\_test\_reports**
-   - Uses: `actions/upload-artifact@v4.6.2`
-   - Condition: `${{ always() }}`
-   - With:
-     - `name`: `${{ env.machine_type }}_run_torch_cuda_extensions_gpu_test_reports`
-     - `path`: `reports/${{ env.machine_type }}_run_torch_cuda_extensions_gpu_test_reports`
-
-</details>
-
-### Slack Report (`send_results`)
-
-| Property | Value |
-|----------|-------|
-| Uses workflow | [CI slack report](#ci-slack-report) |
-| Depends on | `setup`, `run_models_gpu`, `run_examples_gpu`, `run_torch_cuda_extensions_gpu`, `run_pipelines_torch_gpu`, `run_trainer_and_fsdp_gpu` |
-| Condition | `${{ always() }}` |
+| Uses workflow | [CI collated reports](#ci-collated-reports) (`@6abd9725ee7d809dc974991f8ff6c958afb63a3a`) |
+| Depends on | `run_models_gpu` |
+| Condition | `${{ always() && inputs.runner_type != '' }}` |
 
 #### Inputs forwarded
 
-- `job`: `${{ inputs.job }}`
-- `setup_status`: `${{ needs.setup.result }}`
-- `slack_report_channel`: `${{ inputs.slack_report_channel }}`
-- `quantization_matrix`: `${{ needs.setup.outputs.quantization_matrix }}`
-- `folder_slices`: `${{ needs.setup.outputs.folder_slices }}`
+- `job`: `run_models_gpu`
 - `report_repo_id`: `${{ inputs.report_repo_id }}`
-- `ci_event`: `${{ inputs.ci_event }}`
+- `gpu_name`: `${{ inputs.runner_type }}`
+- `machine_type`: `${{ needs.run_models_gpu.outputs.machine_type }}`
 
 #### Secrets forwarded
 
@@ -5259,129 +5212,120 @@ Permissions declared across the chain: `contents: read`
 
 [Back to top](#contents)
 
-# Self-hosted runner (Intel Gaudi3 scheduled CI caller)
+# model jobs
 
-**Triggers:** `repository_dispatch`, `workflow_dispatch`, `schedule`
+**Triggers:** `workflow_call`
 
 | Property | Value |
 |----------|-------|
-| File | `self-scheduled-intel-gaudi3-caller.yml` |
+| File | `model_jobs_intel_gaudi.yml` |
 
-**Jobs:** [Model CI](#model-ci-model-ci-9), [Pipeline CI](#pipeline-ci-pipeline-ci), [Example CI](#example-ci-example-ci-4), [DeepSpeed CI](#deepspeed-ci-deepspeed-ci-5), [Trainer/FSDP CI](#trainerfsdp-ci-trainer-fsdp-ci-1)
+## Workflow call API
 
-## Schedule
+**Inputs:**
 
-- `17 2 * * *`
+| Name | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| `folder_slices` | string | Yes | - | - |
+| `slice_id` | number | Yes | - | - |
+| `runner` | string | Yes | - | - |
+| `machine_type` | string | Yes | - | - |
+| `report_name_prefix` | string | No | `run_models_gpu` | - |
 
 ## Permissions
 
 - `contents`: `read`
 
-## Call graph (rooted at this workflow)
+## Environment (`env`)
 
-`self-scheduled-intel-gaudi3-caller.yml` [repository_dispatch, workflow_dispatch, schedule]
+| Variable | Value |
+|----------|-------|
+| `RUN_SLOW` | `yes` |
+| `PT_HPU_LAZY_MODE` | `0` |
+| `TRANSFORMERS_IS_CI` | `yes` |
+| `PT_ENABLE_INT64_SUPPORT` | `1` |
+| `HF_TOKEN` | `${{ secrets.HF_HUB_READ_TOKEN }}` |
+| `HF_HOME` | `/mnt/cache/.cache/huggingface` |
 
-- uses **[self-scheduled-intel-gaudi.yml](#self-hosted-runner-scheduled-intel-gaudi)** (x5)
-  - uses **[model_jobs_intel_gaudi.yml](#model-jobs-1)** (x2)
-  - `send_results` uses [slack-report.yml](#ci-slack-report)
+## Called by
 
-## Transitive requirements (from full call graph)
+`model_jobs_intel_gaudi.yml`
 
-Secrets referenced (literal names): `ACCESS_REPO_INFO_TOKEN`, `CI_SLACK_BOT_TOKEN`, `CI_SLACK_CHANNEL_DUMMY_TESTS`, `CI_SLACK_CHANNEL_ID`, `CI_SLACK_CHANNEL_ID_DAILY`, `GITHUB_TOKEN`, `HF_HUB_READ_TOKEN`, `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN`
+- **[self-scheduled-intel-gaudi.yml](#self-hosted-runner-scheduled-intel-gaudi)** (x2)
+  - **[self-scheduled-intel-gaudi3-caller.yml](#self-hosted-runner-intel-gaudi3-scheduled-ci-caller)** - entry point (x5)
 
-Permissions declared across the chain: `contents: read`
+## Referenced secrets and variables
+
+**Secrets:**
+
+| Name | Used by |
+|------|---------|
+| `HF_HUB_READ_TOKEN` | workflow env `HF_TOKEN` |
 
 ## Jobs
 
-### Model CI (`model-ci`)
+### `run_models_gpu`
 
 | Property | Value |
 |----------|-------|
-| Uses workflow | [Self-hosted runner (scheduled-intel-gaudi)](#self-hosted-runner-scheduled-intel-gaudi) |
+| Runs on | `group: ${{ inputs.runner }}` |
+| Matrix | `folders`: ${{ fromJson(inputs.folder_slices)[inputs.slice_id] }} |
 
-#### Inputs forwarded
+<details>
+<summary>Steps (12)</summary>
 
-- `job`: `run_models_gpu`
-- `ci_event`: `Scheduled CI (Intel) - Gaudi3`
-- `runner_scale_set`: `itac-bm-emr-gaudi3-dell`
-- `slack_report_channel`: `#transformers-ci-daily-intel-gaudi3`
-- `report_repo_id`: `optimum-intel/transformers_daily_ci_intel_gaudi3`
+1. **Echo input and matrix info**
+   - Env:
+     - `FOLDER_SLICES`: `${{ inputs.folder_slices }}`
+     - `MATRIX_FOLDERS`: `${{ matrix.folders }}`
+     - `SLICE`: `${{ toJson(fromJson(inputs.folder_slices)[inputs.slice_id]) }}`
 
-#### Secrets forwarded
+2. **Echo folder ${{ matrix.folders }}**
+   - Env:
+     - `MATRIX_FOLDERS`: `${{ matrix.folders }}`
 
-- `secrets: inherit` (all caller secrets are passed to the callee)
+3. **Checkout**
+   - Uses: `actions/checkout@v4.3.1`
+   - With:
+     - `fetch-depth`: `0`
+     - `persist-credentials`: `false`
 
-### Pipeline CI (`pipeline-ci`)
+4. **Install dependencies**
 
-| Property | Value |
-|----------|-------|
-| Uses workflow | [Self-hosted runner (scheduled-intel-gaudi)](#self-hosted-runner-scheduled-intel-gaudi) |
+5. **HL-SMI**
 
-#### Inputs forwarded
+6. **Environment**
 
-- `job`: `run_pipelines_torch_gpu`
-- `ci_event`: `Scheduled CI (Intel) - Gaudi3`
-- `runner_scale_set`: `itac-bm-emr-gaudi3-dell`
-- `slack_report_channel`: `#transformers-ci-daily-intel-gaudi3`
-- `report_repo_id`: `optimum-intel/transformers_daily_ci_intel_gaudi3`
+7. **Show installed libraries and their versions**
 
-#### Secrets forwarded
+8. **Set \`machine\_type\` for report and artifact names**
+   - Env:
+     - `MACHINE_TYPE`: `${{ inputs.machine_type }}`
 
-- `secrets: inherit` (all caller secrets are passed to the callee)
+9. **Run all tests on Gaudi**
+   - Env:
+     - `REPORT_NAME_PREFIX`: `${{ inputs.report_name_prefix }}`
+     - `MATRIX_FOLDERS`: `${{ matrix.folders }}`
 
-### Example CI (`example-ci`)
+10. **Failure short reports** `[continue-on-error]`
+   - Condition: `${{ failure() }}`
+   - Env:
+     - `REPORT_NAME_PREFIX`: `${{ inputs.report_name_prefix }}`
+     - `MATRIX_FOLDERS`: `${{ matrix.folders }}`
 
-| Property | Value |
-|----------|-------|
-| Uses workflow | [Self-hosted runner (scheduled-intel-gaudi)](#self-hosted-runner-scheduled-intel-gaudi) |
+11. **Run test**
+   - Env:
+     - `REPORT_NAME_PREFIX`: `${{ inputs.report_name_prefix }}`
+     - `MATRIX_FOLDERS`: `${{ matrix.folders }}`
 
-#### Inputs forwarded
+12. **Test suite reports artifacts: ${{ env.machine\_type }}\_${{ inputs.report\_name\_prefix }}\_${{ env.matrix\_folders }}\_test\_reports**
+   - Uses: `actions/upload-artifact@v4.6.2`
+   - Condition: `${{ always() }}`
+   - With:
+     - `name`: `${{ env.machine_type }}_${{ inputs.report_name_prefix }}_${{ env.matrix_folders }}_test_reports`
+     - `path`: `reports/${{ env.machine_type }}_${{ inputs.report_name_prefix }}_${{ matrix.folders }}_test_reports`
 
-- `job`: `run_examples_gpu`
-- `ci_event`: `Scheduled CI (Intel) - Gaudi3`
-- `runner_scale_set`: `itac-bm-emr-gaudi3-dell`
-- `slack_report_channel`: `#transformers-ci-daily-intel-gaudi3`
-- `report_repo_id`: `optimum-intel/transformers_daily_ci_intel_gaudi3`
-
-#### Secrets forwarded
-
-- `secrets: inherit` (all caller secrets are passed to the callee)
-
-### DeepSpeed CI (`deepspeed-ci`)
-
-| Property | Value |
-|----------|-------|
-| Uses workflow | [Self-hosted runner (scheduled-intel-gaudi)](#self-hosted-runner-scheduled-intel-gaudi) |
-
-#### Inputs forwarded
-
-- `job`: `run_torch_cuda_extensions_gpu`
-- `ci_event`: `Scheduled CI (Intel) - Gaudi3`
-- `runner_scale_set`: `itac-bm-emr-gaudi3-dell`
-- `slack_report_channel`: `#transformers-ci-daily-intel-gaudi3`
-- `report_repo_id`: `optimum-intel/transformers_daily_ci_intel_gaudi3`
-
-#### Secrets forwarded
-
-- `secrets: inherit` (all caller secrets are passed to the callee)
-
-### Trainer/FSDP CI (`trainer-fsdp-ci`)
-
-| Property | Value |
-|----------|-------|
-| Uses workflow | [Self-hosted runner (scheduled-intel-gaudi)](#self-hosted-runner-scheduled-intel-gaudi) |
-
-#### Inputs forwarded
-
-- `job`: `run_trainer_and_fsdp_gpu`
-- `ci_event`: `Scheduled CI (Intel) - Gaudi3`
-- `runner_scale_set`: `itac-bm-emr-gaudi3-dell`
-- `slack_report_channel`: `#transformers-ci-daily-intel-gaudi3`
-- `report_repo_id`: `optimum-intel/transformers_daily_ci_intel_gaudi3`
-
-#### Secrets forwarded
-
-- `secrets: inherit` (all caller secrets are passed to the callee)
+</details>
 
 [Back to top](#contents)
 
@@ -5394,7 +5338,7 @@ Permissions declared across the chain: `contents: read`
 | File | `self-scheduled.yml` |
 | Default runs-on | `group: ${{ matrix.machine_type }}` |
 
-**Jobs:** [Setup](#setup-setup-5), [`run_models_gpu`](#run_models_gpu-3), [`run_trainer_and_fsdp_gpu`](#run_trainer_and_fsdp_gpu-1), [PyTorch pipelines](#pytorch-pipelines-run_pipelines_torch_gpu), [Examples directory](#examples-directory-run_examples_gpu-1), [Torch CUDA extension tests](#torch-cuda-extension-tests-run_torch_cuda_extensions_gpu), [`run_quantization_torch_gpu`](#run_quantization_torch_gpu), [Kernel tests](#kernel-tests-run_kernels_gpu), [Extract warnings in CI artifacts](#extract-warnings-in-ci-artifacts-run_extract_warnings), [Slack Report](#slack-report-send_results-1), [Check new failures](#check-new-failures-check_new_failures)
+**Jobs:** [Setup](#setup-setup-4), [`run_models_gpu`](#run_models_gpu-2), [`run_trainer_and_fsdp_gpu`](#run_trainer_and_fsdp_gpu), [PyTorch pipelines](#pytorch-pipelines-run_pipelines_torch_gpu), [Examples directory](#examples-directory-run_examples_gpu), [Torch CUDA extension tests](#torch-cuda-extension-tests-run_torch_cuda_extensions_gpu), [`run_quantization_torch_gpu`](#run_quantization_torch_gpu), [Kernel tests](#kernel-tests-run_kernels_gpu), [Extract warnings in CI artifacts](#extract-warnings-in-ci-artifacts-run_extract_warnings), [Slack Report](#slack-report-send_results), [Check new failures](#check-new-failures-check_new_failures)
 
 ## Workflow call API
 
@@ -5441,13 +5385,13 @@ Permissions declared across the chain: `contents: read`
 
 `self-scheduled.yml`
 
-- [push-important-models.yml](#model-ci-model-ci) (job: `model-ci`) - entry point
+- [push-important-models.yml](#model-ci-model-ci-8) (job: `model-ci`) - entry point
 - **[self-comment-ci.yml](#pr-comment-github-ci)** - entry point (x2)
 - [self-nightly-caller.yml](#model-ci-model-ci-2) (job: `model-ci`) - entry point
 - **[self-past-caller.yml](#self-hosted-runner-past-ci)** (x2)
   - **[self-nightly-past-ci-caller.yml](#self-hosted-runner-nightly-past-ci-caller)** - entry point (x7)
 - **[self-scheduled-caller.yml](#nvidia-ci)** - entry point (x7)
-- [self-scheduled-flash-attn-caller.yml](#model-ci-model-ci-8) (job: `model-ci`) - entry point
+- [self-scheduled-flash-attn-caller.yml](#model-ci-model-ci-1) (job: `model-ci`) - entry point
 
 ## Referenced secrets and variables
 
@@ -5859,13 +5803,338 @@ Permissions declared across the chain: `contents: read`
 
 [Back to top](#contents)
 
-# CI slack report
+# Process failed tests
 
 **Triggers:** `workflow_call`
 
 | Property | Value |
 |----------|-------|
-| File | `slack-report.yml` |
+| File | `check_failed_tests.yml` |
+| Default runs-on | `group: aws-g5-4xlarge-cache` |
+
+**Jobs:** [Setup matrix for finding commits](#setup-matrix-for-finding-commits-setup_check_new_failures), [Find commits for new failing tests](#find-commits-for-new-failing-tests-check_new_failures), [process bad commit reports](#process-bad-commit-reports-process_new_failures_with_commit_info)
+
+## Workflow call API
+
+**Inputs:**
+
+| Name | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| `docker` | string | Yes | - | - |
+| `job` | string | Yes | - | - |
+| `slack_report_channel` | string | Yes | - | - |
+| `ci_event` | string | Yes | - | - |
+| `report_repo_id` | string | Yes | - | - |
+| `commit_sha` | string | No | - | - |
+| `pr_number` | string | No | - | - |
+| `max_num_runners` | number | No | `4` | - |
+
+**Outputs:**
+
+| Name | Description | Value |
+|------|-------------|-------|
+| `is_check_failures_ok` | Whether the failure checking infrastructure succeeded | `${{ jobs.check_new_failures.result != 'failure' && jobs.process_new_failures_with_commit_info.result != 'failure' }}` |
+
+## Permissions
+
+- `contents`: `read`
+
+## Environment (`env`)
+
+| Variable | Value |
+|----------|-------|
+| `HF_HOME` | `/mnt/cache` |
+| `TRANSFORMERS_IS_CI` | `yes` |
+| `OMP_NUM_THREADS` | `8` |
+| `MKL_NUM_THREADS` | `8` |
+| `RUN_SLOW` | `yes` |
+| `HF_TOKEN` | `${{ secrets.HF_HUB_READ_TOKEN }}` |
+| `TF_FORCE_GPU_ALLOW_GROWTH` | `true` |
+| `CUDA_VISIBLE_DEVICES` | `0,1` |
+
+## Called by
+
+`check_failed_tests.yml`
+
+- [self-scheduled.yml](#check-new-failures-check_new_failures) (job: `check_new_failures`)
+  - [push-important-models.yml](#model-ci-model-ci-8) (job: `model-ci`) - entry point
+  - **[self-comment-ci.yml](#pr-comment-github-ci)** - entry point (x2)
+  - [self-nightly-caller.yml](#model-ci-model-ci-2) (job: `model-ci`) - entry point
+  - **[self-past-caller.yml](#self-hosted-runner-past-ci)** (x2)
+    - **[self-nightly-past-ci-caller.yml](#self-hosted-runner-nightly-past-ci-caller)** - entry point (x7)
+  - **[self-scheduled-caller.yml](#nvidia-ci)** - entry point (x7)
+  - [self-scheduled-flash-attn-caller.yml](#model-ci-model-ci-1) (job: `model-ci`) - entry point
+
+## Referenced secrets and variables
+
+**Secrets:**
+
+| Name | Used by |
+|------|---------|
+| `HF_HUB_READ_TOKEN` | workflow env `HF_TOKEN` |
+| `GITHUB_TOKEN` | job `check_new_failures` step `actions/download-artifact@v8.0.1` with `github-token`; job `process_new_failures_with_commit_info` step `actions/download-artifact@v8.0.1` with `github-token` |
+| `ACCESS_REPO_INFO_TOKEN` | job `check_new_failures` step `Get `END_SHA` from previous CI runs of the same workflow` env `ACCESS_TOKEN`; job `process_new_failures_with_commit_info` step `Process report` env `ACCESS_REPO_INFO_TOKEN` |
+| `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN` | job `process_new_failures_with_commit_info` step `Process report` env `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN` |
+| `SLACK_CIFEEDBACK_BOT_TOKEN` | job `process_new_failures_with_commit_info` step `Send processed report` env `SLACK_BOT_TOKEN` |
+
+## Jobs
+
+### Setup matrix for finding commits (`setup_check_new_failures`)
+
+| Property | Value |
+|----------|-------|
+| Runs on | `ubuntu-22.04` |
+
+<details>
+<summary>Steps (2)</summary>
+
+1. **actions/download-artifact@v8.0.1** `[continue-on-error]`
+   - With:
+     - `name`: `ci_results_${{ inputs.job }}`
+     - `path`: `ci_results_${{ inputs.job }}`
+
+2. **Set matrix**
+   - ID: `set-matrix`
+   - Env:
+     - `job`: `${{ inputs.job }}`
+     - `max_num_runners`: `${{ inputs.max_num_runners }}`
+
+</details>
+
+### Find commits for new failing tests (`check_new_failures`)
+
+| Property | Value |
+|----------|-------|
+| Matrix | `run_idx`: ${{ fromJson(needs.setup_check_new_failures.outputs.matrix) }} |
+| Depends on | `setup_check_new_failures` |
+| Condition | `needs.setup_check_new_failures.outputs.process == 'true'` |
+
+<details>
+<summary>Steps (16)</summary>
+
+1. **actions/download-artifact@v8.0.1**
+   - With:
+     - `name`: `ci_results_${{ inputs.job }}`
+     - `path`: `/transformers/ci_results_${{ inputs.job }}`
+
+2. **actions/download-artifact@v8.0.1**
+   - With:
+     - `pattern`: `setup_values*`
+     - `path`: `setup_values`
+     - `merge-multiple`: `true`
+     - `github-token`: `${{ secrets.GITHUB_TOKEN }}`
+   - Env:
+     - `ACTIONS_ARTIFACT_MAX_ARTIFACT_COUNT`: `2000`
+
+3. **Prepare some setup values**
+
+4. **Update clone**
+   - Env:
+     - `commit_sha`: `${{ inputs.commit_sha || github.sha }}`
+
+5. **Get \`START\_SHA\`**
+   - Env:
+     - `commit_sha`: `${{ inputs.commit_sha || github.sha }}`
+
+6. **Extract the base commit on \`main\` (of the merge commit created by Github) if it is a PR**
+   - ID: `pr_info`
+   - Uses: `actions/github-script@v6.4.1`
+   - Condition: `${{ inputs.pr_number != '' }}`
+   - With:
+     - `script`: `const pull_number = parseInt(process.env.PR_NUMBER, 10); const commit_sha = process.env.COMMIT_SHA;  const { data: pr } = await github.rest.pulls.get({   owner: context.repo.owner,   repo: context.repo.repo,   pull_number, });  const { data: merge_commit } = await github.rest.repos.getCommit({   owner: pr.base.repo.owner.login,   repo: pr.base.repo.name,   ref: commit_sha, });  core.setOutput('merge_commit_base_sha', merge_commit.parents[0].sha);`
+   - Env:
+     - `PR_NUMBER`: `${{ inputs.pr_number }}`
+     - `COMMIT_SHA`: `${{ inputs.commit_sha }}`
+
+7. **Get \`END\_SHA\` from previous CI runs of the same workflow**
+   - Condition: `${{ inputs.pr_number == '' }}`
+   - Env:
+     - `ACCESS_TOKEN`: `${{ secrets.ACCESS_REPO_INFO_TOKEN }}`
+
+8. **Set \`END\_SHA\`**
+   - Condition: `${{ inputs.pr_number != '' }}`
+   - Env:
+     - `merge_commit_base_sha`: `${{ steps.pr_info.outputs.merge_commit_base_sha }}`
+
+9. **Reinstall transformers in edit mode (remove the one installed during docker image build)**
+
+10. **NVIDIA-SMI**
+
+11. **Environment**
+
+12. **Install pytest-flakefinder**
+
+13. **Show installed libraries and their versions**
+
+14. **Check failed tests**
+   - Env:
+     - `job`: `${{ inputs.job }}`
+     - `n_runners`: `${{ needs.setup_check_new_failures.outputs.n_runners }}`
+     - `run_idx`: `${{ matrix.run_idx }}`
+     - `pr_number`: `${{ inputs.pr_number }}`
+
+15. **Show results**
+   - Env:
+     - `job`: `${{ inputs.job }}`
+     - `run_idx`: `${{ matrix.run_idx }}`
+
+16. **Upload artifacts**
+   - Uses: `actions/upload-artifact@v4.6.2`
+   - With:
+     - `name`: `new_failures_with_bad_commit_${{ inputs.job }}_${{ matrix.run_idx }}`
+     - `path`: `/transformers/new_failures_with_bad_commit_${{ inputs.job }}_${{ matrix.run_idx }}.json`
+
+</details>
+
+### process bad commit reports (`process_new_failures_with_commit_info`)
+
+| Property | Value |
+|----------|-------|
+| Depends on | `check_new_failures` |
+| Condition | `needs.check_new_failures.outputs.process == 'true'` |
+
+<details>
+<summary>Steps (10)</summary>
+
+1. **actions/download-artifact@v8.0.1**
+   - With:
+     - `name`: `ci_results_${{ inputs.job }}`
+     - `path`: `/transformers/ci_results_${{ inputs.job }}`
+
+2. **actions/download-artifact@v8.0.1**
+   - With:
+     - `pattern`: `new_failures_with_bad_commit_${{ inputs.job }}*`
+     - `path`: `/transformers/new_failures_with_bad_commit_${{ inputs.job }}`
+     - `merge-multiple`: `true`
+     - `github-token`: `${{ secrets.GITHUB_TOKEN }}`
+   - Env:
+     - `ACTIONS_ARTIFACT_MAX_ARTIFACT_COUNT`: `2000`
+
+3. **Check files**
+   - Env:
+     - `job`: `${{ inputs.job }}`
+
+4. **Merge files**
+   - Env:
+     - `job`: `${{ inputs.job }}`
+
+5. **Update clone**
+   - Env:
+     - `commit_sha`: `${{ inputs.commit_sha || github.sha }}`
+
+6. **Process report**
+   - Env:
+     - `ACCESS_REPO_INFO_TOKEN`: `${{ secrets.ACCESS_REPO_INFO_TOKEN }}`
+     - `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN`: `${{ secrets.TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN }}`
+     - `JOB_NAME`: `${{ inputs.job }}`
+     - `REPORT_REPO_ID`: `${{ inputs.report_repo_id }}`
+
+7. **Show results**
+
+8. **Upload artifacts**
+   - Uses: `actions/upload-artifact@v4.6.2`
+   - With:
+     - `name`: `new_failures_with_bad_commit_${{ inputs.job }}`
+     - `path`: `/transformers/new_failures_with_bad_commit.json /transformers/new_failures_with_bad_commit_url.txt`
+
+9. **Prepare Slack report title**
+   - Env:
+     - `ci_event`: `${{ inputs.ci_event }}`
+     - `job`: `${{ inputs.job }}`
+
+10. **Send processed report**
+   - Uses: `slackapi/slack-github-action@6c661ce58804a1a20f6dc5fbee7f0381b469e001`
+   - Condition: `${{ !endsWith(env.REPORT_TEXT, '{}') }}`
+   - With:
+     - `channel-id`: `#${{ inputs.slack_report_channel }}`
+     - `payload`: `{   "blocks": [     {       "type": "header",       "text": {         "type": "plain_text",         "text": "${{ env.title }}"       }     },     {       "type": "section",       "text": {         "type": "mrkdwn",         "text": "${{ env.REPORT_TEXT }}"       }     }   ] }`
+   - Env:
+     - `SLACK_BOT_TOKEN`: `${{ secrets.SLACK_CIFEEDBACK_BOT_TOKEN }}`
+
+</details>
+
+[Back to top](#contents)
+
+# Self-hosted runner (past-ci)
+
+**Triggers:** `workflow_call`
+
+| Property | Value |
+|----------|-------|
+| File | `self-past-caller.yml` |
+
+**Jobs:** [Model CI](#model-ci-model-ci-9), [DeepSpeed CI](#deepspeed-ci-deepspeed-ci-5)
+
+## Workflow call API
+
+**Inputs:**
+
+| Name | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| `framework` | string | Yes | - | - |
+| `version` | string | Yes | - | - |
+| `sha` | string | No | `main` | - |
+
+## Permissions
+
+- `contents`: `read`
+
+## Called by
+
+`self-past-caller.yml`
+
+- **[self-nightly-past-ci-caller.yml](#self-hosted-runner-nightly-past-ci-caller)** - entry point (x7)
+
+## Jobs
+
+### Model CI (`model-ci`)
+
+| Property | Value |
+|----------|-------|
+| Uses workflow | [Nvidia CI (job definitions)](#nvidia-ci-job-definitions) |
+
+#### Inputs forwarded
+
+- `job`: `run_models_gpu`
+- `slack_report_channel`: `#transformers-ci-past-future`
+- `runner`: `past-ci`
+- `docker`: `huggingface/transformers-${{ inputs.framework }}-past-${{ inputs.version }}-gpu`
+- `ci_event`: `Past CI - ${{ inputs.framework }}-${{ inputs.version }}`
+
+#### Secrets forwarded
+
+- `secrets: inherit` (all caller secrets are passed to the callee)
+
+### DeepSpeed CI (`deepspeed-ci`)
+
+| Property | Value |
+|----------|-------|
+| Uses workflow | [Nvidia CI (job definitions)](#nvidia-ci-job-definitions) |
+
+#### Inputs forwarded
+
+- `job`: `run_torch_cuda_extensions_gpu`
+- `slack_report_channel`: `#transformers-ci-past-future`
+- `runner`: `past-ci`
+- `docker`: `huggingface/transformers-${{ inputs.framework }}-past-${{ inputs.version }}-gpu`
+- `ci_event`: `Past CI - ${{ inputs.framework }}-${{ inputs.version }}`
+
+#### Secrets forwarded
+
+- `secrets: inherit` (all caller secrets are passed to the callee)
+
+[Back to top](#contents)
+
+# Self-hosted runner (scheduled-intel-gaudi)
+
+**Triggers:** `workflow_call`
+
+| Property | Value |
+|----------|-------|
+| File | `self-scheduled-intel-gaudi.yml` |
+| Default runs-on | `group: ${{ inputs.runner_scale_set }}-${{ matrix.machine_type }}` |
+
+**Jobs:** [Setup](#setup-setup-5), [`run_models_gpu`](#run_models_gpu-3), [`run_trainer_and_fsdp_gpu`](#run_trainer_and_fsdp_gpu-1), [Pipelines](#pipelines-run_pipelines_torch_gpu), [Examples directory](#examples-directory-run_examples_gpu-1), [Intel Gaudi deepspeed tests](#intel-gaudi-deepspeed-tests-run_torch_cuda_extensions_gpu), [Slack Report](#slack-report-send_results-1)
 
 ## Workflow call API
 
@@ -5875,18 +6144,9 @@ Permissions declared across the chain: `contents: read`
 |------|------|----------|---------|-------------|
 | `job` | string | Yes | - | - |
 | `slack_report_channel` | string | Yes | - | - |
-| `setup_status` | string | Yes | - | - |
-| `folder_slices` | string | Yes | - | - |
-| `quantization_matrix` | string | Yes | - | - |
+| `runner_scale_set` | string | Yes | - | - |
 | `ci_event` | string | Yes | - | - |
 | `report_repo_id` | string | Yes | - | - |
-| `commit_sha` | string | No | - | - |
-
-**Outputs:**
-
-| Name | Description | Value |
-|------|-------------|-------|
-| `is_slack_reporting_job_ok` | Whether the send_results job succeeded (not failed) | `${{ jobs.send_results.result != 'failure' }}` |
 
 ## Permissions
 
@@ -5896,130 +6156,19 @@ Permissions declared across the chain: `contents: read`
 
 | Variable | Value |
 |----------|-------|
-| `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN` | `${{ secrets.TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN }}` |
+| `NUM_SLICES` | `2` |
+| `RUN_SLOW` | `yes` |
+| `PT_HPU_LAZY_MODE` | `0` |
+| `TRANSFORMERS_IS_CI` | `yes` |
+| `PT_ENABLE_INT64_SUPPORT` | `1` |
+| `HF_TOKEN` | `${{ secrets.HF_HUB_READ_TOKEN }}` |
+| `HF_HOME` | `/mnt/cache/.cache/huggingface` |
 
 ## Called by
 
-`slack-report.yml`
+`self-scheduled-intel-gaudi.yml`
 
-- [self-scheduled-intel-gaudi.yml](#slack-report-send_results) (job: `send_results`)
-  - **[self-scheduled-intel-gaudi3-caller.yml](#self-hosted-runner-intel-gaudi3-scheduled-ci-caller)** - entry point (x5)
-- [self-scheduled.yml](#slack-report-send_results-1) (job: `send_results`)
-  - [push-important-models.yml](#model-ci-model-ci) (job: `model-ci`) - entry point
-  - **[self-comment-ci.yml](#pr-comment-github-ci)** - entry point (x2)
-  - [self-nightly-caller.yml](#model-ci-model-ci-2) (job: `model-ci`) - entry point
-  - **[self-past-caller.yml](#self-hosted-runner-past-ci)** (x2)
-    - **[self-nightly-past-ci-caller.yml](#self-hosted-runner-nightly-past-ci-caller)** - entry point (x7)
-  - **[self-scheduled-caller.yml](#nvidia-ci)** - entry point (x7)
-  - [self-scheduled-flash-attn-caller.yml](#model-ci-model-ci-8) (job: `model-ci`) - entry point
-
-## Referenced secrets and variables
-
-**Secrets:**
-
-| Name | Used by |
-|------|---------|
-| `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN` | workflow env `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN` |
-| `GITHUB_TOKEN` | job `send_results` step `actions/download-artifact@v8.0.1` with `github-token` |
-| `CI_SLACK_BOT_TOKEN` | job `send_results` step `Send message to Slack` env `CI_SLACK_BOT_TOKEN` |
-| `CI_SLACK_CHANNEL_ID` | job `send_results` step `Send message to Slack` env `CI_SLACK_CHANNEL_ID` |
-| `CI_SLACK_CHANNEL_ID_DAILY` | job `send_results` step `Send message to Slack` env `CI_SLACK_CHANNEL_ID_DAILY` |
-| `CI_SLACK_CHANNEL_DUMMY_TESTS` | job `send_results` step `Send message to Slack` env `CI_SLACK_CHANNEL_DUMMY_TESTS` |
-| `ACCESS_REPO_INFO_TOKEN` | job `send_results` step `Send message to Slack` env `ACCESS_REPO_INFO_TOKEN` |
-
-## Jobs
-
-### Send results to webhook (`send_results`)
-
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-22.04` |
-| Condition | `always() && !cancelled()` |
-
-<details>
-<summary>Steps (6)</summary>
-
-1. **Preliminary job status**
-   - Env:
-     - `setup_status`: `${{ inputs.setup_status }}`
-
-2. **actions/checkout@v4.3.1**
-   - With:
-     - `fetch-depth`: `2`
-     - `ref`: `${{ (github.event_name == 'issue_comment' || github.event_name == 'pull_request_target') && 'main' || (inputs.commit_sha || github.sha) }}`
-     - `persist-credentials`: `false`
-
-3. **actions/download-artifact@v8.0.1**
-   - With:
-     - `github-token`: `${{ secrets.GITHUB_TOKEN }}`
-   - Env:
-     - `ACTIONS_ARTIFACT_MAX_ARTIFACT_COUNT`: `2000`
-
-4. **Prepare some setup values**
-
-5. **Send message to Slack**
-   - Env:
-     - `CI_SLACK_BOT_TOKEN`: `${{ secrets.CI_SLACK_BOT_TOKEN }}`
-     - `CI_SLACK_CHANNEL_ID`: `${{ secrets.CI_SLACK_CHANNEL_ID }}`
-     - `CI_SLACK_CHANNEL_ID_DAILY`: `${{ secrets.CI_SLACK_CHANNEL_ID_DAILY }}`
-     - `CI_SLACK_CHANNEL_DUMMY_TESTS`: `${{ secrets.CI_SLACK_CHANNEL_DUMMY_TESTS }}`
-     - `SLACK_REPORT_CHANNEL`: `${{ inputs.slack_report_channel }}`
-     - `ACCESS_REPO_INFO_TOKEN`: `${{ secrets.ACCESS_REPO_INFO_TOKEN }}`
-     - `CI_EVENT`: `${{ inputs.ci_event }}`
-     - `CI_TITLE`: `${{ github.event.head_commit.message }}`
-     - `CI_SHA`: `${{ inputs.commit_sha || github.sha }}`
-     - `CI_TEST_JOB`: `${{ inputs.job }}`
-     - `SETUP_STATUS`: `${{ inputs.setup_status }}`
-     - `REPORT_REPO_ID`: `${{ inputs.report_repo_id }}`
-     - `quantization_matrix`: `${{ inputs.quantization_matrix }}`
-     - `folder_slices`: `${{ inputs.folder_slices }}`
-
-6. **Failure table artifacts**
-   - Uses: `actions/upload-artifact@v4.6.2`
-   - With:
-     - `name`: `ci_results_${{ inputs.job }}`
-     - `path`: `ci_results_${{ inputs.job }}`
-
-</details>
-
-[Back to top](#contents)
-
-# SSH into our runners
-
-**Triggers:** `workflow_dispatch`
-
-| Property | Value |
-|----------|-------|
-| File | `ssh-runner.yml` |
-
-**Jobs:** [Get runner to use](#get-runner-to-use-get_runner), [SSH](#ssh-ssh_runner)
-
-## Manual trigger inputs
-
-Inputs for the `workflow_dispatch` event.
-
-| Name | Type | Required | Default | Description |
-|------|------|----------|---------|-------------|
-| `runner_type` | - | Yes | - | Type of runner to test (a10) |
-| `docker_image` | - | Yes | - | Name of the Docker image |
-| `num_gpus` | - | Yes | - | Type of the number of gpus to use (`single` or `multi`) |
-
-## Permissions
-
-- `contents`: `read`
-
-## Environment (`env`)
-
-| Variable | Value |
-|----------|-------|
-| `HF_TOKEN` | `${{ secrets.HF_HUB_READ_TOKEN }}` |
-| `HF_HOME` | `/mnt/cache` |
-| `TRANSFORMERS_IS_CI` | `yes` |
-| `OMP_NUM_THREADS` | `8` |
-| `MKL_NUM_THREADS` | `8` |
-| `RUN_SLOW` | `yes` |
-| `TF_FORCE_GPU_ALLOW_GROWTH` | `true` |
-| `CUDA_VISIBLE_DEVICES` | `0,1` |
+- **[self-scheduled-intel-gaudi3-caller.yml](#self-hosted-runner-intel-gaudi3-scheduled-ci-caller)** - entry point (x5)
 
 ## Referenced secrets and variables
 
@@ -6028,373 +6177,224 @@ Inputs for the `workflow_dispatch` event.
 | Name | Used by |
 |------|---------|
 | `HF_HUB_READ_TOKEN` | workflow env `HF_TOKEN` |
-| `SLACK_CIFEEDBACK_CHANNEL` | job `ssh_runner` step `Store Slack infos` env `default_slack_channel` |
-| `TAILSCALE_SSH_AUTHKEY` | job `ssh_runner` step `Tailscale` with `authkey` |
-| `SLACK_CIFEEDBACK_BOT_TOKEN` | job `ssh_runner` step `Tailscale` with `slackToken` |
 
 ## Jobs
 
-### Get runner to use (`get_runner`)
+### Setup (`setup`)
 
 | Property | Value |
 |----------|-------|
-| Runs on | `ubuntu-22.04` |
-
-<details>
-<summary>Steps (2)</summary>
-
-1. **Get runner to use**
-   - Env:
-     - `NUM_GPUS`: `${{ github.event.inputs.num_gpus }}`
-     - `RUNNER_TYPE`: `${{ github.event.inputs.runner_type }}`
-
-2. **Set runner to use**
-   - ID: `set_runner`
-
-</details>
-
-### SSH (`ssh_runner`)
-
-| Property | Value |
-|----------|-------|
-| Runs on | `group: ${{ needs.get_runner.outputs.RUNNER }}` |
-| Depends on | `get_runner` |
-
-<details>
-<summary>Steps (13)</summary>
-
-1. **Update clone**
-   - Env:
-     - `commit_sha`: `${{ github.sha }}`
-
-2. **Cleanup**
-
-3. **Show installed libraries and their versions**
-
-4. **NVIDIA-SMI**
-
-5. **Create python alias**
-
-6. **Install psutil for memory monitor**
-
-7. **Download memory monitor script**
-
-8. **Start memory monitor** `[continue-on-error]`
-
-9. **Install utilities**
-
-10. **Store Slack infos**
-   - Env:
-     - `GITHUB_ACTOR`: `${{ github.actor }}`
-
-11. **Setup automatic environment for SSH login**
-
-12. **Store Slack infos**
-   - Env:
-     - `user_slack_id`: `${{ secrets[format('{0}_{1}', env.github_actor, 'SLACK_ID')] }}`
-     - `default_slack_channel`: `${{ secrets.SLACK_CIFEEDBACK_CHANNEL }}`
-
-13. **Tailscale**
-   - Uses: `huggingface/tailscale-action@7d53c9737e53934c30290b5524d1c9b4a7c98c8a`
-   - With:
-     - `authkey`: `${{ secrets.TAILSCALE_SSH_AUTHKEY }}`
-     - `slackChannel`: `${{ env.SLACKCHANNEL }}`
-     - `slackToken`: `${{ secrets.SLACK_CIFEEDBACK_BOT_TOKEN }}`
-     - `waitForSSH`: `true`
-     - `sshTimeout`: `15m`
-
-</details>
-
-[Back to top](#contents)
-
-# Stale Bot
-
-**Triggers:** `schedule`
-
-| Property | Value |
-|----------|-------|
-| File | `stale.yml` |
-
-## Schedule
-
-- `0 8 * * *`
-
-## Permissions
-
-- `contents`: `read`
-
-## Referenced secrets and variables
-
-**Secrets:**
-
-| Name | Used by |
-|------|---------|
-| `GITHUB_TOKEN` | job `close_stale_issues` env `GITHUB_TOKEN` |
-
-## Jobs
-
-### Close Stale Issues (`close_stale_issues`)
-
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-22.04` |
-| Condition | `github.repository == 'huggingface/transformers'` |
-
-**Permissions:**
-
-- `issues`: `write`
-
-**Environment (`env`):**
-
-| Variable | Value |
-|----------|-------|
-| `GITHUB_TOKEN` | `${{ secrets.GITHUB_TOKEN }}` |
+| Runs on | `ubuntu-latest` |
+| Condition | `contains(fromJSON('["run_models_gpu", "run_trainer_and_fsdp_gpu"]'), inputs.job)` |
 
 <details>
 <summary>Steps (4)</summary>
 
-1. **actions/checkout@v4.3.1**
-   - With:
-     - `persist-credentials`: `false`
-
-2. **Setup Python**
-   - Uses: `actions/setup-python@v5.6.0`
-   - With:
-     - `python-version`: `3.8`
-
-3. **Install requirements**
-
-4. **Close stale issues**
-
-</details>
-
-[Back to top](#contents)
-
-# TRL CI bot
-
-**Triggers:** `issue_comment`
-
-This workflow allows trusted contributors to trigger TRL CI runs against specific Transformers commits by commenting `/trl-ci` on a PR in the TRL repo. It is meant to be used during the ongoing Trainer refactor/unbloat in Transformers, to help evaluate the downstream impact on TRL.
-
-| Property | Value |
-|----------|-------|
-| File | `trl-ci-bot.yml` |
-
-## Event filters
-
-- **issue_comment**
-  - types: `created`
-
-## Permissions
-
-- `contents`: `read`
-- `pull-requests`: `read`
-- `issues`: `read`
-
-## Referenced secrets and variables
-
-**Secrets:**
-
-| Name | Used by |
-|------|---------|
-| `TRL_CI_DISPATCH_TOKEN` | job `dispatch` step `Dispatch TRL workflow` env `GH_TOKEN`; job `dispatch` step `Find TRL workflow run URL` env `GH_TOKEN` |
-
-## Jobs
-
-### `dispatch`
-
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-latest` |
-| Condition | `github.event.issue.pull_request && contains(github.event.comment.body, '/trl-ci')` |
-
-<details>
-<summary>Steps (6)</summary>
-
-1. **Gate on trusted commenter**
-   - ID: `trust`
-
-2. **Reject untrusted commenter**
-   - Condition: `steps.trust.outputs.trusted != 'true'`
-
-3. **Fetch PR head SHA + number**
-   - ID: `pr`
-   - Condition: `steps.trust.outputs.trusted == 'true'`
-   - Env:
-     - `GH_TOKEN`: `${{ github.token }}`
-     - `PR_URL`: `${{ github.event.issue.pull_request.url }}`
-
-4. **Dispatch TRL workflow**
-   - ID: `dispatch`
-   - Condition: `steps.trust.outputs.trusted == 'true'`
-   - Env:
-     - `GH_TOKEN`: `${{ secrets.TRL_CI_DISPATCH_TOKEN }}`
-     - `STEPS_PR_OUTPUTS_SHA`: `${{ steps.pr.outputs.sha }}`
-
-5. **Find TRL workflow run URL**
-   - ID: `find_run`
-   - Condition: `steps.trust.outputs.trusted == 'true'`
-   - Env:
-     - `GH_TOKEN`: `${{ secrets.TRL_CI_DISPATCH_TOKEN }}`
-
-6. **Comment back on PR with link**
-   - Condition: `steps.trust.outputs.trusted == 'true'`
-   - Env:
-     - `GH_TOKEN`: `${{ github.token }}`
-     - `STEPS_PR_OUTPUTS_SHA`: `${{ steps.pr.outputs.sha }}`
-     - `STEPS_FIND_RUN_OUTPUTS_URL`: `${{ steps.find_run.outputs.url }}`
-
-</details>
-
-[Back to top](#contents)
-
-# Secret Leaks
-
-**Triggers:** `push`
-
-| Property | Value |
-|----------|-------|
-| File | `trufflehog.yml` |
-
-## Permissions
-
-- `contents`: `read`
-
-## Jobs
-
-### `trufflehog`
-
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-latest` |
-
-<details>
-<summary>Steps (2)</summary>
-
-1. **Checkout code**
-   - Uses: `actions/checkout@v6.0.2`
+1. **Checkout**
+   - Uses: `actions/checkout@v4.3.1`
    - With:
      - `fetch-depth`: `0`
      - `persist-credentials`: `false`
 
-2. **Secret Scanning**
-   - Uses: `trufflesecurity/trufflehog@6bd2d14f7a4bc1e569fa3550efa7ec632a4fa67b`
+2. **Set up Python**
+   - Uses: `actions/setup-python@v5.6.0`
    - With:
-     - `extra_args`: `--results=verified,unknown`
+     - `python-version`: `3.10`
 
-</details>
-
-[Back to top](#contents)
-
-# Update Transformers metadata
-
-**Triggers:** `push`
-
-| Property | Value |
-|----------|-------|
-| File | `update_metdata.yml` |
-
-## Event filters
-
-- **push**
-  - branches: `main`, `update_transformers_metadata*`
-
-## Permissions
-
-- `contents`: `read`
-
-## Referenced secrets and variables
-
-**Secrets:**
-
-| Name | Used by |
-|------|---------|
-| `LYSANDRE_HF_TOKEN` | job `build_and_package` step `Update metadata` env `HF_TOKEN` |
-
-## Jobs
-
-### `build_and_package`
-
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-22.04` |
-
-**Defaults:** shell `bash -l {0}`
-
-<details>
-<summary>Steps (3)</summary>
-
-1. **actions/checkout@v4.3.1**
-   - With:
-     - `persist-credentials`: `false`
-
-2. **Setup environment**
-
-3. **Update metadata**
+3. **Identify models to test**
+   - ID: `set-matrix`
+   - Condition: `contains(fromJSON('["run_models_gpu", "run_trainer_and_fsdp_gpu"]'), inputs.job)`
    - Env:
-     - `HF_TOKEN`: `${{ secrets.LYSANDRE_HF_TOKEN }}`
+     - `JOB`: `${{ inputs.job }}`
+
+4. **Identify quantization method to test**
+   - ID: `set-matrix-quantization`
+   - Condition: `${{ inputs.job == 'run_quantization_torch_gpu' }}`
 
 </details>
 
-[Back to top](#contents)
-
-# Upload PR Documentation
-
-**Triggers:** `workflow_run`
+### `run_models_gpu`
 
 | Property | Value |
 |----------|-------|
-| File | `upload_pr_documentation.yml` |
-
-## Event filters
-
-- **workflow_run**
-  - workflows: `Build PR Documentation`
-  - types: `completed`
-
-## Permissions
-
-- `contents`: `read`
-
-## Call graph (rooted at this workflow)
-
-`upload_pr_documentation.yml` [workflow_run]
-
-- `build` uses `huggingface/doc-builder/.github/workflows/upload_pr_documentation.yml@9ad2de8582b56c017cb530c1165116d40433f1c6`
-
-## Transitive requirements (from full call graph)
-
-Secrets referenced (literal names): `COMMENT_BOT_TOKEN`, `HF_DOC_BUILD_PUSH`, `comment_bot_token`, `hf_token`
-
-Permissions declared across the chain: `contents: read`
-
-External workflows referenced: `huggingface/doc-builder/.github/workflows/upload_pr_documentation.yml@9ad2de8582b56c017cb530c1165116d40433f1c6`
-
-## Referenced secrets and variables
-
-**Secrets:**
-
-| Name | Used by |
-|------|---------|
-| `HF_DOC_BUILD_PUSH` | job `build` secrets `hf_token` |
-| `COMMENT_BOT_TOKEN` | job `build` secrets `comment_bot_token` |
-
-## Jobs
-
-### `build`
-
-| Property | Value |
-|----------|-------|
-| Uses workflow | `huggingface/doc-builder/.github/workflows/upload_pr_documentation.yml@9ad2de8582b56c017cb530c1165116d40433f1c6` (external) |
+| Uses workflow | [model jobs](#model-jobs-1) |
+| Matrix | `machine_type`: 1gaudi, 2gaudi; `slice_id`: ${{ fromJSON(needs.setup.outputs.slice_ids) }} |
+| Depends on | `setup` |
+| Condition | `${{ inputs.job == 'run_models_gpu' }}` |
 
 #### Inputs forwarded
 
-- `package_name`: `transformers`
+- `slice_id`: `${{ matrix.slice_id }}`
+- `machine_type`: `${{ matrix.machine_type }}`
+- `folder_slices`: `${{ needs.setup.outputs.folder_slices }}`
+- `runner`: `${{ inputs.runner_scale_set }}-${{ matrix.machine_type }}`
 
 #### Secrets forwarded
 
-- `hf_token`: `${{ secrets.HF_DOC_BUILD_PUSH }}`
-- `comment_bot_token`: `${{ secrets.COMMENT_BOT_TOKEN }}`
+- `secrets: inherit` (all caller secrets are passed to the callee)
+
+### `run_trainer_and_fsdp_gpu`
+
+| Property | Value |
+|----------|-------|
+| Uses workflow | [model jobs](#model-jobs-1) |
+| Matrix | `machine_type`: 1gaudi, 2gaudi; `slice_id`: ${{ fromJSON(needs.setup.outputs.slice_ids) }} |
+| Depends on | `setup` |
+| Condition | `${{ inputs.job == 'run_trainer_and_fsdp_gpu' }}` |
+
+#### Inputs forwarded
+
+- `slice_id`: `${{ matrix.slice_id }}`
+- `machine_type`: `${{ matrix.machine_type }}`
+- `folder_slices`: `${{ needs.setup.outputs.folder_slices }}`
+- `runner`: `${{ inputs.runner_scale_set }}-${{ matrix.machine_type }}`
+- `report_name_prefix`: `run_trainer_and_fsdp_gpu`
+
+#### Secrets forwarded
+
+- `secrets: inherit` (all caller secrets are passed to the callee)
+
+### Pipelines (`run_pipelines_torch_gpu`)
+
+| Property | Value |
+|----------|-------|
+| Matrix | `machine_type`: 1gaudi, 2gaudi |
+| Condition | `${{ inputs.job == 'run_pipelines_torch_gpu' }}` |
+
+<details>
+<summary>Steps (9)</summary>
+
+1. **Checkout**
+   - Uses: `actions/checkout@v4.3.1`
+   - With:
+     - `fetch-depth`: `0`
+     - `persist-credentials`: `false`
+
+2. **Install dependencies**
+
+3. **HL-SMI**
+
+4. **Environment**
+
+5. **Show installed libraries and their versions**
+
+6. **Set \`machine\_type\` for report and artifact names**
+
+7. **Run all pipeline tests on Intel Gaudi**
+
+8. **Failure short reports** `[continue-on-error]`
+   - Condition: `${{ failure() }}`
+
+9. **Test suite reports artifacts: ${{ env.machine\_type }}\_run\_pipelines\_torch\_gpu\_test\_reports**
+   - Uses: `actions/upload-artifact@v4.6.2`
+   - Condition: `${{ always() }}`
+   - With:
+     - `name`: `${{ env.machine_type }}_run_pipelines_torch_gpu_test_reports`
+     - `path`: `reports/${{ env.machine_type }}_run_pipelines_torch_gpu_test_reports`
+
+</details>
+
+### Examples directory (`run_examples_gpu`)
+
+| Property | Value |
+|----------|-------|
+| Matrix | `machine_type`: 1gaudi |
+| Condition | `${{ inputs.job == 'run_examples_gpu' }}` |
+
+<details>
+<summary>Steps (9)</summary>
+
+1. **Checkout**
+   - Uses: `actions/checkout@v4.3.1`
+   - With:
+     - `fetch-depth`: `0`
+     - `persist-credentials`: `false`
+
+2. **Install dependencies**
+
+3. **HL-SMI**
+
+4. **Environment**
+
+5. **Show installed libraries and their versions**
+
+6. **Set \`machine\_type\` for report and artifact names**
+
+7. **Run examples tests on Intel Gaudi**
+
+8. **Failure short reports** `[continue-on-error]`
+   - Condition: `${{ failure() }}`
+
+9. **Test suite reports artifacts: ${{ env.machine\_type }}\_run\_examples\_gpu\_test\_reports**
+   - Uses: `actions/upload-artifact@v4.6.2`
+   - Condition: `${{ always() }}`
+   - With:
+     - `name`: `${{ env.machine_type }}_run_examples_gpu_test_reports`
+     - `path`: `reports/${{ env.machine_type }}_run_examples_gpu_test_reports`
+
+</details>
+
+### Intel Gaudi deepspeed tests (`run_torch_cuda_extensions_gpu`)
+
+| Property | Value |
+|----------|-------|
+| Matrix | `machine_type`: 1gaudi, 2gaudi |
+| Condition | `${{ inputs.job == 'run_torch_cuda_extensions_gpu' }}` |
+
+<details>
+<summary>Steps (9)</summary>
+
+1. **Checkout**
+   - Uses: `actions/checkout@v4.3.1`
+   - With:
+     - `fetch-depth`: `0`
+     - `persist-credentials`: `false`
+
+2. **Install dependencies**
+
+3. **HL-SMI**
+
+4. **Environment**
+
+5. **Show installed libraries and their versions**
+
+6. **Set \`machine\_type\` for report and artifact names**
+
+7. **Run all deepspeed tests on intel Gaudi**
+
+8. **Failure short reports** `[continue-on-error]`
+   - Condition: `${{ failure() }}`
+
+9. **Test suite reports artifacts: ${{ env.machine\_type }}\_run\_torch\_cuda\_extensions\_gpu\_test\_reports**
+   - Uses: `actions/upload-artifact@v4.6.2`
+   - Condition: `${{ always() }}`
+   - With:
+     - `name`: `${{ env.machine_type }}_run_torch_cuda_extensions_gpu_test_reports`
+     - `path`: `reports/${{ env.machine_type }}_run_torch_cuda_extensions_gpu_test_reports`
+
+</details>
+
+### Slack Report (`send_results`)
+
+| Property | Value |
+|----------|-------|
+| Uses workflow | [CI slack report](#ci-slack-report) |
+| Depends on | `setup`, `run_models_gpu`, `run_examples_gpu`, `run_torch_cuda_extensions_gpu`, `run_pipelines_torch_gpu`, `run_trainer_and_fsdp_gpu` |
+| Condition | `${{ always() }}` |
+
+#### Inputs forwarded
+
+- `job`: `${{ inputs.job }}`
+- `setup_status`: `${{ needs.setup.result }}`
+- `slack_report_channel`: `${{ inputs.slack_report_channel }}`
+- `quantization_matrix`: `${{ needs.setup.outputs.quantization_matrix }}`
+- `folder_slices`: `${{ needs.setup.outputs.folder_slices }}`
+- `report_repo_id`: `${{ inputs.report_repo_id }}`
+- `ci_event`: `${{ inputs.ci_event }}`
+
+#### Secrets forwarded
+
+- `secrets: inherit` (all caller secrets are passed to the callee)
 
 [Back to top](#contents)
 
