@@ -70,7 +70,7 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `HUB_ACCESSS_TOKEN`, `HUB_USERNAME`, `registry-0-psw`, `registry-0-usr`
+Secrets required (declared/forwarded names): `registry-0-psw`, `registry-0-usr`
 
 Permissions declared across the chain: `security-events: write`
 
@@ -266,7 +266,7 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `GITHUB_TOKEN`, `HUB_ACCESSS_TOKEN`, `HUB_USERNAME`, `registry-0-psw`, `registry-0-usr`
+Secrets required (declared/forwarded names): `registry-0-psw`, `registry-0-usr`
 
 Permissions declared across the chain: `contents: write`, `security-events: write`
 

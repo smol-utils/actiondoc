@@ -337,10 +337,17 @@ func calledByLabels(g *callgraph.Graph, e callgraph.Edge) (label, rep string) {
 }
 
 // renderTransitiveRequirements aggregates, across the entry point and everything
-// reachable from it, what the whole pipeline needs: secret and variable names (declared,
-// forwarded, and referenced in expressions), the union of declared permission grants, and
-// the external workflows it pulls in. It answers "what does this whole chain need?"
-// without walking every hop.
+// reachable from it, what the whole pipeline needs by contract: the secret names each hop
+// declares or forwards (workflow_call.secrets, forwarded `secrets:` keys, and `@secret`
+// tags), the union of declared permission grants, and the external workflows it pulls in.
+// It answers "what does this whole chain need?" without walking every hop.
+//
+// Expression-referenced secret/variable NAMES are deliberately NOT aggregated here: the
+// document-level secrets/variables inventory already maps every referenced name to the
+// workflows that use it, and the per-workflow "Referenced secrets and variables" table
+// carries the within-workflow site detail. This section is the contract view; those are the
+// usage views.
+//
 // Scope note: names are reported as written at each hop; values are not traced through
 // per-hop `secrets:` renames.
 func renderTransitiveRequirements(b *strings.Builder, g *callgraph.Graph, id string) {
@@ -353,7 +360,6 @@ func renderTransitiveRequirements(b *strings.Builder, g *callgraph.Graph, id str
 	}
 
 	secrets := map[string]bool{}
-	vars := map[string]bool{}
 	perms := map[string]bool{}
 	externals := map[string]bool{}
 	for _, nid := range append([]string{id}, reach...) {
@@ -362,7 +368,6 @@ func renderTransitiveRequirements(b *strings.Builder, g *callgraph.Graph, id str
 			continue
 		}
 		collectSecretNames(n, secrets)
-		collectScannedRefs(n, secrets, vars)
 		collectPermissions(n, perms)
 		// External references are collected from this node's outgoing edges (not from the
 		// external nodes themselves) so the `@ref` pin each call site uses is preserved.
@@ -372,39 +377,19 @@ func renderTransitiveRequirements(b *strings.Builder, g *callgraph.Graph, id str
 			}
 		}
 	}
-	if len(secrets) == 0 && len(vars) == 0 && len(perms) == 0 && len(externals) == 0 {
+	if len(secrets) == 0 && len(perms) == 0 && len(externals) == 0 {
 		return
 	}
 
 	b.WriteString("## Transitive requirements (from full call graph)\n\n")
 	if len(secrets) > 0 {
-		fmt.Fprintf(b, "Secrets referenced (literal names): %s\n\n", codelist(sortedKeys(secrets)))
-	}
-	if len(vars) > 0 {
-		fmt.Fprintf(b, "Variables referenced: %s\n\n", codelist(sortedKeys(vars)))
+		fmt.Fprintf(b, "Secrets required (declared/forwarded names): %s\n\n", codelist(sortedKeys(secrets)))
 	}
 	if len(perms) > 0 {
 		fmt.Fprintf(b, "Permissions declared across the chain: %s\n\n", codelist(sortedKeys(perms)))
 	}
 	if len(externals) > 0 {
 		fmt.Fprintf(b, "External workflows referenced: %s\n\n", codelist(sortedKeys(externals)))
-	}
-}
-
-// collectScannedRefs unions the secret/variable names referenced in a workflow node's
-// expressions (run:, with:, env:, if:, forwarded secrets: values) into the given sets. It
-// reuses the scanner that builds each workflow's own reference inventory, so the
-// transitive view can never disagree with the per-workflow sections.
-func collectScannedRefs(n *callgraph.Node, secrets, vars map[string]bool) {
-	if n.Workflow == nil {
-		return
-	}
-	refs := model.ScanReferences(n.Workflow)
-	for _, r := range refs.Secrets {
-		secrets[r.Name] = true
-	}
-	for _, r := range refs.Vars {
-		vars[r.Name] = true
 	}
 }
 

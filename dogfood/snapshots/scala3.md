@@ -831,10 +831,6 @@
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `MAVEN_REPOSITORY_TOKEN`, `MAVEN_REPOSITORY_USER`, `PGP_PW`, `PGP_SECRET`, `SCALA_APP_ID`, `SCALA_APP_PRIVATE_KEY`, `SCALA_PGP_KEY`, `SCALA_PGP_PASSPHRASE`
-
-Variables referenced: `MAVEN_REPOSITORY_HOST`, `MAVEN_REPOSITORY_REALM`, `MAVEN_REPOSITORY_URL`, `NEWNIGHTLY`, `NIGHTLYBUILD`, `SCALA_PGP_FINGERPRINT`
-
 Permissions declared across the chain: `contents: read`
 
 ## Referenced secrets and variables
@@ -962,7 +958,7 @@ Inputs for the `workflow_dispatch` event.
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `API-KEY`, `CHOCOLATEY_KEY`, `CONSUMER-KEY`, `CONSUMER-TOKEN`, `DOTTYBOT-TOKEN`, `DOTTYBOT_WINGET_TOKEN`, `GITHUB_TOKEN`, `SDKMAN_KEY`, `SDKMAN_TOKEN`
+Secrets required (declared/forwarded names): `API-KEY`, `CONSUMER-KEY`, `CONSUMER-TOKEN`, `DOTTYBOT-TOKEN`
 
 ## Referenced secrets and variables
 
@@ -1111,8 +1107,6 @@ Secrets referenced (literal names): `API-KEY`, `CHOCOLATEY_KEY`, `CONSUMER-KEY`,
 - `test-chocolatey-package` uses [test-chocolatey.yml](#test-scala-chocolatey-package)
 
 ## Transitive requirements (from full call graph)
-
-Secrets referenced (literal names): `GITHUB_TOKEN`, `PGP_PW`, `PGP_SECRET`, `SONATYPE_PW_ORGSCALALANG`, `SONATYPE_USER_ORGSCALALANG`
 
 Permissions declared across the chain: `contents: read`, `contents: write`
 
@@ -2480,7 +2474,14 @@ THIS IS A REUSABLE WORKFLOW TO TEST SCALA WITH CHOCOLATEY HOW TO USE: NOTE:
 
 **Triggers:** `workflow_call`
 
-THIS IS A REUSABLE WORKFLOW TO TEST SCALA WITH MSI RUNNER HOW TO USE: Provide optional `version` to test if installed binaries are installed with correct Scala version. NOTE: Requires `scala.msi` artifact uploaded within the same run
+THIS IS A REUSABLE WORKFLOW TO TEST SCALA WITH MSI RUNNER HOW TO USE: Provide optional `version` to test if installed binaries are installed with correct Scala version.
+
+<details>
+<summary>more</summary>
+
+NOTE: Requires `scala.msi` artifact uploaded within the same run
+
+</details>
 
 | Property | Value |
 |----------|-------|

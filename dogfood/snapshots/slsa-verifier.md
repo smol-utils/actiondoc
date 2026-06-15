@@ -87,7 +87,14 @@ All scopes: `read-all`.
 
 **Triggers:** `push`, `pull_request`, `schedule`
 
-For most projects, this workflow file will not need changing; you simply need to commit it to your repository. You may wish to alter this file to override the set of languages analyzed, or to provide custom queries or build logic. ******** NOTE ******** We have attempted to detect the languages in your repository. Please check the `language` matrix defined below to confirm you have the correct set of supported CodeQL languages.
+For most projects, this workflow file will not need changing; you simply need to commit it to your repository.
+
+<details>
+<summary>more</summary>
+
+You may wish to alter this file to override the set of languages analyzed, or to provide custom queries or build logic. ******** NOTE ******** We have attempted to detect the languages in your repository. Please check the `language` matrix defined below to confirm you have the correct set of supported CodeQL languages.
+
+</details>
 
 | Property | Value |
 |----------|-------|
@@ -651,7 +658,14 @@ All scopes: `read-all`.
 
 **Triggers:** `workflow_dispatch`
 
-A workflow to run against renovate-bot's PRs, such as `make package` after it updates the package.json and package-lock.json files. The potentially untrusted code is first run inside a low-privilege Job, and the diff is uploaded as an artifact. Then a higher-privilege Job applies the diff and pushes the changes to the PR. It's important to only run this workflow against PRs from trusted sources, after also reviewing the changes! There have been vulnerabilities with using `git apply` https://github.blog/2023-04-25-git-security-vulnerabilities-announced-4/ At this point a compromised git binary cannot modify any of this repo's branches, only the PR fork's branch, due to our branch protection rules and CODEOWNERS. It aslso cannot submit a new release or modify exsiting releases due to tag protection rules.
+A workflow to run against renovate-bot's PRs, such as `make package` after it updates the package.json and package-lock.json files.
+
+<details>
+<summary>more</summary>
+
+The potentially untrusted code is first run inside a low-privilege Job, and the diff is uploaded as an artifact. Then a higher-privilege Job applies the diff and pushes the changes to the PR. It's important to only run this workflow against PRs from trusted sources, after also reviewing the changes! There have been vulnerabilities with using `git apply` https://github.blog/2023-04-25-git-security-vulnerabilities-announced-4/ At this point a compromised git binary cannot modify any of this repo's branches, only the PR fork's branch, due to our branch protection rules and CODEOWNERS. It aslso cannot submit a new release or modify exsiting releases due to tag protection rules.
+
+</details>
 
 | Property | Value |
 |----------|-------|
@@ -999,8 +1013,6 @@ All scopes: `read-all`.
 - `builder` uses `slsa-framework/slsa-github-generator/.github/workflows/builder_go_slsa3.yml@v2.0.0`
 
 ## Transitive requirements (from full call graph)
-
-Secrets referenced (literal names): `GITHUB_TOKEN`
 
 Permissions declared across the chain: `actions: read`, `contents: read`, `contents: write`, `id-token: write (OIDC)`, `issues: write`, `read-all`
 

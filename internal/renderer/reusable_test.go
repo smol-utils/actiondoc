@@ -325,23 +325,36 @@ func TestTransitiveRequirements(t *testing.T) {
 
 	md := RenderMarkdownGraph(workflows[id], g, id)
 
-	if !strings.Contains(md, "## Transitive requirements (from full call graph)") {
+	const heading = "## Transitive requirements (from full call graph)"
+	start := strings.Index(md, heading)
+	if start < 0 {
 		t.Fatalf("missing transitive requirements section:\n%s", md)
 	}
-	// GPG_KEY comes from the entry point's forwarded secrets: mapping; SIGNING_KEY from
-	// the leaf's @secret tag two hops down; LEAF_TOKEN from scanning the leaf's run:
-	// expression; RELEASE_GPG_KEY from scanning the entry point's forwarded secret value.
-	// Names are sorted alphabetically.
-	if !strings.Contains(md, "Secrets referenced (literal names): `GPG_KEY`, `LEAF_TOKEN`, `RELEASE_GPG_KEY`, `SIGNING_KEY`") {
-		t.Errorf("secrets not aggregated across the chain:\n%s", md)
+	// Scope the assertions to just this section: a name dropped here may still legitimately
+	// appear elsewhere (e.g. RELEASE_GPG_KEY in the per-workflow Used-by table, which stays).
+	section := md[start:]
+	if next := strings.Index(section[len(heading):], "\n## "); next >= 0 {
+		section = section[:len(heading)+next]
 	}
-	// DEPLOY_REGION comes from scanning the leaf's run: expression two hops down.
-	if !strings.Contains(md, "Variables referenced: `DEPLOY_REGION`") {
-		t.Errorf("variables not aggregated across the chain:\n%s", md)
+
+	// This section is the contract view: it aggregates only the DECLARED/forwarded secret
+	// names. GPG_KEY comes from the entry point's forwarded secrets: mapping key; SIGNING_KEY
+	// from the leaf's @secret tag two hops down. Names are sorted alphabetically.
+	if !strings.Contains(section, "Secrets required (declared/forwarded names): `GPG_KEY`, `SIGNING_KEY`") {
+		t.Errorf("declared secrets not aggregated across the chain:\n%s", section)
+	}
+	// Expression-scanned NAMES are intentionally NOT listed here anymore (the document-level
+	// inventory and the per-workflow Used-by table cover those). LEAF_TOKEN and
+	// RELEASE_GPG_KEY are only reachable by re-scanning expressions, so they must be absent
+	// from this section, and the variables line (DEPLOY_REGION was scan-only) must not appear.
+	for _, gone := range []string{"LEAF_TOKEN", "RELEASE_GPG_KEY", "Variables referenced", "DEPLOY_REGION"} {
+		if strings.Contains(section, gone) {
+			t.Errorf("transitive section must not contain expression-scanned %q:\n%s", gone, section)
+		}
 	}
 	// The leaf job's permission grants surface on the entry point, with the OIDC marker.
-	if !strings.Contains(md, "Permissions declared across the chain: `contents: read`, `id-token: write (OIDC)`") {
-		t.Errorf("permissions not aggregated across the chain:\n%s", md)
+	if !strings.Contains(section, "Permissions declared across the chain: `contents: read`, `id-token: write (OIDC)`") {
+		t.Errorf("permissions not aggregated across the chain:\n%s", section)
 	}
 }
 

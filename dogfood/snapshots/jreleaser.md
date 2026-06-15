@@ -184,7 +184,7 @@
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `GITHUB_TOKEN`, `github-token`
+Secrets required (declared/forwarded names): `github-token`
 
 Permissions declared across the chain: `actions: read`, `contents: read`, `security-events: write`
 
@@ -287,9 +287,7 @@ Permissions declared across the chain: `actions: read`, `contents: read`, `secur
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `GITHUB_TOKEN`, `GIT_ACCESS_TOKEN`, `GPG_PASSPHRASE`, `GPG_PUBLIC_KEY`, `GPG_SECRET_KEY`, `JRELEASER_DOCKER_PASSWORD`, `JRELEASER_OCI_COMPARTMENTID`, `gh-access-token`, `github-token`, `gpg-passphrase`, `oci-compartment-id`
-
-Variables referenced: `GH_BOT_EMAIL`, `GRAAL_JAVA_VERSION`, `JAVA_DISTRO`, `JAVA_VERSION`
+Secrets required (declared/forwarded names): `gh-access-token`, `github-token`, `gpg-passphrase`, `oci-compartment-id`
 
 Permissions declared across the chain: `actions: read`, `actions: write`, `attestations: write`, `contents: read`, `contents: write`, `id-token: write (OIDC)`
 
@@ -554,7 +552,7 @@ All scopes: `read-all`.
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `GITHUB_TOKEN`, `github-token`
+Secrets required (declared/forwarded names): `github-token`
 
 Permissions declared across the chain: `actions: read`, `contents: read`, `id-token: write (OIDC)`, `read-all`, `security-events: write`
 
@@ -653,9 +651,7 @@ Permissions declared across the chain: `actions: read`, `contents: read`, `id-to
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `BLUESKY_HANDLE`, `BLUESKY_HOST`, `BLUESKY_PASSWORD`, `COMMIT_EMAIL`, `GITHUB_TOKEN`, `GIT_ACCESS_TOKEN`, `GPG_PASSPHRASE`, `GPG_PUBLIC_KEY`, `GPG_SECRET_KEY`, `GRADLE_PUBLISH_KEY`, `GRADLE_PUBLISH_SECRET`, `JRELEASER_DOCKER_PASSWORD`, `JRELEASER_OCI_COMPARTMENTID`, `MASTODON_ACCESS_TOKEN`, `NOTICEABLE_APIKEY`, `OPENCOLLECTIVE_TOKEN`, `SDKMAN_CONSUMER_KEY`, `SDKMAN_CONSUMER_TOKEN`, `SONATYPE_PASSWORD`, `SONATYPE_USERNAME`, `gh-access-token`, `gpg-passphrase`, `oci-compartment-id`
-
-Variables referenced: `COMMIT_EMAIL`, `GH_BOT_EMAIL`, `GRAAL_JAVA_VERSION`, `JAVA_DISTRO`, `JAVA_VERSION`
+Secrets required (declared/forwarded names): `gh-access-token`, `gpg-passphrase`, `oci-compartment-id`
 
 Permissions declared across the chain: `actions: read`, `actions: write`, `contents: read`, `contents: write`, `id-token: write (OIDC)`
 
@@ -977,9 +973,7 @@ External workflows referenced: `slsa-framework/slsa-github-generator/.github/wor
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `CODECOV_TOKEN`, `COVERALLS_TOKEN`, `GITHUB_TOKEN`, `GIT_ACCESS_TOKEN`, `GIT_PAT_TOKEN`, `GPG_PASSPHRASE`, `GPG_PUBLIC_KEY`, `GPG_SECRET_KEY`, `JRELEASER_OCI_COMPARTMENTID`, `SONARCLOUD_TOKEN`, `github-token`
-
-Variables referenced: `GRAAL_JAVA_VERSION`, `JAVA_DISTRO`, `JAVA_VERSION`
+Secrets required (declared/forwarded names): `github-token`
 
 Permissions declared across the chain: `contents: read`
 

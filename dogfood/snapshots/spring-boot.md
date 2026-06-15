@@ -115,9 +115,7 @@
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `ARTIFACTORY_PASSWORD`, `ARTIFACTORY_USERNAME`, `COMMERCIAL_ARTIFACTORY_PASSWORD`, `COMMERCIAL_ARTIFACTORY_USERNAME`, `DEVELOCITY_ACCESS_KEY`, `GH_ACTIONS_REPO_TOKEN`, `GITHUB_TOKEN`, `GOOGLE_CHAT_WEBHOOK_URL`, `GPG_PASSPHRASE`, `GPG_PRIVATE_KEY`, `commercial-repository-password`, `commercial-repository-username`, `google-chat-webhook-url`, `opensource-repository-password`, `opensource-repository-username`, `token`
-
-Variables referenced: `COMMERCIAL`, `COMMERCIAL_DEPLOY_REPO_URL`, `COMMERCIAL_RELEASE_REPO_URL`, `COMMERCIAL_SNAPSHOT_REPO_URL`
+Secrets required (declared/forwarded names): `commercial-repository-password`, `commercial-repository-username`, `google-chat-webhook-url`, `opensource-repository-password`, `opensource-repository-username`, `token`
 
 Permissions declared across the chain: `actions: write`, `contents: read`
 
@@ -324,10 +322,6 @@ Permissions declared across the chain: `contents: read`
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `COMMERCIAL_ARTIFACTORY_PASSWORD`, `COMMERCIAL_ARTIFACTORY_USERNAME`, `DEVELOCITY_ACCESS_KEY`, `GOOGLE_CHAT_WEBHOOK_URL`
-
-Variables referenced: `COMMERCIAL_RELEASE_REPO_URL`, `COMMERCIAL_SNAPSHOT_REPO_URL`
-
 Permissions declared across the chain: `contents: read`
 
 ## Referenced secrets and variables
@@ -504,9 +498,7 @@ Inputs for the `workflow_dispatch` event.
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `ARTIFACTORY_PASSWORD`, `ARTIFACTORY_USERNAME`, `CENTRAL_TOKEN_PASSWORD`, `CENTRAL_TOKEN_USERNAME`, `COMMERCIAL_ARTIFACTORY_PASSWORD`, `COMMERCIAL_ARTIFACTORY_USERNAME`, `COMMERCIAL_JF_ARTIFACTORY_SPRING`, `DEVELOCITY_ACCESS_KEY`, `GH_ACTIONS_REPO_TOKEN`, `GITHUB_TOKEN`, `GOOGLE_CHAT_WEBHOOK_URL`, `GPG_PASSPHRASE`, `GPG_PRIVATE_KEY`, `GRADLE_PLUGIN_PUBLISH_KEY`, `GRADLE_PLUGIN_PUBLISH_SECRET`, `JF_ARTIFACTORY_SPRING`, `SDKMAN_CONSUMER_KEY`, `SDKMAN_CONSUMER_TOKEN`, `commercial-repository-password`, `commercial-repository-username`, `google-chat-webhook-url`, `opensource-repository-password`, `opensource-repository-username`, `token`
-
-Variables referenced: `COMMERCIAL`, `COMMERCIAL_DEPLOY_REPO_URL`, `COMMERCIAL_RELEASE_REPO_URL`, `COMMERCIAL_SNAPSHOT_REPO_URL`
+Secrets required (declared/forwarded names): `commercial-repository-password`, `commercial-repository-username`, `google-chat-webhook-url`, `opensource-repository-password`, `opensource-repository-username`, `token`
 
 Permissions declared across the chain: `actions: write`, `contents: read`
 
@@ -805,9 +797,7 @@ Permissions declared across the chain: `actions: write`, `contents: read`
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `ARTIFACTORY_PASSWORD`, `ARTIFACTORY_USERNAME`, `CENTRAL_TOKEN_PASSWORD`, `CENTRAL_TOKEN_USERNAME`, `COMMERCIAL_ARTIFACTORY_RO_PASSWORD`, `COMMERCIAL_ARTIFACTORY_RO_USERNAME`, `DEVELOCITY_ACCESS_KEY`, `GH_ACTIONS_REPO_TOKEN`, `GITHUB_TOKEN`, `GOOGLE_CHAT_WEBHOOK_URL`, `GPG_PASSPHRASE`, `GPG_PRIVATE_KEY`, `GRADLE_PLUGIN_PUBLISH_KEY`, `GRADLE_PLUGIN_PUBLISH_SECRET`, `JF_ARTIFACTORY_SPRING`, `commercial-repository-password`, `commercial-repository-username`, `google-chat-webhook-url`, `opensource-repository-password`, `opensource-repository-username`, `token`
-
-Variables referenced: `COMMERCIAL`
+Secrets required (declared/forwarded names): `commercial-repository-password`, `commercial-repository-username`, `google-chat-webhook-url`, `opensource-repository-password`, `opensource-repository-username`, `token`
 
 Permissions declared across the chain: `actions: write`, `contents: read`
 
@@ -1071,8 +1061,6 @@ External workflows referenced: `spring-io/github-actions/.github/workflows/codeq
 - `run-system-tests / Send Notification` uses [./.github/actions/send-notification](#send-notification)
 
 ## Transitive requirements (from full call graph)
-
-Secrets referenced (literal names): `DEVELOCITY_ACCESS_KEY`, `GOOGLE_CHAT_WEBHOOK_URL`
 
 Permissions declared across the chain: `contents: read`
 

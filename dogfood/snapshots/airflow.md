@@ -118,7 +118,7 @@
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `GITHUB_TOKEN`, `SLACK_BOT_TOKEN`
+Secrets required (declared/forwarded names): `SLACK_BOT_TOKEN`
 
 Permissions declared across the chain: `contents: write`, `pull-requests: write`
 
@@ -175,7 +175,7 @@ Permissions declared across the chain: `contents: write`, `pull-requests: write`
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `GITHUB_TOKEN`, `SLACK_BOT_TOKEN`
+Secrets required (declared/forwarded names): `SLACK_BOT_TOKEN`
 
 Permissions declared across the chain: `contents: write`, `pull-requests: write`
 
@@ -252,8 +252,6 @@ Inputs for the `workflow_dispatch` event.
 - `test-e2e-integration-tests / Prepare breeze & PROD image: ${{ env.PYTHON_MAJOR_MINOR_VERSION }}` uses [./.github/actions/prepare_breeze_and_image](#prepare-breeze--current-image-ci-or-prod)
 
 ## Transitive requirements (from full call graph)
-
-Secrets referenced (literal names): `GITHUB_TOKEN`
 
 Permissions declared across the chain: `contents: read`
 
@@ -401,8 +399,6 @@ Permissions declared across the chain: `contents: read`
 - `trigger-backport` uses [backport-cli.yml](#backport-commit)
 
 ## Transitive requirements (from full call graph)
-
-Secrets referenced (literal names): `GITHUB_TOKEN`
 
 Permissions declared across the chain: `contents: read`, `contents: write`, `pull-requests: write`
 
@@ -602,7 +598,7 @@ Inputs for the `workflow_dispatch` event.
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `CONSTRAINTS_GITHUB_REPOSITORY`, `DOCS_AWS_ACCESS_KEY_ID`, `DOCS_AWS_SECRET_ACCESS_KEY`, `GITHUB_TOKEN`
+Secrets required (declared/forwarded names): `DOCS_AWS_ACCESS_KEY_ID`, `DOCS_AWS_SECRET_ACCESS_KEY`
 
 Permissions declared across the chain: `contents: read`, `packages: read`, `packages: write`
 
@@ -1153,8 +1149,6 @@ Permissions declared across the chain: `contents: read`, `packages: read`, `pack
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `GITHUB_TOKEN`
-
 Permissions declared across the chain: `contents: write`, `pull-requests: write`
 
 ## Referenced secrets and variables
@@ -1317,7 +1311,7 @@ Inputs for the `workflow_dispatch` event.
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `CONSTRAINTS_GITHUB_REPOSITORY`, `DOCS_AWS_ACCESS_KEY_ID`, `DOCS_AWS_SECRET_ACCESS_KEY`, `GITHUB_TOKEN`
+Secrets required (declared/forwarded names): `DOCS_AWS_ACCESS_KEY_ID`, `DOCS_AWS_SECRET_ACCESS_KEY`
 
 Permissions declared across the chain: `contents: read`, `id-token: write (OIDC)`, `packages: read`, `packages: write`
 
@@ -1684,8 +1678,6 @@ Inputs for the `workflow_dispatch` event.
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `CONSTRAINTS_GITHUB_REPOSITORY`, `DOCS_AWS_ACCESS_KEY_ID`, `DOCS_AWS_SECRET_ACCESS_KEY`, `GITHUB_TOKEN`
-
 Permissions declared across the chain: `contents: read`, `packages: read`, `packages: write`
 
 ## Referenced secrets and variables
@@ -1964,7 +1956,7 @@ Inputs for the `workflow_dispatch` event.
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `DOCKERHUB_TOKEN`, `DOCKERHUB_USER`, `GITHUB_TOKEN`
+Secrets required (declared/forwarded names): `DOCKERHUB_TOKEN`, `DOCKERHUB_USER`
 
 Permissions declared across the chain: `contents: read`, `packages: read`
 
@@ -2257,7 +2249,7 @@ Permissions declared across the chain: `contents: read`, `packages: read`
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `CODECOV_TOKEN`, `CONSTRAINTS_GITHUB_REPOSITORY`, `DOCS_AWS_ACCESS_KEY_ID`, `DOCS_AWS_SECRET_ACCESS_KEY`, `GITHUB_TOKEN`, `SLACK_BOT_TOKEN`
+Secrets required (declared/forwarded names): `DOCS_AWS_ACCESS_KEY_ID`, `DOCS_AWS_SECRET_ACCESS_KEY`, `SLACK_BOT_TOKEN`
 
 Permissions declared across the chain: `contents: read`, `contents: write`, `id-token: write (OIDC)`, `packages: read`, `packages: write`
 
@@ -3489,7 +3481,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `CODECOV_TOKEN`, `CONSTRAINTS_GITHUB_REPOSITORY`, `DOCS_AWS_ACCESS_KEY_ID`, `DOCS_AWS_SECRET_ACCESS_KEY`, `GITHUB_TOKEN`, `SLACK_BOT_TOKEN`
+Secrets required (declared/forwarded names): `DOCS_AWS_ACCESS_KEY_ID`, `DOCS_AWS_SECRET_ACCESS_KEY`, `SLACK_BOT_TOKEN`
 
 Permissions declared across the chain: `contents: read`, `contents: write`, `id-token: write (OIDC)`, `packages: read`, `packages: write`
 
@@ -4632,8 +4624,6 @@ Inputs for the `workflow_dispatch` event.
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `GITHUB_TOKEN`
-
 Permissions declared across the chain: `contents: read`
 
 ## Called by
@@ -4794,8 +4784,6 @@ Permissions declared across the chain: `contents: read`
   - `generate-constraints-matrix / Prepare breeze & CI image: ${{ matrix.python-version }}` uses [./.github/actions/prepare_breeze_and_image](#prepare-breeze--current-image-ci-or-prod)
 
 ## Transitive requirements (from full call graph)
-
-Secrets referenced (literal names): `CONSTRAINTS_GITHUB_REPOSITORY`, `GITHUB_TOKEN`, `SLACK_BOT_TOKEN`
 
 Permissions declared across the chain: `contents: read`, `contents: write`, `packages: read`, `packages: write`
 
@@ -5012,8 +5000,6 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
   - `generate-constraints-matrix / Prepare breeze & CI image: ${{ matrix.python-version }}` uses [./.github/actions/prepare_breeze_and_image](#prepare-breeze--current-image-ci-or-prod)
 
 ## Transitive requirements (from full call graph)
-
-Secrets referenced (literal names): `CONSTRAINTS_GITHUB_REPOSITORY`, `GITHUB_TOKEN`, `SLACK_BOT_TOKEN`
 
 Permissions declared across the chain: `contents: read`, `contents: write`, `packages: read`, `packages: write`
 
@@ -9218,8 +9204,14 @@ Installs breeze and recreates current python image from artifact
 
 # Prepare single CI image
 
-Recreates current python image from artifacts (needed for the hard-coded actions calling all possible Python versions in "prepare_all_ci_images" action. Hopefully we can get rid of it when the https://github.com/apache/airflow/issues/45268 is resolved and we contribute capability of downloading multiple keys to the stash action.
+Recreates current python image from artifacts (needed for the hard-coded actions calling all possible Python versions in "prepare_all_ci_images" action.
 
+<details>
+<summary>more</summary>
+
+Hopefully we can get rid of it when the https://github.com/apache/airflow/issues/45268 is resolved and we contribute capability of downloading multiple keys to the stash action.
+
+</details>
 
 | Property | Value |
 |----------|-------|

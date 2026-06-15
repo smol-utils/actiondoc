@@ -410,8 +410,6 @@ Inputs for the `workflow_dispatch` event.
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `HF_HUB_READ_TOKEN`, `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN`
-
 Permissions declared across the chain: `contents: read`
 
 ## Jobs
@@ -456,8 +454,6 @@ Permissions declared across the chain: `contents: read`
 - `benchmark-v2-default` uses [benchmark_v2.yml](#benchmark-v2-framework)
 
 ## Transitive requirements (from full call graph)
-
-Secrets referenced (literal names): `HF_HUB_READ_TOKEN`, `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN`
 
 Permissions declared across the chain: `contents: read`
 
@@ -1080,7 +1076,7 @@ Permissions declared across the chain: `contents: read`
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `HF_DOC_BUILD_PUSH`, `HUGGINGFACE_PUSH`, `hf_token`, `token`
+Secrets required (declared/forwarded names): `hf_token`, `token`
 
 Permissions declared across the chain: `contents: read`
 
@@ -1633,8 +1629,6 @@ External workflows referenced: `huggingface/security-workflows/.github/workflows
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `ACCESS_REPO_INFO_TOKEN`, `CI_SLACK_BOT_TOKEN`, `CI_SLACK_CHANNEL_ID_DAILY_DOCS`
-
 Permissions declared across the chain: `contents: read`
 
 ## Referenced secrets and variables
@@ -1997,8 +1991,6 @@ Inputs for the `workflow_dispatch` event.
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `ACCESS_REPO_INFO_TOKEN`, `CI_SLACK_BOT_TOKEN`, `CI_SLACK_CHANNEL_DUMMY_TESTS`, `CI_SLACK_CHANNEL_ID`, `CI_SLACK_CHANNEL_ID_DAILY`, `GITHUB_TOKEN`, `HF_HUB_READ_TOKEN`, `SLACK_CIFEEDBACK_BOT_TOKEN`, `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN`
-
 Permissions declared across the chain: `contents: read`
 
 ## Jobs
@@ -2214,8 +2206,6 @@ Inputs for the `workflow_dispatch` event.
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `ACCESS_REPO_INFO_TOKEN`, `CI_SLACK_BOT_TOKEN`, `CI_SLACK_CHANNEL_DUMMY_TESTS`, `CI_SLACK_CHANNEL_ID`, `CI_SLACK_CHANNEL_ID_DAILY`, `GITHUB_TOKEN`, `HF_HUB_READ_TOKEN`, `SLACK_CIFEEDBACK_BOT_TOKEN`, `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN`
-
 Permissions declared across the chain: `contents: read`
 
 ## Jobs
@@ -2307,8 +2297,6 @@ Permissions declared across the chain: `contents: read`
   - `check_new_failures` uses [check_failed_tests.yml](#process-failed-tests)
 
 ## Transitive requirements (from full call graph)
-
-Secrets referenced (literal names): `ACCESS_REPO_INFO_TOKEN`, `CI_SLACK_BOT_TOKEN`, `CI_SLACK_CHANNEL_DUMMY_TESTS`, `CI_SLACK_CHANNEL_ID`, `CI_SLACK_CHANNEL_ID_DAILY`, `DOCKERHUB_PASSWORD`, `DOCKERHUB_USERNAME`, `GITHUB_TOKEN`, `HF_HUB_READ_TOKEN`, `SLACK_CIFEEDBACK_BOT_TOKEN`, `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN`
 
 Permissions declared across the chain: `contents: read`
 
@@ -2405,8 +2393,6 @@ No permissions granted (`permissions: {}` -- default-deny).
 - `build-doc` uses `huggingface/doc-builder/.github/workflows/build_pr_documentation.yml@093eb65f2e8745457987df060dc392e6bcf1347a`
 
 ## Transitive requirements (from full call graph)
-
-Secrets referenced (literal names): `GITHUB_TOKEN`
 
 Permissions declared across the chain: `contents: read`, `pull-requests: write`, `statuses: write`
 
@@ -2577,7 +2563,7 @@ External workflows referenced: `huggingface/doc-builder/.github/workflows/build_
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `OTEL_EXPORTER_OTLP_ENDPOINT`, `OTEL_TOKEN`
+Secrets required (declared/forwarded names): `OTEL_EXPORTER_OTLP_ENDPOINT`, `OTEL_TOKEN`
 
 Permissions declared across the chain: `contents: read`
 
@@ -2668,8 +2654,6 @@ External workflows referenced: `huggingface/transformers-test-ci/.github/workflo
   - `check_new_failures` uses [check_failed_tests.yml](#process-failed-tests)
 
 ## Transitive requirements (from full call graph)
-
-Secrets referenced (literal names): `ACCESS_REPO_INFO_TOKEN`, `CI_SLACK_BOT_TOKEN`, `CI_SLACK_CHANNEL_DUMMY_TESTS`, `CI_SLACK_CHANNEL_ID`, `CI_SLACK_CHANNEL_ID_DAILY`, `GITHUB_TOKEN`, `HF_HUB_READ_TOKEN`, `SLACK_CIFEEDBACK_BOT_TOKEN`, `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN`
 
 Permissions declared across the chain: `contents: read`, `pull-requests: write`, `statuses: write`
 
@@ -2949,8 +2933,6 @@ Permissions declared across the chain: `contents: read`, `pull-requests: write`,
 - `get-pr-info` uses [get-pr-info.yml](#get-pr-commit-sha)
 
 ## Transitive requirements (from full call graph)
-
-Secrets referenced (literal names): `HF_STYLE_BOT_ACTION`
 
 Permissions declared across the chain: `contents: read`, `contents: write`, `pull-requests: write`
 
@@ -3702,8 +3684,6 @@ External workflows referenced: `huggingface/hf-workflows/.github/workflows/trans
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `ACCESS_REPO_INFO_TOKEN`, `CI_SLACK_BOT_TOKEN`, `CI_SLACK_CHANNEL_DUMMY_TESTS`, `CI_SLACK_CHANNEL_ID`, `CI_SLACK_CHANNEL_ID_DAILY`, `GITHUB_TOKEN`, `HF_HUB_READ_TOKEN`, `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN`
-
 Permissions declared across the chain: `contents: read`
 
 ## Jobs
@@ -3835,8 +3815,6 @@ Permissions declared across the chain: `contents: read`
     - `check_new_failures` uses [check_failed_tests.yml](#process-failed-tests)
 
 ## Transitive requirements (from full call graph)
-
-Secrets referenced (literal names): `ACCESS_REPO_INFO_TOKEN`, `CI_SLACK_BOT_TOKEN`, `CI_SLACK_CHANNEL_DUMMY_TESTS`, `CI_SLACK_CHANNEL_ID`, `CI_SLACK_CHANNEL_ID_DAILY`, `GITHUB_TOKEN`, `HF_HUB_READ_TOKEN`, `SLACK_CIFEEDBACK_BOT_TOKEN`, `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN`
 
 Permissions declared across the chain: `contents: read`
 
@@ -4249,8 +4227,6 @@ External workflows referenced: `huggingface/hf-workflows/.github/workflows/trans
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `ACCESS_REPO_INFO_TOKEN`, `CI_SLACK_BOT_TOKEN`, `CI_SLACK_CHANNEL_DUMMY_TESTS`, `CI_SLACK_CHANNEL_ID`, `CI_SLACK_CHANNEL_ID_DAILY`, `GITHUB_TOKEN`, `HF_HUB_READ_TOKEN`, `SLACK_CIFEEDBACK_BOT_TOKEN`, `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN`
-
 Permissions declared across the chain: `contents: read`
 
 ## Jobs
@@ -4497,7 +4473,14 @@ Inputs for the `workflow_dispatch` event.
 
 **Triggers:** `issue_comment`
 
-This workflow allows trusted contributors to trigger TRL CI runs against specific Transformers commits by commenting `/trl-ci` on a PR in the TRL repo. It is meant to be used during the ongoing Trainer refactor/unbloat in Transformers, to help evaluate the downstream impact on TRL.
+This workflow allows trusted contributors to trigger TRL CI runs against specific Transformers commits by commenting `/trl-ci` on a PR in the TRL repo.
+
+<details>
+<summary>more</summary>
+
+It is meant to be used during the ongoing Trainer refactor/unbloat in Transformers, to help evaluate the downstream impact on TRL.
+
+</details>
 
 | Property | Value |
 |----------|-------|
@@ -4649,7 +4632,7 @@ This workflow allows trusted contributors to trigger TRL CI runs against specifi
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `COMMENT_BOT_TOKEN`, `HF_DOC_BUILD_PUSH`, `comment_bot_token`, `hf_token`
+Secrets required (declared/forwarded names): `comment_bot_token`, `hf_token`
 
 Permissions declared across the chain: `contents: read`
 

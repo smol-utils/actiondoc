@@ -78,6 +78,56 @@ func TestRenderMarkdownBasic(t *testing.T) {
 	}
 }
 
+// TestShortDescriptionRendersVerbatim verifies a short authored description is rendered
+// inline as written, with no <details> fold.
+func TestShortDescriptionRendersVerbatim(t *testing.T) {
+	w := &model.Workflow{
+		File: "ci.yml", Name: "CI", On: []string{"push"},
+		Description: "Builds and tests the project.",
+	}
+	md := RenderMarkdown(w)
+	if !strings.Contains(md, "Builds and tests the project.\n\n") {
+		t.Errorf("short description not rendered verbatim:\n%s", md)
+	}
+	if strings.Contains(md, "<details>\n<summary>more</summary>") {
+		t.Errorf("short description must not be folded:\n%s", md)
+	}
+}
+
+// TestLongDescriptionFoldsRemainder verifies a long boilerplate description keeps only its
+// first sentence inline and tucks the remainder behind a <details>/<summary>.
+func TestLongDescriptionFoldsRemainder(t *testing.T) {
+	desc := "For most projects, this workflow file will not need changing.\n\n" +
+		"You simply need to commit it to your repository. ******** NOTE ******** " +
+		"You will need to enable the optional features that this workflow depends on, " +
+		"and review the default configuration before relying on the generated results."
+	w := &model.Workflow{
+		File: "codeql.yml", Name: "CodeQL", On: []string{"push"},
+		Description: desc,
+	}
+	md := RenderMarkdown(w)
+
+	// The first sentence stays inline, immediately under the heading.
+	if !strings.Contains(md, "For most projects, this workflow file will not need changing.\n\n") {
+		t.Errorf("first sentence not surfaced inline:\n%s", md)
+	}
+	// The remainder is folded.
+	if !strings.Contains(md, "<details>\n<summary>more</summary>\n\n") {
+		t.Errorf("long description remainder not folded behind <details>:\n%s", md)
+	}
+	if !strings.Contains(md, "</details>") {
+		t.Errorf("fold not closed:\n%s", md)
+	}
+	if !strings.Contains(md, "******** NOTE ********") {
+		t.Errorf("remainder text lost:\n%s", md)
+	}
+	// The verbose tail must not appear inline before the fold opens.
+	pre := md[:strings.Index(md, "<details>")]
+	if strings.Contains(pre, "******** NOTE ********") {
+		t.Errorf("boilerplate tail leaked above the fold:\n%s", md)
+	}
+}
+
 func TestRenderMarkdownDeprecated(t *testing.T) {
 	w := &model.Workflow{
 		File: "old.yml",
