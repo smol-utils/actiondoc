@@ -56,13 +56,12 @@
 
 ## Call graph (rooted at this workflow)
 
-```
-build-and-deploy-snapshot.yml [workflow_dispatch, push]
-+-- build-and-deploy-snapshot / Build and Publish (uses ./.github/actions/build)
-+-- build-and-deploy-snapshot / Send Notification (uses ./.github/actions/send-notification)
-+-- verify (uses verify.yml)
-    +-- verify / Send Notification (uses ./send-notification/.github/actions/send-notification (outside scan scope))
-```
+`build-and-deploy-snapshot.yml` [workflow_dispatch, push]
+
+- `build-and-deploy-snapshot / Build and Publish` uses [./.github/actions/build](#build)
+- `build-and-deploy-snapshot / Send Notification` uses [./.github/actions/send-notification](#send-notification)
+- `verify` uses [verify.yml](#verify)
+  - `verify / Send Notification` uses `./send-notification/.github/actions/send-notification` (outside scan scope)
 
 ## Transitive requirements (from full call graph)
 
@@ -206,11 +205,10 @@ Permissions declared across the chain: `actions: write`, `contents: read`
 
 ## Call graph (rooted at this workflow)
 
-```
-build-pull-request.yml [pull_request]
-+-- build / Build (uses ./.github/actions/build)
-+-- build / Print JVM Thread Dumps When Cancelled (uses ./.github/actions/print-jvm-thread-dumps)
-```
+`build-pull-request.yml` [pull_request]
+
+- `build / Build` uses [./.github/actions/build](#build)
+- `build / Print JVM Thread Dumps When Cancelled` uses [./.github/actions/print-jvm-thread-dumps](#print-jvm-thread-dumps)
 
 ## Transitive requirements (from full call graph)
 
@@ -269,11 +267,10 @@ Permissions declared across the chain: `contents: read`
 
 ## Call graph (rooted at this workflow)
 
-```
-ci.yml [push]
-+-- ci / Build (uses ./.github/actions/build)
-+-- ci / Send Notification (uses ./.github/actions/send-notification)
-```
+`ci.yml` [push]
+
+- `ci / Build` uses [./.github/actions/build](#build)
+- `ci / Send Notification` uses [./.github/actions/send-notification](#send-notification)
 
 ## Transitive requirements (from full call graph)
 
@@ -433,15 +430,14 @@ Inputs for the `workflow_dispatch` event.
 
 ## Call graph (rooted at this workflow)
 
-```
-release-milestone.yml [push]
-+-- build-and-stage-release / Build and Publish (uses ./.github/actions/build)
-+-- verify (uses verify.yml)
-|   +-- verify / Send Notification (uses ./send-notification/.github/actions/send-notification (outside scan scope))
-+-- sync-to-maven-central / Sync to Maven Central (uses ./.github/actions/sync-to-maven-central)
-+-- publish-gradle-plugin / Publish (uses ./.github/actions/publish-gradle-plugin)
-+-- create-github-release / Create GitHub Release (uses ./.github/actions/create-github-release)
-```
+`release-milestone.yml` [push]
+
+- `build-and-stage-release / Build and Publish` uses [./.github/actions/build](#build)
+- `verify` uses [verify.yml](#verify)
+  - `verify / Send Notification` uses `./send-notification/.github/actions/send-notification` (outside scan scope)
+- `sync-to-maven-central / Sync to Maven Central` uses [./.github/actions/sync-to-maven-central](#sync-to-maven-central)
+- `publish-gradle-plugin / Publish` uses [./.github/actions/publish-gradle-plugin](#publish-gradle-plugin)
+- `create-github-release / Create GitHub Release` uses [./.github/actions/create-github-release](#create-github-release)
 
 ## Transitive requirements (from full call graph)
 
@@ -670,18 +666,17 @@ Permissions declared across the chain: `actions: write`, `contents: read`
 
 ## Call graph (rooted at this workflow)
 
-```
-release.yml [push]
-+-- build-and-stage-release / Build and Publish (uses ./.github/actions/build)
-+-- build-and-stage-release / Send Notification (uses ./.github/actions/send-notification)
-+-- verify (uses verify.yml)
-|   +-- verify / Send Notification (uses ./send-notification/.github/actions/send-notification (outside scan scope))
-+-- sync-to-maven-central / Sync to Maven Central (uses ./.github/actions/sync-to-maven-central)
-+-- publish-gradle-plugin / Publish (uses ./.github/actions/publish-gradle-plugin)
-+-- publish-to-sdkman / Publish to SDKMAN! (uses ./.github/actions/publish-to-sdkman)
-+-- update-homebrew-tap / Update Homebrew Tap (uses ./.github/actions/update-homebrew-tap)
-+-- create-github-release / Create GitHub Release (uses ./.github/actions/create-github-release)
-```
+`release.yml` [push]
+
+- `build-and-stage-release / Build and Publish` uses [./.github/actions/build](#build)
+- `build-and-stage-release / Send Notification` uses [./.github/actions/send-notification](#send-notification)
+- `verify` uses [verify.yml](#verify)
+  - `verify / Send Notification` uses `./send-notification/.github/actions/send-notification` (outside scan scope)
+- `sync-to-maven-central / Sync to Maven Central` uses [./.github/actions/sync-to-maven-central](#sync-to-maven-central)
+- `publish-gradle-plugin / Publish` uses [./.github/actions/publish-gradle-plugin](#publish-gradle-plugin)
+- `publish-to-sdkman / Publish to SDKMAN!` uses [./.github/actions/publish-to-sdkman](#publish-to-sdkman)
+- `update-homebrew-tap / Update Homebrew Tap` uses [./.github/actions/update-homebrew-tap](#update-homebrew-tap)
+- `create-github-release / Create GitHub Release` uses [./.github/actions/create-github-release](#create-github-release)
 
 ## Transitive requirements (from full call graph)
 
@@ -965,10 +960,9 @@ All scopes: `read-all`.
 
 ## Call graph (rooted at this workflow)
 
-```
-run-codeql-analysis.yml [push, pull_request, workflow_dispatch]
-+-- run-analysis (uses spring-io/github-actions/.github/workflows/codeql-analysis.yml@7dc305df87410aa851b873d2f1fd33ccbb7d0aa8)
-```
+`run-codeql-analysis.yml` [push, pull_request, workflow_dispatch]
+
+- `run-analysis` uses `spring-io/github-actions/.github/workflows/codeql-analysis.yml@7dc305df87410aa851b873d2f1fd33ccbb7d0aa8`
 
 ## Transitive requirements (from full call graph)
 
@@ -1011,11 +1005,10 @@ External workflows referenced: `spring-io/github-actions/.github/workflows/codeq
 
 ## Call graph (rooted at this workflow)
 
-```
-run-system-tests.yml [push]
-+-- run-system-tests / Prepare Gradle Build (uses ./.github/actions/prepare-gradle-build)
-+-- run-system-tests / Send Notification (uses ./.github/actions/send-notification)
-```
+`run-system-tests.yml` [push]
+
+- `run-system-tests / Prepare Gradle Build` uses [./.github/actions/prepare-gradle-build](#prepare-gradle-build)
+- `run-system-tests / Send Notification` uses [./.github/actions/send-notification](#send-notification)
 
 ## Transitive requirements (from full call graph)
 
@@ -1178,12 +1171,11 @@ Inputs for the `workflow_dispatch` event.
 
 ## Called by
 
-```
-verify.yml
-+-- build-and-deploy-snapshot.yml (job: verify)  <- entry point
-+-- release-milestone.yml (job: verify)  <- entry point
-+-- release.yml (job: verify)  <- entry point
-```
+`verify.yml`
+
+- [build-and-deploy-snapshot.yml](#verify-verify) (job: `verify`) - entry point
+- [release-milestone.yml](#verify-verify-1) (job: `verify`) - entry point
+- [release.yml](#verify-verify-2) (job: `verify`) - entry point
 
 ## Referenced secrets and variables
 

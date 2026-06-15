@@ -218,14 +218,9 @@ All scopes: `read-all`.
 
 ## Call graph (rooted at this workflow)
 
-```
-e2e.schedule.installer.yml [schedule, workflow_dispatch]
-+-- verifier-run / Run the Action at tag (uses ./actions/installer (outside scan scope))
-+-- verifier-run / Run the Action at commit (uses ./actions/installer (outside scan scope))
-+-- verifier-run / Install invalid commit (uses ./actions/installer (outside scan scope))
-+-- verifier-run / Install non-existent tag (uses ./actions/installer (outside scan scope))
-+-- verifier-run / Install empty tag (uses ./actions/installer (outside scan scope))
-```
+`e2e.schedule.installer.yml` [schedule, workflow_dispatch]
+
+- uses **`./actions/installer` (outside scan scope)** (x5)
 
 ## Jobs
 
@@ -823,10 +818,9 @@ All scopes: `read-all`.
 
 ## Call graph (rooted at this workflow)
 
-```
-release.yml [workflow_dispatch, push, schedule]
-+-- builder (uses slsa-framework/slsa-github-generator/.github/workflows/builder_go_slsa3.yml@v2.0.0)
-```
+`release.yml` [workflow_dispatch, push, schedule]
+
+- `builder` uses `slsa-framework/slsa-github-generator/.github/workflows/builder_go_slsa3.yml@v2.0.0`
 
 ## Transitive requirements (from full call graph)
 

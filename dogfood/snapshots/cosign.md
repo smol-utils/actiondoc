@@ -327,10 +327,9 @@ Inputs for the `workflow_dispatch` event.
 
 ## Call graph (rooted at this workflow)
 
-```
-cut-release.yml [workflow_dispatch]
-+-- cut-release (uses sigstore/community/.github/workflows/reusable-release.yml@main)
-```
+`cut-release.yml` [workflow_dispatch]
+
+- `cut-release` uses `sigstore/community/.github/workflows/reusable-release.yml@main`
 
 ## Transitive requirements (from full call graph)
 
@@ -376,10 +375,9 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 ## Call graph (rooted at this workflow)
 
-```
-depsreview.yml [pull_request]
-+-- dependency-review (uses sigstore/community/.github/workflows/reusable-dependency-review.yml@main)
-```
+`depsreview.yml` [pull_request]
+
+- `dependency-review` uses `sigstore/community/.github/workflows/reusable-dependency-review.yml@main`
 
 ## Transitive requirements (from full call graph)
 

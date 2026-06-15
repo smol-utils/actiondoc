@@ -52,11 +52,10 @@ THIS IS A REUSABLE WORKFLOW TO BUILD SCALA WITH CHOCOLATEY HOW TO USE: NOTE:
 
 ## Called by
 
-```
-build-chocolatey.yml
-+-- ci.yaml (job: build-chocolatey-package)  <- entry point
-+-- releases.yml (job: build-chocolatey)  <- entry point
-```
+`build-chocolatey.yml`
+
+- [ci.yaml](#build-chocolatey-package) (job: `build-chocolatey-package`) - entry point
+- [releases.yml](#build-chocolatey) (job: `build-chocolatey`) - entry point
 
 ## Jobs
 
@@ -131,10 +130,9 @@ THIS IS A REUSABLE WORKFLOW TO BUILD SCALA MSI HOW TO USE: - THE RELEASE WORKFLO
 
 ## Called by
 
-```
-build-msi.yml
-+-- ci.yaml (job: build-msi-package)  <- entry point
-```
+`build-msi.yml`
+
+- [ci.yaml](#build-msi-package) (job: `build-msi-package`) - entry point
 
 ## Jobs
 
@@ -202,10 +200,9 @@ THIS IS A REUSABLE WORKFLOW TO BUILD THE SCALA LAUNCHERS HOW TO USE: - THSI WORK
 
 ## Called by
 
-```
-build-sdk.yml
-+-- ci.yaml (job: build-sdk-package)  <- entry point
-```
+`build-sdk.yml`
+
+- [ci.yaml](#build-sdk-package) (job: `build-sdk-package`) - entry point
 
 ## Referenced secrets and variables
 
@@ -323,15 +320,14 @@ build-sdk.yml
 
 ## Call graph (rooted at this workflow)
 
-```
-ci.yaml [push, pull_request, merge_group, workflow_dispatch]
-+-- stdlib-tests (uses stdlib.yaml)
-+-- build-msi-package (uses build-msi.yml)
-+-- test-msi-package (uses test-msi.yml)
-+-- build-sdk-package (uses build-sdk.yml)
-+-- build-chocolatey-package (uses build-chocolatey.yml)
-+-- test-chocolatey-package (uses test-chocolatey.yml)
-```
+`ci.yaml` [push, pull_request, merge_group, workflow_dispatch]
+
+- `stdlib-tests` uses [stdlib.yaml](#compile-full-standard-library)
+- `build-msi-package` uses [build-msi.yml](#build-the-msi-package)
+- `test-msi-package` uses [test-msi.yml](#test-scala-msi-package)
+- `build-sdk-package` uses [build-sdk.yml](#build-scala-launchers)
+- `build-chocolatey-package` uses [build-chocolatey.yml](#build-scala-chocolatey-package)
+- `test-chocolatey-package` uses [test-chocolatey.yml](#test-scala-chocolatey-package)
 
 ## Transitive requirements (from full call graph)
 
@@ -763,10 +759,9 @@ THIS IS A REUSABLE WORKFLOW TO PUBLISH SCALA TO CHOCOLATEY HOW TO USE: - THE REL
 
 ## Called by
 
-```
-publish-chocolatey.yml
-+-- releases.yml (job: publish-chocolatey)  <- entry point
-```
+`publish-chocolatey.yml`
+
+- [releases.yml](#publish-chocolatey) (job: `publish-chocolatey`) - entry point
 
 ## Referenced secrets and variables
 
@@ -837,10 +832,9 @@ THIS IS A REUSABLE WORKFLOW TO PUBLISH SCALA TO SDKMAN! HOW TO USE: - THE RELEAS
 
 ## Called by
 
-```
-publish-sdkman.yml
-+-- releases.yml (job: publish-sdkman)  <- entry point
-```
+`publish-sdkman.yml`
+
+- [releases.yml](#publish-sdkman) (job: `publish-sdkman`) - entry point
 
 ## Referenced secrets and variables
 
@@ -921,10 +915,9 @@ THIS IS A REUSABLE WORKFLOW TO PUBLISH SCALA TO WINGET HOW TO USE: - THE RELEASE
 
 ## Called by
 
-```
-publish-winget.yml
-+-- releases.yml (job: publish-winget)  <- entry point
-```
+`publish-winget.yml`
+
+- [releases.yml](#publish-winget) (job: `publish-winget`) - entry point
 
 ## Referenced secrets and variables
 
@@ -980,10 +973,9 @@ publish-winget.yml
 
 ## Called by
 
-```
-release-maven-artifacts.yml
-+-- release-nightly.yml (job: release-maven-artifacts)  <- entry point
-```
+`release-maven-artifacts.yml`
+
+- [release-nightly.yml](#release-maven-artifacts-1) (job: `release-maven-artifacts`) - entry point
 
 ## Referenced secrets and variables
 
@@ -1131,11 +1123,10 @@ release-maven-artifacts.yml
 
 ## Call graph (rooted at this workflow)
 
-```
-release-nightly.yml [workflow_dispatch, schedule]
-+-- stdlib-tests (uses stdlib.yaml)
-+-- release-maven-artifacts (uses release-maven-artifacts.yml)
-```
+`release-nightly.yml` [workflow_dispatch, schedule]
+
+- `stdlib-tests` uses [stdlib.yaml](#compile-full-standard-library)
+- `release-maven-artifacts` uses [release-maven-artifacts.yml](#release-artifacts-to-maven)
 
 ## Transitive requirements (from full call graph)
 
@@ -1260,14 +1251,13 @@ Inputs for the `workflow_dispatch` event.
 
 ## Call graph (rooted at this workflow)
 
-```
-releases.yml [workflow_dispatch]
-+-- publish-sdkman (uses publish-sdkman.yml)
-+-- publish-winget (uses publish-winget.yml)
-+-- build-chocolatey (uses build-chocolatey.yml)
-+-- test-chocolatey (uses test-chocolatey.yml)
-+-- publish-chocolatey (uses publish-chocolatey.yml)
-```
+`releases.yml` [workflow_dispatch]
+
+- `publish-sdkman` uses [publish-sdkman.yml](#publish-scala-to-sdkman)
+- `publish-winget` uses [publish-winget.yml](#publish-scala-to-winget)
+- `build-chocolatey` uses [build-chocolatey.yml](#build-scala-chocolatey-package)
+- `test-chocolatey` uses [test-chocolatey.yml](#test-scala-chocolatey-package)
+- `publish-chocolatey` uses [publish-chocolatey.yml](#publish-scala-to-chocolatey)
 
 ## Transitive requirements (from full call graph)
 
@@ -1640,11 +1630,10 @@ Secrets referenced (literal names): `API-KEY`, `CHOCOLATEY_KEY`, `CONSUMER-KEY`,
 
 ## Called by
 
-```
-stdlib.yaml
-+-- ci.yaml (job: stdlib-tests)  <- entry point
-+-- release-nightly.yml (job: stdlib-tests)  <- entry point
-```
+`stdlib.yaml`
+
+- [ci.yaml](#stdlib-tests) (job: `stdlib-tests`) - entry point
+- [release-nightly.yml](#stdlib-tests-1) (job: `stdlib-tests`) - entry point
 
 ## Jobs
 
@@ -2206,11 +2195,10 @@ THIS IS A REUSABLE WORKFLOW TO TEST SCALA WITH CHOCOLATEY HOW TO USE: NOTE:
 
 ## Called by
 
-```
-test-chocolatey.yml
-+-- ci.yaml (job: test-chocolatey-package)  <- entry point
-+-- releases.yml (job: test-chocolatey)  <- entry point
-```
+`test-chocolatey.yml`
+
+- [ci.yaml](#test-chocolatey-package) (job: `test-chocolatey-package`) - entry point
+- [releases.yml](#test-chocolatey) (job: `test-chocolatey`) - entry point
 
 ## Referenced secrets and variables
 
@@ -2425,10 +2413,9 @@ THIS IS A REUSABLE WORKFLOW TO TEST SCALA WITH MSI RUNNER HOW TO USE: Provide op
 
 ## Called by
 
-```
-test-msi.yml
-+-- ci.yaml (job: test-msi-package)  <- entry point
-```
+`test-msi.yml`
+
+- [ci.yaml](#test-msi-package) (job: `test-msi-package`) - entry point
 
 ## Jobs
 

@@ -123,10 +123,9 @@
 
 ## Call graph (rooted at this workflow)
 
-```
-codeql.yml [workflow_dispatch, push, pull_request]
-+-- precheck (uses step-precheck.yml@main)
-```
+`codeql.yml` [workflow_dispatch, push, pull_request]
+
+- `precheck` uses [step-precheck.yml](#x-precheck) (`@main`)
 
 ## Transitive requirements (from full call graph)
 
@@ -222,15 +221,14 @@ Permissions declared across the chain: `actions: read`, `contents: read`, `secur
 
 ## Call graph (rooted at this workflow)
 
-```
-early-access.yml [push]
-+-- precheck (uses step-precheck.yml@main)
-+-- jlink (uses step-jlink.yml@main)
-+-- jpackage (uses step-jpackage.yml@main)
-+-- native-image (uses step-native-image.yml@main)
-+-- provenance (uses slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v2.1.0)
-+-- update-wiki (uses step-update-wiki.yml@main)
-```
+`early-access.yml` [push]
+
+- `precheck` uses [step-precheck.yml](#x-precheck) (`@main`)
+- `jlink` uses [step-jlink.yml](#x-jlink) (`@main`)
+- `jpackage` uses [step-jpackage.yml](#x-jpackage) (`@main`)
+- `native-image` uses [step-native-image.yml](#x-nativeimage) (`@main`)
+- `provenance` uses `slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v2.1.0`
+- `update-wiki` uses [step-update-wiki.yml](#x-updatewiki) (`@main`)
 
 ## Transitive requirements (from full call graph)
 
@@ -495,10 +493,9 @@ All scopes: `read-all`.
 
 ## Call graph (rooted at this workflow)
 
-```
-openssf-scorecard.yml [branch_protection_rule, schedule, push, workflow_dispatch]
-+-- precheck (uses step-precheck.yml@main)
-```
+`openssf-scorecard.yml` [branch_protection_rule, schedule, push, workflow_dispatch]
+
+- `precheck` uses [step-precheck.yml](#x-precheck) (`@main`)
 
 ## Transitive requirements (from full call graph)
 
@@ -591,14 +588,13 @@ Permissions declared across the chain: `actions: read`, `contents: read`, `id-to
 
 ## Call graph (rooted at this workflow)
 
-```
-release.yml [workflow_dispatch]
-+-- jlink (uses step-jlink.yml@main)
-+-- jpackage (uses step-jpackage.yml@main)
-+-- native-image (uses step-native-image.yml@main)
-+-- provenance (uses slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v2.1.0)
-+-- update-wiki (uses step-update-wiki.yml@main)
-```
+`release.yml` [workflow_dispatch]
+
+- `jlink` uses [step-jlink.yml](#x-jlink) (`@main`)
+- `jpackage` uses [step-jpackage.yml](#x-jpackage) (`@main`)
+- `native-image` uses [step-native-image.yml](#x-nativeimage) (`@main`)
+- `provenance` uses `slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v2.1.0`
+- `update-wiki` uses [step-update-wiki.yml](#x-updatewiki) (`@main`)
 
 ## Transitive requirements (from full call graph)
 
@@ -909,10 +905,9 @@ External workflows referenced: `slsa-framework/slsa-github-generator/.github/wor
 
 ## Call graph (rooted at this workflow)
 
-```
-smoke-tests.yml [push]
-+-- precheck (uses step-precheck.yml@main)
-```
+`smoke-tests.yml` [push]
+
+- `precheck` uses [step-precheck.yml](#x-precheck) (`@main`)
 
 ## Transitive requirements (from full call graph)
 
@@ -1614,11 +1609,10 @@ Permissions declared across the chain: `contents: read`
 
 ## Called by
 
-```
-step-jlink.yml
-+-- early-access.yml (job: jlink)  <- entry point
-+-- release.yml (job: jlink)  <- entry point
-```
+`step-jlink.yml`
+
+- [early-access.yml](#jlink-jlink) (job: `jlink`) - entry point
+- [release.yml](#jlink-jlink-1) (job: `jlink`) - entry point
 
 ## Referenced secrets and variables
 
@@ -1760,11 +1754,10 @@ step-jlink.yml
 
 ## Called by
 
-```
-step-jpackage.yml
-+-- early-access.yml (job: jpackage)  <- entry point
-+-- release.yml (job: jpackage)  <- entry point
-```
+`step-jpackage.yml`
+
+- [early-access.yml](#jpackage-jpackage) (job: `jpackage`) - entry point
+- [release.yml](#jpackage-jpackage-1) (job: `jpackage`) - entry point
 
 ## Referenced secrets and variables
 
@@ -1884,11 +1877,10 @@ step-jpackage.yml
 
 ## Called by
 
-```
-step-native-image.yml
-+-- early-access.yml (job: native-image)  <- entry point
-+-- release.yml (job: native-image)  <- entry point
-```
+`step-native-image.yml`
+
+- [early-access.yml](#native-image-native-image) (job: `native-image`) - entry point
+- [release.yml](#native-image-native-image-1) (job: `native-image`) - entry point
 
 ## Referenced secrets and variables
 
@@ -2008,13 +2000,12 @@ step-native-image.yml
 
 ## Called by
 
-```
-step-precheck.yml
-+-- codeql.yml (job: precheck)  <- entry point
-+-- early-access.yml (job: precheck)  <- entry point
-+-- openssf-scorecard.yml (job: precheck)  <- entry point
-+-- smoke-tests.yml (job: precheck)  <- entry point
-```
+`step-precheck.yml`
+
+- [codeql.yml](#precheck-precheck) (job: `precheck`) - entry point
+- [early-access.yml](#precheck-precheck-1) (job: `precheck`) - entry point
+- [openssf-scorecard.yml](#precheck-precheck-2) (job: `precheck`) - entry point
+- [smoke-tests.yml](#precheck-precheck-4) (job: `precheck`) - entry point
 
 ## Referenced secrets and variables
 
@@ -2161,11 +2152,10 @@ step-precheck.yml
 
 ## Called by
 
-```
-step-update-wiki.yml
-+-- early-access.yml (job: update-wiki)  <- entry point
-+-- release.yml (job: update-wiki)  <- entry point
-```
+`step-update-wiki.yml`
+
+- [early-access.yml](#update-wiki-update-wiki) (job: `update-wiki`) - entry point
+- [release.yml](#update-wiki-update-wiki-1) (job: `update-wiki`) - entry point
 
 ## Referenced secrets and variables
 

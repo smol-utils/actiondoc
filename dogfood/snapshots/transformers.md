@@ -365,11 +365,10 @@ Inputs for the `workflow_dispatch` event.
 
 ## Called by
 
-```
-benchmark_v2.yml
-+-- benchmark_v2_a10_caller.yml (job: benchmark-v2-default)  <- entry point
-+-- benchmark_v2_mi325_caller.yml (job: benchmark-v2-default)  <- entry point
-```
+`benchmark_v2.yml`
+
+- [benchmark_v2_a10_caller.yml](#benchmark-v2---default-models-benchmark-v2-default) (job: `benchmark-v2-default`) - entry point
+- [benchmark_v2_mi325_caller.yml](#benchmark-v2---default-models-benchmark-v2-default-1) (job: `benchmark-v2-default`) - entry point
 
 ## Referenced secrets and variables
 
@@ -430,10 +429,9 @@ benchmark_v2.yml
 
 ## Call graph (rooted at this workflow)
 
-```
-benchmark_v2_a10_caller.yml [workflow_dispatch]
-+-- benchmark-v2-default (uses benchmark_v2.yml)
-```
+`benchmark_v2_a10_caller.yml` [workflow_dispatch]
+
+- `benchmark-v2-default` uses [benchmark_v2.yml](#benchmark-v2-framework)
 
 ## Transitive requirements (from full call graph)
 
@@ -478,10 +476,9 @@ Permissions declared across the chain: `contents: read`
 
 ## Call graph (rooted at this workflow)
 
-```
-benchmark_v2_mi325_caller.yml [workflow_dispatch]
-+-- benchmark-v2-default (uses benchmark_v2.yml)
-```
+`benchmark_v2_mi325_caller.yml` [workflow_dispatch]
+
+- `benchmark-v2-default` uses [benchmark_v2.yml](#benchmark-v2-framework)
 
 ## Transitive requirements (from full call graph)
 
@@ -988,10 +985,9 @@ Permissions declared across the chain: `contents: read`
 
 ## Called by
 
-```
-build-nightly-ci-docker-images.yml
-+-- self-nightly-caller.yml (job: build_nightly_torch_ci_images)  <- entry point
-```
+`build-nightly-ci-docker-images.yml`
+
+- [self-nightly-caller.yml](#build-ci-docker-images-with-nightly-torch-build_nightly_torch_ci_images) (job: `build_nightly_torch_ci_images`) - entry point
 
 ## Referenced secrets and variables
 
@@ -1210,11 +1206,9 @@ build-nightly-ci-docker-images.yml
 
 ## Call graph (rooted at this workflow)
 
-```
-build_documentation.yml [workflow_dispatch, push]
-+-- build (uses huggingface/doc-builder/.github/workflows/build_main_documentation.yml@2430c1ec91d04667414e2fa31ecfc36c153ea391)
-+-- build_other_lang (uses huggingface/doc-builder/.github/workflows/build_main_documentation.yml@2430c1ec91d04667414e2fa31ecfc36c153ea391)
-```
+`build_documentation.yml` [workflow_dispatch, push]
+
+- uses **`huggingface/doc-builder/.github/workflows/build_main_documentation.yml@2430c1ec91d04667414e2fa31ecfc36c153ea391`** (x2)
 
 ## Transitive requirements (from full call graph)
 
@@ -1294,10 +1288,9 @@ External workflows referenced: `huggingface/doc-builder/.github/workflows/build_
 
 ## Call graph (rooted at this workflow)
 
-```
-build_pr_documentation.yml [pull_request, merge_group]
-+-- build (uses huggingface/doc-builder/.github/workflows/build_pr_documentation.yml@90b4ee2c10b81b5c1a6367c4e6fc9e2fb510a7e3)
-```
+`build_pr_documentation.yml` [pull_request, merge_group]
+
+- `build` uses `huggingface/doc-builder/.github/workflows/build_pr_documentation.yml@90b4ee2c10b81b5c1a6367c4e6fc9e2fb510a7e3`
 
 ## Transitive requirements (from full call graph)
 
@@ -1373,10 +1366,9 @@ Inputs for the `workflow_dispatch` event.
 
 ## Call graph (rooted at this workflow)
 
-```
-check-workflow-permissions.yml [workflow_dispatch]
-+-- advisor (uses huggingface/security-workflows/.github/workflows/permissions-advisor-reusable.yml@1b6a139c28db347498b30338da6a602e0a06f56c)
-```
+`check-workflow-permissions.yml` [workflow_dispatch]
+
+- `advisor` uses `huggingface/security-workflows/.github/workflows/permissions-advisor-reusable.yml@1b6a139c28db347498b30338da6a602e0a06f56c`
 
 ## Transitive requirements (from full call graph)
 
@@ -1455,32 +1447,16 @@ External workflows referenced: `huggingface/security-workflows/.github/workflows
 
 ## Called by
 
-```
-check_failed_tests.yml
-+-- self-scheduled.yml (job: check_new_failures)
-    +-- push-important-models.yml (job: model-ci)  <- entry point
-    +-- self-comment-ci.yml (job: model-ci)  <- entry point
-    +-- self-comment-ci.yml (job: quantization-ci)  <- entry point
-    +-- self-nightly-caller.yml (job: model-ci)  <- entry point
-    +-- self-past-caller.yml (job: model-ci)
-    |   +-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-11)  <- entry point
-    |   +-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-10)  <- entry point
-    |   +-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-9)  <- entry point
-    |   +-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-8)  <- entry point
-    |   +-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-7)  <- entry point
-    |   +-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-6)  <- entry point
-    |   +-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-5)  <- entry point
-    +-- self-past-caller.yml (job: deepspeed-ci)
-    |   +-- (same entry points as above)
-    +-- self-scheduled-caller.yml (job: model-ci)  <- entry point
-    +-- self-scheduled-caller.yml (job: torch-pipeline)  <- entry point
-    +-- self-scheduled-caller.yml (job: example-ci)  <- entry point
-    +-- self-scheduled-caller.yml (job: trainer-fsdp-ci)  <- entry point
-    +-- self-scheduled-caller.yml (job: deepspeed-ci)  <- entry point
-    +-- self-scheduled-caller.yml (job: quantization-ci)  <- entry point
-    +-- self-scheduled-caller.yml (job: kernels-ci)  <- entry point
-    +-- self-scheduled-flash-attn-caller.yml (job: model-ci)  <- entry point
-```
+`check_failed_tests.yml`
+
+- [self-scheduled.yml](#check-new-failures-check_new_failures) (job: `check_new_failures`)
+  - [push-important-models.yml](#model-ci-model-ci) (job: `model-ci`) - entry point
+  - **[self-comment-ci.yml](#pr-comment-github-ci)** - entry point (x2)
+  - [self-nightly-caller.yml](#model-ci-model-ci-2) (job: `model-ci`) - entry point
+  - **[self-past-caller.yml](#self-hosted-runner-past-ci)** (x2)
+    - **[self-nightly-past-ci-caller.yml](#self-hosted-runner-nightly-past-ci-caller)** - entry point (x7)
+  - **[self-scheduled-caller.yml](#nvidia-ci)** - entry point (x7)
+  - [self-scheduled-flash-attn-caller.yml](#model-ci-model-ci-8) (job: `model-ci`) - entry point
 
 ## Referenced secrets and variables
 
@@ -1864,10 +1840,9 @@ check_failed_tests.yml
 
 ## Call graph (rooted at this workflow)
 
-```
-codeql.yml [push, workflow_dispatch]
-+-- codeql (uses huggingface/security-workflows/.github/workflows/codeql-reusable.yml@1b6a139c28db347498b30338da6a602e0a06f56c)
-```
+`codeql.yml` [push, workflow_dispatch]
+
+- `codeql` uses `huggingface/security-workflows/.github/workflows/codeql-reusable.yml@1b6a139c28db347498b30338da6a602e0a06f56c`
 
 ## Transitive requirements (from full call graph)
 
@@ -1923,35 +1898,17 @@ External workflows referenced: `huggingface/security-workflows/.github/workflows
 
 ## Called by
 
-```
-collated-reports.yml
-+-- model_jobs.yml (job: collated_reports)
-    +-- self-scheduled.yml (job: run_models_gpu)
-    |   +-- push-important-models.yml (job: model-ci)  <- entry point
-    |   +-- self-comment-ci.yml (job: model-ci)  <- entry point
-    |   +-- self-comment-ci.yml (job: quantization-ci)  <- entry point
-    |   +-- self-nightly-caller.yml (job: model-ci)  <- entry point
-    |   +-- self-past-caller.yml (job: model-ci)
-    |   |   +-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-11)  <- entry point
-    |   |   +-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-10)  <- entry point
-    |   |   +-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-9)  <- entry point
-    |   |   +-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-8)  <- entry point
-    |   |   +-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-7)  <- entry point
-    |   |   +-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-6)  <- entry point
-    |   |   +-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-5)  <- entry point
-    |   +-- self-past-caller.yml (job: deepspeed-ci)
-    |   |   +-- (same entry points as above)
-    |   +-- self-scheduled-caller.yml (job: model-ci)  <- entry point
-    |   +-- self-scheduled-caller.yml (job: torch-pipeline)  <- entry point
-    |   +-- self-scheduled-caller.yml (job: example-ci)  <- entry point
-    |   +-- self-scheduled-caller.yml (job: trainer-fsdp-ci)  <- entry point
-    |   +-- self-scheduled-caller.yml (job: deepspeed-ci)  <- entry point
-    |   +-- self-scheduled-caller.yml (job: quantization-ci)  <- entry point
-    |   +-- self-scheduled-caller.yml (job: kernels-ci)  <- entry point
-    |   +-- self-scheduled-flash-attn-caller.yml (job: model-ci)  <- entry point
-    +-- self-scheduled.yml (job: run_trainer_and_fsdp_gpu)
-        +-- (same entry points as above)
-```
+`collated-reports.yml`
+
+- [model_jobs.yml](#collated-reports-collated_reports-1) (job: `collated_reports`)
+  - **[self-scheduled.yml](#nvidia-ci-job-definitions)** (x2)
+    - [push-important-models.yml](#model-ci-model-ci) (job: `model-ci`) - entry point
+    - **[self-comment-ci.yml](#pr-comment-github-ci)** - entry point (x2)
+    - [self-nightly-caller.yml](#model-ci-model-ci-2) (job: `model-ci`) - entry point
+    - **[self-past-caller.yml](#self-hosted-runner-past-ci)** (x2)
+      - **[self-nightly-past-ci-caller.yml](#self-hosted-runner-nightly-past-ci-caller)** - entry point (x7)
+    - **[self-scheduled-caller.yml](#nvidia-ci)** - entry point (x7)
+    - [self-scheduled-flash-attn-caller.yml](#model-ci-model-ci-8) (job: `model-ci`) - entry point
 
 ## Referenced secrets and variables
 
@@ -2028,10 +1985,9 @@ collated-reports.yml
 
 ## Called by
 
-```
-doctest_job.yml
-+-- doctests.yml (job: call_doctest_job)  <- entry point
-```
+`doctest_job.yml`
+
+- [doctests.yml](#call-doctest-jobs-call_doctest_job) (job: `call_doctest_job`) - entry point
 
 ## Jobs
 
@@ -2106,10 +2062,9 @@ doctest_job.yml
 
 ## Call graph (rooted at this workflow)
 
-```
-doctests.yml [push, repository_dispatch, schedule]
-+-- call_doctest_job (uses doctest_job.yml)
-```
+`doctests.yml` [push, repository_dispatch, schedule]
+
+- `call_doctest_job` uses [doctest_job.yml](#doctest-job)
 
 ## Transitive requirements (from full call graph)
 
@@ -2406,13 +2361,12 @@ Permissions declared across the chain: `contents: read`
 
 ## Called by
 
-```
-get-pr-info.yml
-+-- pr-repo-consistency-bot.yml (job: get-pr-info)  <- entry point
-+-- pr_build_doc_with_comment.yml (job: get-pr-info)  <- entry point
-+-- pr_slow_ci_suggestion.yml (job: get-pr-info)  <- entry point
-+-- self-comment-ci.yml (job: get-pr-info)  <- entry point
-```
+`get-pr-info.yml`
+
+- [pr-repo-consistency-bot.yml](#get-pr-commit-sha-get-pr-info) (job: `get-pr-info`) - entry point
+- [pr_build_doc_with_comment.yml](#get-pr-commit-sha-get-pr-info-1) (job: `get-pr-info`) - entry point
+- [pr_slow_ci_suggestion.yml](#get-pr-commit-sha-get-pr-info-2) (job: `get-pr-info`) - entry point
+- [self-comment-ci.yml](#get-pr-commit-sha-get-pr-info-3) (job: `get-pr-info`) - entry point
 
 ## Jobs
 
@@ -2466,13 +2420,12 @@ get-pr-info.yml
 
 ## Called by
 
-```
-get-pr-number.yml
-+-- pr-repo-consistency-bot.yml (job: get-pr-number)  <- entry point
-+-- pr_build_doc_with_comment.yml (job: get-pr-number)  <- entry point
-+-- pr_slow_ci_suggestion.yml (job: get-pr-number)  <- entry point
-+-- self-comment-ci.yml (job: get-pr-number)  <- entry point
-```
+`get-pr-number.yml`
+
+- [pr-repo-consistency-bot.yml](#get-pr-number-get-pr-number-1) (job: `get-pr-number`) - entry point
+- [pr_build_doc_with_comment.yml](#get-pr-number-get-pr-number-2) (job: `get-pr-number`) - entry point
+- [pr_slow_ci_suggestion.yml](#get-pr-number-get-pr-number-3) (job: `get-pr-number`) - entry point
+- [self-comment-ci.yml](#get-pr-number-get-pr-number-4) (job: `get-pr-number`) - entry point
 
 ## Jobs
 
@@ -2547,34 +2500,16 @@ get-pr-number.yml
 
 ## Called by
 
-```
-model_jobs.yml
-+-- self-scheduled.yml (job: run_models_gpu)
-|   +-- push-important-models.yml (job: model-ci)  <- entry point
-|   +-- self-comment-ci.yml (job: model-ci)  <- entry point
-|   +-- self-comment-ci.yml (job: quantization-ci)  <- entry point
-|   +-- self-nightly-caller.yml (job: model-ci)  <- entry point
-|   +-- self-past-caller.yml (job: model-ci)
-|   |   +-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-11)  <- entry point
-|   |   +-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-10)  <- entry point
-|   |   +-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-9)  <- entry point
-|   |   +-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-8)  <- entry point
-|   |   +-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-7)  <- entry point
-|   |   +-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-6)  <- entry point
-|   |   +-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-5)  <- entry point
-|   +-- self-past-caller.yml (job: deepspeed-ci)
-|   |   +-- (same entry points as above)
-|   +-- self-scheduled-caller.yml (job: model-ci)  <- entry point
-|   +-- self-scheduled-caller.yml (job: torch-pipeline)  <- entry point
-|   +-- self-scheduled-caller.yml (job: example-ci)  <- entry point
-|   +-- self-scheduled-caller.yml (job: trainer-fsdp-ci)  <- entry point
-|   +-- self-scheduled-caller.yml (job: deepspeed-ci)  <- entry point
-|   +-- self-scheduled-caller.yml (job: quantization-ci)  <- entry point
-|   +-- self-scheduled-caller.yml (job: kernels-ci)  <- entry point
-|   +-- self-scheduled-flash-attn-caller.yml (job: model-ci)  <- entry point
-+-- self-scheduled.yml (job: run_trainer_and_fsdp_gpu)
-    +-- (same entry points as above)
-```
+`model_jobs.yml`
+
+- **[self-scheduled.yml](#nvidia-ci-job-definitions)** (x2)
+  - [push-important-models.yml](#model-ci-model-ci) (job: `model-ci`) - entry point
+  - **[self-comment-ci.yml](#pr-comment-github-ci)** - entry point (x2)
+  - [self-nightly-caller.yml](#model-ci-model-ci-2) (job: `model-ci`) - entry point
+  - **[self-past-caller.yml](#self-hosted-runner-past-ci)** (x2)
+    - **[self-nightly-past-ci-caller.yml](#self-hosted-runner-nightly-past-ci-caller)** - entry point (x7)
+  - **[self-scheduled-caller.yml](#nvidia-ci)** - entry point (x7)
+  - [self-scheduled-flash-attn-caller.yml](#model-ci-model-ci-8) (job: `model-ci`) - entry point
 
 ## Referenced secrets and variables
 
@@ -2721,17 +2656,10 @@ model_jobs.yml
 
 ## Called by
 
-```
-model_jobs_intel_gaudi.yml
-+-- self-scheduled-intel-gaudi.yml (job: run_models_gpu)
-|   +-- self-scheduled-intel-gaudi3-caller.yml (job: model-ci)  <- entry point
-|   +-- self-scheduled-intel-gaudi3-caller.yml (job: pipeline-ci)  <- entry point
-|   +-- self-scheduled-intel-gaudi3-caller.yml (job: example-ci)  <- entry point
-|   +-- self-scheduled-intel-gaudi3-caller.yml (job: deepspeed-ci)  <- entry point
-|   +-- self-scheduled-intel-gaudi3-caller.yml (job: trainer-fsdp-ci)  <- entry point
-+-- self-scheduled-intel-gaudi.yml (job: run_trainer_and_fsdp_gpu)
-    +-- (same entry points as above)
-```
+`model_jobs_intel_gaudi.yml`
+
+- **[self-scheduled-intel-gaudi.yml](#self-hosted-runner-scheduled-intel-gaudi)** (x2)
+  - **[self-scheduled-intel-gaudi3-caller.yml](#self-hosted-runner-intel-gaudi3-scheduled-ci-caller)** - entry point (x5)
 
 ## Referenced secrets and variables
 
@@ -2889,10 +2817,9 @@ Used to notify core maintainers about new model PR being merged
 
 ## Call graph (rooted at this workflow)
 
-```
-pr-ci-caller.yml [pull_request]
-+-- pr-ci (uses huggingface/transformers-test-ci/.github/workflows/pr-ci_dynamic_caller_example.yml@91d590c4f744e4564a8ae0d3810068c8a35b939e)
-```
+`pr-ci-caller.yml` [pull_request]
+
+- `pr-ci` uses `huggingface/transformers-test-ci/.github/workflows/pr-ci_dynamic_caller_example.yml@91d590c4f744e4564a8ae0d3810068c8a35b939e`
 
 ## Transitive requirements (from full call graph)
 
@@ -2952,11 +2879,10 @@ External workflows referenced: `huggingface/transformers-test-ci/.github/workflo
 
 ## Call graph (rooted at this workflow)
 
-```
-pr-repo-consistency-bot.yml [issue_comment]
-+-- get-pr-number (uses get-pr-number.yml)
-+-- get-pr-info (uses get-pr-info.yml)
-```
+`pr-repo-consistency-bot.yml` [issue_comment]
+
+- `get-pr-number` uses [get-pr-number.yml](#get-pr-number)
+- `get-pr-info` uses [get-pr-info.yml](#get-pr-commit-sha)
 
 ## Transitive requirements (from full call graph)
 
@@ -3167,12 +3093,11 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 ## Call graph (rooted at this workflow)
 
-```
-pr_build_doc_with_comment.yml [issue_comment]
-+-- get-pr-number (uses get-pr-number.yml)
-+-- get-pr-info (uses get-pr-info.yml)
-+-- build-doc (uses huggingface/doc-builder/.github/workflows/build_pr_documentation.yml@093eb65f2e8745457987df060dc392e6bcf1347a)
-```
+`pr_build_doc_with_comment.yml` [issue_comment]
+
+- `get-pr-number` uses [get-pr-number.yml](#get-pr-number)
+- `get-pr-info` uses [get-pr-info.yml](#get-pr-commit-sha)
+- `build-doc` uses `huggingface/doc-builder/.github/workflows/build_pr_documentation.yml@093eb65f2e8745457987df060dc392e6bcf1347a`
 
 ## Transitive requirements (from full call graph)
 
@@ -3347,11 +3272,10 @@ External workflows referenced: `huggingface/doc-builder/.github/workflows/build_
 
 ## Call graph (rooted at this workflow)
 
-```
-pr_slow_ci_suggestion.yml [pull_request_target]
-+-- get-pr-number (uses get-pr-number.yml)
-+-- get-pr-info (uses get-pr-info.yml)
-```
+`pr_slow_ci_suggestion.yml` [pull_request_target]
+
+- `get-pr-number` uses [get-pr-number.yml](#get-pr-number)
+- `get-pr-info` uses [get-pr-info.yml](#get-pr-commit-sha)
 
 ## Transitive requirements (from full call graph)
 
@@ -3460,16 +3384,13 @@ Permissions declared across the chain: `contents: read`, `pull-requests: write`
 
 ## Call graph (rooted at this workflow)
 
-```
-push-important-models.yml [push]
-+-- model-ci (uses self-scheduled.yml)
-    +-- run_models_gpu (uses model_jobs.yml)
-    |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
-    +-- run_trainer_and_fsdp_gpu (uses model_jobs.yml)
-    |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
-    +-- send_results (uses slack-report.yml)
-    +-- check_new_failures (uses check_failed_tests.yml)
-```
+`push-important-models.yml` [push]
+
+- `model-ci` uses [self-scheduled.yml](#nvidia-ci-job-definitions)
+  - uses **[model_jobs.yml](#model-jobs)** (x2)
+    - `collated_reports` uses [collated-reports.yml](#ci-collated-reports) (`@6abd9725ee7d809dc974991f8ff6c958afb63a3a`)
+  - `send_results` uses [slack-report.yml](#ci-slack-report)
+  - `check_new_failures` uses [check_failed_tests.yml](#process-failed-tests)
 
 ## Transitive requirements (from full call graph)
 
@@ -3740,25 +3661,15 @@ Permissions declared across the chain: `contents: read`
 
 ## Call graph (rooted at this workflow)
 
-```
-self-comment-ci.yml [issue_comment]
-+-- get-pr-number (uses get-pr-number.yml)
-+-- get-pr-info (uses get-pr-info.yml)
-+-- model-ci (uses self-scheduled.yml)
-|   +-- run_models_gpu (uses model_jobs.yml)
-|   |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
-|   +-- run_trainer_and_fsdp_gpu (uses model_jobs.yml)
-|   |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
-|   +-- send_results (uses slack-report.yml)
-|   +-- check_new_failures (uses check_failed_tests.yml)
-+-- quantization-ci (uses self-scheduled.yml)
-    +-- run_models_gpu (uses model_jobs.yml)
-    |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
-    +-- run_trainer_and_fsdp_gpu (uses model_jobs.yml)
-    |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
-    +-- send_results (uses slack-report.yml)
-    +-- check_new_failures (uses check_failed_tests.yml)
-```
+`self-comment-ci.yml` [issue_comment]
+
+- `get-pr-number` uses [get-pr-number.yml](#get-pr-number)
+- `get-pr-info` uses [get-pr-info.yml](#get-pr-commit-sha)
+- uses **[self-scheduled.yml](#nvidia-ci-job-definitions)** (x2)
+  - uses **[model_jobs.yml](#model-jobs)** (x2)
+    - `collated_reports` uses [collated-reports.yml](#ci-collated-reports) (`@6abd9725ee7d809dc974991f8ff6c958afb63a3a`)
+  - `send_results` uses [slack-report.yml](#ci-slack-report)
+  - `check_new_failures` uses [check_failed_tests.yml](#process-failed-tests)
 
 ## Transitive requirements (from full call graph)
 
@@ -4043,17 +3954,14 @@ Permissions declared across the chain: `contents: read`, `pull-requests: write`,
 
 ## Call graph (rooted at this workflow)
 
-```
-self-nightly-caller.yml [repository_dispatch, workflow_run, push]
-+-- build_nightly_torch_ci_images (uses build-nightly-ci-docker-images.yml)
-+-- model-ci (uses self-scheduled.yml)
-    +-- run_models_gpu (uses model_jobs.yml)
-    |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
-    +-- run_trainer_and_fsdp_gpu (uses model_jobs.yml)
-    |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
-    +-- send_results (uses slack-report.yml)
-    +-- check_new_failures (uses check_failed_tests.yml)
-```
+`self-nightly-caller.yml` [repository_dispatch, workflow_run, push]
+
+- `build_nightly_torch_ci_images` uses [build-nightly-ci-docker-images.yml](#build-docker-images-nightly-ci)
+- `model-ci` uses [self-scheduled.yml](#nvidia-ci-job-definitions)
+  - uses **[model_jobs.yml](#model-jobs)** (x2)
+    - `collated_reports` uses [collated-reports.yml](#ci-collated-reports) (`@6abd9725ee7d809dc974991f8ff6c958afb63a3a`)
+  - `send_results` uses [slack-report.yml](#ci-slack-report)
+  - `check_new_failures` uses [check_failed_tests.yml](#process-failed-tests)
 
 ## Transitive requirements (from full call graph)
 
@@ -4147,114 +4055,14 @@ Permissions declared across the chain: `contents: read`
 
 ## Call graph (rooted at this workflow)
 
-```
-self-nightly-past-ci-caller.yml [schedule, push]
-+-- run_past_ci_tensorflow_2-11 (uses self-past-caller.yml)
-|   +-- model-ci (uses self-scheduled.yml)
-|   |   +-- run_models_gpu (uses model_jobs.yml)
-|   |   |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
-|   |   +-- run_trainer_and_fsdp_gpu (uses model_jobs.yml)
-|   |   |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
-|   |   +-- send_results (uses slack-report.yml)
-|   |   +-- check_new_failures (uses check_failed_tests.yml)
-|   +-- deepspeed-ci (uses self-scheduled.yml)
-|       +-- run_models_gpu (uses model_jobs.yml)
-|       |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
-|       +-- run_trainer_and_fsdp_gpu (uses model_jobs.yml)
-|       |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
-|       +-- send_results (uses slack-report.yml)
-|       +-- check_new_failures (uses check_failed_tests.yml)
-+-- run_past_ci_tensorflow_2-10 (uses self-past-caller.yml)
-|   +-- model-ci (uses self-scheduled.yml)
-|   |   +-- run_models_gpu (uses model_jobs.yml)
-|   |   |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
-|   |   +-- run_trainer_and_fsdp_gpu (uses model_jobs.yml)
-|   |   |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
-|   |   +-- send_results (uses slack-report.yml)
-|   |   +-- check_new_failures (uses check_failed_tests.yml)
-|   +-- deepspeed-ci (uses self-scheduled.yml)
-|       +-- run_models_gpu (uses model_jobs.yml)
-|       |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
-|       +-- run_trainer_and_fsdp_gpu (uses model_jobs.yml)
-|       |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
-|       +-- send_results (uses slack-report.yml)
-|       +-- check_new_failures (uses check_failed_tests.yml)
-+-- run_past_ci_tensorflow_2-9 (uses self-past-caller.yml)
-|   +-- model-ci (uses self-scheduled.yml)
-|   |   +-- run_models_gpu (uses model_jobs.yml)
-|   |   |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
-|   |   +-- run_trainer_and_fsdp_gpu (uses model_jobs.yml)
-|   |   |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
-|   |   +-- send_results (uses slack-report.yml)
-|   |   +-- check_new_failures (uses check_failed_tests.yml)
-|   +-- deepspeed-ci (uses self-scheduled.yml)
-|       +-- run_models_gpu (uses model_jobs.yml)
-|       |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
-|       +-- run_trainer_and_fsdp_gpu (uses model_jobs.yml)
-|       |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
-|       +-- send_results (uses slack-report.yml)
-|       +-- check_new_failures (uses check_failed_tests.yml)
-+-- run_past_ci_tensorflow_2-8 (uses self-past-caller.yml)
-|   +-- model-ci (uses self-scheduled.yml)
-|   |   +-- run_models_gpu (uses model_jobs.yml)
-|   |   |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
-|   |   +-- run_trainer_and_fsdp_gpu (uses model_jobs.yml)
-|   |   |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
-|   |   +-- send_results (uses slack-report.yml)
-|   |   +-- check_new_failures (uses check_failed_tests.yml)
-|   +-- deepspeed-ci (uses self-scheduled.yml)
-|       +-- run_models_gpu (uses model_jobs.yml)
-|       |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
-|       +-- run_trainer_and_fsdp_gpu (uses model_jobs.yml)
-|       |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
-|       +-- send_results (uses slack-report.yml)
-|       +-- check_new_failures (uses check_failed_tests.yml)
-+-- run_past_ci_tensorflow_2-7 (uses self-past-caller.yml)
-|   +-- model-ci (uses self-scheduled.yml)
-|   |   +-- run_models_gpu (uses model_jobs.yml)
-|   |   |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
-|   |   +-- run_trainer_and_fsdp_gpu (uses model_jobs.yml)
-|   |   |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
-|   |   +-- send_results (uses slack-report.yml)
-|   |   +-- check_new_failures (uses check_failed_tests.yml)
-|   +-- deepspeed-ci (uses self-scheduled.yml)
-|       +-- run_models_gpu (uses model_jobs.yml)
-|       |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
-|       +-- run_trainer_and_fsdp_gpu (uses model_jobs.yml)
-|       |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
-|       +-- send_results (uses slack-report.yml)
-|       +-- check_new_failures (uses check_failed_tests.yml)
-+-- run_past_ci_tensorflow_2-6 (uses self-past-caller.yml)
-|   +-- model-ci (uses self-scheduled.yml)
-|   |   +-- run_models_gpu (uses model_jobs.yml)
-|   |   |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
-|   |   +-- run_trainer_and_fsdp_gpu (uses model_jobs.yml)
-|   |   |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
-|   |   +-- send_results (uses slack-report.yml)
-|   |   +-- check_new_failures (uses check_failed_tests.yml)
-|   +-- deepspeed-ci (uses self-scheduled.yml)
-|       +-- run_models_gpu (uses model_jobs.yml)
-|       |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
-|       +-- run_trainer_and_fsdp_gpu (uses model_jobs.yml)
-|       |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
-|       +-- send_results (uses slack-report.yml)
-|       +-- check_new_failures (uses check_failed_tests.yml)
-+-- run_past_ci_tensorflow_2-5 (uses self-past-caller.yml)
-    +-- model-ci (uses self-scheduled.yml)
-    |   +-- run_models_gpu (uses model_jobs.yml)
-    |   |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
-    |   +-- run_trainer_and_fsdp_gpu (uses model_jobs.yml)
-    |   |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
-    |   +-- send_results (uses slack-report.yml)
-    |   +-- check_new_failures (uses check_failed_tests.yml)
-    +-- deepspeed-ci (uses self-scheduled.yml)
-        +-- run_models_gpu (uses model_jobs.yml)
-        |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
-        +-- run_trainer_and_fsdp_gpu (uses model_jobs.yml)
-        |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
-        +-- send_results (uses slack-report.yml)
-        +-- check_new_failures (uses check_failed_tests.yml)
-```
+`self-nightly-past-ci-caller.yml` [schedule, push]
+
+- uses **[self-past-caller.yml](#self-hosted-runner-past-ci)** (x7)
+  - uses **[self-scheduled.yml](#nvidia-ci-job-definitions)** (x2)
+    - uses **[model_jobs.yml](#model-jobs)** (x2)
+      - `collated_reports` uses [collated-reports.yml](#ci-collated-reports) (`@6abd9725ee7d809dc974991f8ff6c958afb63a3a`)
+    - `send_results` uses [slack-report.yml](#ci-slack-report)
+    - `check_new_failures` uses [check_failed_tests.yml](#process-failed-tests)
 
 ## Transitive requirements (from full call graph)
 
@@ -4432,16 +4240,9 @@ Permissions declared across the chain: `contents: read`
 
 ## Called by
 
-```
-self-past-caller.yml
-+-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-11)  <- entry point
-+-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-10)  <- entry point
-+-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-9)  <- entry point
-+-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-8)  <- entry point
-+-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-7)  <- entry point
-+-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-6)  <- entry point
-+-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-5)  <- entry point
-```
+`self-past-caller.yml`
+
+- **[self-nightly-past-ci-caller.yml](#self-hosted-runner-nightly-past-ci-caller)** - entry point (x7)
 
 ## Jobs
 
@@ -4542,13 +4343,9 @@ self-past-caller.yml
 
 ## Call graph (rooted at this workflow)
 
-```
-self-scheduled-amd-mi250-caller.yml [workflow_run, push]
-+-- model-ci (uses huggingface/hf-workflows/.github/workflows/transformers_amd_ci_scheduled.yaml@63657f571a92cc9759159442936061c51d6d9ae4)
-+-- torch-pipeline (uses huggingface/hf-workflows/.github/workflows/transformers_amd_ci_scheduled.yaml@63657f571a92cc9759159442936061c51d6d9ae4)
-+-- example-ci (uses huggingface/hf-workflows/.github/workflows/transformers_amd_ci_scheduled.yaml@63657f571a92cc9759159442936061c51d6d9ae4)
-+-- deepspeed-ci (uses huggingface/hf-workflows/.github/workflows/transformers_amd_ci_scheduled.yaml@63657f571a92cc9759159442936061c51d6d9ae4)
-```
+`self-scheduled-amd-mi250-caller.yml` [workflow_run, push]
+
+- uses **`huggingface/hf-workflows/.github/workflows/transformers_amd_ci_scheduled.yaml@63657f571a92cc9759159442936061c51d6d9ae4`** (x4)
 
 ## Transitive requirements (from full call graph)
 
@@ -4661,13 +4458,9 @@ External workflows referenced: `huggingface/hf-workflows/.github/workflows/trans
 
 ## Call graph (rooted at this workflow)
 
-```
-self-scheduled-amd-mi325-caller.yml [workflow_run, push]
-+-- model-ci (uses huggingface/hf-workflows/.github/workflows/transformers_amd_ci_scheduled_arc_scale_set.yaml@63657f571a92cc9759159442936061c51d6d9ae4)
-+-- torch-pipeline (uses huggingface/hf-workflows/.github/workflows/transformers_amd_ci_scheduled_arc_scale_set.yaml@63657f571a92cc9759159442936061c51d6d9ae4)
-+-- example-ci (uses huggingface/hf-workflows/.github/workflows/transformers_amd_ci_scheduled_arc_scale_set.yaml@63657f571a92cc9759159442936061c51d6d9ae4)
-+-- deepspeed-ci (uses huggingface/hf-workflows/.github/workflows/transformers_amd_ci_scheduled_arc_scale_set.yaml@63657f571a92cc9759159442936061c51d6d9ae4)
-```
+`self-scheduled-amd-mi325-caller.yml` [workflow_run, push]
+
+- uses **`huggingface/hf-workflows/.github/workflows/transformers_amd_ci_scheduled_arc_scale_set.yaml@63657f571a92cc9759159442936061c51d6d9ae4`** (x4)
 
 ## Transitive requirements (from full call graph)
 
@@ -4784,13 +4577,9 @@ External workflows referenced: `huggingface/hf-workflows/.github/workflows/trans
 
 ## Call graph (rooted at this workflow)
 
-```
-self-scheduled-amd-mi355-caller.yml [workflow_run, push]
-+-- model-ci (uses huggingface/hf-workflows/.github/workflows/transformers_amd_ci_scheduled_arc_scale_set.yaml@63657f571a92cc9759159442936061c51d6d9ae4)
-+-- torch-pipeline (uses huggingface/hf-workflows/.github/workflows/transformers_amd_ci_scheduled_arc_scale_set.yaml@63657f571a92cc9759159442936061c51d6d9ae4)
-+-- example-ci (uses huggingface/hf-workflows/.github/workflows/transformers_amd_ci_scheduled_arc_scale_set.yaml@63657f571a92cc9759159442936061c51d6d9ae4)
-+-- deepspeed-ci (uses huggingface/hf-workflows/.github/workflows/transformers_amd_ci_scheduled_arc_scale_set.yaml@63657f571a92cc9759159442936061c51d6d9ae4)
-```
+`self-scheduled-amd-mi355-caller.yml` [workflow_run, push]
+
+- uses **`huggingface/hf-workflows/.github/workflows/transformers_amd_ci_scheduled_arc_scale_set.yaml@63657f571a92cc9759159442936061c51d6d9ae4`** (x4)
 
 ## Transitive requirements (from full call graph)
 
@@ -4919,58 +4708,13 @@ Inputs for the `workflow_dispatch` event.
 
 ## Call graph (rooted at this workflow)
 
-```
-self-scheduled-caller.yml [repository_dispatch, schedule, push, workflow_dispatch]
-+-- model-ci (uses self-scheduled.yml)
-|   +-- run_models_gpu (uses model_jobs.yml)
-|   |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
-|   +-- run_trainer_and_fsdp_gpu (uses model_jobs.yml)
-|   |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
-|   +-- send_results (uses slack-report.yml)
-|   +-- check_new_failures (uses check_failed_tests.yml)
-+-- torch-pipeline (uses self-scheduled.yml)
-|   +-- run_models_gpu (uses model_jobs.yml)
-|   |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
-|   +-- run_trainer_and_fsdp_gpu (uses model_jobs.yml)
-|   |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
-|   +-- send_results (uses slack-report.yml)
-|   +-- check_new_failures (uses check_failed_tests.yml)
-+-- example-ci (uses self-scheduled.yml)
-|   +-- run_models_gpu (uses model_jobs.yml)
-|   |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
-|   +-- run_trainer_and_fsdp_gpu (uses model_jobs.yml)
-|   |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
-|   +-- send_results (uses slack-report.yml)
-|   +-- check_new_failures (uses check_failed_tests.yml)
-+-- trainer-fsdp-ci (uses self-scheduled.yml)
-|   +-- run_models_gpu (uses model_jobs.yml)
-|   |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
-|   +-- run_trainer_and_fsdp_gpu (uses model_jobs.yml)
-|   |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
-|   +-- send_results (uses slack-report.yml)
-|   +-- check_new_failures (uses check_failed_tests.yml)
-+-- deepspeed-ci (uses self-scheduled.yml)
-|   +-- run_models_gpu (uses model_jobs.yml)
-|   |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
-|   +-- run_trainer_and_fsdp_gpu (uses model_jobs.yml)
-|   |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
-|   +-- send_results (uses slack-report.yml)
-|   +-- check_new_failures (uses check_failed_tests.yml)
-+-- quantization-ci (uses self-scheduled.yml)
-|   +-- run_models_gpu (uses model_jobs.yml)
-|   |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
-|   +-- run_trainer_and_fsdp_gpu (uses model_jobs.yml)
-|   |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
-|   +-- send_results (uses slack-report.yml)
-|   +-- check_new_failures (uses check_failed_tests.yml)
-+-- kernels-ci (uses self-scheduled.yml)
-    +-- run_models_gpu (uses model_jobs.yml)
-    |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
-    +-- run_trainer_and_fsdp_gpu (uses model_jobs.yml)
-    |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
-    +-- send_results (uses slack-report.yml)
-    +-- check_new_failures (uses check_failed_tests.yml)
-```
+`self-scheduled-caller.yml` [repository_dispatch, schedule, push, workflow_dispatch]
+
+- uses **[self-scheduled.yml](#nvidia-ci-job-definitions)** (x7)
+  - uses **[model_jobs.yml](#model-jobs)** (x2)
+    - `collated_reports` uses [collated-reports.yml](#ci-collated-reports) (`@6abd9725ee7d809dc974991f8ff6c958afb63a3a`)
+  - `send_results` uses [slack-report.yml](#ci-slack-report)
+  - `check_new_failures` uses [check_failed_tests.yml](#process-failed-tests)
 
 ## Transitive requirements (from full call graph)
 
@@ -5181,16 +4925,13 @@ Inputs for the `workflow_dispatch` event.
 
 ## Call graph (rooted at this workflow)
 
-```
-self-scheduled-flash-attn-caller.yml [repository_dispatch, schedule, push, workflow_dispatch]
-+-- model-ci (uses self-scheduled.yml)
-    +-- run_models_gpu (uses model_jobs.yml)
-    |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
-    +-- run_trainer_and_fsdp_gpu (uses model_jobs.yml)
-    |   +-- collated_reports (uses collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a)
-    +-- send_results (uses slack-report.yml)
-    +-- check_new_failures (uses check_failed_tests.yml)
-```
+`self-scheduled-flash-attn-caller.yml` [repository_dispatch, schedule, push, workflow_dispatch]
+
+- `model-ci` uses [self-scheduled.yml](#nvidia-ci-job-definitions)
+  - uses **[model_jobs.yml](#model-jobs)** (x2)
+    - `collated_reports` uses [collated-reports.yml](#ci-collated-reports) (`@6abd9725ee7d809dc974991f8ff6c958afb63a3a`)
+  - `send_results` uses [slack-report.yml](#ci-slack-report)
+  - `check_new_failures` uses [check_failed_tests.yml](#process-failed-tests)
 
 ## Transitive requirements (from full call graph)
 
@@ -5286,14 +5027,9 @@ Permissions declared across the chain: `contents: read`
 
 ## Called by
 
-```
-self-scheduled-intel-gaudi.yml
-+-- self-scheduled-intel-gaudi3-caller.yml (job: model-ci)  <- entry point
-+-- self-scheduled-intel-gaudi3-caller.yml (job: pipeline-ci)  <- entry point
-+-- self-scheduled-intel-gaudi3-caller.yml (job: example-ci)  <- entry point
-+-- self-scheduled-intel-gaudi3-caller.yml (job: deepspeed-ci)  <- entry point
-+-- self-scheduled-intel-gaudi3-caller.yml (job: trainer-fsdp-ci)  <- entry point
-```
+`self-scheduled-intel-gaudi.yml`
+
+- **[self-scheduled-intel-gaudi3-caller.yml](#self-hosted-runner-intel-gaudi3-scheduled-ci-caller)** - entry point (x5)
 
 ## Referenced secrets and variables
 
@@ -5543,29 +5279,11 @@ self-scheduled-intel-gaudi.yml
 
 ## Call graph (rooted at this workflow)
 
-```
-self-scheduled-intel-gaudi3-caller.yml [repository_dispatch, workflow_dispatch, schedule]
-+-- model-ci (uses self-scheduled-intel-gaudi.yml)
-|   +-- run_models_gpu (uses model_jobs_intel_gaudi.yml)
-|   +-- run_trainer_and_fsdp_gpu (uses model_jobs_intel_gaudi.yml)
-|   +-- send_results (uses slack-report.yml)
-+-- pipeline-ci (uses self-scheduled-intel-gaudi.yml)
-|   +-- run_models_gpu (uses model_jobs_intel_gaudi.yml)
-|   +-- run_trainer_and_fsdp_gpu (uses model_jobs_intel_gaudi.yml)
-|   +-- send_results (uses slack-report.yml)
-+-- example-ci (uses self-scheduled-intel-gaudi.yml)
-|   +-- run_models_gpu (uses model_jobs_intel_gaudi.yml)
-|   +-- run_trainer_and_fsdp_gpu (uses model_jobs_intel_gaudi.yml)
-|   +-- send_results (uses slack-report.yml)
-+-- deepspeed-ci (uses self-scheduled-intel-gaudi.yml)
-|   +-- run_models_gpu (uses model_jobs_intel_gaudi.yml)
-|   +-- run_trainer_and_fsdp_gpu (uses model_jobs_intel_gaudi.yml)
-|   +-- send_results (uses slack-report.yml)
-+-- trainer-fsdp-ci (uses self-scheduled-intel-gaudi.yml)
-    +-- run_models_gpu (uses model_jobs_intel_gaudi.yml)
-    +-- run_trainer_and_fsdp_gpu (uses model_jobs_intel_gaudi.yml)
-    +-- send_results (uses slack-report.yml)
-```
+`self-scheduled-intel-gaudi3-caller.yml` [repository_dispatch, workflow_dispatch, schedule]
+
+- uses **[self-scheduled-intel-gaudi.yml](#self-hosted-runner-scheduled-intel-gaudi)** (x5)
+  - uses **[model_jobs_intel_gaudi.yml](#model-jobs-1)** (x2)
+  - `send_results` uses [slack-report.yml](#ci-slack-report)
 
 ## Transitive requirements (from full call graph)
 
@@ -5721,31 +5439,15 @@ Permissions declared across the chain: `contents: read`
 
 ## Called by
 
-```
-self-scheduled.yml
-+-- push-important-models.yml (job: model-ci)  <- entry point
-+-- self-comment-ci.yml (job: model-ci)  <- entry point
-+-- self-comment-ci.yml (job: quantization-ci)  <- entry point
-+-- self-nightly-caller.yml (job: model-ci)  <- entry point
-+-- self-past-caller.yml (job: model-ci)
-|   +-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-11)  <- entry point
-|   +-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-10)  <- entry point
-|   +-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-9)  <- entry point
-|   +-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-8)  <- entry point
-|   +-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-7)  <- entry point
-|   +-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-6)  <- entry point
-|   +-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-5)  <- entry point
-+-- self-past-caller.yml (job: deepspeed-ci)
-|   +-- (same entry points as above)
-+-- self-scheduled-caller.yml (job: model-ci)  <- entry point
-+-- self-scheduled-caller.yml (job: torch-pipeline)  <- entry point
-+-- self-scheduled-caller.yml (job: example-ci)  <- entry point
-+-- self-scheduled-caller.yml (job: trainer-fsdp-ci)  <- entry point
-+-- self-scheduled-caller.yml (job: deepspeed-ci)  <- entry point
-+-- self-scheduled-caller.yml (job: quantization-ci)  <- entry point
-+-- self-scheduled-caller.yml (job: kernels-ci)  <- entry point
-+-- self-scheduled-flash-attn-caller.yml (job: model-ci)  <- entry point
-```
+`self-scheduled.yml`
+
+- [push-important-models.yml](#model-ci-model-ci) (job: `model-ci`) - entry point
+- **[self-comment-ci.yml](#pr-comment-github-ci)** - entry point (x2)
+- [self-nightly-caller.yml](#model-ci-model-ci-2) (job: `model-ci`) - entry point
+- **[self-past-caller.yml](#self-hosted-runner-past-ci)** (x2)
+  - **[self-nightly-past-ci-caller.yml](#self-hosted-runner-nightly-past-ci-caller)** - entry point (x7)
+- **[self-scheduled-caller.yml](#nvidia-ci)** - entry point (x7)
+- [self-scheduled-flash-attn-caller.yml](#model-ci-model-ci-8) (job: `model-ci`) - entry point
 
 ## Referenced secrets and variables
 
@@ -6198,38 +5900,18 @@ self-scheduled.yml
 
 ## Called by
 
-```
-slack-report.yml
-+-- self-scheduled-intel-gaudi.yml (job: send_results)
-|   +-- self-scheduled-intel-gaudi3-caller.yml (job: model-ci)  <- entry point
-|   +-- self-scheduled-intel-gaudi3-caller.yml (job: pipeline-ci)  <- entry point
-|   +-- self-scheduled-intel-gaudi3-caller.yml (job: example-ci)  <- entry point
-|   +-- self-scheduled-intel-gaudi3-caller.yml (job: deepspeed-ci)  <- entry point
-|   +-- self-scheduled-intel-gaudi3-caller.yml (job: trainer-fsdp-ci)  <- entry point
-+-- self-scheduled.yml (job: send_results)
-    +-- push-important-models.yml (job: model-ci)  <- entry point
-    +-- self-comment-ci.yml (job: model-ci)  <- entry point
-    +-- self-comment-ci.yml (job: quantization-ci)  <- entry point
-    +-- self-nightly-caller.yml (job: model-ci)  <- entry point
-    +-- self-past-caller.yml (job: model-ci)
-    |   +-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-11)  <- entry point
-    |   +-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-10)  <- entry point
-    |   +-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-9)  <- entry point
-    |   +-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-8)  <- entry point
-    |   +-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-7)  <- entry point
-    |   +-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-6)  <- entry point
-    |   +-- self-nightly-past-ci-caller.yml (job: run_past_ci_tensorflow_2-5)  <- entry point
-    +-- self-past-caller.yml (job: deepspeed-ci)
-    |   +-- (same entry points as above)
-    +-- self-scheduled-caller.yml (job: model-ci)  <- entry point
-    +-- self-scheduled-caller.yml (job: torch-pipeline)  <- entry point
-    +-- self-scheduled-caller.yml (job: example-ci)  <- entry point
-    +-- self-scheduled-caller.yml (job: trainer-fsdp-ci)  <- entry point
-    +-- self-scheduled-caller.yml (job: deepspeed-ci)  <- entry point
-    +-- self-scheduled-caller.yml (job: quantization-ci)  <- entry point
-    +-- self-scheduled-caller.yml (job: kernels-ci)  <- entry point
-    +-- self-scheduled-flash-attn-caller.yml (job: model-ci)  <- entry point
-```
+`slack-report.yml`
+
+- [self-scheduled-intel-gaudi.yml](#slack-report-send_results) (job: `send_results`)
+  - **[self-scheduled-intel-gaudi3-caller.yml](#self-hosted-runner-intel-gaudi3-scheduled-ci-caller)** - entry point (x5)
+- [self-scheduled.yml](#slack-report-send_results-1) (job: `send_results`)
+  - [push-important-models.yml](#model-ci-model-ci) (job: `model-ci`) - entry point
+  - **[self-comment-ci.yml](#pr-comment-github-ci)** - entry point (x2)
+  - [self-nightly-caller.yml](#model-ci-model-ci-2) (job: `model-ci`) - entry point
+  - **[self-past-caller.yml](#self-hosted-runner-past-ci)** (x2)
+    - **[self-nightly-past-ci-caller.yml](#self-hosted-runner-nightly-past-ci-caller)** - entry point (x7)
+  - **[self-scheduled-caller.yml](#nvidia-ci)** - entry point (x7)
+  - [self-scheduled-flash-attn-caller.yml](#model-ci-model-ci-8) (job: `model-ci`) - entry point
 
 ## Referenced secrets and variables
 
@@ -6676,10 +6358,9 @@ This workflow allows trusted contributors to trigger TRL CI runs against specifi
 
 ## Call graph (rooted at this workflow)
 
-```
-upload_pr_documentation.yml [workflow_run]
-+-- build (uses huggingface/doc-builder/.github/workflows/upload_pr_documentation.yml@9ad2de8582b56c017cb530c1165116d40433f1c6)
-```
+`upload_pr_documentation.yml` [workflow_run]
+
+- `build` uses `huggingface/doc-builder/.github/workflows/upload_pr_documentation.yml@9ad2de8582b56c017cb530c1165116d40433f1c6`
 
 ## Transitive requirements (from full call graph)
 

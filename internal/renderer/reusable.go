@@ -125,10 +125,11 @@ func nodeAnchor(n *callgraph.Node) string {
 	return anchor(n.Name)
 }
 
-// renderCallGraph renders the downstream `uses:` tree rooted at an entry-point workflow
-// (item 12). It is suppressed for flat workflows (no outgoing `uses:`) and for pure
-// reusable workflows (which get a "Called by" section instead). The tree is plain ASCII
-// inside a code fence: full names, no middle-truncation.
+// renderCallGraph renders the downstream `uses:` tree rooted at an entry-point workflow. It
+// is suppressed for flat workflows (no outgoing `uses:`) and for pure reusable workflows
+// (which get a "Called by" section instead). The tree is a nested Markdown list: each callee
+// is a cross-link to its rendered section (or plain inline code when out of scope), and
+// repeated sibling subtrees are folded to one "(xN)" representative.
 func renderCallGraph(b *strings.Builder, g *callgraph.Graph, id string) {
 	if g == nil || !g.IsEntryPoint(id) {
 		return
@@ -142,19 +143,26 @@ func renderCallGraph(b *strings.Builder, g *callgraph.Graph, id string) {
 	for _, e := range edges {
 		root.children = append(root.children, callEdgeNode(g, e, path))
 	}
+	root.children = collapseSiblings(root.children)
 
 	b.WriteString("## Call graph (rooted at this workflow)\n\n")
-	b.WriteString("```\n")
-	renderTree(b, root)
-	b.WriteString("```\n\n")
+	renderTreeList(b, root)
+	b.WriteString("\n")
 }
 
 // callEdgeNode builds the subtree for a single outgoing `uses:` edge, recursing into the
 // callee's own calls. The path slice records the node ids on the current branch so a
-// cyclic `uses:` reference stops instead of recursing forever.
+// cyclic `uses:` reference stops at a leaf marked "(cycle)" instead of recursing forever.
 func callEdgeNode(g *callgraph.Graph, e callgraph.Edge, path []string) treeNode {
-	node := treeNode{label: callEdgeLabel(g, e)}
-	if e.ToID == "" || containsStr(path, e.ToID) {
+	label, rep := callEdgeLabels(g, e)
+	node := treeNode{label: label, repLabel: rep}
+	if e.ToID == "" {
+		// Outside the scan scope: a leaf, but not a cycle.
+		return node
+	}
+	if containsStr(path, e.ToID) {
+		node.label += " (cycle)"
+		node.repLabel += " (cycle)"
 		return node
 	}
 	next := append(append([]string{}, path...), e.ToID)
@@ -164,14 +172,50 @@ func callEdgeNode(g *callgraph.Graph, e callgraph.Edge, path []string) treeNode 
 	return node
 }
 
-// callEdgeLabel describes one call site in the downstream tree: the calling job (and step
-// name, for a composite-action call) and the callee it targets.
-func callEdgeLabel(g *callgraph.Graph, e callgraph.Edge) string {
-	callee := calleeDisplay(g, e)
+// callEdgeLabels describes one call site in the downstream tree. The full label leads with
+// the calling job (and step name, for a composite-action call) in an inline-code span, then
+// links to the callee; the representative label drops the job/step context (which is what
+// differs across collapsed siblings) and keeps the emphasized callee link.
+func callEdgeLabels(g *callgraph.Graph, e callgraph.Edge) (label, rep string) {
+	callee := calleeMarkdown(g, e)
+	ctx := e.JobID
 	if e.StepName != "" {
-		return fmt.Sprintf("%s / %s (uses %s)", e.JobID, e.StepName, callee)
+		ctx = e.JobID + " / " + e.StepName
 	}
-	return fmt.Sprintf("%s (uses %s)", e.JobID, callee)
+	label = fmt.Sprintf("%s uses %s", codeSpan(ctx), callee)
+	rep = "uses **" + callee + "**"
+	return label, rep
+}
+
+// calleeMarkdown renders a callee for the downstream list. An in-scope workflow or composite
+// action becomes a cross-link to its rendered section (with the `@pin` surfaced for a
+// cross-repo self-reference); an external callee renders as plain inline code carrying its
+// `@pin` (never a link, there is no in-scope section); a callee outside the scan scope
+// renders as plain inline code annotated as such.
+func calleeMarkdown(g *callgraph.Graph, e callgraph.Edge) string {
+	n := g.Nodes[e.ToID]
+	if n == nil {
+		return codeSpan(e.Ref) + " (outside scan scope)"
+	}
+	if n.External {
+		ref := n.Name
+		if e.Pin != "" {
+			ref += "@" + e.Pin
+		}
+		return codeSpan(ref)
+	}
+	// In-scope: link to the callee's rendered section. Composite actions all live in an
+	// action.yml, so the `uses:` ref is the only distinguishing display; workflows show the
+	// file base name.
+	display := filepath.Base(n.Path)
+	if n.IsAction {
+		display = e.Ref
+	}
+	link := fmt.Sprintf("[%s](#%s)", mdLinkLabel(display), nodeAnchor(n))
+	if e.Pin != "" {
+		link += " (" + codeSpan("@"+e.Pin) + ")"
+	}
+	return link
 }
 
 // calleeDisplay is the bare display string for a callee in an ASCII tree: the file base
@@ -200,8 +244,8 @@ func calleeDisplay(g *callgraph.Graph, e callgraph.Edge) string {
 	return filepath.Base(n.Path)
 }
 
-// entryRootLabel is the root line of the downstream call-graph tree: the entry-point file
-// name annotated with its triggers, e.g. "release.yml [workflow_dispatch]".
+// entryRootLabel is the lead line of the downstream call-graph list: the entry-point file
+// name (as inline code) annotated with its triggers, e.g. "`release.yml` [workflow_dispatch]".
 func entryRootLabel(g *callgraph.Graph, id string) string {
 	n := g.Nodes[id]
 	base := id
@@ -209,15 +253,16 @@ func entryRootLabel(g *callgraph.Graph, id string) string {
 		base = filepath.Base(n.Path)
 	}
 	if n != nil && n.Workflow != nil && len(n.Workflow.On) > 0 {
-		return base + " [" + strings.Join(n.Workflow.On, ", ") + "]"
+		return codeSpan(base) + " [" + strings.Join(n.Workflow.On, ", ") + "]"
 	}
-	return base
+	return codeSpan(base)
 }
 
-// renderCalledBy renders the upstream caller chain on a workflow that is invoked by
-// others (item 13): immediate callers at the top, each expanded to its own callers up to
-// the entry points, which are marked. It reuses the same ASCII tree renderer as the
-// downstream call graph; only the walk direction (CalledBy) differs.
+// renderCalledBy renders the upstream caller chain on a workflow that is invoked by others:
+// immediate callers at the top, each expanded to its own callers up to the entry points,
+// which are marked. It reuses the same nested-list renderer as the downstream call graph;
+// only the walk direction (CalledBy) differs. Each caller links to the specific calling job
+// heading, and repeated sibling subtrees are folded to one "(xN)" representative.
 func renderCalledBy(b *strings.Builder, g *callgraph.Graph, id string) {
 	if g == nil {
 		return
@@ -231,24 +276,27 @@ func renderCalledBy(b *strings.Builder, g *callgraph.Graph, id string) {
 	if n != nil && n.Path != "" {
 		base = filepath.Base(n.Path)
 	}
-	root := treeNode{label: base}
+	root := treeNode{label: codeSpan(base)}
 	path := []string{id}
 	for _, e := range callers {
 		root.children = append(root.children, calledByNode(g, e, path))
 	}
-	dedupSubtrees(&root)
+	root.children = collapseSiblings(root.children)
 
 	b.WriteString("## Called by\n\n")
-	b.WriteString("```\n")
-	renderTree(b, root)
-	b.WriteString("```\n\n")
+	renderTreeList(b, root)
+	b.WriteString("\n")
 }
 
 // calledByNode builds the subtree for a single caller edge, recursing upward into that
-// caller's own callers. The path slice guards against cyclic call relationships.
+// caller's own callers. The path slice guards against cyclic call relationships, stopping at
+// a leaf marked "(cycle)".
 func calledByNode(g *callgraph.Graph, e callgraph.Edge, path []string) treeNode {
-	node := treeNode{label: calledByLabel(g, e)}
+	label, rep := calledByLabels(g, e)
+	node := treeNode{label: label, repLabel: rep}
 	if containsStr(path, e.FromID) {
+		node.label += " (cycle)"
+		node.repLabel += " (cycle)"
 		return node
 	}
 	next := append(append([]string{}, path...), e.FromID)
@@ -258,19 +306,34 @@ func calledByNode(g *callgraph.Graph, e callgraph.Edge, path []string) treeNode 
 	return node
 }
 
-// calledByLabel describes one caller in the upstream tree: the calling file and job, with
-// an "entry point" marker when that caller is itself a human/automation-facing trigger.
-func calledByLabel(g *callgraph.Graph, e callgraph.Edge) string {
+// calledByLabels describes one caller in the upstream list: the calling file and job, with
+// an "entry point" marker when that caller is itself a human/automation-facing trigger. The
+// full label links to the specific calling JOB heading (via the document-wide JobAnchors,
+// falling back to the file's section anchor); the representative label drops the differing
+// job id and links to the file's section.
+func calledByLabels(g *callgraph.Graph, e callgraph.Edge) (label, rep string) {
 	n := g.Nodes[e.FromID]
 	base := e.FromID
-	if n != nil && n.Path != "" {
-		base = filepath.Base(n.Path)
+	section, job := "", ""
+	if n != nil {
+		if n.Path != "" {
+			base = filepath.Base(n.Path)
+		}
+		section = nodeAnchor(n)
+		job = section
+		if n.Workflow != nil {
+			if i := jobIndex(n.Workflow, e.JobID); i >= 0 && i < len(n.JobAnchors) {
+				job = n.JobAnchors[i]
+			}
+		}
 	}
-	label := fmt.Sprintf("%s (job: %s)", base, e.JobID)
+	entry := ""
 	if g.IsEntryPoint(e.FromID) {
-		label += "  <- entry point"
+		entry = " - entry point"
 	}
-	return label
+	label = fmt.Sprintf("[%s](#%s) (job: %s)%s", mdLinkLabel(base), job, codeSpan(e.JobID), entry)
+	rep = fmt.Sprintf("**[%s](#%s)**%s", mdLinkLabel(base), section, entry)
+	return label, rep
 }
 
 // renderTransitiveRequirements aggregates, across the entry point and everything
@@ -411,43 +474,75 @@ func collectSecretNames(n *callgraph.Node, set map[string]bool) {
 	}
 }
 
-// treeNode is a single line in an ASCII dependency tree plus its children. Both the
-// downstream call graph and the upstream "called by" chain build trees of these and hand
-// them to renderTree, so there is exactly one tree-drawing implementation.
+// treeNode is a single item in a dependency tree plus its children. Both the downstream
+// call graph and the upstream "called by" chain build trees of these and hand them to
+// renderTreeList, so there is exactly one tree-drawing implementation.
+//
+// label is the full Markdown the item renders as (a job/step context code span plus a
+// cross-link to the callee or caller). repLabel is the same line with the differing
+// job/step context dropped and the shared callee/caller emphasized; it doubles as the
+// node's grouping identity (two siblings collapse only when their repLabel and their whole
+// children block both match) and as the displayed label once a group is collapsed to a
+// single "(xN)" representative. A node with an empty repLabel (the root, or a back-
+// reference note) never participates in grouping.
 type treeNode struct {
 	label    string
+	repLabel string
 	children []treeNode
 }
 
-// dedupSubtrees collapses repeated caller subtrees in a "called by" tree. Many distinct
-// calling jobs reach this workflow through the very same upstream entry-point set (e.g. six
-// jobs each ultimately triggered by ci-amd.yml + ci-arm.yml); rendering that identical set
-// under every caller is pure repetition. When a node's children block exactly matches one
-// already emitted earlier in document order, its children are replaced by a single note so
-// the shared set is stated once and the duplicates point back to it. No data is dropped: a
-// collapsed block is byte-identical to the first occurrence shown above it.
-func dedupSubtrees(root *treeNode) {
-	seen := map[string]bool{}
-	var walk func(n *treeNode)
-	walk = func(n *treeNode) {
-		for i := range n.children {
-			c := &n.children[i]
-			key := childrenKey(c.children)
-			if key != "" && seen[key] {
-				note := "(same callers as above)"
-				if allEntryPoints(c.children) {
-					note = "(same entry points as above)"
-				}
-				c.children = []treeNode{{label: note}}
-				continue
-			}
-			if key != "" {
-				seen[key] = true
-			}
-			walk(c)
+// collapseSiblings collapses repeated subtrees that sit side by side under the same parent.
+// Both trees show the same shape of repetition: many distinct caller jobs invoking the SAME
+// callee (downstream) -- or many distinct calling jobs in the same caller file reaching this
+// workflow (upstream) -- each carrying an identical descendant block (e.g. airflow's dozen
+// tests-* jobs, each `uses run-unit-tests.yml` with the same four-step subtree). The only
+// thing that differs across them is the job id, which the repLabel deliberately omits.
+//
+// Children are grouped by repLabel + their (already collapsed) children block; each group is
+// replaced by its first occurrence (so sibling order stays deterministic), and a group of
+// more than one gets its differing job id dropped (repLabel becomes the label) with an
+// "(xN)" count appended. Grandchildren are collapsed first, so a repeated subtree at any
+// depth folds before its parent is keyed -- nested groups collapse too.
+func collapseSiblings(children []treeNode) []treeNode {
+	for i := range children {
+		children[i].children = collapseSiblings(children[i].children)
+	}
+	var out []treeNode
+	pos := map[string]int{}
+	count := map[string]int{}
+	for _, c := range children {
+		// A node with no grouping identity (the root, or a note) is passed through verbatim.
+		if c.repLabel == "" {
+			out = append(out, c)
+			continue
+		}
+		key := c.repLabel + "\x00" + childrenKey(c.children)
+		if i, seen := pos[key]; seen {
+			count[key]++
+			_ = i
+			continue
+		}
+		pos[key] = len(out)
+		count[key] = 1
+		out = append(out, c)
+	}
+	for key, i := range pos {
+		if count[key] > 1 {
+			out[i].label = fmt.Sprintf("%s (x%d)", out[i].repLabel, count[key])
 		}
 	}
-	walk(root)
+	return out
+}
+
+// jobIndex returns the position of the job with the given id in a workflow's job list (the
+// index into the workflow node's document-wide JobAnchors), or -1 when absent.
+func jobIndex(w *model.Workflow, jobID string) int {
+	for i := range w.Jobs {
+		if w.Jobs[i].ID == jobID {
+			return i
+		}
+	}
+	return -1
 }
 
 // childrenKey serializes a node's full descendant structure (depth + label per line),
@@ -472,38 +567,22 @@ func childrenKey(children []treeNode) string {
 	return sb.String()
 }
 
-// allEntryPoints reports whether every leaf in a subtree is an entry-point caller, so the
-// collapse note can name the set precisely ("entry points" vs the general "callers").
-func allEntryPoints(children []treeNode) bool {
-	for _, c := range children {
-		if len(c.children) == 0 {
-			if !strings.HasSuffix(c.label, "<- entry point") {
-				return false
-			}
-		} else if !allEntryPoints(c.children) {
-			return false
-		}
-	}
-	return true
-}
-
-// renderTree writes an ASCII tree: the root label on its own line, then each child under
-// "+-- " with "|   " / "    " continuation guides, using only plain keyboard characters.
-func renderTree(b *strings.Builder, root treeNode) {
+// renderTreeList writes a tree as a Markdown nested list: the root label as a plain lead
+// line (a paragraph), then each child as a `-` list item, two spaces of indentation per
+// depth. Labels are Markdown (cross-links plus inline-code context), so the listed
+// callee/caller names -- which are headings elsewhere in the same document -- are clickable,
+// unlike the old fenced-code-block rendering.
+func renderTreeList(b *strings.Builder, root treeNode) {
 	b.WriteString(root.label)
-	b.WriteString("\n")
-	renderTreeChildren(b, root.children, "")
+	b.WriteString("\n\n")
+	renderTreeListChildren(b, root.children, 0)
 }
 
-func renderTreeChildren(b *strings.Builder, children []treeNode, prefix string) {
-	for i, c := range children {
-		last := i == len(children)-1
-		b.WriteString(prefix + "+-- " + c.label + "\n")
-		guide := prefix + "|   "
-		if last {
-			guide = prefix + "    "
-		}
-		renderTreeChildren(b, c.children, guide)
+func renderTreeListChildren(b *strings.Builder, children []treeNode, depth int) {
+	indent := strings.Repeat("  ", depth)
+	for _, c := range children {
+		b.WriteString(indent + "- " + c.label + "\n")
+		renderTreeListChildren(b, c.children, depth+1)
 	}
 }
 

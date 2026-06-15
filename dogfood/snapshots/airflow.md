@@ -103,11 +103,10 @@
 
 ## Called by
 
-```
-additional-ci-image-checks.yml
-+-- ci-amd.yml (job: additional-ci-image-checks)  <- entry point
-+-- ci-arm.yml (job: additional-ci-image-checks)  <- entry point
-```
+`additional-ci-image-checks.yml`
+
+- [ci-amd.yml](#additional-ci-image-checks-additional-ci-image-checks) (job: `additional-ci-image-checks`) - entry point
+- [ci-arm.yml](#additional-ci-image-checks-additional-ci-image-checks-1) (job: `additional-ci-image-checks`) - entry point
 
 ## Referenced secrets and variables
 
@@ -226,11 +225,10 @@ additional-ci-image-checks.yml
 
 ## Called by
 
-```
-additional-prod-image-tests.yml
-+-- ci-amd.yml (job: additional-prod-image-tests)  <- entry point
-+-- ci-arm.yml (job: additional-prod-image-tests)  <- entry point
-```
+`additional-prod-image-tests.yml`
+
+- [ci-amd.yml](#additional-prod-image-tests-additional-prod-image-tests) (job: `additional-prod-image-tests`) - entry point
+- [ci-arm.yml](#additional-prod-image-tests-additional-prod-image-tests-1) (job: `additional-prod-image-tests`) - entry point
 
 ## Referenced secrets and variables
 
@@ -613,13 +611,10 @@ additional-prod-image-tests.yml
 
 ## Called by
 
-```
-airflow-distributions-tests.yml
-+-- ci-amd.yml (job: tests-task-sdk)  <- entry point
-+-- ci-amd.yml (job: tests-airflow-ctl)  <- entry point
-+-- ci-arm.yml (job: tests-task-sdk)  <- entry point
-+-- ci-arm.yml (job: tests-airflow-ctl)  <- entry point
-```
+`airflow-distributions-tests.yml`
+
+- **[ci-amd.yml](#tests-amd)** - entry point (x2)
+- **[ci-arm.yml](#tests-arm)** - entry point (x2)
 
 ## Referenced secrets and variables
 
@@ -735,10 +730,9 @@ Inputs for the `workflow_dispatch` event.
 
 ## Call graph (rooted at this workflow)
 
-```
-airflow-e2e-tests.yml [workflow_dispatch, workflow_call]
-+-- test-e2e-integration-tests / Prepare breeze & PROD image: ${{ env.PYTHON_MAJOR_MINOR_VERSION }} (uses ./.github/actions/prepare_breeze_and_image)
-```
+`airflow-e2e-tests.yml` [workflow_dispatch, workflow_call]
+
+- `test-e2e-integration-tests / Prepare breeze & PROD image: ${{ env.PYTHON_MAJOR_MINOR_VERSION }}` uses [./.github/actions/prepare_breeze_and_image](#prepare-breeze--current-image-ci-or-prod)
 
 ## Transitive requirements (from full call graph)
 
@@ -748,22 +742,11 @@ Permissions declared across the chain: `contents: read`
 
 ## Called by
 
-```
-airflow-e2e-tests.yml
-+-- additional-prod-image-tests.yml (job: test-e2e-integration-tests-basic)
-|   +-- ci-amd.yml (job: additional-prod-image-tests)  <- entry point
-|   +-- ci-arm.yml (job: additional-prod-image-tests)  <- entry point
-+-- additional-prod-image-tests.yml (job: test-e2e-integration-tests-remote-log)
-|   +-- (same entry points as above)
-+-- additional-prod-image-tests.yml (job: test-e2e-integration-tests-remote-log-elasticsearch)
-|   +-- (same entry points as above)
-+-- additional-prod-image-tests.yml (job: test-e2e-integration-tests-remote-log-opensearch)
-|   +-- (same entry points as above)
-+-- additional-prod-image-tests.yml (job: test-e2e-integration-tests-xcom-object-storage)
-|   +-- (same entry points as above)
-+-- additional-prod-image-tests.yml (job: test-e2e-integration-tests-event-driven)
-    +-- (same entry points as above)
-```
+`airflow-e2e-tests.yml`
+
+- **[additional-prod-image-tests.yml](#additional-prod-image-tests)** (x6)
+  - [ci-amd.yml](#additional-prod-image-tests-additional-prod-image-tests) (job: `additional-prod-image-tests`) - entry point
+  - [ci-arm.yml](#additional-prod-image-tests-additional-prod-image-tests-1) (job: `additional-prod-image-tests`) - entry point
 
 ## Referenced secrets and variables
 
@@ -896,10 +879,9 @@ airflow-e2e-tests.yml
 
 ## Call graph (rooted at this workflow)
 
-```
-automatic-backport.yml [push]
-+-- trigger-backport (uses backport-cli.yml)
-```
+`automatic-backport.yml` [push]
+
+- `trigger-backport` uses [backport-cli.yml](#backport-commit)
 
 ## Transitive requirements (from full call graph)
 
@@ -995,10 +977,9 @@ Inputs for the `workflow_dispatch` event.
 
 ## Called by
 
-```
-backport-cli.yml
-+-- automatic-backport.yml (job: trigger-backport)  <- entry point
-```
+`backport-cli.yml`
+
+- [automatic-backport.yml](#trigger-backport-trigger-backport) (job: `trigger-backport`) - entry point
 
 ## Referenced secrets and variables
 
@@ -1092,11 +1073,10 @@ backport-cli.yml
 
 ## Called by
 
-```
-basic-tests.yml
-+-- ci-amd.yml (job: basic-tests)  <- entry point
-+-- ci-arm.yml (job: basic-tests)  <- entry point
-```
+`basic-tests.yml`
+
+- [ci-amd.yml](#basic-tests-basic-tests) (job: `basic-tests`) - entry point
+- [ci-arm.yml](#basic-tests-basic-tests-1) (job: `basic-tests`) - entry point
 
 ## Referenced secrets and variables
 
@@ -1518,214 +1498,70 @@ basic-tests.yml
 
 ## Call graph (rooted at this workflow)
 
-```
-ci-amd.yml [schedule, pull_request, push, workflow_dispatch]
-+-- build-info / Install Breeze (uses ./.github/actions/breeze)
-+-- basic-tests (uses basic-tests.yml)
-|   +-- run-breeze-tests / Install Breeze (uses ./.github/actions/breeze)
-|   +-- run-breeze-integration-tests / Install Breeze (uses ./.github/actions/breeze)
-|   +-- check-translation-completness / Install Breeze (uses ./.github/actions/breeze)
-|   +-- static-checks-basic-checks-only / Install Breeze (uses ./.github/actions/breeze)
-|   +-- static-checks-basic-checks-only / Install prek (uses ./.github/actions/install-prek)
-|   +-- test-airflow-release-commands / Install Breeze (uses ./.github/actions/breeze)
-+-- build-ci-images (uses ci-image-build.yml)
-|   +-- build-ci-images / Install Breeze (uses ./.github/actions/breeze)
-+-- additional-ci-image-checks (uses additional-ci-image-checks.yml)
-|   +-- push-early-buildx-cache-to-github-registry (uses push-image-cache.yml)
-|   |   +-- push-ci-image-cache / Install Breeze (uses ./.github/actions/breeze)
-|   |   +-- push-prod-image-cache / Install Breeze (uses ./.github/actions/breeze)
-|   +-- check-that-image-builds-quickly / Install Breeze (uses ./.github/actions/breeze)
-+-- generate-constraints (uses generate-constraints.yml)
-|   +-- generate-constraints-matrix / Install prek (uses ./.github/actions/install-prek)
-|   +-- generate-constraints-matrix / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-+-- ci-image-checks (uses ci-image-checks.yml)
-|   +-- static-checks / Prepare breeze & CI image: ${{ inputs.default-python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- static-checks / Install prek (uses ./.github/actions/install-prek)
-|   +-- build-docs / Prepare breeze & CI image: ${{ inputs.default-python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- publish-docs / Prepare breeze & CI image: ${{ inputs.default-python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- test-python-api-client / Prepare breeze & CI image: ${{ inputs.default-python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-+-- mypy-providers / Prepare breeze & CI image: ${{ needs.build-info.outputs.default-python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-+-- mypy-providers / Install prek (uses ./.github/actions/install-prek)
-+-- migration-round-trip / Prepare breeze & CI image: ${{ needs.build-info.outputs.default-python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-+-- migration-round-trip / Install prek (uses ./.github/actions/install-prek)
-+-- providers (uses test-providers.yml)
-|   +-- prepare-install-verify-provider-distributions / Install prek (uses ./.github/actions/install-prek)
-|   +-- prepare-install-verify-provider-distributions / Prepare breeze & CI image: ${{ inputs.default-python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- providers-compatibility-tests-matrix / Install prek (uses ./.github/actions/install-prek)
-|   +-- providers-compatibility-tests-matrix / Prepare breeze & CI image: ${{ matrix.compat.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-+-- tests-helm (uses helm-tests.yml)
-|   +-- tests-helm / Prepare breeze & CI image: ${{ inputs.default-python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- tests-helm-release / Install Breeze (uses ./.github/actions/breeze)
-+-- tests-postgres-core (uses run-unit-tests.yml)
-|   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
-|   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
-|   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
-+-- tests-postgres-providers (uses run-unit-tests.yml)
-|   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
-|   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
-|   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
-+-- tests-mysql-core (uses run-unit-tests.yml)
-|   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
-|   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
-|   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
-+-- tests-mysql-providers (uses run-unit-tests.yml)
-|   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
-|   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
-|   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
-+-- tests-sqlite-core (uses run-unit-tests.yml)
-|   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
-|   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
-|   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
-+-- tests-sqlite-providers (uses run-unit-tests.yml)
-|   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
-|   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
-|   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
-+-- tests-non-db-core (uses run-unit-tests.yml)
-|   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
-|   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
-|   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
-+-- tests-non-db-providers (uses run-unit-tests.yml)
-|   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
-|   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
-|   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
-+-- tests-special (uses special-tests.yml)
-|   +-- tests-min-sqlalchemy (uses run-unit-tests.yml)
-|   |   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   |   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
-|   |   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
-|   |   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
-|   +-- tests-min-sqlalchemy-providers (uses run-unit-tests.yml)
-|   |   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   |   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
-|   |   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
-|   |   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
-|   +-- tests-latest-sqlalchemy (uses run-unit-tests.yml)
-|   |   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   |   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
-|   |   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
-|   |   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
-|   +-- tests-latest-sqlalchemy-providers (uses run-unit-tests.yml)
-|   |   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   |   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
-|   |   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
-|   |   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
-|   +-- tests-boto-core (uses run-unit-tests.yml)
-|   |   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   |   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
-|   |   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
-|   |   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
-|   +-- tests-boto-providers (uses run-unit-tests.yml)
-|   |   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   |   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
-|   |   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
-|   |   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
-|   +-- tests-pendulum-2-core (uses run-unit-tests.yml)
-|   |   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   |   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
-|   |   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
-|   |   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
-|   +-- tests-pendulum-2-providers (uses run-unit-tests.yml)
-|   |   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   |   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
-|   |   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
-|   |   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
-|   +-- tests-quarantined-core (uses run-unit-tests.yml)
-|   |   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   |   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
-|   |   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
-|   |   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
-|   +-- tests-quarantined-providers (uses run-unit-tests.yml)
-|   |   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   |   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
-|   |   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
-|   |   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
-|   +-- tests-system-core (uses run-unit-tests.yml)
-|       +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|       +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
-|       +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
-|       +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
-+-- tests-integration-system (uses integration-system-tests.yml)
-|   +-- tests-core-integration / Prepare breeze & CI image: ${{ inputs.default-python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- tests-core-integration / Post Tests success (uses ./.github/actions/post_tests_success)
-|   +-- tests-core-integration / Post Tests failure (uses ./.github/actions/post_tests_failure)
-|   +-- tests-providers-integration / Prepare breeze & CI image: ${{ inputs.default-python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- tests-providers-integration / Post Tests success (uses ./.github/actions/post_tests_success)
-|   +-- tests-providers-integration / Post Tests failure (uses ./.github/actions/post_tests_failure)
-|   +-- tests-system / Prepare breeze & CI image: ${{ inputs.default-python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- tests-system / Post Tests success (uses ./.github/actions/post_tests_success)
-|   +-- tests-system / Post Tests failure (uses ./.github/actions/post_tests_failure)
-+-- tests-with-lowest-direct-resolution-core (uses run-unit-tests.yml)
-|   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
-|   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
-|   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
-+-- tests-with-lowest-direct-resolution-providers (uses run-unit-tests.yml)
-|   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
-|   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
-|   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
-+-- build-prod-images (uses prod-image-build.yml)
-|   +-- build-prod-packages / Install prek (uses ./.github/actions/install-prek)
-|   +-- build-prod-packages / Install Breeze (uses ./.github/actions/breeze)
-|   +-- build-prod-images / Install Breeze (uses ./.github/actions/breeze)
-+-- additional-prod-image-tests (uses additional-prod-image-tests.yml)
-|   +-- prod-image-extra-checks-main (uses prod-image-extra-checks.yml)
-|   |   +-- pip-image (uses prod-image-build.yml)
-|   |       +-- build-prod-packages / Install prek (uses ./.github/actions/install-prek)
-|   |       +-- build-prod-packages / Install Breeze (uses ./.github/actions/breeze)
-|   |       +-- build-prod-images / Install Breeze (uses ./.github/actions/breeze)
-|   +-- prod-image-extra-checks-release-branch (uses prod-image-extra-checks.yml)
-|   |   +-- pip-image (uses prod-image-build.yml)
-|   |       +-- build-prod-packages / Install prek (uses ./.github/actions/install-prek)
-|   |       +-- build-prod-packages / Install Breeze (uses ./.github/actions/breeze)
-|   |       +-- build-prod-images / Install Breeze (uses ./.github/actions/breeze)
-|   +-- test-examples-of-prod-image-building / Prepare breeze & PROD image: ${{ inputs.default-python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- test-docker-compose-quick-start / Prepare breeze & PROD image: ${{ env.PYTHON_MAJOR_MINOR_VERSION }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- task-sdk-integration-tests / Prepare breeze & PROD image: ${{ env.PYTHON_MAJOR_MINOR_VERSION }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- test-e2e-integration-tests-basic (uses airflow-e2e-tests.yml)
-|   |   +-- test-e2e-integration-tests / Prepare breeze & PROD image: ${{ env.PYTHON_MAJOR_MINOR_VERSION }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- test-e2e-integration-tests-remote-log (uses airflow-e2e-tests.yml)
-|   |   +-- test-e2e-integration-tests / Prepare breeze & PROD image: ${{ env.PYTHON_MAJOR_MINOR_VERSION }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- test-e2e-integration-tests-remote-log-elasticsearch (uses airflow-e2e-tests.yml)
-|   |   +-- test-e2e-integration-tests / Prepare breeze & PROD image: ${{ env.PYTHON_MAJOR_MINOR_VERSION }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- test-e2e-integration-tests-remote-log-opensearch (uses airflow-e2e-tests.yml)
-|   |   +-- test-e2e-integration-tests / Prepare breeze & PROD image: ${{ env.PYTHON_MAJOR_MINOR_VERSION }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- test-e2e-integration-tests-xcom-object-storage (uses airflow-e2e-tests.yml)
-|   |   +-- test-e2e-integration-tests / Prepare breeze & PROD image: ${{ env.PYTHON_MAJOR_MINOR_VERSION }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- test-e2e-integration-tests-event-driven (uses airflow-e2e-tests.yml)
-|   |   +-- test-e2e-integration-tests / Prepare breeze & PROD image: ${{ env.PYTHON_MAJOR_MINOR_VERSION }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- test-ui-e2e-chromium (uses ui-e2e-tests.yml)
-|   |   +-- test-ui-e2e-tests / Prepare breeze & PROD image: ${{ env.PYTHON_MAJOR_MINOR_VERSION }} (uses ./.github/actions/prepare_breeze_and_image)
-|   |   +-- test-ui-e2e-tests / Install Breeze (manual trigger) (uses ./.github/actions/breeze)
-|   +-- test-ui-e2e-firefox (uses ui-e2e-tests.yml)
-|   |   +-- test-ui-e2e-tests / Prepare breeze & PROD image: ${{ env.PYTHON_MAJOR_MINOR_VERSION }} (uses ./.github/actions/prepare_breeze_and_image)
-|   |   +-- test-ui-e2e-tests / Install Breeze (manual trigger) (uses ./.github/actions/breeze)
-|   +-- test-ui-e2e-webkit (uses ui-e2e-tests.yml)
-|   |   +-- test-ui-e2e-tests / Prepare breeze & PROD image: ${{ env.PYTHON_MAJOR_MINOR_VERSION }} (uses ./.github/actions/prepare_breeze_and_image)
-|   |   +-- test-ui-e2e-tests / Install Breeze (manual trigger) (uses ./.github/actions/breeze)
-|   +-- airflow-ctl-integration-tests / Prepare breeze & PROD image: ${{ env.PYTHON_MAJOR_MINOR_VERSION }} (uses ./.github/actions/prepare_breeze_and_image)
-+-- tests-kubernetes (uses k8s-tests.yml)
-|   +-- tests-kubernetes / Prepare breeze & PROD image: ${{ env.PYTHON_MAJOR_MINOR_VERSION }} (uses ./.github/actions/prepare_breeze_and_image)
-+-- tests-task-sdk (uses airflow-distributions-tests.yml)
-|   +-- distributions-tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- distributions-tests / Install Breeze (uses ./.github/actions/breeze)
-+-- tests-airflow-ctl (uses airflow-distributions-tests.yml)
-|   +-- distributions-tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- distributions-tests / Install Breeze (uses ./.github/actions/breeze)
-+-- finalize-tests (uses finalize-tests.yml)
-    +-- dependency-upgrade-summary / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-    +-- push-buildx-cache-to-github-registry (uses push-image-cache.yml)
-        +-- push-ci-image-cache / Install Breeze (uses ./.github/actions/breeze)
-        +-- push-prod-image-cache / Install Breeze (uses ./.github/actions/breeze)
-```
+`ci-amd.yml` [schedule, pull_request, push, workflow_dispatch]
+
+- `build-info / Install Breeze` uses [./.github/actions/breeze](#setup-breeze)
+- `basic-tests` uses [basic-tests.yml](#basic-tests)
+  - uses **[./.github/actions/breeze](#setup-breeze)** (x5)
+  - `static-checks-basic-checks-only / Install prek` uses [./.github/actions/install-prek](#install-prek)
+- `build-ci-images` uses [ci-image-build.yml](#build-ci-images)
+  - `build-ci-images / Install Breeze` uses [./.github/actions/breeze](#setup-breeze)
+- `additional-ci-image-checks` uses [additional-ci-image-checks.yml](#additional-ci-image-checks)
+  - `push-early-buildx-cache-to-github-registry` uses [push-image-cache.yml](#push-image-cache)
+    - uses **[./.github/actions/breeze](#setup-breeze)** (x2)
+  - `check-that-image-builds-quickly / Install Breeze` uses [./.github/actions/breeze](#setup-breeze)
+- `generate-constraints` uses [generate-constraints.yml](#generate-constraints)
+  - `generate-constraints-matrix / Install prek` uses [./.github/actions/install-prek](#install-prek)
+  - `generate-constraints-matrix / Prepare breeze & CI image: ${{ matrix.python-version }}` uses [./.github/actions/prepare_breeze_and_image](#prepare-breeze--current-image-ci-or-prod)
+- `ci-image-checks` uses [ci-image-checks.yml](#ci-image-checks)
+  - uses **[./.github/actions/prepare_breeze_and_image](#prepare-breeze--current-image-ci-or-prod)** (x4)
+  - `static-checks / Install prek` uses [./.github/actions/install-prek](#install-prek)
+- uses **[./.github/actions/prepare_breeze_and_image](#prepare-breeze--current-image-ci-or-prod)** (x2)
+- uses **[./.github/actions/install-prek](#install-prek)** (x2)
+- `providers` uses [test-providers.yml](#provider-tests)
+  - uses **[./.github/actions/install-prek](#install-prek)** (x2)
+  - uses **[./.github/actions/prepare_breeze_and_image](#prepare-breeze--current-image-ci-or-prod)** (x2)
+- `tests-helm` uses [helm-tests.yml](#helm-tests)
+  - `tests-helm / Prepare breeze & CI image: ${{ inputs.default-python-version }}` uses [./.github/actions/prepare_breeze_and_image](#prepare-breeze--current-image-ci-or-prod)
+  - `tests-helm-release / Install Breeze` uses [./.github/actions/breeze](#setup-breeze)
+- uses **[run-unit-tests.yml](#unit-tests)** (x10)
+  - `tests / Prepare breeze & CI image: ${{ matrix.python-version }}` uses [./.github/actions/prepare_breeze_and_image](#prepare-breeze--current-image-ci-or-prod)
+  - `tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }}` uses [./.github/actions/migration_tests](#run-migration-tests)
+  - `tests / Post Tests success` uses [./.github/actions/post_tests_success](#post-tests-on-success)
+  - `tests / Post Tests failure` uses [./.github/actions/post_tests_failure](#post-tests-on-failure)
+- `tests-special` uses [special-tests.yml](#special-tests)
+  - uses **[run-unit-tests.yml](#unit-tests)** (x11)
+    - `tests / Prepare breeze & CI image: ${{ matrix.python-version }}` uses [./.github/actions/prepare_breeze_and_image](#prepare-breeze--current-image-ci-or-prod)
+    - `tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }}` uses [./.github/actions/migration_tests](#run-migration-tests)
+    - `tests / Post Tests success` uses [./.github/actions/post_tests_success](#post-tests-on-success)
+    - `tests / Post Tests failure` uses [./.github/actions/post_tests_failure](#post-tests-on-failure)
+- `tests-integration-system` uses [integration-system-tests.yml](#integration-and-system-tests)
+  - uses **[./.github/actions/prepare_breeze_and_image](#prepare-breeze--current-image-ci-or-prod)** (x3)
+  - uses **[./.github/actions/post_tests_success](#post-tests-on-success)** (x3)
+  - uses **[./.github/actions/post_tests_failure](#post-tests-on-failure)** (x3)
+- `build-prod-images` uses [prod-image-build.yml](#build-prod-images)
+  - `build-prod-packages / Install prek` uses [./.github/actions/install-prek](#install-prek)
+  - uses **[./.github/actions/breeze](#setup-breeze)** (x2)
+- `additional-prod-image-tests` uses [additional-prod-image-tests.yml](#additional-prod-image-tests)
+  - uses **[prod-image-extra-checks.yml](#prod-images-extra-checks)** (x2)
+    - `pip-image` uses [prod-image-build.yml](#build-prod-images)
+      - `build-prod-packages / Install prek` uses [./.github/actions/install-prek](#install-prek)
+      - uses **[./.github/actions/breeze](#setup-breeze)** (x2)
+  - uses **[./.github/actions/prepare_breeze_and_image](#prepare-breeze--current-image-ci-or-prod)** (x4)
+  - uses **[airflow-e2e-tests.yml](#airflow-e2e-tests)** (x6)
+    - `test-e2e-integration-tests / Prepare breeze & PROD image: ${{ env.PYTHON_MAJOR_MINOR_VERSION }}` uses [./.github/actions/prepare_breeze_and_image](#prepare-breeze--current-image-ci-or-prod)
+  - uses **[ui-e2e-tests.yml](#ui-end-to-end-tests)** (x3)
+    - `test-ui-e2e-tests / Prepare breeze & PROD image: ${{ env.PYTHON_MAJOR_MINOR_VERSION }}` uses [./.github/actions/prepare_breeze_and_image](#prepare-breeze--current-image-ci-or-prod)
+    - `test-ui-e2e-tests / Install Breeze (manual trigger)` uses [./.github/actions/breeze](#setup-breeze)
+- `tests-kubernetes` uses [k8s-tests.yml](#k8s-tests)
+  - `tests-kubernetes / Prepare breeze & PROD image: ${{ env.PYTHON_MAJOR_MINOR_VERSION }}` uses [./.github/actions/prepare_breeze_and_image](#prepare-breeze--current-image-ci-or-prod)
+- uses **[airflow-distributions-tests.yml](#non-core-distribution-tests)** (x2)
+  - `distributions-tests / Prepare breeze & CI image: ${{ matrix.python-version }}` uses [./.github/actions/prepare_breeze_and_image](#prepare-breeze--current-image-ci-or-prod)
+  - `distributions-tests / Install Breeze` uses [./.github/actions/breeze](#setup-breeze)
+- `finalize-tests` uses [finalize-tests.yml](#finalize-tests)
+  - `dependency-upgrade-summary / Prepare breeze & CI image: ${{ matrix.python-version }}` uses [./.github/actions/prepare_breeze_and_image](#prepare-breeze--current-image-ci-or-prod)
+  - `push-buildx-cache-to-github-registry` uses [push-image-cache.yml](#push-image-cache)
+    - uses **[./.github/actions/breeze](#setup-breeze)** (x2)
 
 ## Transitive requirements (from full call graph)
 
@@ -2861,214 +2697,70 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
 
 ## Call graph (rooted at this workflow)
 
-```
-ci-arm.yml [schedule, push, workflow_dispatch]
-+-- build-info / Install Breeze (uses ./.github/actions/breeze)
-+-- basic-tests (uses basic-tests.yml)
-|   +-- run-breeze-tests / Install Breeze (uses ./.github/actions/breeze)
-|   +-- run-breeze-integration-tests / Install Breeze (uses ./.github/actions/breeze)
-|   +-- check-translation-completness / Install Breeze (uses ./.github/actions/breeze)
-|   +-- static-checks-basic-checks-only / Install Breeze (uses ./.github/actions/breeze)
-|   +-- static-checks-basic-checks-only / Install prek (uses ./.github/actions/install-prek)
-|   +-- test-airflow-release-commands / Install Breeze (uses ./.github/actions/breeze)
-+-- build-ci-images (uses ci-image-build.yml)
-|   +-- build-ci-images / Install Breeze (uses ./.github/actions/breeze)
-+-- additional-ci-image-checks (uses additional-ci-image-checks.yml)
-|   +-- push-early-buildx-cache-to-github-registry (uses push-image-cache.yml)
-|   |   +-- push-ci-image-cache / Install Breeze (uses ./.github/actions/breeze)
-|   |   +-- push-prod-image-cache / Install Breeze (uses ./.github/actions/breeze)
-|   +-- check-that-image-builds-quickly / Install Breeze (uses ./.github/actions/breeze)
-+-- generate-constraints (uses generate-constraints.yml)
-|   +-- generate-constraints-matrix / Install prek (uses ./.github/actions/install-prek)
-|   +-- generate-constraints-matrix / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-+-- ci-image-checks (uses ci-image-checks.yml)
-|   +-- static-checks / Prepare breeze & CI image: ${{ inputs.default-python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- static-checks / Install prek (uses ./.github/actions/install-prek)
-|   +-- build-docs / Prepare breeze & CI image: ${{ inputs.default-python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- publish-docs / Prepare breeze & CI image: ${{ inputs.default-python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- test-python-api-client / Prepare breeze & CI image: ${{ inputs.default-python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-+-- mypy-providers / Prepare breeze & CI image: ${{ needs.build-info.outputs.default-python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-+-- mypy-providers / Install prek (uses ./.github/actions/install-prek)
-+-- migration-round-trip / Prepare breeze & CI image: ${{ needs.build-info.outputs.default-python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-+-- migration-round-trip / Install prek (uses ./.github/actions/install-prek)
-+-- providers (uses test-providers.yml)
-|   +-- prepare-install-verify-provider-distributions / Install prek (uses ./.github/actions/install-prek)
-|   +-- prepare-install-verify-provider-distributions / Prepare breeze & CI image: ${{ inputs.default-python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- providers-compatibility-tests-matrix / Install prek (uses ./.github/actions/install-prek)
-|   +-- providers-compatibility-tests-matrix / Prepare breeze & CI image: ${{ matrix.compat.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-+-- tests-helm (uses helm-tests.yml)
-|   +-- tests-helm / Prepare breeze & CI image: ${{ inputs.default-python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- tests-helm-release / Install Breeze (uses ./.github/actions/breeze)
-+-- tests-postgres-core (uses run-unit-tests.yml)
-|   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
-|   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
-|   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
-+-- tests-postgres-providers (uses run-unit-tests.yml)
-|   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
-|   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
-|   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
-+-- tests-mysql-core (uses run-unit-tests.yml)
-|   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
-|   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
-|   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
-+-- tests-mysql-providers (uses run-unit-tests.yml)
-|   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
-|   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
-|   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
-+-- tests-sqlite-core (uses run-unit-tests.yml)
-|   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
-|   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
-|   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
-+-- tests-sqlite-providers (uses run-unit-tests.yml)
-|   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
-|   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
-|   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
-+-- tests-non-db-core (uses run-unit-tests.yml)
-|   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
-|   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
-|   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
-+-- tests-non-db-providers (uses run-unit-tests.yml)
-|   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
-|   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
-|   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
-+-- tests-special (uses special-tests.yml)
-|   +-- tests-min-sqlalchemy (uses run-unit-tests.yml)
-|   |   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   |   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
-|   |   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
-|   |   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
-|   +-- tests-min-sqlalchemy-providers (uses run-unit-tests.yml)
-|   |   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   |   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
-|   |   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
-|   |   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
-|   +-- tests-latest-sqlalchemy (uses run-unit-tests.yml)
-|   |   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   |   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
-|   |   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
-|   |   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
-|   +-- tests-latest-sqlalchemy-providers (uses run-unit-tests.yml)
-|   |   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   |   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
-|   |   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
-|   |   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
-|   +-- tests-boto-core (uses run-unit-tests.yml)
-|   |   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   |   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
-|   |   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
-|   |   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
-|   +-- tests-boto-providers (uses run-unit-tests.yml)
-|   |   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   |   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
-|   |   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
-|   |   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
-|   +-- tests-pendulum-2-core (uses run-unit-tests.yml)
-|   |   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   |   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
-|   |   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
-|   |   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
-|   +-- tests-pendulum-2-providers (uses run-unit-tests.yml)
-|   |   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   |   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
-|   |   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
-|   |   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
-|   +-- tests-quarantined-core (uses run-unit-tests.yml)
-|   |   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   |   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
-|   |   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
-|   |   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
-|   +-- tests-quarantined-providers (uses run-unit-tests.yml)
-|   |   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   |   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
-|   |   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
-|   |   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
-|   +-- tests-system-core (uses run-unit-tests.yml)
-|       +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|       +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
-|       +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
-|       +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
-+-- tests-integration-system (uses integration-system-tests.yml)
-|   +-- tests-core-integration / Prepare breeze & CI image: ${{ inputs.default-python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- tests-core-integration / Post Tests success (uses ./.github/actions/post_tests_success)
-|   +-- tests-core-integration / Post Tests failure (uses ./.github/actions/post_tests_failure)
-|   +-- tests-providers-integration / Prepare breeze & CI image: ${{ inputs.default-python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- tests-providers-integration / Post Tests success (uses ./.github/actions/post_tests_success)
-|   +-- tests-providers-integration / Post Tests failure (uses ./.github/actions/post_tests_failure)
-|   +-- tests-system / Prepare breeze & CI image: ${{ inputs.default-python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- tests-system / Post Tests success (uses ./.github/actions/post_tests_success)
-|   +-- tests-system / Post Tests failure (uses ./.github/actions/post_tests_failure)
-+-- tests-with-lowest-direct-resolution-core (uses run-unit-tests.yml)
-|   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
-|   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
-|   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
-+-- tests-with-lowest-direct-resolution-providers (uses run-unit-tests.yml)
-|   +-- tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }} (uses ./.github/actions/migration_tests)
-|   +-- tests / Post Tests success (uses ./.github/actions/post_tests_success)
-|   +-- tests / Post Tests failure (uses ./.github/actions/post_tests_failure)
-+-- build-prod-images (uses prod-image-build.yml)
-|   +-- build-prod-packages / Install prek (uses ./.github/actions/install-prek)
-|   +-- build-prod-packages / Install Breeze (uses ./.github/actions/breeze)
-|   +-- build-prod-images / Install Breeze (uses ./.github/actions/breeze)
-+-- additional-prod-image-tests (uses additional-prod-image-tests.yml)
-|   +-- prod-image-extra-checks-main (uses prod-image-extra-checks.yml)
-|   |   +-- pip-image (uses prod-image-build.yml)
-|   |       +-- build-prod-packages / Install prek (uses ./.github/actions/install-prek)
-|   |       +-- build-prod-packages / Install Breeze (uses ./.github/actions/breeze)
-|   |       +-- build-prod-images / Install Breeze (uses ./.github/actions/breeze)
-|   +-- prod-image-extra-checks-release-branch (uses prod-image-extra-checks.yml)
-|   |   +-- pip-image (uses prod-image-build.yml)
-|   |       +-- build-prod-packages / Install prek (uses ./.github/actions/install-prek)
-|   |       +-- build-prod-packages / Install Breeze (uses ./.github/actions/breeze)
-|   |       +-- build-prod-images / Install Breeze (uses ./.github/actions/breeze)
-|   +-- test-examples-of-prod-image-building / Prepare breeze & PROD image: ${{ inputs.default-python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- test-docker-compose-quick-start / Prepare breeze & PROD image: ${{ env.PYTHON_MAJOR_MINOR_VERSION }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- task-sdk-integration-tests / Prepare breeze & PROD image: ${{ env.PYTHON_MAJOR_MINOR_VERSION }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- test-e2e-integration-tests-basic (uses airflow-e2e-tests.yml)
-|   |   +-- test-e2e-integration-tests / Prepare breeze & PROD image: ${{ env.PYTHON_MAJOR_MINOR_VERSION }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- test-e2e-integration-tests-remote-log (uses airflow-e2e-tests.yml)
-|   |   +-- test-e2e-integration-tests / Prepare breeze & PROD image: ${{ env.PYTHON_MAJOR_MINOR_VERSION }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- test-e2e-integration-tests-remote-log-elasticsearch (uses airflow-e2e-tests.yml)
-|   |   +-- test-e2e-integration-tests / Prepare breeze & PROD image: ${{ env.PYTHON_MAJOR_MINOR_VERSION }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- test-e2e-integration-tests-remote-log-opensearch (uses airflow-e2e-tests.yml)
-|   |   +-- test-e2e-integration-tests / Prepare breeze & PROD image: ${{ env.PYTHON_MAJOR_MINOR_VERSION }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- test-e2e-integration-tests-xcom-object-storage (uses airflow-e2e-tests.yml)
-|   |   +-- test-e2e-integration-tests / Prepare breeze & PROD image: ${{ env.PYTHON_MAJOR_MINOR_VERSION }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- test-e2e-integration-tests-event-driven (uses airflow-e2e-tests.yml)
-|   |   +-- test-e2e-integration-tests / Prepare breeze & PROD image: ${{ env.PYTHON_MAJOR_MINOR_VERSION }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- test-ui-e2e-chromium (uses ui-e2e-tests.yml)
-|   |   +-- test-ui-e2e-tests / Prepare breeze & PROD image: ${{ env.PYTHON_MAJOR_MINOR_VERSION }} (uses ./.github/actions/prepare_breeze_and_image)
-|   |   +-- test-ui-e2e-tests / Install Breeze (manual trigger) (uses ./.github/actions/breeze)
-|   +-- test-ui-e2e-firefox (uses ui-e2e-tests.yml)
-|   |   +-- test-ui-e2e-tests / Prepare breeze & PROD image: ${{ env.PYTHON_MAJOR_MINOR_VERSION }} (uses ./.github/actions/prepare_breeze_and_image)
-|   |   +-- test-ui-e2e-tests / Install Breeze (manual trigger) (uses ./.github/actions/breeze)
-|   +-- test-ui-e2e-webkit (uses ui-e2e-tests.yml)
-|   |   +-- test-ui-e2e-tests / Prepare breeze & PROD image: ${{ env.PYTHON_MAJOR_MINOR_VERSION }} (uses ./.github/actions/prepare_breeze_and_image)
-|   |   +-- test-ui-e2e-tests / Install Breeze (manual trigger) (uses ./.github/actions/breeze)
-|   +-- airflow-ctl-integration-tests / Prepare breeze & PROD image: ${{ env.PYTHON_MAJOR_MINOR_VERSION }} (uses ./.github/actions/prepare_breeze_and_image)
-+-- tests-kubernetes (uses k8s-tests.yml)
-|   +-- tests-kubernetes / Prepare breeze & PROD image: ${{ env.PYTHON_MAJOR_MINOR_VERSION }} (uses ./.github/actions/prepare_breeze_and_image)
-+-- tests-task-sdk (uses airflow-distributions-tests.yml)
-|   +-- distributions-tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- distributions-tests / Install Breeze (uses ./.github/actions/breeze)
-+-- tests-airflow-ctl (uses airflow-distributions-tests.yml)
-|   +-- distributions-tests / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-|   +-- distributions-tests / Install Breeze (uses ./.github/actions/breeze)
-+-- finalize-tests (uses finalize-tests.yml)
-    +-- dependency-upgrade-summary / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-    +-- push-buildx-cache-to-github-registry (uses push-image-cache.yml)
-        +-- push-ci-image-cache / Install Breeze (uses ./.github/actions/breeze)
-        +-- push-prod-image-cache / Install Breeze (uses ./.github/actions/breeze)
-```
+`ci-arm.yml` [schedule, push, workflow_dispatch]
+
+- `build-info / Install Breeze` uses [./.github/actions/breeze](#setup-breeze)
+- `basic-tests` uses [basic-tests.yml](#basic-tests)
+  - uses **[./.github/actions/breeze](#setup-breeze)** (x5)
+  - `static-checks-basic-checks-only / Install prek` uses [./.github/actions/install-prek](#install-prek)
+- `build-ci-images` uses [ci-image-build.yml](#build-ci-images)
+  - `build-ci-images / Install Breeze` uses [./.github/actions/breeze](#setup-breeze)
+- `additional-ci-image-checks` uses [additional-ci-image-checks.yml](#additional-ci-image-checks)
+  - `push-early-buildx-cache-to-github-registry` uses [push-image-cache.yml](#push-image-cache)
+    - uses **[./.github/actions/breeze](#setup-breeze)** (x2)
+  - `check-that-image-builds-quickly / Install Breeze` uses [./.github/actions/breeze](#setup-breeze)
+- `generate-constraints` uses [generate-constraints.yml](#generate-constraints)
+  - `generate-constraints-matrix / Install prek` uses [./.github/actions/install-prek](#install-prek)
+  - `generate-constraints-matrix / Prepare breeze & CI image: ${{ matrix.python-version }}` uses [./.github/actions/prepare_breeze_and_image](#prepare-breeze--current-image-ci-or-prod)
+- `ci-image-checks` uses [ci-image-checks.yml](#ci-image-checks)
+  - uses **[./.github/actions/prepare_breeze_and_image](#prepare-breeze--current-image-ci-or-prod)** (x4)
+  - `static-checks / Install prek` uses [./.github/actions/install-prek](#install-prek)
+- uses **[./.github/actions/prepare_breeze_and_image](#prepare-breeze--current-image-ci-or-prod)** (x2)
+- uses **[./.github/actions/install-prek](#install-prek)** (x2)
+- `providers` uses [test-providers.yml](#provider-tests)
+  - uses **[./.github/actions/install-prek](#install-prek)** (x2)
+  - uses **[./.github/actions/prepare_breeze_and_image](#prepare-breeze--current-image-ci-or-prod)** (x2)
+- `tests-helm` uses [helm-tests.yml](#helm-tests)
+  - `tests-helm / Prepare breeze & CI image: ${{ inputs.default-python-version }}` uses [./.github/actions/prepare_breeze_and_image](#prepare-breeze--current-image-ci-or-prod)
+  - `tests-helm-release / Install Breeze` uses [./.github/actions/breeze](#setup-breeze)
+- uses **[run-unit-tests.yml](#unit-tests)** (x10)
+  - `tests / Prepare breeze & CI image: ${{ matrix.python-version }}` uses [./.github/actions/prepare_breeze_and_image](#prepare-breeze--current-image-ci-or-prod)
+  - `tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }}` uses [./.github/actions/migration_tests](#run-migration-tests)
+  - `tests / Post Tests success` uses [./.github/actions/post_tests_success](#post-tests-on-success)
+  - `tests / Post Tests failure` uses [./.github/actions/post_tests_failure](#post-tests-on-failure)
+- `tests-special` uses [special-tests.yml](#special-tests)
+  - uses **[run-unit-tests.yml](#unit-tests)** (x11)
+    - `tests / Prepare breeze & CI image: ${{ matrix.python-version }}` uses [./.github/actions/prepare_breeze_and_image](#prepare-breeze--current-image-ci-or-prod)
+    - `tests / Migration Tests: ${{ matrix.python-version }}:${{ env.PARALLEL_TEST_TYPES }}` uses [./.github/actions/migration_tests](#run-migration-tests)
+    - `tests / Post Tests success` uses [./.github/actions/post_tests_success](#post-tests-on-success)
+    - `tests / Post Tests failure` uses [./.github/actions/post_tests_failure](#post-tests-on-failure)
+- `tests-integration-system` uses [integration-system-tests.yml](#integration-and-system-tests)
+  - uses **[./.github/actions/prepare_breeze_and_image](#prepare-breeze--current-image-ci-or-prod)** (x3)
+  - uses **[./.github/actions/post_tests_success](#post-tests-on-success)** (x3)
+  - uses **[./.github/actions/post_tests_failure](#post-tests-on-failure)** (x3)
+- `build-prod-images` uses [prod-image-build.yml](#build-prod-images)
+  - `build-prod-packages / Install prek` uses [./.github/actions/install-prek](#install-prek)
+  - uses **[./.github/actions/breeze](#setup-breeze)** (x2)
+- `additional-prod-image-tests` uses [additional-prod-image-tests.yml](#additional-prod-image-tests)
+  - uses **[prod-image-extra-checks.yml](#prod-images-extra-checks)** (x2)
+    - `pip-image` uses [prod-image-build.yml](#build-prod-images)
+      - `build-prod-packages / Install prek` uses [./.github/actions/install-prek](#install-prek)
+      - uses **[./.github/actions/breeze](#setup-breeze)** (x2)
+  - uses **[./.github/actions/prepare_breeze_and_image](#prepare-breeze--current-image-ci-or-prod)** (x4)
+  - uses **[airflow-e2e-tests.yml](#airflow-e2e-tests)** (x6)
+    - `test-e2e-integration-tests / Prepare breeze & PROD image: ${{ env.PYTHON_MAJOR_MINOR_VERSION }}` uses [./.github/actions/prepare_breeze_and_image](#prepare-breeze--current-image-ci-or-prod)
+  - uses **[ui-e2e-tests.yml](#ui-end-to-end-tests)** (x3)
+    - `test-ui-e2e-tests / Prepare breeze & PROD image: ${{ env.PYTHON_MAJOR_MINOR_VERSION }}` uses [./.github/actions/prepare_breeze_and_image](#prepare-breeze--current-image-ci-or-prod)
+    - `test-ui-e2e-tests / Install Breeze (manual trigger)` uses [./.github/actions/breeze](#setup-breeze)
+- `tests-kubernetes` uses [k8s-tests.yml](#k8s-tests)
+  - `tests-kubernetes / Prepare breeze & PROD image: ${{ env.PYTHON_MAJOR_MINOR_VERSION }}` uses [./.github/actions/prepare_breeze_and_image](#prepare-breeze--current-image-ci-or-prod)
+- uses **[airflow-distributions-tests.yml](#non-core-distribution-tests)** (x2)
+  - `distributions-tests / Prepare breeze & CI image: ${{ matrix.python-version }}` uses [./.github/actions/prepare_breeze_and_image](#prepare-breeze--current-image-ci-or-prod)
+  - `distributions-tests / Install Breeze` uses [./.github/actions/breeze](#setup-breeze)
+- `finalize-tests` uses [finalize-tests.yml](#finalize-tests)
+  - `dependency-upgrade-summary / Prepare breeze & CI image: ${{ matrix.python-version }}` uses [./.github/actions/prepare_breeze_and_image](#prepare-breeze--current-image-ci-or-prod)
+  - `push-buildx-cache-to-github-registry` uses [push-image-cache.yml](#push-image-cache)
+    - uses **[./.github/actions/breeze](#setup-breeze)** (x2)
 
 ## Transitive requirements (from full call graph)
 
@@ -4204,16 +3896,15 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
 
 ## Called by
 
-```
-ci-image-build.yml
-+-- ci-amd.yml (job: build-ci-images)  <- entry point
-+-- ci-arm.yml (job: build-ci-images)  <- entry point
-+-- registry-backfill.yml (job: build-ci-image)  <- entry point
-+-- registry-build.yml (job: build-ci-image)  <- entry point
-|   +-- publish-docs-to-s3.yml (job: update-registry)  <- entry point
-+-- update-constraints-on-push-stable.yml (job: build-ci-images)  <- entry point
-+-- update-constraints-on-push.yml (job: build-ci-images)  <- entry point
-```
+`ci-image-build.yml`
+
+- [ci-amd.yml](#build-ci-images-build-ci-images) (job: `build-ci-images`) - entry point
+- [ci-arm.yml](#build-ci-images-build-ci-images-1) (job: `build-ci-images`) - entry point
+- [registry-backfill.yml](#build-ci-image-build-ci-image) (job: `build-ci-image`) - entry point
+- [registry-build.yml](#build-ci-image-build-ci-image-1) (job: `build-ci-image`) - entry point
+  - [publish-docs-to-s3.yml](#update-provider-registry-update-registry) (job: `update-registry`) - entry point
+- [update-constraints-on-push-stable.yml](#build-ci-images-build-ci-images-2) (job: `build-ci-images`) - entry point
+- [update-constraints-on-push.yml](#build-ci-images-build-ci-images-3) (job: `build-ci-images`) - entry point
 
 ## Referenced secrets and variables
 
@@ -4388,11 +4079,10 @@ ci-image-build.yml
 
 ## Called by
 
-```
-ci-image-checks.yml
-+-- ci-amd.yml (job: ci-image-checks)  <- entry point
-+-- ci-arm.yml (job: ci-image-checks)  <- entry point
-```
+`ci-image-checks.yml`
+
+- [ci-amd.yml](#ci-image-checks-ci-image-checks) (job: `ci-image-checks`) - entry point
+- [ci-arm.yml](#ci-image-checks-ci-image-checks-1) (job: `ci-image-checks`) - entry point
 
 ## Referenced secrets and variables
 
@@ -5048,11 +4738,10 @@ ci-image-checks.yml
 
 ## Called by
 
-```
-finalize-tests.yml
-+-- ci-amd.yml (job: finalize-tests)  <- entry point
-+-- ci-arm.yml (job: finalize-tests)  <- entry point
-```
+`finalize-tests.yml`
+
+- [ci-amd.yml](#finalize-tests-finalize-tests) (job: `finalize-tests`) - entry point
+- [ci-arm.yml](#finalize-tests-finalize-tests-1) (job: `finalize-tests`) - entry point
 
 ## Referenced secrets and variables
 
@@ -5212,13 +4901,12 @@ finalize-tests.yml
 
 ## Called by
 
-```
-generate-constraints.yml
-+-- ci-amd.yml (job: generate-constraints)  <- entry point
-+-- ci-arm.yml (job: generate-constraints)  <- entry point
-+-- update-constraints-on-push-stable.yml (job: generate-constraints)  <- entry point
-+-- update-constraints-on-push.yml (job: generate-constraints)  <- entry point
-```
+`generate-constraints.yml`
+
+- [ci-amd.yml](#generate-constraints-generate-constraints) (job: `generate-constraints`) - entry point
+- [ci-arm.yml](#generate-constraints-generate-constraints-1) (job: `generate-constraints`) - entry point
+- [update-constraints-on-push-stable.yml](#generate-constraints-generate-constraints-2) (job: `generate-constraints`) - entry point
+- [update-constraints-on-push.yml](#generate-constraints-generate-constraints-3) (job: `generate-constraints`) - entry point
 
 ## Referenced secrets and variables
 
@@ -5342,11 +5030,10 @@ generate-constraints.yml
 
 ## Called by
 
-```
-helm-tests.yml
-+-- ci-amd.yml (job: tests-helm)  <- entry point
-+-- ci-arm.yml (job: tests-helm)  <- entry point
-```
+`helm-tests.yml`
+
+- [ci-amd.yml](#helm-tests-tests-helm) (job: `tests-helm`) - entry point
+- [ci-arm.yml](#helm-tests-tests-helm-1) (job: `tests-helm`) - entry point
 
 ## Referenced secrets and variables
 
@@ -5498,11 +5185,10 @@ helm-tests.yml
 
 ## Called by
 
-```
-integration-system-tests.yml
-+-- ci-amd.yml (job: tests-integration-system)  <- entry point
-+-- ci-arm.yml (job: tests-integration-system)  <- entry point
-```
+`integration-system-tests.yml`
+
+- [ci-amd.yml](#integration-and-system-tests-tests-integration-system) (job: `tests-integration-system`) - entry point
+- [ci-arm.yml](#integration-and-system-tests-tests-integration-system-1) (job: `tests-integration-system`) - entry point
 
 ## Referenced secrets and variables
 
@@ -5713,11 +5399,10 @@ integration-system-tests.yml
 
 ## Called by
 
-```
-k8s-tests.yml
-+-- ci-amd.yml (job: tests-kubernetes)  <- entry point
-+-- ci-arm.yml (job: tests-kubernetes)  <- entry point
-```
+`k8s-tests.yml`
+
+- [ci-amd.yml](#kubernetes-tests-tests-kubernetes) (job: `tests-kubernetes`) - entry point
+- [ci-arm.yml](#kubernetes-tests-tests-kubernetes-1) (job: `tests-kubernetes`) - entry point
 
 ## Referenced secrets and variables
 
@@ -5819,10 +5504,9 @@ k8s-tests.yml
 
 ## Call graph (rooted at this workflow)
 
-```
-milestone-tag-assistant.yml [push]
-+-- set-milestone / Install Breeze (uses ./.github/actions/breeze)
-```
+`milestone-tag-assistant.yml` [push]
+
+- `set-milestone / Install Breeze` uses [./.github/actions/breeze](#setup-breeze)
 
 ## Transitive requirements (from full call graph)
 
@@ -5990,17 +5674,14 @@ Permissions declared across the chain: `contents: write`, `pull-requests: write`
 
 ## Called by
 
-```
-prod-image-build.yml
-+-- ci-amd.yml (job: build-prod-images)  <- entry point
-+-- ci-arm.yml (job: build-prod-images)  <- entry point
-+-- prod-image-extra-checks.yml (job: pip-image)
-    +-- additional-prod-image-tests.yml (job: prod-image-extra-checks-main)
-    |   +-- ci-amd.yml (job: additional-prod-image-tests)  <- entry point
-    |   +-- ci-arm.yml (job: additional-prod-image-tests)  <- entry point
-    +-- additional-prod-image-tests.yml (job: prod-image-extra-checks-release-branch)
-        +-- (same entry points as above)
-```
+`prod-image-build.yml`
+
+- [ci-amd.yml](#build-prod-images-build-prod-images) (job: `build-prod-images`) - entry point
+- [ci-arm.yml](#build-prod-images-build-prod-images-1) (job: `build-prod-images`) - entry point
+- [prod-image-extra-checks.yml](#pip-image) (job: `pip-image`)
+  - **[additional-prod-image-tests.yml](#additional-prod-image-tests)** (x2)
+    - [ci-amd.yml](#additional-prod-image-tests-additional-prod-image-tests) (job: `additional-prod-image-tests`) - entry point
+    - [ci-arm.yml](#additional-prod-image-tests-additional-prod-image-tests-1) (job: `additional-prod-image-tests`) - entry point
 
 ## Referenced secrets and variables
 
@@ -6205,14 +5886,11 @@ prod-image-build.yml
 
 ## Called by
 
-```
-prod-image-extra-checks.yml
-+-- additional-prod-image-tests.yml (job: prod-image-extra-checks-main)
-|   +-- ci-amd.yml (job: additional-prod-image-tests)  <- entry point
-|   +-- ci-arm.yml (job: additional-prod-image-tests)  <- entry point
-+-- additional-prod-image-tests.yml (job: prod-image-extra-checks-release-branch)
-    +-- (same entry points as above)
-```
+`prod-image-extra-checks.yml`
+
+- **[additional-prod-image-tests.yml](#additional-prod-image-tests)** (x2)
+  - [ci-amd.yml](#additional-prod-image-tests-additional-prod-image-tests) (job: `additional-prod-image-tests`) - entry point
+  - [ci-arm.yml](#additional-prod-image-tests-additional-prod-image-tests-1) (job: `additional-prod-image-tests`) - entry point
 
 ## Jobs
 
@@ -6277,15 +5955,13 @@ Inputs for the `workflow_dispatch` event.
 
 ## Call graph (rooted at this workflow)
 
-```
-publish-docs-to-s3.yml [workflow_dispatch]
-+-- build-docs / Install Breeze from the ${{ inputs.ref }} reference (uses ./.github/actions/breeze)
-+-- publish-docs-to-s3 / Install Breeze (uses ./.github/actions/breeze)
-+-- update-registry (uses registry-build.yml)
-    +-- build-ci-image (uses ci-image-build.yml)
-    |   +-- build-ci-images / Install Breeze (uses ./.github/actions/breeze)
-    +-- build-and-publish-registry / Prepare breeze & CI image (uses ./.github/actions/prepare_breeze_and_image)
-```
+`publish-docs-to-s3.yml` [workflow_dispatch]
+
+- uses **[./.github/actions/breeze](#setup-breeze)** (x2)
+- `update-registry` uses [registry-build.yml](#build--publish-registry)
+  - `build-ci-image` uses [ci-image-build.yml](#build-ci-images)
+    - `build-ci-images / Install Breeze` uses [./.github/actions/breeze](#setup-breeze)
+  - `build-and-publish-registry / Prepare breeze & CI image` uses [./.github/actions/prepare_breeze_and_image](#prepare-breeze--current-image-ci-or-prod)
 
 ## Transitive requirements (from full call graph)
 
@@ -6608,15 +6284,14 @@ Permissions declared across the chain: `contents: read`, `id-token: write (OIDC)
 
 ## Called by
 
-```
-push-image-cache.yml
-+-- additional-ci-image-checks.yml (job: push-early-buildx-cache-to-github-registry)
-|   +-- ci-amd.yml (job: additional-ci-image-checks)  <- entry point
-|   +-- ci-arm.yml (job: additional-ci-image-checks)  <- entry point
-+-- finalize-tests.yml (job: push-buildx-cache-to-github-registry)
-    +-- ci-amd.yml (job: finalize-tests)  <- entry point
-    +-- ci-arm.yml (job: finalize-tests)  <- entry point
-```
+`push-image-cache.yml`
+
+- [additional-ci-image-checks.yml](#push-early-image-cache-push-early-buildx-cache-to-github-registry) (job: `push-early-buildx-cache-to-github-registry`)
+  - [ci-amd.yml](#additional-ci-image-checks-additional-ci-image-checks) (job: `additional-ci-image-checks`) - entry point
+  - [ci-arm.yml](#additional-ci-image-checks-additional-ci-image-checks-1) (job: `additional-ci-image-checks`) - entry point
+- [finalize-tests.yml](#push-regular-image-cache--inputsplatform--push-buildx-cache-to-github-registry) (job: `push-buildx-cache-to-github-registry`)
+  - [ci-amd.yml](#finalize-tests-finalize-tests) (job: `finalize-tests`) - entry point
+  - [ci-arm.yml](#finalize-tests-finalize-tests-1) (job: `finalize-tests`) - entry point
 
 ## Referenced secrets and variables
 
@@ -6836,13 +6511,12 @@ Inputs for the `workflow_dispatch` event.
 
 ## Call graph (rooted at this workflow)
 
-```
-registry-backfill.yml [workflow_dispatch]
-+-- build-ci-image (uses ci-image-build.yml)
-|   +-- build-ci-images / Install Breeze (uses ./.github/actions/breeze)
-+-- backfill / Prepare breeze & CI image (uses ./.github/actions/prepare_breeze_and_image)
-+-- publish-versions / Install Breeze (uses ./.github/actions/breeze)
-```
+`registry-backfill.yml` [workflow_dispatch]
+
+- `build-ci-image` uses [ci-image-build.yml](#build-ci-images)
+  - `build-ci-images / Install Breeze` uses [./.github/actions/breeze](#setup-breeze)
+- `backfill / Prepare breeze & CI image` uses [./.github/actions/prepare_breeze_and_image](#prepare-breeze--current-image-ci-or-prod)
+- `publish-versions / Install Breeze` uses [./.github/actions/breeze](#setup-breeze)
 
 ## Transitive requirements (from full call graph)
 
@@ -7074,12 +6748,11 @@ Inputs for the `workflow_dispatch` event.
 
 ## Call graph (rooted at this workflow)
 
-```
-registry-build.yml [workflow_dispatch, workflow_call]
-+-- build-ci-image (uses ci-image-build.yml)
-|   +-- build-ci-images / Install Breeze (uses ./.github/actions/breeze)
-+-- build-and-publish-registry / Prepare breeze & CI image (uses ./.github/actions/prepare_breeze_and_image)
-```
+`registry-build.yml` [workflow_dispatch, workflow_call]
+
+- `build-ci-image` uses [ci-image-build.yml](#build-ci-images)
+  - `build-ci-images / Install Breeze` uses [./.github/actions/breeze](#setup-breeze)
+- `build-and-publish-registry / Prepare breeze & CI image` uses [./.github/actions/prepare_breeze_and_image](#prepare-breeze--current-image-ci-or-prod)
 
 ## Transitive requirements (from full call graph)
 
@@ -7089,10 +6762,9 @@ Permissions declared across the chain: `contents: read`, `packages: read`, `pack
 
 ## Called by
 
-```
-registry-build.yml
-+-- publish-docs-to-s3.yml (job: update-registry)  <- entry point
-```
+`registry-build.yml`
+
+- [publish-docs-to-s3.yml](#update-provider-registry-update-registry) (job: `update-registry`) - entry point
 
 ## Referenced secrets and variables
 
@@ -7334,13 +7006,11 @@ Inputs for the `workflow_dispatch` event.
 
 ## Call graph (rooted at this workflow)
 
-```
-release_dockerhub_image.yml [workflow_dispatch]
-+-- build-info / Install Breeze (uses ./.github/actions/breeze)
-+-- release-images (uses release_single_dockerhub_image.yml)
-    +-- build-images / Install Breeze (uses ./.github/actions/breeze)
-    +-- merge-images / Install Breeze (uses ./.github/actions/breeze)
-```
+`release_dockerhub_image.yml` [workflow_dispatch]
+
+- `build-info / Install Breeze` uses [./.github/actions/breeze](#setup-breeze)
+- `release-images` uses [release_single_dockerhub_image.yml](#release-single-prod-image)
+  - uses **[./.github/actions/breeze](#setup-breeze)** (x2)
 
 ## Transitive requirements (from full call graph)
 
@@ -7483,10 +7153,9 @@ Permissions declared across the chain: `contents: read`, `packages: read`
 
 ## Called by
 
-```
-release_single_dockerhub_image.yml
-+-- release_dockerhub_image.yml (job: release-images)  <- entry point
-```
+`release_single_dockerhub_image.yml`
+
+- [release_dockerhub_image.yml](#release-images-release-images) (job: `release-images`) - entry point
 
 ## Referenced secrets and variables
 
@@ -7681,52 +7350,13 @@ release_single_dockerhub_image.yml
 
 ## Called by
 
-```
-run-unit-tests.yml
-+-- ci-amd.yml (job: tests-postgres-core)  <- entry point
-+-- ci-amd.yml (job: tests-postgres-providers)  <- entry point
-+-- ci-amd.yml (job: tests-mysql-core)  <- entry point
-+-- ci-amd.yml (job: tests-mysql-providers)  <- entry point
-+-- ci-amd.yml (job: tests-sqlite-core)  <- entry point
-+-- ci-amd.yml (job: tests-sqlite-providers)  <- entry point
-+-- ci-amd.yml (job: tests-non-db-core)  <- entry point
-+-- ci-amd.yml (job: tests-non-db-providers)  <- entry point
-+-- ci-amd.yml (job: tests-with-lowest-direct-resolution-core)  <- entry point
-+-- ci-amd.yml (job: tests-with-lowest-direct-resolution-providers)  <- entry point
-+-- ci-arm.yml (job: tests-postgres-core)  <- entry point
-+-- ci-arm.yml (job: tests-postgres-providers)  <- entry point
-+-- ci-arm.yml (job: tests-mysql-core)  <- entry point
-+-- ci-arm.yml (job: tests-mysql-providers)  <- entry point
-+-- ci-arm.yml (job: tests-sqlite-core)  <- entry point
-+-- ci-arm.yml (job: tests-sqlite-providers)  <- entry point
-+-- ci-arm.yml (job: tests-non-db-core)  <- entry point
-+-- ci-arm.yml (job: tests-non-db-providers)  <- entry point
-+-- ci-arm.yml (job: tests-with-lowest-direct-resolution-core)  <- entry point
-+-- ci-arm.yml (job: tests-with-lowest-direct-resolution-providers)  <- entry point
-+-- special-tests.yml (job: tests-min-sqlalchemy)
-|   +-- ci-amd.yml (job: tests-special)  <- entry point
-|   +-- ci-arm.yml (job: tests-special)  <- entry point
-+-- special-tests.yml (job: tests-min-sqlalchemy-providers)
-|   +-- (same entry points as above)
-+-- special-tests.yml (job: tests-latest-sqlalchemy)
-|   +-- (same entry points as above)
-+-- special-tests.yml (job: tests-latest-sqlalchemy-providers)
-|   +-- (same entry points as above)
-+-- special-tests.yml (job: tests-boto-core)
-|   +-- (same entry points as above)
-+-- special-tests.yml (job: tests-boto-providers)
-|   +-- (same entry points as above)
-+-- special-tests.yml (job: tests-pendulum-2-core)
-|   +-- (same entry points as above)
-+-- special-tests.yml (job: tests-pendulum-2-providers)
-|   +-- (same entry points as above)
-+-- special-tests.yml (job: tests-quarantined-core)
-|   +-- (same entry points as above)
-+-- special-tests.yml (job: tests-quarantined-providers)
-|   +-- (same entry points as above)
-+-- special-tests.yml (job: tests-system-core)
-    +-- (same entry points as above)
-```
+`run-unit-tests.yml`
+
+- **[ci-amd.yml](#tests-amd)** - entry point (x10)
+- **[ci-arm.yml](#tests-arm)** - entry point (x10)
+- **[special-tests.yml](#special-tests)** (x11)
+  - [ci-amd.yml](#special-tests-tests-special) (job: `tests-special`) - entry point
+  - [ci-arm.yml](#special-tests-tests-special-1) (job: `tests-special`) - entry point
 
 ## Referenced secrets and variables
 
@@ -7843,12 +7473,11 @@ run-unit-tests.yml
 
 ## Call graph (rooted at this workflow)
 
-```
-scheduled-upgrade-check-main.yml [schedule, workflow_dispatch]
-+-- upgrade-main (uses upgrade-check.yml)
-    +-- createupgrade-check / [${{ inputs.target-branch }}] Install Breeze (uses ./.github/actions/breeze)
-    +-- createupgrade-check / [${{ inputs.target-branch }}] Install prek (uses ./.github/actions/install-prek)
-```
+`scheduled-upgrade-check-main.yml` [schedule, workflow_dispatch]
+
+- `upgrade-main` uses [upgrade-check.yml](#upgrade-check)
+  - `createupgrade-check / [${{ inputs.target-branch }}] Install Breeze` uses [./.github/actions/breeze](#setup-breeze)
+  - `createupgrade-check / [${{ inputs.target-branch }}] Install prek` uses [./.github/actions/install-prek](#install-prek)
 
 ## Transitive requirements (from full call graph)
 
@@ -7901,12 +7530,11 @@ Permissions declared across the chain: `contents: write`, `pull-requests: write`
 
 ## Call graph (rooted at this workflow)
 
-```
-scheduled-upgrade-check-v3-2-test.yml [schedule, workflow_dispatch]
-+-- upgrade-v3-2-test (uses upgrade-check.yml)
-    +-- createupgrade-check / [${{ inputs.target-branch }}] Install Breeze (uses ./.github/actions/breeze)
-    +-- createupgrade-check / [${{ inputs.target-branch }}] Install prek (uses ./.github/actions/install-prek)
-```
+`scheduled-upgrade-check-v3-2-test.yml` [schedule, workflow_dispatch]
+
+- `upgrade-v3-2-test` uses [upgrade-check.yml](#upgrade-check)
+  - `createupgrade-check / [${{ inputs.target-branch }}] Install Breeze` uses [./.github/actions/breeze](#setup-breeze)
+  - `createupgrade-check / [${{ inputs.target-branch }}] Install prek` uses [./.github/actions/install-prek](#install-prek)
 
 ## Transitive requirements (from full call graph)
 
@@ -8035,11 +7663,10 @@ Permissions declared across the chain: `contents: write`, `pull-requests: write`
 
 ## Called by
 
-```
-special-tests.yml
-+-- ci-amd.yml (job: tests-special)  <- entry point
-+-- ci-arm.yml (job: tests-special)  <- entry point
-```
+`special-tests.yml`
+
+- [ci-amd.yml](#special-tests-tests-special) (job: `tests-special`) - entry point
+- [ci-arm.yml](#special-tests-tests-special-1) (job: `tests-special`) - entry point
 
 ## Jobs
 
@@ -8482,11 +8109,10 @@ special-tests.yml
 
 ## Called by
 
-```
-test-providers.yml
-+-- ci-amd.yml (job: providers)  <- entry point
-+-- ci-arm.yml (job: providers)  <- entry point
-```
+`test-providers.yml`
+
+- [ci-amd.yml](#provider-distributions-tests-providers) (job: `providers`) - entry point
+- [ci-arm.yml](#provider-distributions-tests-providers-1) (job: `providers`) - entry point
 
 ## Referenced secrets and variables
 
@@ -8693,11 +8319,10 @@ Inputs for the `workflow_dispatch` event.
 
 ## Call graph (rooted at this workflow)
 
-```
-ui-e2e-tests.yml [workflow_dispatch, workflow_call]
-+-- test-ui-e2e-tests / Prepare breeze & PROD image: ${{ env.PYTHON_MAJOR_MINOR_VERSION }} (uses ./.github/actions/prepare_breeze_and_image)
-+-- test-ui-e2e-tests / Install Breeze (manual trigger) (uses ./.github/actions/breeze)
-```
+`ui-e2e-tests.yml` [workflow_dispatch, workflow_call]
+
+- `test-ui-e2e-tests / Prepare breeze & PROD image: ${{ env.PYTHON_MAJOR_MINOR_VERSION }}` uses [./.github/actions/prepare_breeze_and_image](#prepare-breeze--current-image-ci-or-prod)
+- `test-ui-e2e-tests / Install Breeze (manual trigger)` uses [./.github/actions/breeze](#setup-breeze)
 
 ## Transitive requirements (from full call graph)
 
@@ -8707,16 +8332,11 @@ Permissions declared across the chain: `contents: read`
 
 ## Called by
 
-```
-ui-e2e-tests.yml
-+-- additional-prod-image-tests.yml (job: test-ui-e2e-chromium)
-|   +-- ci-amd.yml (job: additional-prod-image-tests)  <- entry point
-|   +-- ci-arm.yml (job: additional-prod-image-tests)  <- entry point
-+-- additional-prod-image-tests.yml (job: test-ui-e2e-firefox)
-|   +-- (same entry points as above)
-+-- additional-prod-image-tests.yml (job: test-ui-e2e-webkit)
-    +-- (same entry points as above)
-```
+`ui-e2e-tests.yml`
+
+- **[additional-prod-image-tests.yml](#additional-prod-image-tests)** (x3)
+  - [ci-amd.yml](#additional-prod-image-tests-additional-prod-image-tests) (job: `additional-prod-image-tests`) - entry point
+  - [ci-arm.yml](#additional-prod-image-tests-additional-prod-image-tests-1) (job: `additional-prod-image-tests`) - entry point
 
 ## Referenced secrets and variables
 
@@ -8857,15 +8477,14 @@ ui-e2e-tests.yml
 
 ## Call graph (rooted at this workflow)
 
-```
-update-constraints-on-push-stable.yml [push]
-+-- build-info / Install Breeze (uses ./.github/actions/breeze)
-+-- build-ci-images (uses ci-image-build.yml)
-|   +-- build-ci-images / Install Breeze (uses ./.github/actions/breeze)
-+-- generate-constraints (uses generate-constraints.yml)
-    +-- generate-constraints-matrix / Install prek (uses ./.github/actions/install-prek)
-    +-- generate-constraints-matrix / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-```
+`update-constraints-on-push-stable.yml` [push]
+
+- `build-info / Install Breeze` uses [./.github/actions/breeze](#setup-breeze)
+- `build-ci-images` uses [ci-image-build.yml](#build-ci-images)
+  - `build-ci-images / Install Breeze` uses [./.github/actions/breeze](#setup-breeze)
+- `generate-constraints` uses [generate-constraints.yml](#generate-constraints)
+  - `generate-constraints-matrix / Install prek` uses [./.github/actions/install-prek](#install-prek)
+  - `generate-constraints-matrix / Prepare breeze & CI image: ${{ matrix.python-version }}` uses [./.github/actions/prepare_breeze_and_image](#prepare-breeze--current-image-ci-or-prod)
 
 ## Transitive requirements (from full call graph)
 
@@ -9077,15 +8696,14 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 ## Call graph (rooted at this workflow)
 
-```
-update-constraints-on-push.yml [push]
-+-- build-info / Install Breeze (uses ./.github/actions/breeze)
-+-- build-ci-images (uses ci-image-build.yml)
-|   +-- build-ci-images / Install Breeze (uses ./.github/actions/breeze)
-+-- generate-constraints (uses generate-constraints.yml)
-    +-- generate-constraints-matrix / Install prek (uses ./.github/actions/install-prek)
-    +-- generate-constraints-matrix / Prepare breeze & CI image: ${{ matrix.python-version }} (uses ./.github/actions/prepare_breeze_and_image)
-```
+`update-constraints-on-push.yml` [push]
+
+- `build-info / Install Breeze` uses [./.github/actions/breeze](#setup-breeze)
+- `build-ci-images` uses [ci-image-build.yml](#build-ci-images)
+  - `build-ci-images / Install Breeze` uses [./.github/actions/breeze](#setup-breeze)
+- `generate-constraints` uses [generate-constraints.yml](#generate-constraints)
+  - `generate-constraints-matrix / Install prek` uses [./.github/actions/install-prek](#install-prek)
+  - `generate-constraints-matrix / Prepare breeze & CI image: ${{ matrix.python-version }}` uses [./.github/actions/prepare_breeze_and_image](#prepare-breeze--current-image-ci-or-prod)
 
 ## Transitive requirements (from full call graph)
 
@@ -9300,11 +8918,10 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 ## Called by
 
-```
-upgrade-check.yml
-+-- scheduled-upgrade-check-main.yml (job: upgrade-main)  <- entry point
-+-- scheduled-upgrade-check-v3-2-test.yml (job: upgrade-v3-2-test)  <- entry point
-```
+`upgrade-check.yml`
+
+- [scheduled-upgrade-check-main.yml](#main-upgrade-upgrade-main) (job: `upgrade-main`) - entry point
+- [scheduled-upgrade-check-v3-2-test.yml](#v3-2-test-upgrade-upgrade-v3-2-test) (job: `upgrade-v3-2-test`) - entry point
 
 ## Referenced secrets and variables
 

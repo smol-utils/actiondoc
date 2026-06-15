@@ -53,11 +53,10 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 ## Called by
 
-```
-_meta-build.yaml
-+-- ci-build.yaml (job: call-build)  <- entry point
-+-- ci-publish.yaml (job: call-build)  <- entry point
-```
+`_meta-build.yaml`
+
+- [ci-build.yaml](#call-build) (job: `call-build`) - entry point
+- [ci-publish.yaml](#call-build-1) (job: `call-build`) - entry point
 
 ## Referenced secrets and variables
 
@@ -195,10 +194,9 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 ## Call graph (rooted at this workflow)
 
-```
-ci-build.yaml [push, pull_request, workflow_dispatch]
-+-- call-build (uses _meta-build.yaml)
-```
+`ci-build.yaml` [push, pull_request, workflow_dispatch]
+
+- `call-build` uses [_meta-build.yaml](#_meta-buildyaml)
 
 ## Transitive requirements (from full call graph)
 
@@ -302,10 +300,9 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 ## Call graph (rooted at this workflow)
 
-```
-ci-publish.yaml [push, workflow_dispatch]
-+-- call-build (uses _meta-build.yaml)
-```
+`ci-publish.yaml` [push, workflow_dispatch]
+
+- `call-build` uses [_meta-build.yaml](#_meta-buildyaml)
 
 ## Transitive requirements (from full call graph)
 
