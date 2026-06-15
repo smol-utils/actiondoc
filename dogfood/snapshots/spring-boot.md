@@ -10,8 +10,8 @@
 - [Build Pull Request - pull_request](#build-pull-request)
 - [CI - push](#ci)
 - [Distribute - workflow_dispatch](#distribute)
-- [Release Milestone - push](#release-milestone)
 - [Release - push](#release)
+- [Release Milestone - push](#release-milestone)
 - [Run CodeQL Analysis - push, pull_request, workflow_dispatch](#run-codeql-analysis)
 - [Run System Tests - push](#run-system-tests)
 - [Trigger Docs Build - push, workflow_dispatch](#trigger-docs-build)
@@ -56,13 +56,12 @@
 
 ## Call graph (rooted at this workflow)
 
-```
-build-and-deploy-snapshot.yml [workflow_dispatch, push]
-+-- build-and-deploy-snapshot / Build and Publish (uses ./.github/actions/build)
-+-- build-and-deploy-snapshot / Send Notification (uses ./.github/actions/send-notification)
-+-- verify (uses verify.yml)
-    +-- verify / Send Notification (uses ./send-notification/.github/actions/send-notification (outside scan scope))
-```
+`build-and-deploy-snapshot.yml` [workflow_dispatch, push]
+
+- `build-and-deploy-snapshot / Build and Publish` uses [./.github/actions/build](#build)
+- `build-and-deploy-snapshot / Send Notification` uses [./.github/actions/send-notification](#send-notification)
+- `verify` uses [verify.yml](#verify)
+  - `verify / Send Notification` uses `./send-notification/.github/actions/send-notification` (outside scan scope)
 
 ## Transitive requirements (from full call graph)
 
@@ -206,11 +205,10 @@ Permissions declared across the chain: `actions: write`, `contents: read`
 
 ## Call graph (rooted at this workflow)
 
-```
-build-pull-request.yml [pull_request]
-+-- build / Build (uses ./.github/actions/build)
-+-- build / Print JVM Thread Dumps When Cancelled (uses ./.github/actions/print-jvm-thread-dumps)
-```
+`build-pull-request.yml` [pull_request]
+
+- `build / Build` uses [./.github/actions/build](#build)
+- `build / Print JVM Thread Dumps When Cancelled` uses [./.github/actions/print-jvm-thread-dumps](#print-jvm-thread-dumps)
 
 ## Transitive requirements (from full call graph)
 
@@ -269,11 +267,10 @@ Permissions declared across the chain: `contents: read`
 
 ## Call graph (rooted at this workflow)
 
-```
-ci.yml [push]
-+-- ci / Build (uses ./.github/actions/build)
-+-- ci / Send Notification (uses ./.github/actions/send-notification)
-```
+`ci.yml` [push]
+
+- `ci / Build` uses [./.github/actions/build](#build)
+- `ci / Send Notification` uses [./.github/actions/send-notification](#send-notification)
 
 ## Transitive requirements (from full call graph)
 
@@ -409,243 +406,6 @@ Inputs for the `workflow_dispatch` event.
 
 [Back to top](#contents)
 
-# Release Milestone
-
-**Triggers:** `push`
-
-| Property | Value |
-|----------|-------|
-| File | `release-milestone.yml` |
-| Default runs-on | `${{ vars.UBUNTU_SMALL \|\| 'ubuntu-latest' }}` |
-
-**Jobs:** [Build and Stage Release](#build-and-stage-release-build-and-stage-release), [Verify](#verify-verify-1), [Sync to Maven Central](#sync-to-maven-central-sync-to-maven-central), [Promote Release](#promote-release-promote-release), [Publish Gradle Plugin](#publish-gradle-plugin-publish-gradle-plugin), [Trigger Docs Build](#trigger-docs-build-trigger-docs-build-1), [Create GitHub Release](#create-github-release-create-github-release)
-
-## Event filters
-
-- **push**
-  - tags: `v4.1.0-M[0-9]`, `v4.1.0-RC[0-9]`
-
-## Permissions
-
-- `contents`: `read`
-
-**Concurrency:** group `${{ github.workflow }}-${{ github.ref }}`
-
-## Call graph (rooted at this workflow)
-
-```
-release-milestone.yml [push]
-+-- build-and-stage-release / Build and Publish (uses ./.github/actions/build)
-+-- verify (uses verify.yml)
-|   +-- verify / Send Notification (uses ./send-notification/.github/actions/send-notification (outside scan scope))
-+-- sync-to-maven-central / Sync to Maven Central (uses ./.github/actions/sync-to-maven-central)
-+-- publish-gradle-plugin / Publish (uses ./.github/actions/publish-gradle-plugin)
-+-- create-github-release / Create GitHub Release (uses ./.github/actions/create-github-release)
-```
-
-## Transitive requirements (from full call graph)
-
-Secrets referenced (literal names): `ARTIFACTORY_PASSWORD`, `ARTIFACTORY_USERNAME`, `CENTRAL_TOKEN_PASSWORD`, `CENTRAL_TOKEN_USERNAME`, `COMMERCIAL_ARTIFACTORY_RO_PASSWORD`, `COMMERCIAL_ARTIFACTORY_RO_USERNAME`, `DEVELOCITY_ACCESS_KEY`, `GH_ACTIONS_REPO_TOKEN`, `GITHUB_TOKEN`, `GOOGLE_CHAT_WEBHOOK_URL`, `GPG_PASSPHRASE`, `GPG_PRIVATE_KEY`, `GRADLE_PLUGIN_PUBLISH_KEY`, `GRADLE_PLUGIN_PUBLISH_SECRET`, `JF_ARTIFACTORY_SPRING`, `commercial-repository-password`, `commercial-repository-username`, `google-chat-webhook-url`, `opensource-repository-password`, `opensource-repository-username`, `token`
-
-Variables referenced: `COMMERCIAL`
-
-Permissions declared across the chain: `actions: write`, `contents: read`
-
-## Referenced secrets and variables
-
-**Secrets:**
-
-| Name | Used by |
-|------|---------|
-| `DEVELOCITY_ACCESS_KEY` | job `build-and-stage-release` step `Build and Publish` with `develocity-access-key` |
-| `ARTIFACTORY_PASSWORD` | job `build-and-stage-release` step `Stage Release` with `password`; job `verify` secrets `opensource-repository-password` |
-| `GPG_PRIVATE_KEY` | job `build-and-stage-release` step `Stage Release` with `signing-key` |
-| `GPG_PASSPHRASE` | job `build-and-stage-release` step `Stage Release` with `signing-passphrase` |
-| `ARTIFACTORY_USERNAME` | job `build-and-stage-release` step `Stage Release` with `username`; job `verify` secrets `opensource-repository-username` |
-| `COMMERCIAL_ARTIFACTORY_RO_PASSWORD` | job `verify` secrets `commercial-repository-password` |
-| `COMMERCIAL_ARTIFACTORY_RO_USERNAME` | job `verify` secrets `commercial-repository-username` |
-| `GOOGLE_CHAT_WEBHOOK_URL` | job `verify` secrets `google-chat-webhook-url` |
-| `GH_ACTIONS_REPO_TOKEN` | job `verify` secrets `token`; job `create-github-release` step `Create GitHub Release` with `token` |
-| `CENTRAL_TOKEN_PASSWORD` | job `sync-to-maven-central` step `Sync to Maven Central` with `central-token-password` |
-| `CENTRAL_TOKEN_USERNAME` | job `sync-to-maven-central` step `Sync to Maven Central` with `central-token-username` |
-| `JF_ARTIFACTORY_SPRING` | job `sync-to-maven-central` step `Sync to Maven Central` with `jfrog-cli-config-token`; job `promote-release` step `Set up JFrog CLI` env `JF_ENV_SPRING`; job `publish-gradle-plugin` step `Publish` with `jfrog-cli-config-token` |
-| `GRADLE_PLUGIN_PUBLISH_KEY` | job `publish-gradle-plugin` step `Publish` with `gradle-plugin-publish-key` |
-| `GRADLE_PLUGIN_PUBLISH_SECRET` | job `publish-gradle-plugin` step `Publish` with `gradle-plugin-publish-secret` |
-| `GITHUB_TOKEN` | job `trigger-docs-build` step `Run Deploy Docs Workflow` env `GH_TOKEN` |
-
-**Variables:**
-
-| Name | Used by |
-|------|---------|
-| `COMMERCIAL` | job `sync-to-maven-central` (if); job `publish-gradle-plugin` (if); job `create-github-release` step `Create GitHub Release` with `commercial` |
-
-## Jobs
-
-### Build and Stage Release (`build-and-stage-release`)
-
-| Property | Value |
-|----------|-------|
-| Runs on | `${{ vars.UBUNTU_MEDIUM \|\| 'ubuntu-latest' }}` |
-| Condition | `${{ github.repository == 'spring-projects/spring-boot' }}` |
-
-<details>
-<summary>Steps (3)</summary>
-
-1. **Check Out Code**
-   - Uses: `actions/checkout@v6`
-
-2. **Build and Publish**
-   - ID: `build-and-publish`
-   - Uses: `./.github/actions/build`
-   - With:
-     - `develocity-access-key`: `${{ secrets.DEVELOCITY_ACCESS_KEY }}` - Access key for authentication with ge.spring.io
-     - `gradle-cache-read-only`: `false` - Whether Gradle's cache should be read only
-     - `publish`: `true` - Whether to publish artifacts ready for deployment to Artifactory
-
-3. **Stage Release**
-   - Uses: `spring-io/artifactory-deploy-action@v0.0.4`
-   - With:
-     - `build-name`: `${{ format('spring-boot-{0}', steps.build-and-publish.outputs.version)}}`
-     - `folder`: `deployment-repository`
-     - `password`: `${{ secrets.ARTIFACTORY_PASSWORD }}`
-     - `repository`: `libs-staging-local`
-     - `signing-key`: `${{ secrets.GPG_PRIVATE_KEY }}`
-     - `signing-passphrase`: `${{ secrets.GPG_PASSPHRASE }}`
-     - `threads`: `8`
-     - `uri`: `https://repo.spring.io`
-     - `username`: `${{ secrets.ARTIFACTORY_USERNAME }}`
-
-</details>
-
-### Verify (`verify`)
-
-| Property | Value |
-|----------|-------|
-| Uses workflow | [Verify](#verify) |
-| Depends on | `build-and-stage-release` |
-
-#### Inputs forwarded
-
-- `staging`: `true`
-- `version`: `${{ needs.build-and-stage-release.outputs.version }}`
-
-#### Secrets forwarded
-
-- `commercial-repository-password`: `${{ secrets.COMMERCIAL_ARTIFACTORY_RO_PASSWORD }}`
-- `commercial-repository-username`: `${{ secrets.COMMERCIAL_ARTIFACTORY_RO_USERNAME }}`
-- `google-chat-webhook-url`: `${{ secrets.GOOGLE_CHAT_WEBHOOK_URL }}`
-- `opensource-repository-password`: `${{ secrets.ARTIFACTORY_PASSWORD }}`
-- `opensource-repository-username`: `${{ secrets.ARTIFACTORY_USERNAME }}`
-- `token`: `${{ secrets.GH_ACTIONS_REPO_TOKEN }}`
-
-### Sync to Maven Central (`sync-to-maven-central`)
-
-| Property | Value |
-|----------|-------|
-| Depends on | `build-and-stage-release`, `verify` |
-| Condition | `${{ !vars.COMMERCIAL }}` |
-
-<details>
-<summary>Steps (2)</summary>
-
-1. **Check Out Code**
-   - Uses: `actions/checkout@v6`
-
-2. **Sync to Maven Central**
-   - Uses: `./.github/actions/sync-to-maven-central`
-   - With:
-     - `central-token-password`: `${{ secrets.CENTRAL_TOKEN_PASSWORD }}` - Password for authentication with central.sonatype.com (required)
-     - `central-token-username`: `${{ secrets.CENTRAL_TOKEN_USERNAME }}` - Username for authentication with central.sonatype.com (required)
-     - `jfrog-cli-config-token`: `${{ secrets.JF_ARTIFACTORY_SPRING }}` - Config token for the JFrog CLI (required)
-     - `spring-boot-version`: `${{ needs.build-and-stage-release.outputs.version }}` - Version of Spring Boot that is being synced to Central (required)
-
-</details>
-
-### Promote Release (`promote-release`)
-
-| Property | Value |
-|----------|-------|
-| Depends on | `build-and-stage-release`, `sync-to-maven-central` |
-
-<details>
-<summary>Steps (2)</summary>
-
-1. **Set up JFrog CLI**
-   - Uses: `jfrog/setup-jfrog-cli@v5.0.0`
-   - Env:
-     - `JF_ENV_SPRING`: `${{ secrets.JF_ARTIFACTORY_SPRING }}`
-
-2. **Promote build**
-
-</details>
-
-### Publish Gradle Plugin (`publish-gradle-plugin`)
-
-| Property | Value |
-|----------|-------|
-| Depends on | `build-and-stage-release`, `sync-to-maven-central` |
-| Condition | `${{ !vars.COMMERCIAL }}` |
-
-<details>
-<summary>Steps (2)</summary>
-
-1. **Check Out Code**
-   - Uses: `actions/checkout@v6`
-
-2. **Publish**
-   - Uses: `./.github/actions/publish-gradle-plugin`
-   - With:
-     - `gradle-plugin-publish-key`: `${{ secrets.GRADLE_PLUGIN_PUBLISH_KEY }}` - Gradle publishing key (required)
-     - `gradle-plugin-publish-secret`: `${{ secrets.GRADLE_PLUGIN_PUBLISH_SECRET }}` - Gradle publishing secret (required)
-     - `jfrog-cli-config-token`: `${{ secrets.JF_ARTIFACTORY_SPRING }}` - Config token for the JFrog CLI (required)
-     - `plugin-version`: `${{ needs.build-and-stage-release.outputs.version }}` - Version of the plugin (required)
-
-</details>
-
-### Trigger Docs Build (`trigger-docs-build`)
-
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-latest` |
-| Depends on | `build-and-stage-release`, `promote-release` |
-
-**Permissions:**
-
-- `actions`: `write`
-
-<details>
-<summary>Steps (1)</summary>
-
-1. **Run Deploy Docs Workflow**
-   - Env:
-     - `GH_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
-
-</details>
-
-### Create GitHub Release (`create-github-release`)
-
-| Property | Value |
-|----------|-------|
-| Depends on | `build-and-stage-release`, `promote-release`, `publish-gradle-plugin`, `trigger-docs-build` |
-
-<details>
-<summary>Steps (2)</summary>
-
-1. **Check Out Code**
-   - Uses: `actions/checkout@v6`
-
-2. **Create GitHub Release**
-   - Uses: `./.github/actions/create-github-release`
-   - With:
-     - `commercial`: `${{ vars.COMMERCIAL }}` - Whether to generate the changelog for the commercial release (required)
-     - `milestone`: `${{ needs.build-and-stage-release.outputs.version }}` - Name of the GitHub milestone for which a release will be created (required)
-     - `pre-release`: `true` - Whether the release is a pre-release (a milestone or release candidate)
-     - `token`: `${{ secrets.GH_ACTIONS_REPO_TOKEN }}` - Token to use for authentication with GitHub (required)
-
-</details>
-
-[Back to top](#contents)
-
 # Release
 
 **Triggers:** `push`
@@ -655,7 +415,17 @@ Permissions declared across the chain: `actions: write`, `contents: read`
 | File | `release.yml` |
 | Default runs-on | `${{ vars.UBUNTU_SMALL \|\| 'ubuntu-latest' }}` |
 
-**Jobs:** [Build and Stage Release](#build-and-stage-release-build-and-stage-release-1), [Verify](#verify-verify-2), [Sync to Maven Central](#sync-to-maven-central-sync-to-maven-central-1), [Promote Release](#promote-release-promote-release-1), [Publish Gradle Plugin](#publish-gradle-plugin-publish-gradle-plugin-1), [Publish to SDKMAN!](#publish-to-sdkman-publish-to-sdkman), [Update Homebrew Tap](#update-homebrew-tap-update-homebrew-tap), [Trigger Docs Build](#trigger-docs-build-trigger-docs-build-2), [Create GitHub Release](#create-github-release-create-github-release-1)
+**Jobs:**
+
+- [Build and Stage Release](#build-and-stage-release-build-and-stage-release)
+- [Verify](#verify-verify-1)
+- [Sync to Maven Central](#sync-to-maven-central-sync-to-maven-central)
+- [Promote Release](#promote-release-promote-release)
+- [Publish Gradle Plugin](#publish-gradle-plugin-publish-gradle-plugin)
+- [Publish to SDKMAN!](#publish-to-sdkman-publish-to-sdkman)
+- [Update Homebrew Tap](#update-homebrew-tap-update-homebrew-tap)
+- [Trigger Docs Build](#trigger-docs-build-trigger-docs-build-1)
+- [Create GitHub Release](#create-github-release-create-github-release)
 
 ## Event filters
 
@@ -670,18 +440,17 @@ Permissions declared across the chain: `actions: write`, `contents: read`
 
 ## Call graph (rooted at this workflow)
 
-```
-release.yml [push]
-+-- build-and-stage-release / Build and Publish (uses ./.github/actions/build)
-+-- build-and-stage-release / Send Notification (uses ./.github/actions/send-notification)
-+-- verify (uses verify.yml)
-|   +-- verify / Send Notification (uses ./send-notification/.github/actions/send-notification (outside scan scope))
-+-- sync-to-maven-central / Sync to Maven Central (uses ./.github/actions/sync-to-maven-central)
-+-- publish-gradle-plugin / Publish (uses ./.github/actions/publish-gradle-plugin)
-+-- publish-to-sdkman / Publish to SDKMAN! (uses ./.github/actions/publish-to-sdkman)
-+-- update-homebrew-tap / Update Homebrew Tap (uses ./.github/actions/update-homebrew-tap)
-+-- create-github-release / Create GitHub Release (uses ./.github/actions/create-github-release)
-```
+`release.yml` [push]
+
+- `build-and-stage-release / Build and Publish` uses [./.github/actions/build](#build)
+- `build-and-stage-release / Send Notification` uses [./.github/actions/send-notification](#send-notification)
+- `verify` uses [verify.yml](#verify)
+  - `verify / Send Notification` uses `./send-notification/.github/actions/send-notification` (outside scan scope)
+- `sync-to-maven-central / Sync to Maven Central` uses [./.github/actions/sync-to-maven-central](#sync-to-maven-central)
+- `publish-gradle-plugin / Publish` uses [./.github/actions/publish-gradle-plugin](#publish-gradle-plugin)
+- `publish-to-sdkman / Publish to SDKMAN!` uses [./.github/actions/publish-to-sdkman](#publish-to-sdkman)
+- `update-homebrew-tap / Update Homebrew Tap` uses [./.github/actions/update-homebrew-tap](#update-homebrew-tap)
+- `create-github-release / Create GitHub Release` uses [./.github/actions/create-github-release](#create-github-release)
 
 ## Transitive requirements (from full call graph)
 
@@ -951,6 +720,242 @@ Permissions declared across the chain: `actions: write`, `contents: read`
 
 [Back to top](#contents)
 
+# Release Milestone
+
+**Triggers:** `push`
+
+| Property | Value |
+|----------|-------|
+| File | `release-milestone.yml` |
+| Default runs-on | `${{ vars.UBUNTU_SMALL \|\| 'ubuntu-latest' }}` |
+
+**Jobs:** [Build and Stage Release](#build-and-stage-release-build-and-stage-release-1), [Verify](#verify-verify-2), [Sync to Maven Central](#sync-to-maven-central-sync-to-maven-central-1), [Promote Release](#promote-release-promote-release-1), [Publish Gradle Plugin](#publish-gradle-plugin-publish-gradle-plugin-1), [Trigger Docs Build](#trigger-docs-build-trigger-docs-build-2), [Create GitHub Release](#create-github-release-create-github-release-1)
+
+## Event filters
+
+- **push**
+  - tags: `v4.1.0-M[0-9]`, `v4.1.0-RC[0-9]`
+
+## Permissions
+
+- `contents`: `read`
+
+**Concurrency:** group `${{ github.workflow }}-${{ github.ref }}`
+
+## Call graph (rooted at this workflow)
+
+`release-milestone.yml` [push]
+
+- `build-and-stage-release / Build and Publish` uses [./.github/actions/build](#build)
+- `verify` uses [verify.yml](#verify)
+  - `verify / Send Notification` uses `./send-notification/.github/actions/send-notification` (outside scan scope)
+- `sync-to-maven-central / Sync to Maven Central` uses [./.github/actions/sync-to-maven-central](#sync-to-maven-central)
+- `publish-gradle-plugin / Publish` uses [./.github/actions/publish-gradle-plugin](#publish-gradle-plugin)
+- `create-github-release / Create GitHub Release` uses [./.github/actions/create-github-release](#create-github-release)
+
+## Transitive requirements (from full call graph)
+
+Secrets referenced (literal names): `ARTIFACTORY_PASSWORD`, `ARTIFACTORY_USERNAME`, `CENTRAL_TOKEN_PASSWORD`, `CENTRAL_TOKEN_USERNAME`, `COMMERCIAL_ARTIFACTORY_RO_PASSWORD`, `COMMERCIAL_ARTIFACTORY_RO_USERNAME`, `DEVELOCITY_ACCESS_KEY`, `GH_ACTIONS_REPO_TOKEN`, `GITHUB_TOKEN`, `GOOGLE_CHAT_WEBHOOK_URL`, `GPG_PASSPHRASE`, `GPG_PRIVATE_KEY`, `GRADLE_PLUGIN_PUBLISH_KEY`, `GRADLE_PLUGIN_PUBLISH_SECRET`, `JF_ARTIFACTORY_SPRING`, `commercial-repository-password`, `commercial-repository-username`, `google-chat-webhook-url`, `opensource-repository-password`, `opensource-repository-username`, `token`
+
+Variables referenced: `COMMERCIAL`
+
+Permissions declared across the chain: `actions: write`, `contents: read`
+
+## Referenced secrets and variables
+
+**Secrets:**
+
+| Name | Used by |
+|------|---------|
+| `DEVELOCITY_ACCESS_KEY` | job `build-and-stage-release` step `Build and Publish` with `develocity-access-key` |
+| `ARTIFACTORY_PASSWORD` | job `build-and-stage-release` step `Stage Release` with `password`; job `verify` secrets `opensource-repository-password` |
+| `GPG_PRIVATE_KEY` | job `build-and-stage-release` step `Stage Release` with `signing-key` |
+| `GPG_PASSPHRASE` | job `build-and-stage-release` step `Stage Release` with `signing-passphrase` |
+| `ARTIFACTORY_USERNAME` | job `build-and-stage-release` step `Stage Release` with `username`; job `verify` secrets `opensource-repository-username` |
+| `COMMERCIAL_ARTIFACTORY_RO_PASSWORD` | job `verify` secrets `commercial-repository-password` |
+| `COMMERCIAL_ARTIFACTORY_RO_USERNAME` | job `verify` secrets `commercial-repository-username` |
+| `GOOGLE_CHAT_WEBHOOK_URL` | job `verify` secrets `google-chat-webhook-url` |
+| `GH_ACTIONS_REPO_TOKEN` | job `verify` secrets `token`; job `create-github-release` step `Create GitHub Release` with `token` |
+| `CENTRAL_TOKEN_PASSWORD` | job `sync-to-maven-central` step `Sync to Maven Central` with `central-token-password` |
+| `CENTRAL_TOKEN_USERNAME` | job `sync-to-maven-central` step `Sync to Maven Central` with `central-token-username` |
+| `JF_ARTIFACTORY_SPRING` | job `sync-to-maven-central` step `Sync to Maven Central` with `jfrog-cli-config-token`; job `promote-release` step `Set up JFrog CLI` env `JF_ENV_SPRING`; job `publish-gradle-plugin` step `Publish` with `jfrog-cli-config-token` |
+| `GRADLE_PLUGIN_PUBLISH_KEY` | job `publish-gradle-plugin` step `Publish` with `gradle-plugin-publish-key` |
+| `GRADLE_PLUGIN_PUBLISH_SECRET` | job `publish-gradle-plugin` step `Publish` with `gradle-plugin-publish-secret` |
+| `GITHUB_TOKEN` | job `trigger-docs-build` step `Run Deploy Docs Workflow` env `GH_TOKEN` |
+
+**Variables:**
+
+| Name | Used by |
+|------|---------|
+| `COMMERCIAL` | job `sync-to-maven-central` (if); job `publish-gradle-plugin` (if); job `create-github-release` step `Create GitHub Release` with `commercial` |
+
+## Jobs
+
+### Build and Stage Release (`build-and-stage-release`)
+
+| Property | Value |
+|----------|-------|
+| Runs on | `${{ vars.UBUNTU_MEDIUM \|\| 'ubuntu-latest' }}` |
+| Condition | `${{ github.repository == 'spring-projects/spring-boot' }}` |
+
+<details>
+<summary>Steps (3)</summary>
+
+1. **Check Out Code**
+   - Uses: `actions/checkout@v6`
+
+2. **Build and Publish**
+   - ID: `build-and-publish`
+   - Uses: `./.github/actions/build`
+   - With:
+     - `develocity-access-key`: `${{ secrets.DEVELOCITY_ACCESS_KEY }}` - Access key for authentication with ge.spring.io
+     - `gradle-cache-read-only`: `false` - Whether Gradle's cache should be read only
+     - `publish`: `true` - Whether to publish artifacts ready for deployment to Artifactory
+
+3. **Stage Release**
+   - Uses: `spring-io/artifactory-deploy-action@v0.0.4`
+   - With:
+     - `build-name`: `${{ format('spring-boot-{0}', steps.build-and-publish.outputs.version)}}`
+     - `folder`: `deployment-repository`
+     - `password`: `${{ secrets.ARTIFACTORY_PASSWORD }}`
+     - `repository`: `libs-staging-local`
+     - `signing-key`: `${{ secrets.GPG_PRIVATE_KEY }}`
+     - `signing-passphrase`: `${{ secrets.GPG_PASSPHRASE }}`
+     - `threads`: `8`
+     - `uri`: `https://repo.spring.io`
+     - `username`: `${{ secrets.ARTIFACTORY_USERNAME }}`
+
+</details>
+
+### Verify (`verify`)
+
+| Property | Value |
+|----------|-------|
+| Uses workflow | [Verify](#verify) |
+| Depends on | `build-and-stage-release` |
+
+#### Inputs forwarded
+
+- `staging`: `true`
+- `version`: `${{ needs.build-and-stage-release.outputs.version }}`
+
+#### Secrets forwarded
+
+- `commercial-repository-password`: `${{ secrets.COMMERCIAL_ARTIFACTORY_RO_PASSWORD }}`
+- `commercial-repository-username`: `${{ secrets.COMMERCIAL_ARTIFACTORY_RO_USERNAME }}`
+- `google-chat-webhook-url`: `${{ secrets.GOOGLE_CHAT_WEBHOOK_URL }}`
+- `opensource-repository-password`: `${{ secrets.ARTIFACTORY_PASSWORD }}`
+- `opensource-repository-username`: `${{ secrets.ARTIFACTORY_USERNAME }}`
+- `token`: `${{ secrets.GH_ACTIONS_REPO_TOKEN }}`
+
+### Sync to Maven Central (`sync-to-maven-central`)
+
+| Property | Value |
+|----------|-------|
+| Depends on | `build-and-stage-release`, `verify` |
+| Condition | `${{ !vars.COMMERCIAL }}` |
+
+<details>
+<summary>Steps (2)</summary>
+
+1. **Check Out Code**
+   - Uses: `actions/checkout@v6`
+
+2. **Sync to Maven Central**
+   - Uses: `./.github/actions/sync-to-maven-central`
+   - With:
+     - `central-token-password`: `${{ secrets.CENTRAL_TOKEN_PASSWORD }}` - Password for authentication with central.sonatype.com (required)
+     - `central-token-username`: `${{ secrets.CENTRAL_TOKEN_USERNAME }}` - Username for authentication with central.sonatype.com (required)
+     - `jfrog-cli-config-token`: `${{ secrets.JF_ARTIFACTORY_SPRING }}` - Config token for the JFrog CLI (required)
+     - `spring-boot-version`: `${{ needs.build-and-stage-release.outputs.version }}` - Version of Spring Boot that is being synced to Central (required)
+
+</details>
+
+### Promote Release (`promote-release`)
+
+| Property | Value |
+|----------|-------|
+| Depends on | `build-and-stage-release`, `sync-to-maven-central` |
+
+<details>
+<summary>Steps (2)</summary>
+
+1. **Set up JFrog CLI**
+   - Uses: `jfrog/setup-jfrog-cli@v5.0.0`
+   - Env:
+     - `JF_ENV_SPRING`: `${{ secrets.JF_ARTIFACTORY_SPRING }}`
+
+2. **Promote build**
+
+</details>
+
+### Publish Gradle Plugin (`publish-gradle-plugin`)
+
+| Property | Value |
+|----------|-------|
+| Depends on | `build-and-stage-release`, `sync-to-maven-central` |
+| Condition | `${{ !vars.COMMERCIAL }}` |
+
+<details>
+<summary>Steps (2)</summary>
+
+1. **Check Out Code**
+   - Uses: `actions/checkout@v6`
+
+2. **Publish**
+   - Uses: `./.github/actions/publish-gradle-plugin`
+   - With:
+     - `gradle-plugin-publish-key`: `${{ secrets.GRADLE_PLUGIN_PUBLISH_KEY }}` - Gradle publishing key (required)
+     - `gradle-plugin-publish-secret`: `${{ secrets.GRADLE_PLUGIN_PUBLISH_SECRET }}` - Gradle publishing secret (required)
+     - `jfrog-cli-config-token`: `${{ secrets.JF_ARTIFACTORY_SPRING }}` - Config token for the JFrog CLI (required)
+     - `plugin-version`: `${{ needs.build-and-stage-release.outputs.version }}` - Version of the plugin (required)
+
+</details>
+
+### Trigger Docs Build (`trigger-docs-build`)
+
+| Property | Value |
+|----------|-------|
+| Runs on | `ubuntu-latest` |
+| Depends on | `build-and-stage-release`, `promote-release` |
+
+**Permissions:**
+
+- `actions`: `write`
+
+<details>
+<summary>Steps (1)</summary>
+
+1. **Run Deploy Docs Workflow**
+   - Env:
+     - `GH_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
+
+</details>
+
+### Create GitHub Release (`create-github-release`)
+
+| Property | Value |
+|----------|-------|
+| Depends on | `build-and-stage-release`, `promote-release`, `publish-gradle-plugin`, `trigger-docs-build` |
+
+<details>
+<summary>Steps (2)</summary>
+
+1. **Check Out Code**
+   - Uses: `actions/checkout@v6`
+
+2. **Create GitHub Release**
+   - Uses: `./.github/actions/create-github-release`
+   - With:
+     - `commercial`: `${{ vars.COMMERCIAL }}` - Whether to generate the changelog for the commercial release (required)
+     - `milestone`: `${{ needs.build-and-stage-release.outputs.version }}` - Name of the GitHub milestone for which a release will be created (required)
+     - `pre-release`: `true` - Whether the release is a pre-release (a milestone or release candidate)
+     - `token`: `${{ secrets.GH_ACTIONS_REPO_TOKEN }}` - Token to use for authentication with GitHub (required)
+
+</details>
+
+[Back to top](#contents)
+
 # Run CodeQL Analysis
 
 **Triggers:** `push`, `pull_request`, `workflow_dispatch`
@@ -965,10 +970,9 @@ All scopes: `read-all`.
 
 ## Call graph (rooted at this workflow)
 
-```
-run-codeql-analysis.yml [push, pull_request, workflow_dispatch]
-+-- run-analysis (uses spring-io/github-actions/.github/workflows/codeql-analysis.yml@7dc305df87410aa851b873d2f1fd33ccbb7d0aa8)
-```
+`run-codeql-analysis.yml` [push, pull_request, workflow_dispatch]
+
+- `run-analysis` uses `spring-io/github-actions/.github/workflows/codeql-analysis.yml@7dc305df87410aa851b873d2f1fd33ccbb7d0aa8`
 
 ## Transitive requirements (from full call graph)
 
@@ -1011,11 +1015,10 @@ External workflows referenced: `spring-io/github-actions/.github/workflows/codeq
 
 ## Call graph (rooted at this workflow)
 
-```
-run-system-tests.yml [push]
-+-- run-system-tests / Prepare Gradle Build (uses ./.github/actions/prepare-gradle-build)
-+-- run-system-tests / Send Notification (uses ./.github/actions/send-notification)
-```
+`run-system-tests.yml` [push]
+
+- `run-system-tests / Prepare Gradle Build` uses [./.github/actions/prepare-gradle-build](#prepare-gradle-build)
+- `run-system-tests / Send Notification` uses [./.github/actions/send-notification](#send-notification)
 
 ## Transitive requirements (from full call graph)
 
@@ -1178,12 +1181,11 @@ Inputs for the `workflow_dispatch` event.
 
 ## Called by
 
-```
-verify.yml
-+-- build-and-deploy-snapshot.yml (job: verify)  <- entry point
-+-- release-milestone.yml (job: verify)  <- entry point
-+-- release.yml (job: verify)  <- entry point
-```
+`verify.yml`
+
+- [build-and-deploy-snapshot.yml](#verify-verify) (job: `verify`) - entry point
+- [release-milestone.yml](#verify-verify-2) (job: `verify`) - entry point
+- [release.yml](#verify-verify-1) (job: `verify`) - entry point
 
 ## Referenced secrets and variables
 

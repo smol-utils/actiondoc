@@ -28,11 +28,10 @@
 
 ## Call graph (rooted at this workflow)
 
-```
-ci.yml [push]
-+-- build (uses reusable.yml)
-+-- deploy / Deploy to staging (uses ./.github/actions/deploy)
-```
+`ci.yml` [push]
+
+- `build` uses [reusable.yml](#reusable-build)
+- `deploy / Deploy to staging` uses [./.github/actions/deploy](#deploy)
 
 ## Transitive requirements (from full call graph)
 
@@ -115,10 +114,9 @@ Permissions declared across the chain: `contents: read`, `id-token: write (OIDC)
 
 ## Called by
 
-```
-reusable.yml
-+-- ci.yml (job: build)  <- entry point
-```
+`reusable.yml`
+
+- [ci.yml](#build) (job: `build`) - entry point
 
 ## Jobs
 

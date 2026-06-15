@@ -18,11 +18,11 @@
 
 **Reusable workflows**
 
+- [X-BachInfo](#x-bachinfo)
 - [X-Jlink](#x-jlink)
 - [X-JPackage](#x-jpackage)
 - [X-NativeImage](#x-nativeimage)
 - [X-Precheck](#x-precheck)
-- [X-BachInfo](#x-bachinfo)
 - [X-UpdateWiki](#x-updatewiki)
 
 # Build
@@ -123,10 +123,9 @@
 
 ## Call graph (rooted at this workflow)
 
-```
-codeql.yml [workflow_dispatch, push, pull_request]
-+-- precheck (uses step-precheck.yml@main)
-```
+`codeql.yml` [workflow_dispatch, push, pull_request]
+
+- `precheck` uses [step-precheck.yml](#x-precheck) (`@main`)
 
 ## Transitive requirements (from full call graph)
 
@@ -222,15 +221,14 @@ Permissions declared across the chain: `actions: read`, `contents: read`, `secur
 
 ## Call graph (rooted at this workflow)
 
-```
-early-access.yml [push]
-+-- precheck (uses step-precheck.yml@main)
-+-- jlink (uses step-jlink.yml@main)
-+-- jpackage (uses step-jpackage.yml@main)
-+-- native-image (uses step-native-image.yml@main)
-+-- provenance (uses slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v2.1.0)
-+-- update-wiki (uses step-update-wiki.yml@main)
-```
+`early-access.yml` [push]
+
+- `precheck` uses [step-precheck.yml](#x-precheck) (`@main`)
+- `jlink` uses [step-jlink.yml](#x-jlink) (`@main`)
+- `jpackage` uses [step-jpackage.yml](#x-jpackage) (`@main`)
+- `native-image` uses [step-native-image.yml](#x-nativeimage) (`@main`)
+- `provenance` uses `slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v2.1.0`
+- `update-wiki` uses [step-update-wiki.yml](#x-updatewiki) (`@main`)
 
 ## Transitive requirements (from full call graph)
 
@@ -495,10 +493,9 @@ All scopes: `read-all`.
 
 ## Call graph (rooted at this workflow)
 
-```
-openssf-scorecard.yml [branch_protection_rule, schedule, push, workflow_dispatch]
-+-- precheck (uses step-precheck.yml@main)
-```
+`openssf-scorecard.yml` [branch_protection_rule, schedule, push, workflow_dispatch]
+
+- `precheck` uses [step-precheck.yml](#x-precheck) (`@main`)
 
 ## Transitive requirements (from full call graph)
 
@@ -591,14 +588,13 @@ Permissions declared across the chain: `actions: read`, `contents: read`, `id-to
 
 ## Call graph (rooted at this workflow)
 
-```
-release.yml [workflow_dispatch]
-+-- jlink (uses step-jlink.yml@main)
-+-- jpackage (uses step-jpackage.yml@main)
-+-- native-image (uses step-native-image.yml@main)
-+-- provenance (uses slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v2.1.0)
-+-- update-wiki (uses step-update-wiki.yml@main)
-```
+`release.yml` [workflow_dispatch]
+
+- `jlink` uses [step-jlink.yml](#x-jlink) (`@main`)
+- `jpackage` uses [step-jpackage.yml](#x-jpackage) (`@main`)
+- `native-image` uses [step-native-image.yml](#x-nativeimage) (`@main`)
+- `provenance` uses `slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v2.1.0`
+- `update-wiki` uses [step-update-wiki.yml](#x-updatewiki) (`@main`)
 
 ## Transitive requirements (from full call graph)
 
@@ -892,7 +888,18 @@ External workflows referenced: `slsa-framework/slsa-github-generator/.github/wor
 | File | `smoke-tests.yml` |
 | Default runs-on | `${{ matrix.job.os }}` |
 
-**Jobs:** [Precheck](#precheck-precheck-4), [CLI ${{ matrix.job.os }}](#cli--matrixjobos--build-cli), [Tool ${{ matrix.job.os }}](#tool--matrixjobos--build-tool), [Ant ${{ matrix.job.os }}](#ant--matrixjobos--build-ant), [Gradle ${{ matrix.job.os }}](#gradle--matrixjobos--build-gradle), [Maven ${{ matrix.job.os }}](#maven--matrixjobos--build-maven), [Unit Test ${{ matrix.os }}](#unit-test--matrixos--unit-tests), [Coveralls](#coveralls-coveralls), [Codecov](#codecov-codecov), [Sonar](#sonar-sonar)
+**Jobs:**
+
+- [Precheck](#precheck-precheck-4)
+- [CLI ${{ matrix.job.os }}](#cli--matrixjobos--build-cli)
+- [Tool ${{ matrix.job.os }}](#tool--matrixjobos--build-tool)
+- [Ant ${{ matrix.job.os }}](#ant--matrixjobos--build-ant)
+- [Gradle ${{ matrix.job.os }}](#gradle--matrixjobos--build-gradle)
+- [Maven ${{ matrix.job.os }}](#maven--matrixjobos--build-maven)
+- [Unit Test ${{ matrix.os }}](#unit-test--matrixos--unit-tests)
+- [Coveralls](#coveralls-coveralls)
+- [Codecov](#codecov-codecov)
+- [Sonar](#sonar-sonar)
 
 ## Event filters
 
@@ -909,10 +916,9 @@ External workflows referenced: `slsa-framework/slsa-github-generator/.github/wor
 
 ## Call graph (rooted at this workflow)
 
-```
-smoke-tests.yml [push]
-+-- precheck (uses step-precheck.yml@main)
-```
+`smoke-tests.yml` [push]
+
+- `precheck` uses [step-precheck.yml](#x-precheck) (`@main`)
 
 ## Transitive requirements (from full call graph)
 
@@ -1585,6 +1591,147 @@ Permissions declared across the chain: `contents: read`
 
 [Back to top](#contents)
 
+# Trigger Early Access
+
+**Triggers:** `workflow_dispatch`
+
+| Property | Value |
+|----------|-------|
+| File | `trigger-early-access.yml` |
+
+## Permissions
+
+- `contents`: `read`
+
+## Referenced secrets and variables
+
+**Secrets:**
+
+| Name | Used by |
+|------|---------|
+| `GIT_ACCESS_TOKEN` | job `earlyaccess` step `Release early-access artifacts` with `token` |
+
+**Variables:**
+
+| Name | Used by |
+|------|---------|
+| `JAVA_VERSION` | job `earlyaccess` step `Setup Java` with `java-version` |
+| `JAVA_DISTRO` | job `earlyaccess` step `Setup Java` with `distribution` |
+
+## Jobs
+
+### Trigger Early Access (`earlyaccess`)
+
+| Property | Value |
+|----------|-------|
+| Runs on | `ubuntu-latest` |
+
+<details>
+<summary>Steps (5)</summary>
+
+1. **actions/checkout@v6.0.2**
+   - With:
+     - `persist-credentials`: `false`
+
+2. **Setup Java**
+   - Uses: `actions/setup-java@v5.2.0`
+   - With:
+     - `java-version`: `${{ vars.JAVA_VERSION }}`
+     - `distribution`: `${{ vars.JAVA_DISTRO }}`
+
+3. **Build**
+
+4. **Rename artifacts**
+
+5. **Release early-access artifacts**
+   - Uses: `softprops/action-gh-release@v2.6.1`
+   - With:
+     - `generate_release_notes`: `false`
+     - `tag_name`: `early-access`
+     - `token`: `${{ secrets.GIT_ACCESS_TOKEN }}`
+     - `prerelease`: `true`
+     - `name`: `JReleaser Early-Access`
+     - `files`: `early-access/*`
+
+</details>
+
+[Back to top](#contents)
+
+# X-BachInfo
+
+**Triggers:** `workflow_call`
+
+| Property | Value |
+|----------|-------|
+| File | `step-update-bach-info.yml` |
+
+## Workflow call API
+
+**Inputs:**
+
+| Name | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| `project-version` | string | Yes | - | - |
+| `project-tag` | string | Yes | - | - |
+
+**Secrets:**
+
+| Name | Required | Description |
+|------|----------|-------------|
+| `gh-access-token` | Yes | - |
+
+## Permissions
+
+- `actions`: `read`
+- `id-token`: `write` (OIDC)
+- `contents`: `write`
+
+## Referenced secrets and variables
+
+**Secrets:**
+
+| Name | Used by |
+|------|---------|
+| `gh-access-token` | job `update-bach-info` step `Checkout` with `token` |
+
+**Variables:**
+
+| Name | Used by |
+|------|---------|
+| `COMMIT_EMAIL` | job `update-bach-info` step `Commit` env `COMMIT_EMAIL` |
+
+## Jobs
+
+### Update bach-info (`update-bach-info`)
+
+| Property | Value |
+|----------|-------|
+| Runs on | `ubuntu-latest` |
+
+<details>
+<summary>Steps (3)</summary>
+
+1. **Checkout**
+   - Uses: `actions/checkout@v6.0.2`
+   - With:
+     - `persist-credentials`: `true`
+     - `repository`: `jreleaser/bach-info`
+     - `ref`: `main`
+     - `fetch-depth`: `0`
+     - `token`: `${{ secrets.gh-access-token }}`
+
+2. **Download script**
+
+3. **Commit**
+   - Env:
+     - `TAG`: `${{ inputs.project-tag }}`
+     - `VERSION`: `${{ inputs.project-version }}`
+     - `COMMIT_EMAIL`: `${{ vars.COMMIT_EMAIL }}`
+
+</details>
+
+[Back to top](#contents)
+
 # X-Jlink
 
 **Triggers:** `workflow_call`
@@ -1614,11 +1761,10 @@ Permissions declared across the chain: `contents: read`
 
 ## Called by
 
-```
-step-jlink.yml
-+-- early-access.yml (job: jlink)  <- entry point
-+-- release.yml (job: jlink)  <- entry point
-```
+`step-jlink.yml`
+
+- [early-access.yml](#jlink-jlink) (job: `jlink`) - entry point
+- [release.yml](#jlink-jlink-1) (job: `jlink`) - entry point
 
 ## Referenced secrets and variables
 
@@ -1760,11 +1906,10 @@ step-jlink.yml
 
 ## Called by
 
-```
-step-jpackage.yml
-+-- early-access.yml (job: jpackage)  <- entry point
-+-- release.yml (job: jpackage)  <- entry point
-```
+`step-jpackage.yml`
+
+- [early-access.yml](#jpackage-jpackage) (job: `jpackage`) - entry point
+- [release.yml](#jpackage-jpackage-1) (job: `jpackage`) - entry point
 
 ## Referenced secrets and variables
 
@@ -1884,11 +2029,10 @@ step-jpackage.yml
 
 ## Called by
 
-```
-step-native-image.yml
-+-- early-access.yml (job: native-image)  <- entry point
-+-- release.yml (job: native-image)  <- entry point
-```
+`step-native-image.yml`
+
+- [early-access.yml](#native-image-native-image) (job: `native-image`) - entry point
+- [release.yml](#native-image-native-image-1) (job: `native-image`) - entry point
 
 ## Referenced secrets and variables
 
@@ -2008,13 +2152,12 @@ step-native-image.yml
 
 ## Called by
 
-```
-step-precheck.yml
-+-- codeql.yml (job: precheck)  <- entry point
-+-- early-access.yml (job: precheck)  <- entry point
-+-- openssf-scorecard.yml (job: precheck)  <- entry point
-+-- smoke-tests.yml (job: precheck)  <- entry point
-```
+`step-precheck.yml`
+
+- [codeql.yml](#precheck-precheck) (job: `precheck`) - entry point
+- [early-access.yml](#precheck-precheck-1) (job: `precheck`) - entry point
+- [openssf-scorecard.yml](#precheck-precheck-2) (job: `precheck`) - entry point
+- [smoke-tests.yml](#precheck-precheck-4) (job: `precheck`) - entry point
 
 ## Referenced secrets and variables
 
@@ -2053,81 +2196,6 @@ step-precheck.yml
 
 [Back to top](#contents)
 
-# X-BachInfo
-
-**Triggers:** `workflow_call`
-
-| Property | Value |
-|----------|-------|
-| File | `step-update-bach-info.yml` |
-
-## Workflow call API
-
-**Inputs:**
-
-| Name | Type | Required | Default | Description |
-|------|------|----------|---------|-------------|
-| `project-version` | string | Yes | - | - |
-| `project-tag` | string | Yes | - | - |
-
-**Secrets:**
-
-| Name | Required | Description |
-|------|----------|-------------|
-| `gh-access-token` | Yes | - |
-
-## Permissions
-
-- `actions`: `read`
-- `id-token`: `write` (OIDC)
-- `contents`: `write`
-
-## Referenced secrets and variables
-
-**Secrets:**
-
-| Name | Used by |
-|------|---------|
-| `gh-access-token` | job `update-bach-info` step `Checkout` with `token` |
-
-**Variables:**
-
-| Name | Used by |
-|------|---------|
-| `COMMIT_EMAIL` | job `update-bach-info` step `Commit` env `COMMIT_EMAIL` |
-
-## Jobs
-
-### Update bach-info (`update-bach-info`)
-
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-latest` |
-
-<details>
-<summary>Steps (3)</summary>
-
-1. **Checkout**
-   - Uses: `actions/checkout@v6.0.2`
-   - With:
-     - `persist-credentials`: `true`
-     - `repository`: `jreleaser/bach-info`
-     - `ref`: `main`
-     - `fetch-depth`: `0`
-     - `token`: `${{ secrets.gh-access-token }}`
-
-2. **Download script**
-
-3. **Commit**
-   - Env:
-     - `TAG`: `${{ inputs.project-tag }}`
-     - `VERSION`: `${{ inputs.project-version }}`
-     - `COMMIT_EMAIL`: `${{ vars.COMMIT_EMAIL }}`
-
-</details>
-
-[Back to top](#contents)
-
 # X-UpdateWiki
 
 **Triggers:** `workflow_call`
@@ -2161,11 +2229,10 @@ step-precheck.yml
 
 ## Called by
 
-```
-step-update-wiki.yml
-+-- early-access.yml (job: update-wiki)  <- entry point
-+-- release.yml (job: update-wiki)  <- entry point
-```
+`step-update-wiki.yml`
+
+- [early-access.yml](#update-wiki-update-wiki) (job: `update-wiki`) - entry point
+- [release.yml](#update-wiki-update-wiki-1) (job: `update-wiki`) - entry point
 
 ## Referenced secrets and variables
 
@@ -2219,72 +2286,6 @@ step-update-wiki.yml
      - `TAG`: `${{ inputs.project-tag }}`
      - `VERSION`: `${{ inputs.project-version }}`
      - `COMMIT_EMAIL`: `${{ inputs.commit-email }}`
-
-</details>
-
-[Back to top](#contents)
-
-# Trigger Early Access
-
-**Triggers:** `workflow_dispatch`
-
-| Property | Value |
-|----------|-------|
-| File | `trigger-early-access.yml` |
-
-## Permissions
-
-- `contents`: `read`
-
-## Referenced secrets and variables
-
-**Secrets:**
-
-| Name | Used by |
-|------|---------|
-| `GIT_ACCESS_TOKEN` | job `earlyaccess` step `Release early-access artifacts` with `token` |
-
-**Variables:**
-
-| Name | Used by |
-|------|---------|
-| `JAVA_VERSION` | job `earlyaccess` step `Setup Java` with `java-version` |
-| `JAVA_DISTRO` | job `earlyaccess` step `Setup Java` with `distribution` |
-
-## Jobs
-
-### Trigger Early Access (`earlyaccess`)
-
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-latest` |
-
-<details>
-<summary>Steps (5)</summary>
-
-1. **actions/checkout@v6.0.2**
-   - With:
-     - `persist-credentials`: `false`
-
-2. **Setup Java**
-   - Uses: `actions/setup-java@v5.2.0`
-   - With:
-     - `java-version`: `${{ vars.JAVA_VERSION }}`
-     - `distribution`: `${{ vars.JAVA_DISTRO }}`
-
-3. **Build**
-
-4. **Rename artifacts**
-
-5. **Release early-access artifacts**
-   - Uses: `softprops/action-gh-release@v2.6.1`
-   - With:
-     - `generate_release_notes`: `false`
-     - `tag_name`: `early-access`
-     - `token`: `${{ secrets.GIT_ACCESS_TOKEN }}`
-     - `prerelease`: `true`
-     - `name`: `JReleaser Early-Access`
-     - `files`: `early-access/*`
 
 </details>
 

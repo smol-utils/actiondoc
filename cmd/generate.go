@@ -152,6 +152,13 @@ func renderJSONOutput(sources []callgraph.Source) (string, error) {
 // the graph nodes. inputPath is the path the scan was launched from; it supplies the repo
 // title. The header and TOC are emitted only for multi-document output.
 func renderMarkdownOutput(sources []callgraph.Source, graph *callgraph.Graph, inputPath string) string {
+	// Order the sources to match the table of contents: entry-point workflows, then reusable
+	// workflows, then composite actions, sorted within each group. Every downstream pass --
+	// the section-anchor pass, the document-wide job-anchor pass, the rendered body sections,
+	// and the TOC -- iterates this one ordered slice, so the body and the TOC are guaranteed to
+	// agree and the order-dependent anchor "-N" numbering is computed over the final order.
+	sources = orderSourcesForRender(sources, graph)
+
 	var titles []string
 	for _, s := range sources {
 		if s.Workflow != nil {
@@ -231,6 +238,47 @@ const (
 	groupComposite        // composite actions
 )
 
+// groupOf classifies a source into its TOC family: composite action, entry-point workflow
+// (a trigger other than workflow_call), or reusable (workflow_call-only) workflow. The body
+// section order and the TOC grouping both derive from this single classifier, so they cannot
+// disagree about which family a source belongs to.
+func groupOf(s callgraph.Source, graph *callgraph.Graph) int {
+	switch {
+	case s.Action != nil:
+		return groupComposite
+	case graph.IsEntryPoint(s.Path):
+		return groupWorkflow
+	default:
+		return groupReusable
+	}
+}
+
+// orderSourcesForRender returns the sources reordered to match the table of contents:
+// entry-point workflows first, then reusable workflows, then composite actions. Within each
+// group entries are sorted by display title (case-insensitively, for a legible reading order),
+// with the exact title and then the file path breaking ties so the result is fully
+// deterministic. The body and the TOC both iterate the returned slice, so scrolling follows
+// the same mental model the TOC sets up. The input slice is not mutated.
+func orderSourcesForRender(sources []callgraph.Source, graph *callgraph.Graph) []callgraph.Source {
+	ordered := make([]callgraph.Source, len(sources))
+	copy(ordered, sources)
+	sort.SliceStable(ordered, func(i, j int) bool {
+		gi, gj := groupOf(ordered[i], graph), groupOf(ordered[j], graph)
+		if gi != gj {
+			return gi < gj
+		}
+		ti, tj := titleOf(ordered[i]), titleOf(ordered[j])
+		if li, lj := strings.ToLower(ti), strings.ToLower(tj); li != lj {
+			return li < lj
+		}
+		if ti != tj {
+			return ti < tj
+		}
+		return ordered[i].Path < ordered[j].Path
+	})
+	return ordered
+}
+
 // renderDocumentNav builds the document header (title + inventory) and the grouped table of
 // contents. Each source is classified via the call graph: composite actions, entry-point
 // workflows (a trigger other than workflow_call), and reusable (workflow_call-only)
@@ -247,19 +295,16 @@ func renderDocumentNav(sources []callgraph.Source, graph *callgraph.Graph, slugs
 	var nWorkflow, nReusable, nComposite int
 	for i, s := range sources {
 		label := titleOf(s)
-		var group int
-		switch {
-		case s.Action != nil:
-			group = groupComposite
+		group := groupOf(s, graph)
+		switch group {
+		case groupComposite:
 			nComposite++
-		case graph.IsEntryPoint(s.Path):
-			group = groupWorkflow
+		case groupWorkflow:
 			nWorkflow++
 			if len(s.Workflow.On) > 0 {
 				label += " - " + strings.Join(s.Workflow.On, ", ")
 			}
 		default:
-			group = groupReusable
 			nReusable++
 		}
 		items[i] = item{label: label, anchor: slugs[i], group: group}

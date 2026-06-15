@@ -250,14 +250,18 @@ func TestCallGraphOnEntryPoint(t *testing.T) {
 		t.Fatalf("missing call graph section:\n%s", md)
 	}
 	checks := []string{
-		"release.yml [workflow_dispatch]",
-		"+-- publish (uses middle.yml)",
-		"    +-- build (uses leaf.yml)",
+		"`release.yml` [workflow_dispatch]",
+		"- `publish` uses [middle.yml](#middle)",
+		"  - `build` uses [leaf.yml](#leaf)",
 	}
 	for _, want := range checks {
 		if !strings.Contains(md, want) {
 			t.Errorf("call graph missing %q\n\nFull output:\n%s", want, md)
 		}
+	}
+	// The list rendering must not fall back to the old fenced ASCII tree.
+	if strings.Contains(md, "+-- ") {
+		t.Errorf("call graph still rendering ASCII tree:\n%s", md)
 	}
 }
 
@@ -305,8 +309,8 @@ func TestCalledByTransitiveChain(t *testing.T) {
 		t.Fatalf("missing Called by section:\n%s", md)
 	}
 	checks := []string{
-		"+-- middle.yml (job: build)",
-		"    +-- release.yml (job: publish)  <- entry point",
+		"- [middle.yml](#middle) (job: `build`)",
+		"  - [release.yml](#release) (job: `publish`) - entry point",
 	}
 	for _, want := range checks {
 		if !strings.Contains(md, want) {
@@ -377,17 +381,113 @@ func TestRenderTreeShape(t *testing.T) {
 	}
 
 	var b strings.Builder
-	renderTree(&b, root)
+	renderTreeList(&b, root)
 
+	// The root is a plain lead line (a paragraph), then a nested `-` list with two spaces
+	// of indentation per depth.
 	want := strings.Join([]string{
 		"root",
-		"+-- first",
-		"|   +-- first-child",
-		"+-- last",
-		"    +-- last-child",
+		"",
+		"- first",
+		"  - first-child",
+		"- last",
+		"  - last-child",
 		"",
 	}, "\n")
 	if b.String() != want {
 		t.Errorf("tree shape mismatch.\nGot:\n%s\nWant:\n%s", b.String(), want)
+	}
+}
+
+// TestCallGraphExternalCalleeNoLink verifies a downstream external callee renders as plain
+// inline code carrying its pin, never as an anchor link (there is no in-scope section).
+func TestCallGraphExternalCalleeNoLink(t *testing.T) {
+	w := &model.Workflow{
+		File: "ci.yml", Name: "CI", On: []string{"push"},
+		Jobs: []model.Job{{
+			ID:   "lint",
+			Uses: "other-org/shared/.github/workflows/lint.yml@v3",
+		}},
+	}
+	g := callgraph.Build([]callgraph.Source{
+		{Path: ".github/workflows/ci.yml", Workflow: w},
+	})
+
+	md := RenderMarkdownGraph(w, g, ".github/workflows/ci.yml")
+
+	if !strings.Contains(md, "`lint` uses `other-org/shared/.github/workflows/lint.yml@v3`") {
+		t.Errorf("external callee not rendered as plain code with pin:\n%s", md)
+	}
+	if strings.Contains(md, "[other-org") {
+		t.Errorf("external callee must not be an anchor link:\n%s", md)
+	}
+}
+
+// TestCallGraphOutsideScopeNoLink verifies a downstream callee whose target was not scanned
+// renders as plain inline code annotated "(outside scan scope)", never as a link.
+func TestCallGraphOutsideScopeNoLink(t *testing.T) {
+	w := &model.Workflow{
+		File: "ci.yml", Name: "CI", On: []string{"push"},
+		Jobs: []model.Job{{
+			ID:   "deploy",
+			Uses: "./.github/workflows/missing.yml",
+		}},
+	}
+	g := callgraph.Build([]callgraph.Source{
+		{Path: ".github/workflows/ci.yml", Workflow: w},
+	})
+
+	md := RenderMarkdownGraph(w, g, ".github/workflows/ci.yml")
+
+	if !strings.Contains(md, "`deploy` uses `./.github/workflows/missing.yml` (outside scan scope)") {
+		t.Errorf("outside-scope callee not rendered as plain annotated code:\n%s", md)
+	}
+	if strings.Contains(md, "[./.github/workflows/missing.yml]") {
+		t.Errorf("outside-scope callee must not be an anchor link:\n%s", md)
+	}
+}
+
+// TestCalledByJobAnchorLink verifies the upstream caller links to the specific calling job
+// heading via the document-wide JobAnchors, not the file's section anchor.
+func TestCalledByJobAnchorLink(t *testing.T) {
+	g, _ := chainGraph()
+	// Simulate the assembler's document-wide job-anchor pass: middle.yml's single job
+	// "build" lands on a disambiguated heading slug elsewhere in the document.
+	g.Nodes[".github/workflows/middle.yml"].JobAnchors = []string{"build-7"}
+
+	md := RenderMarkdownGraph(g.Nodes[".github/workflows/leaf.yml"].Workflow, g, ".github/workflows/leaf.yml")
+
+	if !strings.Contains(md, "- [middle.yml](#build-7) (job: `build`)") {
+		t.Errorf("upstream caller did not link to the job anchor:\n%s", md)
+	}
+}
+
+// TestCallGraphSiblingCollapse verifies that repeated sibling subtrees (distinct caller jobs
+// invoking the same callee with identical descendants) fold to one "(xN)" representative
+// whose label drops the differing job ids.
+func TestCallGraphSiblingCollapse(t *testing.T) {
+	caller := &model.Workflow{
+		File: "ci.yml", Name: "CI", On: []string{"push"},
+		Jobs: []model.Job{
+			{ID: "test-a", Uses: "./.github/workflows/shared.yml"},
+			{ID: "test-b", Uses: "./.github/workflows/shared.yml"},
+			{ID: "test-c", Uses: "./.github/workflows/shared.yml"},
+		},
+	}
+	shared := &model.Workflow{File: "shared.yml", Name: "Shared", On: []string{"workflow_call"}}
+	g := callgraph.Build([]callgraph.Source{
+		{Path: ".github/workflows/ci.yml", Workflow: caller},
+		{Path: ".github/workflows/shared.yml", Workflow: shared},
+	})
+
+	md := RenderMarkdownGraph(caller, g, ".github/workflows/ci.yml")
+
+	if !strings.Contains(md, "- uses **[shared.yml](#shared)** (x3)") {
+		t.Errorf("repeated callee siblings did not collapse to (x3):\n%s", md)
+	}
+	for _, jobID := range []string{"test-a", "test-b", "test-c"} {
+		if strings.Contains(md, "`"+jobID+"` uses") {
+			t.Errorf("collapsed representative should drop job id %q:\n%s", jobID, md)
+		}
 	}
 }

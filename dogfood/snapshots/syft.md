@@ -40,10 +40,9 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 ## Call graph (rooted at this workflow)
 
-```
-codeql.yaml [push, pull_request, schedule]
-+-- analyze (uses anchore/workflows/.github/workflows/codeql.yaml@15122524ced7906bfa9685eeae12e22647773ea6)
-```
+`codeql.yaml` [push, pull_request, schedule]
+
+- `analyze` uses `anchore/workflows/.github/workflows/codeql.yaml@15122524ced7906bfa9685eeae12e22647773ea6`
 
 ## Transitive requirements (from full call graph)
 
@@ -95,13 +94,12 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 ## Call graph (rooted at this workflow)
 
-```
-release.yaml [workflow_dispatch]
-+-- version-available (uses anchore/workflows/.github/workflows/check-version-available.yaml@15122524ced7906bfa9685eeae12e22647773ea6)
-+-- check-gate (uses anchore/workflows/.github/workflows/check-gate.yaml@15122524ced7906bfa9685eeae12e22647773ea6)
-+-- release / Bootstrap environment (uses ./.github/actions/bootstrap)
-+-- release-install-script (uses anchore/workflows/.github/workflows/release-install-script.yaml@15122524ced7906bfa9685eeae12e22647773ea6)
-```
+`release.yaml` [workflow_dispatch]
+
+- `version-available` uses `anchore/workflows/.github/workflows/check-version-available.yaml@15122524ced7906bfa9685eeae12e22647773ea6`
+- `check-gate` uses `anchore/workflows/.github/workflows/check-gate.yaml@15122524ced7906bfa9685eeae12e22647773ea6`
+- `release / Bootstrap environment` uses [./.github/actions/bootstrap](#bootstrap)
+- `release-install-script` uses `anchore/workflows/.github/workflows/release-install-script.yaml@15122524ced7906bfa9685eeae12e22647773ea6`
 
 ## Transitive requirements (from full call graph)
 
@@ -322,16 +320,9 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 ## Call graph (rooted at this workflow)
 
-```
-validations.yaml [workflow_dispatch, pull_request, push]
-+-- Static-Analysis / Bootstrap environment (uses ./.github/actions/bootstrap)
-+-- Unit-Test / Bootstrap environment (uses ./.github/actions/bootstrap)
-+-- Integration-Test / Bootstrap environment (uses ./.github/actions/bootstrap)
-+-- Build-Snapshot-Artifacts / Bootstrap environment (uses ./.github/actions/bootstrap)
-+-- Acceptance-Linux / Bootstrap environment (uses ./.github/actions/bootstrap)
-+-- Acceptance-Mac / Bootstrap environment (uses ./.github/actions/bootstrap)
-+-- Cli-Linux / Bootstrap environment (uses ./.github/actions/bootstrap)
-```
+`validations.yaml` [workflow_dispatch, pull_request, push]
+
+- uses **[./.github/actions/bootstrap](#bootstrap)** (x7)
 
 ## Transitive requirements (from full call graph)
 

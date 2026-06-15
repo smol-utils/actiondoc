@@ -7,170 +7,17 @@
 **Workflows**
 
 - [Build CI - push, pull_request, workflow_dispatch](#build-ci)
+- [Dependency Review - pull_request](#dependency-review)
+- [Lock Threads - schedule](#lock-threads)
 - [PR Template Check - pull_request](#pr-template-check)
 - [Publish CI - push, workflow_dispatch](#publish-ci)
 - [Release CI - workflow_dispatch](#release-ci)
 - [Report PR Test Coverage - workflow_run](#report-pr-test-coverage)
 - [Tests CI - push, pull_request, workflow_dispatch](#tests-ci)
-- [Dependency Review - pull_request](#dependency-review)
-- [Lock Threads - schedule](#lock-threads)
 
 **Reusable workflows**
 
 - [_meta-build.yaml](#_meta-buildyaml)
-
-# _meta-build.yaml
-
-**Triggers:** `workflow_call`
-
-| Property | Value |
-|----------|-------|
-| File | `_meta-build.yaml` |
-| Default runs-on | `ubuntu-latest` |
-
-**Jobs:** [`build-java`](#build-java), [`build-container`](#build-container)
-
-## Workflow call API
-
-**Inputs:**
-
-| Name | Type | Required | Default | Description |
-|------|------|----------|---------|-------------|
-| `app-version` | string | No | `snapshot` | the version that should be set/used as tag for the container image |
-| `publish-container` | boolean | No | `false` | publish and scan the container image once its built |
-| `ref-name` | string | Yes | - | Short ref name of the branch or tag that triggered the workflow run |
-
-**Secrets:**
-
-| Name | Required | Description |
-|------|----------|-------------|
-| `registry-0-usr` | Yes | - |
-| `registry-0-psw` | Yes | - |
-
-## Permissions
-
-No permissions granted (`permissions: {}` -- default-deny).
-
-## Called by
-
-```
-_meta-build.yaml
-+-- ci-build.yaml (job: call-build)  <- entry point
-+-- ci-publish.yaml (job: call-build)  <- entry point
-```
-
-## Referenced secrets and variables
-
-**Secrets:**
-
-| Name | Used by |
-|------|---------|
-| `registry-0-usr` | job `build-container` step `Login to Docker.io` with `username` |
-| `registry-0-psw` | job `build-container` step `Login to Docker.io` with `password` |
-
-## Jobs
-
-### `build-java`
-
-<details>
-<summary>Steps (5)</summary>
-
-1. **Checkout Repository**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd`
-   - With:
-     - `persist-credentials`: `false`
-
-2. **Set up JDK**
-   - Uses: `actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654`
-   - With:
-     - `distribution`: `temurin`
-     - `java-version`: `21`
-     - `cache`: `maven`
-
-3. **Setup CycloneDX CLI**
-
-4. **Build with Maven**
-
-5. **Upload Artifacts**
-   - Uses: `actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a`
-   - With:
-     - `name`: `assembled-wars`
-     - `path`: `target/*.jar target/bom.json`
-
-</details>
-
-### `build-container`
-
-| Property | Value |
-|----------|-------|
-| Matrix | `distribution`: apiserver, bundled |
-| Depends on | `build-java` |
-
-**Permissions:**
-
-- `security-events`: `write` - Required to upload trivy's SARIF output
-
-<details>
-<summary>Steps (8)</summary>
-
-1. **Checkout Repository**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd`
-   - With:
-     - `persist-credentials`: `false`
-
-2. **Download Artifacts**
-   - Uses: `actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c`
-   - With:
-     - `name`: `assembled-wars`
-     - `path`: `target`
-
-3. **Set up QEMU**
-   - Uses: `docker/setup-qemu-action@ce360397dd3f832beb865e1373c09c0e9f86d70a`
-
-4. **Set up Docker Buildx**
-   - ID: `buildx`
-   - Uses: `docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd`
-   - With:
-     - `install`: `true`
-
-5. **Login to Docker.io**
-   - Uses: `docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121`
-   - Condition: `${{ inputs.publish-container }}`
-   - With:
-     - `registry`: `docker.io`
-     - `username`: `${{ secrets.registry-0-usr }}`
-     - `password`: `${{ secrets.registry-0-psw }}`
-
-6. **Set Container Tags**
-   - ID: `tags`
-   - Env:
-     - `REF_NAME`: `${{ inputs.ref-name }}`
-     - `APP_VERSION`: `${{ inputs.app-version }}`
-     - `DISTRIBUTION`: `${{ matrix.distribution }}`
-
-7. **Build multi-arch Container Image**
-   - Uses: `docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f`
-   - With:
-     - `tags`: `${{ steps.tags.outputs.tags }}`
-     - `build-args`: `APP_VERSION=${{ inputs.app-version }} COMMIT_SHA=${{ github.sha }} WAR_FILENAME=dependency-track-${{ matrix.distribution }}.jar`
-     - `platforms`: `linux/amd64,linux/arm64`
-     - `push`: `${{ inputs.publish-container }}`
-     - `context`: `.`
-     - `file`: `src/main/docker/Dockerfile`
-
-8. **Build Alpine multi-arch Container Image**
-   - Uses: `docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f`
-   - With:
-     - `tags`: `${{ steps.tags.outputs.tags-alpine }}`
-     - `build-args`: `APP_VERSION=${{ inputs.app-version }} COMMIT_SHA=${{ github.sha }} WAR_FILENAME=dependency-track-${{ matrix.distribution }}.jar`
-     - `platforms`: `linux/amd64,linux/arm64`
-     - `push`: `${{ inputs.publish-container }}`
-     - `context`: `.`
-     - `file`: `src/main/docker/Dockerfile.alpine`
-
-</details>
-
-[Back to top](#contents)
 
 # Build CI
 
@@ -195,10 +42,9 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 ## Call graph (rooted at this workflow)
 
-```
-ci-build.yaml [push, pull_request, workflow_dispatch]
-+-- call-build (uses _meta-build.yaml)
-```
+`ci-build.yaml` [push, pull_request, workflow_dispatch]
+
+- `call-build` uses [_meta-build.yaml](#_meta-buildyaml)
 
 ## Transitive requirements (from full call graph)
 
@@ -237,6 +83,96 @@ Permissions declared across the chain: `security-events: write`
 
 - `registry-0-usr`: `${{ secrets.HUB_USERNAME }}`
 - `registry-0-psw`: `${{ secrets.HUB_ACCESSS_TOKEN }}`
+
+[Back to top](#contents)
+
+# Dependency Review
+
+**Triggers:** `pull_request`
+
+| Property | Value |
+|----------|-------|
+| File | `dependency-review.yaml` |
+
+## Permissions
+
+No permissions granted (`permissions: {}` -- default-deny).
+
+## Jobs
+
+### `dependency-review`
+
+| Property | Value |
+|----------|-------|
+| Runs on | `ubuntu-latest` |
+
+<details>
+<summary>Steps (2)</summary>
+
+1. **Checkout Repository**
+   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd`
+   - With:
+     - `persist-credentials`: `false`
+
+2. **Dependency Review**
+   - Uses: `actions/dependency-review-action@2031cfc080254a8a887f58cffee85186f0e49e48`
+
+</details>
+
+[Back to top](#contents)
+
+# Lock Threads
+
+**Triggers:** `schedule`
+
+| Property | Value |
+|----------|-------|
+| File | `lock.yaml` |
+
+## Schedule
+
+- `0 10 * * *`
+
+## Permissions
+
+No permissions granted (`permissions: {}` -- default-deny).
+
+## Jobs
+
+### `action`
+
+| Property | Value |
+|----------|-------|
+| Runs on | `ubuntu-latest` |
+| Condition | `${{ contains(github.repository, 'DependencyTrack/') }}` |
+
+**Permissions:**
+
+- `issues`: `write` - Required to lock issues
+- `pull-requests`: `write` - Required to lock PRs
+
+<details>
+<summary>Steps (1)</summary>
+
+1. **dessant/lock-threads**
+   - Uses: `dessant/lock-threads@7266a7ce5c1df01b1c6db85bf8cd86c737dadbe7`
+   - With:
+     - `github-token`: `${{ github.token }}`
+     - `issue-inactive-days`: `30`
+     - `exclude-issue-created-before`: -
+     - `exclude-any-issue-labels`: -
+     - `add-issue-labels`: -
+     - `issue-comment`: `This thread has been automatically locked since there has not been any recent activity after it was closed. Please open a new issue for related bugs.`
+     - `issue-lock-reason`: `resolved`
+     - `pr-inactive-days`: `30`
+     - `exclude-pr-created-before`: -
+     - `exclude-any-pr-labels`: -
+     - `add-pr-labels`: -
+     - `pr-comment`: -
+     - `pr-lock-reason`: `resolved`
+     - `process-only`: -
+
+</details>
 
 [Back to top](#contents)
 
@@ -302,10 +238,9 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 ## Call graph (rooted at this workflow)
 
-```
-ci-publish.yaml [push, workflow_dispatch]
-+-- call-build (uses _meta-build.yaml)
-```
+`ci-publish.yaml` [push, workflow_dispatch]
+
+- `call-build` uses [_meta-build.yaml](#_meta-buildyaml)
 
 ## Transitive requirements (from full call graph)
 
@@ -663,91 +598,153 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 [Back to top](#contents)
 
-# Dependency Review
+# _meta-build.yaml
 
-**Triggers:** `pull_request`
+**Triggers:** `workflow_call`
 
 | Property | Value |
 |----------|-------|
-| File | `dependency-review.yaml` |
+| File | `_meta-build.yaml` |
+| Default runs-on | `ubuntu-latest` |
+
+**Jobs:** [`build-java`](#build-java), [`build-container`](#build-container)
+
+## Workflow call API
+
+**Inputs:**
+
+| Name | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| `app-version` | string | No | `snapshot` | the version that should be set/used as tag for the container image |
+| `publish-container` | boolean | No | `false` | publish and scan the container image once its built |
+| `ref-name` | string | Yes | - | Short ref name of the branch or tag that triggered the workflow run |
+
+**Secrets:**
+
+| Name | Required | Description |
+|------|----------|-------------|
+| `registry-0-usr` | Yes | - |
+| `registry-0-psw` | Yes | - |
 
 ## Permissions
 
 No permissions granted (`permissions: {}` -- default-deny).
 
+## Called by
+
+`_meta-build.yaml`
+
+- [ci-build.yaml](#call-build) (job: `call-build`) - entry point
+- [ci-publish.yaml](#call-build-1) (job: `call-build`) - entry point
+
+## Referenced secrets and variables
+
+**Secrets:**
+
+| Name | Used by |
+|------|---------|
+| `registry-0-usr` | job `build-container` step `Login to Docker.io` with `username` |
+| `registry-0-psw` | job `build-container` step `Login to Docker.io` with `password` |
+
 ## Jobs
 
-### `dependency-review`
-
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-latest` |
+### `build-java`
 
 <details>
-<summary>Steps (2)</summary>
+<summary>Steps (5)</summary>
 
 1. **Checkout Repository**
    - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd`
    - With:
      - `persist-credentials`: `false`
 
-2. **Dependency Review**
-   - Uses: `actions/dependency-review-action@2031cfc080254a8a887f58cffee85186f0e49e48`
+2. **Set up JDK**
+   - Uses: `actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654`
+   - With:
+     - `distribution`: `temurin`
+     - `java-version`: `21`
+     - `cache`: `maven`
+
+3. **Setup CycloneDX CLI**
+
+4. **Build with Maven**
+
+5. **Upload Artifacts**
+   - Uses: `actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a`
+   - With:
+     - `name`: `assembled-wars`
+     - `path`: `target/*.jar target/bom.json`
 
 </details>
 
-[Back to top](#contents)
-
-# Lock Threads
-
-**Triggers:** `schedule`
+### `build-container`
 
 | Property | Value |
 |----------|-------|
-| File | `lock.yaml` |
-
-## Schedule
-
-- `0 10 * * *`
-
-## Permissions
-
-No permissions granted (`permissions: {}` -- default-deny).
-
-## Jobs
-
-### `action`
-
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-latest` |
-| Condition | `${{ contains(github.repository, 'DependencyTrack/') }}` |
+| Matrix | `distribution`: apiserver, bundled |
+| Depends on | `build-java` |
 
 **Permissions:**
 
-- `issues`: `write` - Required to lock issues
-- `pull-requests`: `write` - Required to lock PRs
+- `security-events`: `write` - Required to upload trivy's SARIF output
 
 <details>
-<summary>Steps (1)</summary>
+<summary>Steps (8)</summary>
 
-1. **dessant/lock-threads**
-   - Uses: `dessant/lock-threads@7266a7ce5c1df01b1c6db85bf8cd86c737dadbe7`
+1. **Checkout Repository**
+   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd`
    - With:
-     - `github-token`: `${{ github.token }}`
-     - `issue-inactive-days`: `30`
-     - `exclude-issue-created-before`: -
-     - `exclude-any-issue-labels`: -
-     - `add-issue-labels`: -
-     - `issue-comment`: `This thread has been automatically locked since there has not been any recent activity after it was closed. Please open a new issue for related bugs.`
-     - `issue-lock-reason`: `resolved`
-     - `pr-inactive-days`: `30`
-     - `exclude-pr-created-before`: -
-     - `exclude-any-pr-labels`: -
-     - `add-pr-labels`: -
-     - `pr-comment`: -
-     - `pr-lock-reason`: `resolved`
-     - `process-only`: -
+     - `persist-credentials`: `false`
+
+2. **Download Artifacts**
+   - Uses: `actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c`
+   - With:
+     - `name`: `assembled-wars`
+     - `path`: `target`
+
+3. **Set up QEMU**
+   - Uses: `docker/setup-qemu-action@ce360397dd3f832beb865e1373c09c0e9f86d70a`
+
+4. **Set up Docker Buildx**
+   - ID: `buildx`
+   - Uses: `docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd`
+   - With:
+     - `install`: `true`
+
+5. **Login to Docker.io**
+   - Uses: `docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121`
+   - Condition: `${{ inputs.publish-container }}`
+   - With:
+     - `registry`: `docker.io`
+     - `username`: `${{ secrets.registry-0-usr }}`
+     - `password`: `${{ secrets.registry-0-psw }}`
+
+6. **Set Container Tags**
+   - ID: `tags`
+   - Env:
+     - `REF_NAME`: `${{ inputs.ref-name }}`
+     - `APP_VERSION`: `${{ inputs.app-version }}`
+     - `DISTRIBUTION`: `${{ matrix.distribution }}`
+
+7. **Build multi-arch Container Image**
+   - Uses: `docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f`
+   - With:
+     - `tags`: `${{ steps.tags.outputs.tags }}`
+     - `build-args`: `APP_VERSION=${{ inputs.app-version }} COMMIT_SHA=${{ github.sha }} WAR_FILENAME=dependency-track-${{ matrix.distribution }}.jar`
+     - `platforms`: `linux/amd64,linux/arm64`
+     - `push`: `${{ inputs.publish-container }}`
+     - `context`: `.`
+     - `file`: `src/main/docker/Dockerfile`
+
+8. **Build Alpine multi-arch Container Image**
+   - Uses: `docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f`
+   - With:
+     - `tags`: `${{ steps.tags.outputs.tags-alpine }}`
+     - `build-args`: `APP_VERSION=${{ inputs.app-version }} COMMIT_SHA=${{ github.sha }} WAR_FILENAME=dependency-track-${{ matrix.distribution }}.jar`
+     - `platforms`: `linux/amd64,linux/arm64`
+     - `push`: `${{ inputs.publish-container }}`
+     - `context`: `.`
+     - `file`: `src/main/docker/Dockerfile.alpine`
 
 </details>
 
