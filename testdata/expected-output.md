@@ -1,14 +1,17 @@
 # CI Pipeline
 
+**Triggers:** `push`, `pull_request`
+
 Main CI pipeline for building and testing the application.
 
 | Property | Value |
 |----------|-------|
 | File | `sample-workflow.yml` |
-| Triggers | `push`, `pull_request` |
 | Since | v1.0.0 |
 
 **See also:** https://docs.example.com/ci
+
+**Jobs:** [Build](#build-build), [Run Tests](#run-tests-test), [Deploy](#deploy-deploy)
 
 ## Event filters
 

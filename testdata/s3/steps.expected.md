@@ -1,11 +1,14 @@
 # Step Rendering
 
+**Triggers:** `push`, `workflow_dispatch`
+
 Exercises step rendering, matrix job names, runs-on normalization, and secret aggregation.
 
 | Property | Value |
 |----------|-------|
 | File | `steps.yml` |
-| Triggers | `push`, `workflow_dispatch` |
+
+**Jobs:** [Java ${{ matrix.java }}](#java--matrixjava--build), [Deploy ${{ matrix.target.env }}](#deploy--matrixtargetenv--deploy), [Verify ${{ matrix.case }}](#verify--matrixcase--verify)
 
 ## Event filters
 

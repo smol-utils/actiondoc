@@ -27,10 +27,11 @@
 
 # Build
 
+**Triggers:** `pull_request`
+
 | Property | Value |
 |----------|-------|
 | File | `build.yml` |
-| Triggers | `pull_request` |
 
 ## Permissions
 
@@ -63,12 +64,15 @@
 
 3. **Build**
 
+[Back to top](#contents)
+
 # Clear cache
+
+**Triggers:** `schedule`, `workflow_dispatch`
 
 | Property | Value |
 |----------|-------|
 | File | `cache.yml` |
-| Triggers | `schedule`, `workflow_dispatch` |
 
 ## Schedule
 
@@ -87,12 +91,17 @@
 1. **Clear caches**
    - Uses: `easimon/wipe-cache@e7ab82e64c328fd39c2e96933d426cd72ac2beba`
 
+[Back to top](#contents)
+
 # CodeQL
+
+**Triggers:** `workflow_dispatch`, `push`, `pull_request`
 
 | Property | Value |
 |----------|-------|
 | File | `codeql.yml` |
-| Triggers | `workflow_dispatch`, `push`, `pull_request` |
+
+**Jobs:** [Precheck](#precheck-precheck), [CodeQL](#codeql-codeql)
 
 ## Event filters
 
@@ -180,12 +189,17 @@ Permissions declared across the chain: `actions: read`, `contents: read`, `secur
    - With:
      - `category`: `/language:java`
 
+[Back to top](#contents)
+
 # EarlyAccess
+
+**Triggers:** `push`
 
 | Property | Value |
 |----------|-------|
 | File | `early-access.yml` |
-| Triggers | `push` |
+
+**Jobs:** [Precheck](#precheck-precheck), [Jlink](#jlink-jlink), [JPackage](#jpackage-jpackage), [Native Image](#native-image-native-image), [Release](#release-release), [Provenance](#provenance-provenance), [Update Wiki](#update-wiki-update-wiki)
 
 ## Event filters
 
@@ -403,12 +417,15 @@ External workflows referenced: `slsa-framework/slsa-github-generator/.github/wor
 
 - `gh-access-token`: `${{ secrets.GIT_ACCESS_TOKEN }}`
 
+[Back to top](#contents)
+
 # Lint
+
+**Triggers:** `push`
 
 | Property | Value |
 |----------|-------|
 | File | `lint.yml` |
-| Triggers | `push` |
 
 ## Event filters
 
@@ -438,12 +455,17 @@ External workflows referenced: `slsa-framework/slsa-github-generator/.github/wor
    - ID: `actionlint`
    - Uses: `raven-actions/actionlint@205b530c5d9fa8f44ae9ed59f341a0db994aa6f8` (v2.1.2)
 
+[Back to top](#contents)
+
 # OpenSSF Scorecard
+
+**Triggers:** `branch_protection_rule`, `schedule`, `push`, `workflow_dispatch`
 
 | Property | Value |
 |----------|-------|
 | File | `openssf-scorecard.yml` |
-| Triggers | `branch_protection_rule`, `schedule`, `push`, `workflow_dispatch` |
+
+**Jobs:** [Precheck](#precheck-precheck), [Scorecards analysis](#scorecards-analysis-analysis)
 
 ## Schedule
 
@@ -532,12 +554,17 @@ Permissions declared across the chain: `actions: read`, `contents: read`, `id-to
    - With:
      - `sarif_file`: `results.sarif`
 
+[Back to top](#contents)
+
 # Release
+
+**Triggers:** `workflow_dispatch`
 
 | Property | Value |
 |----------|-------|
 | File | `release.yml` |
-| Triggers | `workflow_dispatch` |
+
+**Jobs:** [Precheck](#precheck-precheck), [Jlink](#jlink-jlink), [JPackage](#jpackage-jpackage), [Native Image](#native-image-native-image), [Release](#release-release), [Provenance](#provenance-provenance), [Update Wiki](#update-wiki-update-wiki), [Update Website](#update-website-update-website)
 
 ## Permissions
 
@@ -834,12 +861,17 @@ External workflows referenced: `slsa-framework/slsa-github-generator/.github/wor
      - `NEXT_VERSION`: `${{ needs.precheck.outputs.next-version }}`
      - `COMMIT_EMAIL`: `${{ vars.COMMIT_EMAIL }}`
 
+[Back to top](#contents)
+
 # SmokeTests
+
+**Triggers:** `push`
 
 | Property | Value |
 |----------|-------|
 | File | `smoke-tests.yml` |
-| Triggers | `push` |
+
+**Jobs:** [Precheck](#precheck-precheck), [CLI ${{ matrix.job.os }}](#cli--matrixjobos--build-cli), [Tool ${{ matrix.job.os }}](#tool--matrixjobos--build-tool), [Ant ${{ matrix.job.os }}](#ant--matrixjobos--build-ant), [Gradle ${{ matrix.job.os }}](#gradle--matrixjobos--build-gradle), [Maven ${{ matrix.job.os }}](#maven--matrixjobos--build-maven), [Unit Test ${{ matrix.os }}](#unit-test--matrixos--unit-tests), [Coveralls](#coveralls-coveralls), [Codecov](#codecov-codecov), [Sonar](#sonar-sonar)
 
 ## Event filters
 
@@ -1509,12 +1541,15 @@ Permissions declared across the chain: `contents: read`
 9. **Cleanup**
    - Condition: `always()`
 
+[Back to top](#contents)
+
 # X-Jlink
+
+**Triggers:** `workflow_call`
 
 | Property | Value |
 |----------|-------|
 | File | `step-jlink.yml` |
-| Triggers | `workflow_call` |
 
 ## Workflow call API
 
@@ -1657,12 +1692,15 @@ step-jlink.yml
 
 15. **Delete JDK caches**
 
+[Back to top](#contents)
+
 # X-JPackage
+
+**Triggers:** `workflow_call`
 
 | Property | Value |
 |----------|-------|
 | File | `step-jpackage.yml` |
-| Triggers | `workflow_call` |
 
 ## Workflow call API
 
@@ -1772,12 +1810,15 @@ step-jpackage.yml
 
 12. **Stop Gradle daemon**
 
+[Back to top](#contents)
+
 # X-NativeImage
+
+**Triggers:** `workflow_call`
 
 | Property | Value |
 |----------|-------|
 | File | `step-native-image.yml` |
-| Triggers | `workflow_call` |
 
 ## Workflow call API
 
@@ -1892,12 +1933,15 @@ step-native-image.yml
 
 10. **Stop Gradle daemon**
 
+[Back to top](#contents)
+
 # X-Precheck
+
+**Triggers:** `workflow_call`
 
 | Property | Value |
 |----------|-------|
 | File | `step-precheck.yml` |
-| Triggers | `workflow_call` |
 
 ## Workflow call API
 
@@ -1961,12 +2005,15 @@ step-precheck.yml
 3. **Version**
    - ID: `vars`
 
+[Back to top](#contents)
+
 # X-BachInfo
+
+**Triggers:** `workflow_call`
 
 | Property | Value |
 |----------|-------|
 | File | `step-update-bach-info.yml` |
-| Triggers | `workflow_call` |
 
 ## Workflow call API
 
@@ -2032,12 +2079,15 @@ This workflow is reusable via `workflow_call`.
      - `VERSION`: `${{ inputs.project-version }}`
      - `COMMIT_EMAIL`: `${{ vars.COMMIT_EMAIL }}`
 
+[Back to top](#contents)
+
 # X-UpdateWiki
+
+**Triggers:** `workflow_call`
 
 | Property | Value |
 |----------|-------|
 | File | `step-update-wiki.yml` |
-| Triggers | `workflow_call` |
 
 ## Workflow call API
 
@@ -2124,12 +2174,15 @@ step-update-wiki.yml
      - `VERSION`: `${{ inputs.project-version }}`
      - `COMMIT_EMAIL`: `${{ inputs.commit-email }}`
 
+[Back to top](#contents)
+
 # Trigger Early Access
+
+**Triggers:** `workflow_dispatch`
 
 | Property | Value |
 |----------|-------|
 | File | `trigger-early-access.yml` |
-| Triggers | `workflow_dispatch` |
 
 ## Permissions
 
@@ -2184,4 +2237,6 @@ step-update-wiki.yml
      - `prerelease`: `true`
      - `name`: `JReleaser Early-Access`
      - `files`: `early-access/*`
+
+[Back to top](#contents)
 

@@ -67,10 +67,13 @@
 
 # Additional CI image checks
 
+**Triggers:** `workflow_call`
+
 | Property | Value |
 |----------|-------|
 | File | `additional-ci-image-checks.yml` |
-| Triggers | `workflow_call` |
+
+**Jobs:** [Push Early Image Cache](#push-early-image-cache-push-early-buildx-cache-to-github-registry), [Check that image builds quickly](#check-that-image-builds-quickly-check-that-image-builds-quickly)
 
 ## Workflow call API
 
@@ -179,12 +182,17 @@ additional-ci-image-checks.yml
 
 4. **Check that image builds quickly**
 
+[Back to top](#contents)
+
 # Additional PROD image tests
+
+**Triggers:** `workflow_call`
 
 | Property | Value |
 |----------|-------|
 | File | `additional-prod-image-tests.yml` |
-| Triggers | `workflow_call` |
+
+**Jobs:** [PROD image extra checks (main)](#prod-image-extra-checks-main-prod-image-extra-checks-main), [PROD image extra checks (release)](#prod-image-extra-checks-release-prod-image-extra-checks-release-branch), [Test examples of PROD image building](#test-examples-of-prod-image-building-test-examples-of-prod-image-building), [Docker Compose quick start with PROD image verifying](#docker-compose-quick-start-with-prod-image-verifying-test-docker-compose-quick-start), [Task SDK integration tests with PROD image](#task-sdk-integration-tests-with-prod-image-task-sdk-integration-tests), [Test e2e integration tests with PROD image](#test-e2e-integration-tests-with-prod-image-test-e2e-integration-tests-basic), [Remote logging tests with PROD image](#remote-logging-tests-with-prod-image-test-e2e-integration-tests-remote-log), [Elasticsearch remote logging tests with PROD image](#elasticsearch-remote-logging-tests-with-prod-image-test-e2e-integration-tests-remote-log-elasticsearch), [OpenSearch remote logging tests with PROD image](#opensearch-remote-logging-tests-with-prod-image-test-e2e-integration-tests-remote-log-opensearch), [XCom object storage backend tests with PROD image](#xcom-object-storage-backend-tests-with-prod-image-test-e2e-integration-tests-xcom-object-storage), [Event driven tests with PROD image](#event-driven-tests-with-prod-image-test-e2e-integration-tests-event-driven), [Chromium UI e2e tests with PROD image](#chromium-ui-e2e-tests-with-prod-image-test-ui-e2e-chromium), [Firefox UI e2e tests with PROD image](#firefox-ui-e2e-tests-with-prod-image-test-ui-e2e-firefox), [WebKit UI e2e tests with PROD image](#webkit-ui-e2e-tests-with-prod-image-test-ui-e2e-webkit), [Airflow CTL integration tests with PROD image](#airflow-ctl-integration-tests-with-prod-image-airflow-ctl-integration-tests)
 
 ## Workflow call API
 
@@ -569,12 +577,15 @@ additional-prod-image-tests.yml
 
 4. **Run airflowctl integration tests**
 
+[Back to top](#contents)
+
 # Non-core Distribution tests
+
+**Triggers:** `workflow_call`
 
 | Property | Value |
 |----------|-------|
 | File | `airflow-distributions-tests.yml` |
-| Triggers | `workflow_call` |
 
 ## Workflow call API
 
@@ -677,12 +688,15 @@ airflow-distributions-tests.yml
      - `PYTHON_VERSION`: `${{ matrix.python-version }}`
      - `TEST_TYPE`: `${{ inputs.test-type }}`
 
+[Back to top](#contents)
+
 # Airflow E2E Tests
+
+**Triggers:** `workflow_dispatch`, `workflow_call`
 
 | Property | Value |
 |----------|-------|
 | File | `airflow-e2e-tests.yml` |
-| Triggers | `workflow_dispatch`, `workflow_call` |
 
 ## Manual trigger inputs
 
@@ -818,12 +832,15 @@ airflow-e2e-tests.yml
      - `retention-days`: `7`
      - `if-no-files-found`: `error`
 
+[Back to top](#contents)
+
 # ASF Allowlist Check
+
+**Triggers:** `pull_request`, `push`
 
 | Property | Value |
 |----------|-------|
 | File | `asf-allowlist-check.yml` |
-| Triggers | `pull_request`, `push` |
 
 ## Event filters
 
@@ -855,12 +872,17 @@ airflow-e2e-tests.yml
 2. **apache/infrastructure-actions/allowlist-check**
    - Uses: `apache/infrastructure-actions/allowlist-check@4e9c961f587f72b170874b6f5cd4ac15f7f26eb8`
 
+[Back to top](#contents)
+
 # Automatic Backport
+
+**Triggers:** `push`
 
 | Property | Value |
 |----------|-------|
 | File | `automatic-backport.yml` |
-| Triggers | `push` |
+
+**Jobs:** [Get PR information](#get-pr-information-get-pr-info), [Trigger Backport](#trigger-backport-trigger-backport)
 
 ## Event filters
 
@@ -934,12 +956,15 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pul
 - `target-branch`: `${{ matrix.branch }}`
 - `commit-sha`: `${{ needs.get-pr-info.outputs.commit-sha }}`
 
+[Back to top](#contents)
+
 # Backport Commit
+
+**Triggers:** `workflow_dispatch`, `workflow_call`
 
 | Property | Value |
 |----------|-------|
 | File | `backport-cli.yml` |
-| Triggers | `workflow_dispatch`, `workflow_call` |
 
 ## Manual trigger inputs
 
@@ -1022,12 +1047,17 @@ backport-cli.yml
      - `TARGET_BRANCH`: `${{ inputs.target-branch }}`
      - `BACKPORT_URL`: `${{ steps.parse-backport-output.outputs.backport-url }}`
 
+[Back to top](#contents)
+
 # Basic tests
+
+**Triggers:** `workflow_call`
 
 | Property | Value |
 |----------|-------|
 | File | `basic-tests.yml` |
-| Triggers | `workflow_call` |
+
+**Jobs:** [Breeze unit tests](#breeze-unit-tests-run-breeze-tests), [Breeze integration tests](#breeze-integration-tests-run-breeze-integration-tests), [Shared ${{ matrix.shared-distribution }} tests](#shared--matrixshared-distribution--tests-tests-shared-distributions), [Scripts tests](#scripts-tests-tests-scripts), [React UI tests](#react-ui-tests-tests-ui), [Check translation completeness](#check-translation-completeness-check-translation-completness), [Static checks: basic checks only](#static-checks-basic-checks-only-static-checks-basic-checks-only), [Test git clone on Windows](#test-git-clone-on-windows-test-git-clone-on-windows), [Test Airflow release commands](#test-airflow-release-commands-test-airflow-release-commands), [Test Airflow standalone commands](#test-airflow-standalone-commands-test-airflow-standalone)
 
 ## Workflow call API
 
@@ -1389,12 +1419,15 @@ basic-tests.yml
 
 5. **Test airflow standalone command**
 
+[Back to top](#contents)
+
 # Check newsfragment PR number
+
+**Triggers:** `pull_request`
 
 | Property | Value |
 |----------|-------|
 | File | `check-newsfragment-pr-number.yml` |
-| Triggers | `pull_request` |
 
 ## Event filters
 
@@ -1425,12 +1458,17 @@ basic-tests.yml
      - `GH_TOKEN`: `${{ github.token }}`
      - `PR_NUMBER`: `${{ github.event.pull_request.number }}`
 
+[Back to top](#contents)
+
 # Tests (AMD)
+
+**Triggers:** `schedule`, `pull_request`, `push`, `workflow_dispatch`
 
 | Property | Value |
 |----------|-------|
 | File | `ci-amd.yml` |
-| Triggers | `schedule`, `pull_request`, `push`, `workflow_dispatch` |
+
+**Jobs:** [Build info](#build-info-build-info), [Platform: AMD](#platform-amd-print-platform), [Basic tests](#basic-tests-basic-tests), [Build CI images](#build-ci-images-build-ci-images), [Additional CI image checks](#additional-ci-image-checks-additional-ci-image-checks), [Generate constraints](#generate-constraints-generate-constraints), [CI image checks](#ci-image-checks-ci-image-checks), [MyPy providers checks](#mypy-providers-checks-mypy-providers), [Migration round-trip check](#migration-round-trip-check-migration-round-trip), [provider distributions tests](#provider-distributions-tests-providers), [Helm tests](#helm-tests-tests-helm), [Postgres tests: core](#postgres-tests-core-tests-postgres-core), [Postgres tests: providers](#postgres-tests-providers-tests-postgres-providers), [MySQL tests: core](#mysql-tests-core-tests-mysql-core), [MySQL tests: providers](#mysql-tests-providers-tests-mysql-providers), [Sqlite tests: core](#sqlite-tests-core-tests-sqlite-core), [Sqlite tests: providers](#sqlite-tests-providers-tests-sqlite-providers), [Non-DB tests: core](#non-db-tests-core-tests-non-db-core), [Non-DB tests: providers](#non-db-tests-providers-tests-non-db-providers), [Special tests](#special-tests-tests-special), [Integration and System Tests](#integration-and-system-tests-tests-integration-system), [Low dep tests:core](#low-dep-testscore-tests-with-lowest-direct-resolution-core), [Low dep tests: providers](#low-dep-tests-providers-tests-with-lowest-direct-resolution-providers), [Build PROD images](#build-prod-images-build-prod-images), [Additional PROD image tests](#additional-prod-image-tests-additional-prod-image-tests), [Kubernetes tests](#kubernetes-tests-tests-kubernetes), [Task SDK tests](#task-sdk-tests-tests-task-sdk), [Go SDK tests](#go-sdk-tests-tests-go-sdk), [Airflow CTL tests](#airflow-ctl-tests-tests-airflow-ctl), [Finalize tests](#finalize-tests-finalize-tests), [Notify Slack](#notify-slack-notify-slack), [Summarize warnings](#summarize-warnings-summarize-warnings)
 
 ## Schedule
 
@@ -2748,12 +2786,17 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
      - `if-no-files-found`: `ignore`
      - `overwrite`: `true`
 
+[Back to top](#contents)
+
 # Tests (ARM)
+
+**Triggers:** `schedule`, `push`, `workflow_dispatch`
 
 | Property | Value |
 |----------|-------|
 | File | `ci-arm.yml` |
-| Triggers | `schedule`, `push`, `workflow_dispatch` |
+
+**Jobs:** [Build info](#build-info-build-info), [Platform: ARM](#platform-arm-print-platform), [Basic tests](#basic-tests-basic-tests), [Build CI images](#build-ci-images-build-ci-images), [Additional CI image checks](#additional-ci-image-checks-additional-ci-image-checks), [Generate constraints](#generate-constraints-generate-constraints), [CI image checks](#ci-image-checks-ci-image-checks), [MyPy providers checks](#mypy-providers-checks-mypy-providers), [Migration round-trip check](#migration-round-trip-check-migration-round-trip), [provider distributions tests](#provider-distributions-tests-providers), [Helm tests](#helm-tests-tests-helm), [Postgres tests: core](#postgres-tests-core-tests-postgres-core), [Postgres tests: providers](#postgres-tests-providers-tests-postgres-providers), [MySQL tests: core](#mysql-tests-core-tests-mysql-core), [MySQL tests: providers](#mysql-tests-providers-tests-mysql-providers), [Sqlite tests: core](#sqlite-tests-core-tests-sqlite-core), [Sqlite tests: providers](#sqlite-tests-providers-tests-sqlite-providers), [Non-DB tests: core](#non-db-tests-core-tests-non-db-core), [Non-DB tests: providers](#non-db-tests-providers-tests-non-db-providers), [Special tests](#special-tests-tests-special), [Integration and System Tests](#integration-and-system-tests-tests-integration-system), [Low dep tests:core](#low-dep-testscore-tests-with-lowest-direct-resolution-core), [Low dep tests: providers](#low-dep-tests-providers-tests-with-lowest-direct-resolution-providers), [Build PROD images](#build-prod-images-build-prod-images), [Additional PROD image tests](#additional-prod-image-tests-additional-prod-image-tests), [Kubernetes tests](#kubernetes-tests-tests-kubernetes), [Task SDK tests](#task-sdk-tests-tests-task-sdk), [Go SDK tests](#go-sdk-tests-tests-go-sdk), [Airflow CTL tests](#airflow-ctl-tests-tests-airflow-ctl), [Finalize tests](#finalize-tests-finalize-tests), [Notify Slack](#notify-slack-notify-slack), [Summarize warnings](#summarize-warnings-summarize-warnings)
 
 ## Schedule
 
@@ -4068,12 +4111,15 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
      - `if-no-files-found`: `ignore`
      - `overwrite`: `true`
 
+[Back to top](#contents)
+
 # Build CI images
+
+**Triggers:** `workflow_call`
 
 | Property | Value |
 |----------|-------|
 | File | `ci-image-build.yml` |
-| Triggers | `workflow_call` |
 
 ## Workflow call API
 
@@ -4233,12 +4279,17 @@ ci-image-build.yml
 
 16. **Check disk space after build**
 
+[Back to top](#contents)
+
 # CI Image Checks
+
+**Triggers:** `workflow_call`
 
 | Property | Value |
 |----------|-------|
 | File | `ci-image-checks.yml` |
-| Triggers | `workflow_call` |
+
+**Jobs:** [Static checks](#static-checks-static-checks), [Build documentation](#build-documentation-build-docs), [Publish documentation and validate versions](#publish-documentation-and-validate-versions-publish-docs), [Test Python API client](#test-python-api-client-test-python-api-client)
 
 ## Workflow call API
 
@@ -4637,12 +4688,15 @@ ci-image-checks.yml
 
 7. **Python API client tests**
 
+[Back to top](#contents)
+
 # CI Notification
+
+**Triggers:** `schedule`, `workflow_dispatch`
 
 | Property | Value |
 |----------|-------|
 | File | `ci-notification.yml` |
-| Triggers | `schedule`, `workflow_dispatch` |
 
 ## Schedule
 
@@ -4745,12 +4799,15 @@ ci-image-checks.yml
      - `branch`: `${{ matrix.branch }}`
      - `workflow_id`: `${{ matrix.workflow-id }}`
 
+[Back to top](#contents)
+
 # CodeQL
+
+**Triggers:** `pull_request`, `push`, `schedule`
 
 | Property | Value |
 |----------|-------|
 | File | `codeql-analysis.yml` |
-| Triggers | `pull_request`, `push`, `schedule` |
 
 ## Schedule
 
@@ -4805,12 +4862,15 @@ ci-image-checks.yml
    - With:
      - `category`: `/language:${{matrix.language}}`
 
+[Back to top](#contents)
+
 # E2E Flaky Tests Report
+
+**Triggers:** `schedule`, `workflow_dispatch`
 
 | Property | Value |
 |----------|-------|
 | File | `e2e-flaky-tests-report.yml` |
-| Triggers | `schedule`, `workflow_dispatch` |
 
 ## Schedule
 
@@ -4878,12 +4938,17 @@ ci-image-checks.yml
      - `path`: `slack-message.json`
      - `retention-days`: `14`
 
+[Back to top](#contents)
+
 # Finalize tests
+
+**Triggers:** `workflow_call`
 
 | Property | Value |
 |----------|-------|
 | File | `finalize-tests.yml` |
-| Triggers | `workflow_call` |
+
+**Jobs:** [Update constraints](#update-constraints-update-constraints), [Deps ${{ matrix.python-version }}:${{ matrix.constraints-mode }}](#deps--matrixpython-version--matrixconstraints-mode--dependency-upgrade-summary), [Push Regular Image Cache ${{ inputs.platform }}](#push-regular-image-cache--inputsplatform--push-buildx-cache-to-github-registry)
 
 ## Workflow call API
 
@@ -5047,12 +5112,15 @@ finalize-tests.yml
 - `docker-cache`: `${{ inputs.docker-cache }}`
 - `disable-airflow-repo-cache`: `${{ inputs.disable-airflow-repo-cache }}`
 
+[Back to top](#contents)
+
 # Generate constraints
+
+**Triggers:** `workflow_call`
 
 | Property | Value |
 |----------|-------|
 | File | `generate-constraints.yml` |
-| Triggers | `workflow_call` |
 
 ## Workflow call API
 
@@ -5168,12 +5236,17 @@ generate-constraints.yml
    - Env:
      - `PYTHON_VERSION`: `${{ matrix.python-version }}`
 
+[Back to top](#contents)
+
 # Helm tests
+
+**Triggers:** `workflow_call`
 
 | Property | Value |
 |----------|-------|
 | File | `helm-tests.yml` |
-| Triggers | `workflow_call` |
+
+**Jobs:** [Unit tests Helm: ${{ matrix.helm-test-package }} (K8S ${{ matrix.kubernetes-version }})](#unit-tests-helm--matrixhelm-test-package--k8s--matrixkubernetes-version--tests-helm), [Release Helm](#release-helm-tests-helm-release)
 
 ## Workflow call API
 
@@ -5313,12 +5386,17 @@ helm-tests.yml
      - `retention-days`: `7`
      - `if-no-files-found`: `error`
 
+[Back to top](#contents)
+
 # Integration and system tests
+
+**Triggers:** `workflow_call`
 
 | Property | Value |
 |----------|-------|
 | File | `integration-system-tests.yml` |
-| Triggers | `workflow_call` |
+
+**Jobs:** [Integration core ${{ matrix.integration }}](#integration-core--matrixintegration--tests-core-integration), [Integration: providers ${{ matrix.integration }}](#integration-providers--matrixintegration--tests-providers-integration), [System Tests](#system-tests-tests-system)
 
 ## Workflow call API
 
@@ -5526,12 +5604,15 @@ integration-system-tests.yml
    - Uses: `./.github/actions/post_tests_failure`
    - Condition: `failure()`
 
+[Back to top](#contents)
+
 # K8s tests
+
+**Triggers:** `workflow_call`
 
 | Property | Value |
 |----------|-------|
 | File | `k8s-tests.yml` |
-| Triggers | `workflow_call` |
 
 ## Workflow call API
 
@@ -5633,12 +5714,17 @@ k8s-tests.yml
 8. **Delete clusters just in case they are left**
    - Condition: `always()`
 
+[Back to top](#contents)
+
 # Milestone Tag Assistant
+
+**Triggers:** `push`
 
 | Property | Value |
 |----------|-------|
 | File | `milestone-tag-assistant.yml` |
-| Triggers | `push` |
+
+**Jobs:** [Get PR information](#get-pr-information-get-pr-info), [Set milestone on merged PR](#set-milestone-on-merged-pr-set-milestone)
 
 ## Event filters
 
@@ -5721,12 +5807,15 @@ Permissions declared across the chain: `contents: write`, `pull-requests: write`
      - `BASE_BRANCH`: `${{ needs.get-pr-info.outputs.base-branch }}`
      - `MERGED_BY`: `${{ needs.get-pr-info.outputs.merged-by }}`
 
+[Back to top](#contents)
+
 # Notify uv.lock conflicts
+
+**Triggers:** `push`
 
 | Property | Value |
 |----------|-------|
 | File | `notify-uv-lock-conflicts.yml` |
-| Triggers | `push` |
 
 ## Event filters
 
@@ -5770,12 +5859,17 @@ Permissions declared across the chain: `contents: write`, `pull-requests: write`
      - `GITHUB_REPOSITORY`: `${{ github.repository }}`
      - `GITHUB_SHA`: `${{ github.sha }}`
 
+[Back to top](#contents)
+
 # Build PROD images
+
+**Triggers:** `workflow_call`
 
 | Property | Value |
 |----------|-------|
 | File | `prod-image-build.yml` |
-| Triggers | `workflow_call` |
+
+**Jobs:** [Build Airflow and provider distributions](#build-airflow-and-provider-distributions-build-prod-packages), [Build PROD ${{ inputs.build-type }} image ${{ matrix.python-version }}](#build-prod--inputsbuild-type--image--matrixpython-version--build-prod-images)
 
 ## Workflow call API
 
@@ -5992,12 +6086,15 @@ prod-image-build.yml
      - `if-no-files-found`: `error`
      - `retention-days`: `2`
 
+[Back to top](#contents)
+
 # PROD images extra checks
+
+**Triggers:** `workflow_call`
 
 | Property | Value |
 |----------|-------|
 | File | `prod-image-extra-checks.yml` |
-| Triggers | `workflow_call` |
 
 ## Workflow call API
 
@@ -6060,12 +6157,17 @@ prod-image-extra-checks.yml
 - `disable-airflow-repo-cache`: `${{ inputs.disable-airflow-repo-cache }}`
 - `prod-image-build`: `true`
 
+[Back to top](#contents)
+
 # Publish Docs to S3
+
+**Triggers:** `workflow_dispatch`
 
 | Property | Value |
 |----------|-------|
 | File | `publish-docs-to-s3.yml` |
-| Triggers | `workflow_dispatch` |
+
+**Jobs:** [Build Info](#build-info-build-info), [Build documentation](#build-documentation-build-docs), [Publish documentation to S3](#publish-documentation-to-s3-publish-docs-to-s3), [Update Provider Registry](#update-provider-registry-update-registry)
 
 ## Manual trigger inputs
 
@@ -6378,12 +6480,17 @@ Permissions declared across the chain: `contents: read`, `id-token: write (OIDC)
 - `DOCS_AWS_ACCESS_KEY_ID`: `${{ secrets.DOCS_AWS_ACCESS_KEY_ID }}`
 - `DOCS_AWS_SECRET_ACCESS_KEY`: `${{ secrets.DOCS_AWS_SECRET_ACCESS_KEY }}`
 
+[Back to top](#contents)
+
 # Push image cache
+
+**Triggers:** `workflow_call`
 
 | Property | Value |
 |----------|-------|
 | File | `push-image-cache.yml` |
-| Triggers | `workflow_call` |
+
+**Jobs:** [Push CI ${{ inputs.cache-type }}:${{ matrix.python }} image cache](#push-ci--inputscache-type--matrixpython--image-cache-push-ci-image-cache), [Push PROD ${{ inputs.cache-type }}:${{ matrix.python }} image cache](#push-prod--inputscache-type--matrixpython--image-cache-push-prod-image-cache)
 
 ## Workflow call API
 
@@ -6559,12 +6666,15 @@ push-image-cache.yml
    - Env:
      - `PLATFORM`: `${{ inputs.platform }}`
 
+[Back to top](#contents)
+
 # Recheck old bug reports
+
+**Triggers:** `schedule`
 
 | Property | Value |
 |----------|-------|
 | File | `recheck-old-bug-report.yml` |
-| Triggers | `schedule` |
 
 ## Schedule
 
@@ -6600,12 +6710,17 @@ push-image-cache.yml
      - `stale-issue-message`: `This issue has been automatically marked as stale because it has been open for 365 days without any activity. There has been several Airflow releases since last activity on this issue. Kindly asking to recheck the report against latest Airflow version and let us know if the issue is reproducible. The issue will be closed in next 30 days if no further activity occurs from the issue author.`
      - `close-issue-message`: `This issue has been closed because it has not received response from the issue author.`
 
+[Back to top](#contents)
+
 # Registry Backfill
+
+**Triggers:** `workflow_dispatch`
 
 | Property | Value |
 |----------|-------|
 | File | `registry-backfill.yml` |
-| Triggers | `workflow_dispatch` |
+
+**Jobs:** [Build CI image](#build-ci-image-build-ci-image), [`prepare`](#prepare), [Backfill ${{ matrix.provider }} (${{ matrix.versions }})](#backfill--matrixprovider---matrixversions--backfill), [Publish versions.json](#publish-versionsjson-publish-versions)
 
 ## Manual trigger inputs
 
@@ -6814,12 +6929,17 @@ Permissions declared across the chain: `contents: read`, `packages: read`, `pack
    - Env:
      - `S3_BUCKET`: `${{ needs.prepare.outputs.bucket }}`
 
+[Back to top](#contents)
+
 # Build & Publish Registry
+
+**Triggers:** `workflow_dispatch`, `workflow_call`
 
 | Property | Value |
 |----------|-------|
 | File | `registry-build.yml` |
-| Triggers | `workflow_dispatch`, `workflow_call` |
+
+**Jobs:** [Build CI image](#build-ci-image-build-ci-image), [Build & Publish Registry](#build--publish-registry-build-and-publish-registry)
 
 ## Manual trigger inputs
 
@@ -7024,12 +7144,15 @@ registry-build.yml
    - Env:
      - `S3_BUCKET`: `${{ steps.destination.outputs.bucket }}`
 
+[Back to top](#contents)
+
 # Registry Tests
+
+**Triggers:** `pull_request`, `push`
 
 | Property | Value |
 |----------|-------|
 | File | `registry-tests.yml` |
-| Triggers | `pull_request`, `push` |
 
 ## Event filters
 
@@ -7068,12 +7191,17 @@ registry-build.yml
 
 3. **Run registry extraction tests**
 
+[Back to top](#contents)
+
 # Release PROD images
+
+**Triggers:** `workflow_dispatch`
 
 | Property | Value |
 |----------|-------|
 | File | `release_dockerhub_image.yml` |
-| Triggers | `workflow_dispatch` |
+
+**Jobs:** [Build Info](#build-info-build-info), [Release images](#release-images-release-images)
 
 ## Manual trigger inputs
 
@@ -7202,12 +7330,17 @@ Permissions declared across the chain: `contents: read`, `packages: read`
 - `DOCKERHUB_USER`: `${{ secrets.DOCKERHUB_USER }}`
 - `DOCKERHUB_TOKEN`: `${{ secrets.DOCKERHUB_TOKEN }}`
 
+[Back to top](#contents)
+
 # Release single PROD image
+
+**Triggers:** `workflow_call`
 
 | Property | Value |
 |----------|-------|
 | File | `release_single_dockerhub_image.yml` |
-| Triggers | `workflow_call` |
+
+**Jobs:** [Build: ${{ inputs.airflowVersion }}, ${{ inputs.pythonVersion }}, ${{ matrix.platform }}](#build--inputsairflowversion---inputspythonversion---matrixplatform--build-images), [Merge: ${{ inputs.airflowVersion }}, ${{ inputs.pythonVersion }}](#merge--inputsairflowversion---inputspythonversion--merge-images)
 
 ## Workflow call API
 
@@ -7388,12 +7521,15 @@ release_single_dockerhub_image.yml
 14. **Docker logout**
    - Condition: `always()`
 
+[Back to top](#contents)
+
 # Unit tests
+
+**Triggers:** `workflow_call`
 
 | Property | Value |
 |----------|-------|
 | File | `run-unit-tests.yml` |
-| Triggers | `workflow_call` |
 
 ## Workflow call API
 
@@ -7583,12 +7719,15 @@ run-unit-tests.yml
    - Uses: `./.github/actions/post_tests_failure`
    - Condition: `failure() || cancelled()`
 
+[Back to top](#contents)
+
 # [main] Scheduled CI upgrade check
+
+**Triggers:** `schedule`, `workflow_dispatch`
 
 | Property | Value |
 |----------|-------|
 | File | `scheduled-upgrade-check-main.yml` |
-| Triggers | `schedule`, `workflow_dispatch` |
 
 ## Schedule
 
@@ -7638,12 +7777,15 @@ Permissions declared across the chain: `contents: write`, `pull-requests: write`
 
 - `SLACK_BOT_TOKEN`: `${{ secrets.SLACK_BOT_TOKEN }}`
 
+[Back to top](#contents)
+
 # [v3-2-test] Scheduled CI upgrade check
+
+**Triggers:** `schedule`, `workflow_dispatch`
 
 | Property | Value |
 |----------|-------|
 | File | `scheduled-upgrade-check-v3-2-test.yml` |
-| Triggers | `schedule`, `workflow_dispatch` |
 
 ## Schedule
 
@@ -7693,12 +7835,15 @@ Permissions declared across the chain: `contents: write`, `pull-requests: write`
 
 - `SLACK_BOT_TOKEN`: `${{ secrets.SLACK_BOT_TOKEN }}`
 
+[Back to top](#contents)
+
 # Scheduled verify release calendar
+
+**Triggers:** `schedule`, `workflow_dispatch`
 
 | Property | Value |
 |----------|-------|
 | File | `scheduled-verify-release-calendar.yml` |
-| Triggers | `schedule`, `workflow_dispatch` |
 
 ## Schedule
 
@@ -7743,12 +7888,17 @@ Permissions declared across the chain: `contents: write`, `pull-requests: write`
      - `token`: `${{ secrets.SLACK_BOT_TOKEN }}`
      - `payload`: `` channel: "release-management" text: >-   :warning: Release calendar verification failed.   See:   ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} blocks:   - type: section     text:       type: mrkdwn       text: >-         :warning: *Release calendar verification failed*          The scheduled `verify_release_calendar.py` check         failed. Please review and fix the mismatch between         the Confluence release wiki and the Google         Calendar entries.          • <https://cwiki.apache.org/confluence/display/AIRFLOW/Release+Plan|Release Plan wiki>          • <https://calendar.google.com/calendar/u/0?cid=Y19kZTIxNGU5MmRmM2I3NTk3NzljYjY1ZjNlNDllNTYyNzk2YzYxMjZlNzUwMGNmYTdlNTI0YmY3ODE4NmQ4YjVlQGdyb3VwLmNhbGVuZGFyLmdvb2dsZS5jb20|Release Calendar>          • <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View failed run> ``
 
+[Back to top](#contents)
+
 # Special tests
+
+**Triggers:** `workflow_call`
 
 | Property | Value |
 |----------|-------|
 | File | `special-tests.yml` |
-| Triggers | `workflow_call` |
+
+**Jobs:** [Min SQLAlchemy test: core](#min-sqlalchemy-test-core-tests-min-sqlalchemy), [Min SQLAlchemy test: providers](#min-sqlalchemy-test-providers-tests-min-sqlalchemy-providers), [Latest SQLAlchemy test: core](#latest-sqlalchemy-test-core-tests-latest-sqlalchemy), [Latest SQLAlchemy test: providers](#latest-sqlalchemy-test-providers-tests-latest-sqlalchemy-providers), [Latest Boto test: core](#latest-boto-test-core-tests-boto-core), [Latest Boto test: providers](#latest-boto-test-providers-tests-boto-providers), [Pendulum2 test: core](#pendulum2-test-core-tests-pendulum-2-core), [Pendulum2 test: providers](#pendulum2-test-providers-tests-pendulum-2-providers), [Quarantined test: core](#quarantined-test-core-tests-quarantined-core), [Quarantined test: providers](#quarantined-test-providers-tests-quarantined-providers), [System test: ${{ matrix.test-group }}](#system-test--matrixtest-group--tests-system-core)
 
 ## Workflow call API
 
@@ -8134,12 +8284,15 @@ special-tests.yml
 - `use-uv`: `${{ inputs.use-uv }}`
 - `default-branch`: `${{ inputs.default-branch }}`
 
+[Back to top](#contents)
+
 # Close stale PRs & Issues
+
+**Triggers:** `schedule`
 
 | Property | Value |
 |----------|-------|
 | File | `stale.yml` |
-| Triggers | `schedule` |
 
 ## Schedule
 
@@ -8187,12 +8340,17 @@ special-tests.yml
      - `days-before-issue-stale`: `-1`
      - `days-before-issue-close`: `-1`
 
+[Back to top](#contents)
+
 # Provider tests
+
+**Triggers:** `workflow_call`
 
 | Property | Value |
 |----------|-------|
 | File | `test-providers.yml` |
-| Triggers | `workflow_call` |
+
+**Jobs:** [Providers ${{ matrix.package-format }} tests](#providers--matrixpackage-format--tests-prepare-install-verify-provider-distributions), [Compat ${{ matrix.compat.airflow-version }}:P${{ matrix.compat.python-version }}:${{ matrix.compat.test-types.description }}](#compat--matrixcompatairflow-version-p-matrixcompatpython-version--matrixcompattest-typesdescription--providers-compatibility-tests-matrix)
 
 ## Workflow call API
 
@@ -8383,12 +8541,15 @@ test-providers.yml
      - `AIRFLOW_VERSION`: `${{ matrix.compat.airflow-version }}`
      - `REMOVE_PROVIDERS`: `${{ matrix.compat.remove-providers }}`
 
+[Back to top](#contents)
+
 # UI End-to-End Tests
+
+**Triggers:** `workflow_dispatch`, `workflow_call`
 
 | Property | Value |
 |----------|-------|
 | File | `ui-e2e-tests.yml` |
-| Triggers | `workflow_dispatch`, `workflow_call` |
 
 ## Manual trigger inputs
 
@@ -8554,12 +8715,17 @@ ui-e2e-tests.yml
      - `retention-days`: `14`
      - `if-no-files-found`: `warn`
 
+[Back to top](#contents)
+
 # Update constraints on push for stable branch (always)
+
+**Triggers:** `push`
 
 | Property | Value |
 |----------|-------|
 | File | `update-constraints-on-push-stable.yml` |
-| Triggers | `push` |
+
+**Jobs:** [Build info](#build-info-build-info), [Build CI images](#build-ci-images-build-ci-images), [Generate constraints](#generate-constraints-generate-constraints), [Commit and push constraints](#commit-and-push-constraints-update-constraints), [Notify on failure](#notify-on-failure-notify-on-failure)
 
 ## Event filters
 
@@ -8764,12 +8930,17 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
      - `token`: `${{ env.SLACK_BOT_TOKEN }}`
      - `payload`: `channel: "internal-airflow-ci-cd" text: "🚨 Update constraints workflow failed on branch *${{ github.ref_name }}*\n\n*Details:* <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View the failure log>" blocks:   - type: "section"     text:       type: "mrkdwn"       text: "🚨 Update constraints workflow failed on *${{ github.ref_name }}*\n\n*Details:* <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View the failure log>"`
 
+[Back to top](#contents)
+
 # Update constraints on push for main (only when uv.lock changes)
+
+**Triggers:** `push`
 
 | Property | Value |
 |----------|-------|
 | File | `update-constraints-on-push.yml` |
-| Triggers | `push` |
+
+**Jobs:** [Build info](#build-info-build-info), [Build CI images](#build-ci-images-build-ci-images), [Generate constraints](#generate-constraints-generate-constraints), [Commit and push constraints](#commit-and-push-constraints-update-constraints), [Notify on failure](#notify-on-failure-notify-on-failure)
 
 ## Event filters
 
@@ -8975,12 +9146,15 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
      - `token`: `${{ env.SLACK_BOT_TOKEN }}`
      - `payload`: `channel: "internal-airflow-ci-cd" text: "🚨 Update constraints workflow failed on branch *${{ github.ref_name }}*\n\n*Details:* <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View the failure log>" blocks:   - type: "section"     text:       type: "mrkdwn"       text: "🚨 Update constraints workflow failed on *${{ github.ref_name }}*\n\n*Details:* <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View the failure log>"`
 
+[Back to top](#contents)
+
 # Upgrade check
+
+**Triggers:** `workflow_call`
 
 | Property | Value |
 |----------|-------|
 | File | `upgrade-check.yml` |
-| Triggers | `workflow_call` |
 
 ## Workflow call API
 
@@ -9082,6 +9256,8 @@ upgrade-check.yml
      - `token`: `${{ env.SLACK_BOT_TOKEN }}`
      - `payload`: `` channel: "internal-airflow-ci-cd" text: >-   ⚠️ [${{ inputs.target-branch }}] Scheduled CI upgrade FAILED.   See: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} blocks:   - type: section     text:       type: mrkdwn       text: >-         ⚠️ *[${{ inputs.target-branch }}] Scheduled CI upgrade         FAILED*          The `breeze ci upgrade` job on the         `${{ inputs.target-branch }}` branch did not complete         successfully. Please investigate the failed run and         re-run the workflow if needed.          <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View failed run> ``
 
+[Back to top](#contents)
+
 # Setup Breeze
 
 Sets up Python and Breeze
@@ -9103,6 +9279,8 @@ Sets up Python and Breeze
 |------|-------------|
 | `host-python-version` | Python version used in host |
 
+[Back to top](#contents)
+
 # Install prek
 
 Installs prek and related packages
@@ -9120,6 +9298,8 @@ Installs prek and related packages
 | `save-cache` | Whether to save prek cache | Yes | - |
 | `platform` | Platform for the build - linux/amd64 or linux/arm64 | Yes | - |
 
+[Back to top](#contents)
+
 # Run migration tests
 
 Runs migration tests
@@ -9135,6 +9315,8 @@ Runs migration tests
 |------|-------------|----------|--------|
 | `python-version` | Python version to run the tests on | Yes | - |
 
+[Back to top](#contents)
+
 # Post tests on failure
 
 Run post tests actions on failure
@@ -9143,6 +9325,8 @@ Run post tests actions on failure
 |----------|-------|
 | File | `action.yml` |
 | Runs with | `composite` |
+
+[Back to top](#contents)
 
 # Post tests on success
 
@@ -9160,6 +9344,8 @@ Run post tests actions on success
 | `codecov-token` | Codecov token | Yes | - |
 | `python-version` | Python version | Yes | - |
 
+[Back to top](#contents)
+
 # Prepare all CI images
 
 Recreates current python CI images from artifacts for all python versions
@@ -9176,6 +9362,8 @@ Recreates current python CI images from artifacts for all python versions
 | `python-versions-list-as-string` | Stringified array of all Python versions to test - separated by spaces. | Yes | - |
 | `docker-volume-location` | File system location where to move docker space to | No | `/mnt/var-lib-docker` |
 | `platform` | Platform for the build - linux/amd64 or linux/arm64 | Yes | - |
+
+[Back to top](#contents)
 
 # Prepare breeze && current image (CI or PROD)
 
@@ -9202,6 +9390,8 @@ Installs breeze and recreates current python image from artifact
 |------|-------------|
 | `host-python-version` | Python version used in host |
 
+[Back to top](#contents)
+
 # Prepare single CI image
 
 Recreates current python image from artifacts (needed for the hard-coded actions calling all possible Python versions in "prepare_all_ci_images" action. Hopefully we can get rid of it when the https://github.com/apache/airflow/issues/45268 is resolved and we contribute capability of downloading multiple keys to the stash action.
@@ -9219,4 +9409,6 @@ Recreates current python image from artifacts (needed for the hard-coded actions
 | `python` | Python version for image to prepare | Yes | - |
 | `python-versions-list-as-string` | Stringified array of all Python versions to prepare - separated by spaces. | Yes | - |
 | `platform` | Platform for the build - linux/amd64 or linux/arm64 | Yes | - |
+
+[Back to top](#contents)
 

@@ -31,24 +31,31 @@ func RenderMarkdownGraph(w *model.Workflow, g *callgraph.Graph, id string) strin
 		fmt.Fprintf(&b, "> **Deprecated**: %s\n\n", w.Tags.Deprecated)
 	}
 
-	// Description
+	// Triggers: the fact a reader scans for first, promoted to a prominent line directly
+	// under the heading instead of being buried as one row in the properties table.
+	if len(w.On) > 0 {
+		fmt.Fprintf(&b, "**Triggers:** %s\n\n", codelist(w.On))
+	}
+
+	// Description (rendered as written; never fabricated when absent)
 	if w.Description != "" {
 		fmt.Fprintf(&b, "%s\n\n", w.Description)
 	}
 
-	// Properties table
+	// Properties table (the Triggers row is promoted to the line above)
 	b.WriteString("| Property | Value |\n")
 	b.WriteString("|----------|-------|\n")
 	fmt.Fprintf(&b, "| File | `%s` |\n", w.File)
-	if len(w.On) > 0 {
-		fmt.Fprintf(&b, "| Triggers | %s |\n", codelist(w.On))
-	}
 	if w.Tags.Since != "" {
 		fmt.Fprintf(&b, "| Since | %s |\n", w.Tags.Since)
 	}
 	b.WriteString("\n")
 
 	writeSeeAlso(&b, w.Tags.See)
+
+	// Job roster: a compact, scannable list of this workflow's jobs linking into the Jobs
+	// section below, placed before the deep content so the reader sees the roster up front.
+	renderJobMiniTOC(&b, w.Jobs)
 
 	renderWorkflowSurface(&b, w)
 
@@ -79,6 +86,46 @@ func RenderMarkdownGraph(w *model.Workflow, g *callgraph.Graph, id string) strin
 	}
 
 	return b.String()
+}
+
+// renderJobMiniTOC writes a one-line roster of a workflow's jobs, each linking to its job
+// heading, so a reader sees the job list without scrolling down to the Jobs section. Anchors
+// come from AssignAnchors over the job heading texts, applying the same GitHub-style slug and
+// duplicate "-N" disambiguation the headings themselves resolve to, so the links stay
+// correct. A lone job needs no roster, so the line is emitted only for two or more jobs.
+func renderJobMiniTOC(b *strings.Builder, jobs []model.Job) {
+	if len(jobs) < 2 {
+		return
+	}
+	texts := make([]string, len(jobs))
+	for i := range jobs {
+		texts[i] = jobHeadingText(&jobs[i])
+	}
+	slugs := AssignAnchors(texts)
+	parts := make([]string, len(jobs))
+	for i := range jobs {
+		parts[i] = fmt.Sprintf("[%s](#%s)", mdLinkLabel(jobMiniLabel(&jobs[i])), slugs[i])
+	}
+	fmt.Fprintf(b, "**Jobs:** %s\n\n", strings.Join(parts, ", "))
+}
+
+// jobHeadingText returns the visible text of a job's heading: the basis for its GitHub anchor
+// slug. It mirrors renderJob's heading construction so a mini-TOC link resolves to the
+// heading GitHub actually emits (backticks and parentheses drop out of the slug either way).
+func jobHeadingText(job *model.Job) string {
+	if job.Name != job.ID {
+		return job.Name + " (" + job.ID + ")"
+	}
+	return job.ID
+}
+
+// jobMiniLabel is a job's visible label in the mini-TOC: its name when distinct from the id,
+// otherwise the id rendered as inline code (matching the job heading's own treatment).
+func jobMiniLabel(job *model.Job) string {
+	if job.Name != job.ID {
+		return job.Name
+	}
+	return "`" + job.ID + "`"
 }
 
 func renderJob(b *strings.Builder, job *model.Job, g *callgraph.Graph, fromID string) {

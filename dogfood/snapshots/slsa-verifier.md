@@ -23,12 +23,13 @@
 
 # CodeQL
 
+**Triggers:** `push`, `pull_request`, `schedule`
+
 For most projects, this workflow file will not need changing; you simply need to commit it to your repository. You may wish to alter this file to override the set of languages analyzed, or to provide custom queries or build logic. ******** NOTE ******** We have attempted to detect the languages in your repository. Please check the `language` matrix defined below to confirm you have the correct set of supported CodeQL languages.
 
 | Property | Value |
 |----------|-------|
 | File | `codeql-analysis.yml` |
-| Triggers | `push`, `pull_request`, `schedule` |
 
 ## Schedule
 
@@ -82,12 +83,15 @@ All scopes: `read-all`.
 5. **Perform CodeQL Analysis**
    - Uses: `github/codeql-action/analyze@b6a472f63d85b9c78a3ac5e89422239fc15e9b3c` (v3.28.1)
 
+[Back to top](#contents)
+
 # Dependency Review
+
+**Triggers:** `pull_request`
 
 | Property | Value |
 |----------|-------|
 | File | `depsreview.yml` |
-| Triggers | `pull_request` |
 
 ## Permissions
 
@@ -109,12 +113,15 @@ All scopes: `read-all`.
 2. **Dependency Review**
    - Uses: `actions/dependency-review-action@3b139cfc5fae8b618d3eae3675e383bb1769c019` (v4.5.0)
 
+[Back to top](#contents)
+
 # Schedule cli
+
+**Triggers:** `workflow_run`
 
 | Property | Value |
 |----------|-------|
 | File | `e2e.schedule.cli.yml` |
-| Triggers | `workflow_run` |
 
 ## Event filters
 
@@ -165,12 +172,17 @@ All scopes: `read-all`.
 5. **./.github/workflows/scripts/e2e-report-success.sh**
    - Condition: `steps.name.outputs.continue == 'true' && github.event.workflow_run.conclusion == 'success'`
 
+[Back to top](#contents)
+
 # verifier action
+
+**Triggers:** `schedule`, `workflow_dispatch`
 
 | Property | Value |
 |----------|-------|
 | File | `e2e.schedule.installer.yml` |
-| Triggers | `schedule`, `workflow_dispatch` |
+
+**Jobs:** [`list-verifiers`](#list-verifiers), [`verifier-run`](#verifier-run), [`if-succeed`](#if-succeed), [`if-failed`](#if-failed)
 
 ## Manual trigger inputs
 
@@ -377,12 +389,15 @@ e2e.schedule.installer.yml [schedule, workflow_dispatch]
 
 2. **./.github/workflows/scripts/e2e-report-failure.sh**
 
+[Back to top](#contents)
+
 # PR Title
+
+**Triggers:** `pull_request`
 
 | Property | Value |
 |----------|-------|
 | File | `pr-title.yml` |
-| Triggers | `pull_request` |
 
 ## Event filters
 
@@ -417,12 +432,15 @@ All scopes: `read-all`.
      - `GITHUB_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
      - `configuration_path`: `.github/pr-title-checker-config.json`
 
+[Back to top](#contents)
+
 # Actions pre submits
+
+**Triggers:** `pull_request`, `workflow_dispatch`
 
 | Property | Value |
 |----------|-------|
 | File | `pre-submit.actions.yml` |
-| Triggers | `pull_request`, `workflow_dispatch` |
 
 ## Event filters
 
@@ -463,12 +481,15 @@ All scopes: `read-all`.
      - `name`: `dist`
      - `path`: `dist/`
 
+[Back to top](#contents)
+
 # Pre submits cli
+
+**Triggers:** `pull_request`, `workflow_dispatch`, `schedule`
 
 | Property | Value |
 |----------|-------|
 | File | `pre-submit.cli.yml` |
-| Triggers | `pull_request`, `workflow_dispatch`, `schedule` |
 
 ## Schedule
 
@@ -514,12 +535,15 @@ All scopes: `read-all`.
 
 5. **Run tests for verifier**
 
+[Back to top](#contents)
+
 # Pre submits e2e
+
+**Triggers:** `pull_request`, `workflow_dispatch`
 
 | Property | Value |
 |----------|-------|
 | File | `pre-submit.e2e.yml` |
-| Triggers | `pull_request`, `workflow_dispatch` |
 
 ## Event filters
 
@@ -572,12 +596,15 @@ All scopes: `read-all`.
      - `SLSA_VERIFIER_TESTING`: `true`
      - `GH_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
 
+[Back to top](#contents)
+
 # LFS Warning
+
+**Triggers:** `pull_request`
 
 | Property | Value |
 |----------|-------|
 | File | `pre-submit.lfs.yml` |
-| Triggers | `pull_request` |
 
 ## Event filters
 
@@ -617,12 +644,17 @@ All scopes: `read-all`.
      - `labelName`: `lfs-warning`
      - `exclusionPatterns`: `cli/slsa-verifier/testdata/**`
 
+[Back to top](#contents)
+
 # Pre submits Lint
+
+**Triggers:** `pull_request`
 
 | Property | Value |
 |----------|-------|
 | File | `pre-submit.lint.yml` |
-| Triggers | `pull_request` |
+
+**Jobs:** [`golangci-lint`](#golangci-lint), [`yamllint`](#yamllint), [`eslint`](#eslint), [`renovate-config-validator`](#renovate-config-validator)
 
 ## Permissions
 
@@ -701,12 +733,15 @@ All scopes: `read-all`.
 
 3. **make renovate-config-validator**
 
+[Back to top](#contents)
+
 # References pre submits
+
+**Triggers:** `pull_request`
 
 | Property | Value |
 |----------|-------|
 | File | `pre-submit.references.yml` |
-| Triggers | `pull_request` |
 
 ## Event filters
 
@@ -739,12 +774,17 @@ All scopes: `read-all`.
 
 2. **Check documentation is up-to-date**
 
+[Back to top](#contents)
+
 # Verifier releaser
+
+**Triggers:** `workflow_dispatch`, `push`, `schedule`
 
 | Property | Value |
 |----------|-------|
 | File | `release.yml` |
-| Triggers | `workflow_dispatch`, `push`, `schedule` |
+
+**Jobs:** [`args`](#args), [builder-${{matrix.os}}-${{matrix.arch}}](#builder-matrixos-matrixarch-builder), [`verification`](#verification), [`if-succeed`](#if-succeed), [`if-failed`](#if-failed)
 
 ## Schedule
 
@@ -904,12 +944,15 @@ All scopes: `read-all`.
 
 2. **./.github/workflows/scripts/e2e-report-failure.sh**
 
+[Back to top](#contents)
+
 # Scorecards supply-chain security
+
+**Triggers:** `branch_protection_rule`, `schedule`, `push`
 
 | Property | Value |
 |----------|-------|
 | File | `scorecards.yml` |
-| Triggers | `branch_protection_rule`, `schedule`, `push` |
 
 ## Schedule
 
@@ -965,14 +1008,19 @@ All scopes: `read-all`.
    - With:
      - `sarif_file`: `results.sarif`
 
+[Back to top](#contents)
+
 # Update actions dist post-commit
+
+**Triggers:** `workflow_dispatch`
 
 A workflow to run against renovate-bot's PRs, such as `make package` after it updates the package.json and package-lock.json files. The potentially untrusted code is first run inside a low-privilege Job, and the diff is uploaded as an artifact. Then a higher-privilege Job applies the diff and pushes the changes to the PR. It's important to only run this workflow against PRs from trusted sources, after also reviewing the changes! There have been vulnerabilities with using `git apply` https://github.blog/2023-04-25-git-security-vulnerabilities-announced-4/ At this point a compromised git binary cannot modify any of this repo's branches, only the PR fork's branch, due to our branch protection rules and CODEOWNERS. It aslso cannot submit a new release or modify exsiting releases due to tag protection rules.
 
 | Property | Value |
 |----------|-------|
 | File | `update-actions-dist-post-commit.yml` |
-| Triggers | `workflow_dispatch` |
+
+**Jobs:** [`diff`](#diff), [`push`](#push)
 
 ## Manual trigger inputs
 
@@ -1054,4 +1102,6 @@ No permissions granted (`permissions: {}` -- default-deny).
    - ID: `apply`
 
 5. **push**
+
+[Back to top](#contents)
 

@@ -66,10 +66,11 @@
 
 # Add model like runner
 
+**Triggers:** `push`
+
 | Property | Value |
 |----------|-------|
 | File | `add-model-like.yml` |
-| Triggers | `push` |
 
 ## Event filters
 
@@ -125,12 +126,15 @@
      - `name`: `run_all_tests_new_models_test_reports`
      - `path`: `reports/tests_new_models`
 
+[Back to top](#contents)
+
 # Anti-Slop
+
+**Triggers:** `pull_request_target`
 
 | Property | Value |
 |----------|-------|
 | File | `anti-slop.yml` |
-| Triggers | `pull_request_target` |
 
 ## Event filters
 
@@ -189,12 +193,15 @@
      - `exempt-author-association`: `OWNER,MEMBER,COLLABORATOR`
      - `exempt-label`: `exempt`
 
+[Back to top](#contents)
+
 # Assign PR Reviewers
+
+**Triggers:** `pull_request_target`
 
 | Property | Value |
 |----------|-------|
 | File | `assign-reviewers.yml` |
-| Triggers | `pull_request_target` |
 
 ## Event filters
 
@@ -244,12 +251,15 @@
    - Env:
      - `GITHUB_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
 
+[Back to top](#contents)
+
 # Self-hosted runner (benchmark)
+
+**Triggers:** `push`, `pull_request`
 
 | Property | Value |
 |----------|-------|
 | File | `benchmark.yml` |
-| Triggers | `push`, `pull_request` |
 
 ## Event filters
 
@@ -309,12 +319,15 @@
      - `PUSH_TO_HUB_TOKEN`: `${{ secrets.PUSH_TO_HUB_TOKEN }}`
      - `BRANCH_NAME`: `${{ github.head_ref || github.ref_name }}`
 
+[Back to top](#contents)
+
 # Benchmark v2 Framework
+
+**Triggers:** `workflow_dispatch`
 
 | Property | Value |
 |----------|-------|
 | File | `benchmark_v2.yml` |
-| Triggers | `workflow_dispatch` |
 
 ## Manual trigger inputs
 
@@ -389,12 +402,15 @@ benchmark_v2.yml
      - `BENCHMARK_REPO_ID`: `${{ inputs.benchmark_repo_id }}`
      - `UPLOAD_TOKEN`: `${{ secrets.TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN }}`
 
+[Back to top](#contents)
+
 # Benchmark v2 Scheduled Runner - A10 Single-GPU
+
+**Triggers:** `workflow_dispatch`
 
 | Property | Value |
 |----------|-------|
 | File | `benchmark_v2_a10_caller.yml` |
-| Triggers | `workflow_dispatch` |
 
 ## Permissions
 
@@ -434,12 +450,15 @@ Permissions declared across the chain: `contents: read`
 
 - `secrets: inherit` (all caller secrets are passed to the callee)
 
+[Back to top](#contents)
+
 # Benchmark v2 Scheduled Runner - MI325 Single-GPU
+
+**Triggers:** `workflow_dispatch`
 
 | Property | Value |
 |----------|-------|
 | File | `benchmark_v2_mi325_caller.yml` |
-| Triggers | `workflow_dispatch` |
 
 ## Permissions
 
@@ -479,12 +498,17 @@ Permissions declared across the chain: `contents: read`
 
 - `secrets: inherit` (all caller secrets are passed to the callee)
 
+[Back to top](#contents)
+
 # Build pr ci-docker
+
+**Triggers:** `push`, `repository_dispatch`, `workflow_call`, `schedule`
 
 | Property | Value |
 |----------|-------|
 | File | `build-ci-docker-images.yml` |
-| Triggers | `push`, `repository_dispatch`, `workflow_call`, `schedule` |
+
+**Jobs:** [`build`](#build), [`notify`](#notify)
 
 ## Workflow call API
 
@@ -578,12 +602,17 @@ This workflow is reusable via `workflow_call`.
      - `status`: `${{ job.status }}`
      - `slack_token`: `${{ secrets.SLACK_CIFEEDBACK_BOT_TOKEN }}`
 
+[Back to top](#contents)
+
 # Build docker images (scheduled)
+
+**Triggers:** `push`, `repository_dispatch`, `workflow_dispatch`, `workflow_call`, `schedule`
 
 | Property | Value |
 |----------|-------|
 | File | `build-docker-images.yml` |
-| Triggers | `push`, `repository_dispatch`, `workflow_dispatch`, `workflow_call`, `schedule` |
+
+**Jobs:** [Latest PyTorch \[dev\]](#latest-pytorch-dev-latest-docker), [PyTorch with Flash Attn \[dev\]](#pytorch-with-flash-attn-dev-flash-attn-ci-image), [Latest PyTorch + DeepSpeed](#latest-pytorch--deepspeed-latest-torch-deepspeed-docker), [Doc builder](#doc-builder-doc-builder), [Latest PyTorch (AMD) \[dev\]](#latest-pytorch-amd-dev-latest-pytorch-amd), [Cache Latest Pytorch (AMD) Image](#cache-latest-pytorch-amd-image-cache-latest-pytorch-amd), [PyTorch + DeepSpeed (AMD) \[dev\]](#pytorch--deepspeed-amd-dev-latest-pytorch-deepspeed-amd), [Latest Pytorch + Quantization \[dev\]](#latest-pytorch--quantization-dev-latest-quantization-torch-docker)
 
 ## Workflow call API
 
@@ -912,12 +941,17 @@ This workflow is reusable via `workflow_call`.
      - `status`: `${{ job.status }}`
      - `slack_token`: `${{ secrets.SLACK_CIFEEDBACK_BOT_TOKEN }}`
 
+[Back to top](#contents)
+
 # Build docker images (Nightly CI)
+
+**Triggers:** `workflow_call`, `push`
 
 | Property | Value |
 |----------|-------|
 | File | `build-nightly-ci-docker-images.yml` |
-| Triggers | `workflow_call`, `push` |
+
+**Jobs:** [Nightly PyTorch](#nightly-pytorch-latest-with-torch-nightly-docker), [Nightly PyTorch + DeepSpeed](#nightly-pytorch--deepspeed-nightly-torch-deepspeed-docker)
 
 ## Workflow call API
 
@@ -1020,12 +1054,17 @@ build-nightly-ci-docker-images.yml
      - `push`: `true`
      - `tags`: `huggingface/transformers-pytorch-deepspeed-nightly-gpu`
 
+[Back to top](#contents)
+
 # Build docker images (Past CI)
+
+**Triggers:** `push`
 
 | Property | Value |
 |----------|-------|
 | File | `build-past-ci-docker-images.yml` |
-| Triggers | `push` |
+
+**Jobs:** [Past PyTorch Docker](#past-pytorch-docker-past-pytorch-docker), [Past TensorFlow Docker](#past-tensorflow-docker-past-tensorflow-docker)
 
 ## Event filters
 
@@ -1125,12 +1164,17 @@ build-nightly-ci-docker-images.yml
      - `push`: `true`
      - `tags`: `huggingface/transformers-tensorflow-past-${{ matrix.version }}-gpu`
 
+[Back to top](#contents)
+
 # Build documentation
+
+**Triggers:** `workflow_dispatch`, `push`
 
 | Property | Value |
 |----------|-------|
 | File | `build_documentation.yml` |
-| Triggers | `workflow_dispatch`, `push` |
+
+**Jobs:** [`build`](#build), [`build_other_lang`](#build_other_lang)
 
 ## Event filters
 
@@ -1206,12 +1250,17 @@ External workflows referenced: `huggingface/doc-builder/.github/workflows/build_
 - `token`: `${{ secrets.HUGGINGFACE_PUSH }}`
 - `hf_token`: `${{ secrets.HF_DOC_BUILD_PUSH }}`
 
+[Back to top](#contents)
+
 # Build PR Documentation
+
+**Triggers:** `pull_request`, `merge_group`
 
 | Property | Value |
 |----------|-------|
 | File | `build_pr_documentation.yml` |
-| Triggers | `pull_request`, `merge_group` |
+
+**Jobs:** [`build`](#build), [`skip_merge_queue`](#skip_merge_queue), [`doc_build_status_check`](#doc_build_status_check)
 
 ## Permissions
 
@@ -1271,12 +1320,15 @@ External workflows referenced: `huggingface/doc-builder/.github/workflows/build_
 
 1. **if [[ "${{ needs.build.result }}" == "success" || "${{ ne...**
 
+[Back to top](#contents)
+
 # Check Permissions Advisor
+
+**Triggers:** `workflow_dispatch`
 
 | Property | Value |
 |----------|-------|
 | File | `check-workflow-permissions.yml` |
-| Triggers | `workflow_dispatch` |
 
 ## Manual trigger inputs
 
@@ -1322,12 +1374,17 @@ External workflows referenced: `huggingface/security-workflows/.github/workflows
 - `workflow_name`: `${{ inputs.workflow_name }}`
 - `run_count`: `${{ fromJSON(inputs.run_count) }}`
 
+[Back to top](#contents)
+
 # Process failed tests
+
+**Triggers:** `workflow_call`
 
 | Property | Value |
 |----------|-------|
 | File | `check_failed_tests.yml` |
-| Triggers | `workflow_call` |
+
+**Jobs:** [Setup matrix for finding commits](#setup-matrix-for-finding-commits-setup_check_new_failures), [Find commits for new failing tests](#find-commits-for-new-failing-tests-check_new_failures), [process bad commit reports](#process-bad-commit-reports-process_new_failures_with_commit_info)
 
 ## Workflow call API
 
@@ -1590,12 +1647,15 @@ check_failed_tests.yml
    - Env:
      - `SLACK_BOT_TOKEN`: `${{ secrets.SLACK_CIFEEDBACK_BOT_TOKEN }}`
 
+[Back to top](#contents)
+
 # Check Tiny Models
+
+**Triggers:** `push`, `repository_dispatch`, `schedule`
 
 | Property | Value |
 |----------|-------|
 | File | `check_tiny_models.yml` |
-| Triggers | `push`, `repository_dispatch`, `schedule` |
 
 ## Schedule
 
@@ -1664,12 +1724,15 @@ check_failed_tests.yml
      - `name`: `tiny_local_model_creation_reports`
      - `path`: `tiny_local_models/reports`
 
+[Back to top](#contents)
+
 # CircleCI Failure Summary Comment
+
+**Triggers:** `pull_request_target`
 
 | Property | Value |
 |----------|-------|
 | File | `circleci-failure-summary-comment.yml` |
-| Triggers | `pull_request_target` |
 
 ## Event filters
 
@@ -1752,12 +1815,15 @@ check_failed_tests.yml
      - `PR_NUMBER`: `${{ github.event.pull_request.number }}`
      - `PR_SHA`: `${{ github.event.pull_request.head.sha }}`
 
+[Back to top](#contents)
+
 # CodeQL Security Analysis
+
+**Triggers:** `push`, `workflow_dispatch`
 
 | Property | Value |
 |----------|-------|
 | File | `codeql.yml` |
-| Triggers | `push`, `workflow_dispatch` |
 
 ## Event filters
 
@@ -1802,12 +1868,15 @@ External workflows referenced: `huggingface/security-workflows/.github/workflows
 - `queries`: `security-extended,security-and-quality`
 - `runner`: `ubuntu-latest`
 
+[Back to top](#contents)
+
 # CI collated reports
+
+**Triggers:** `workflow_call`
 
 | Property | Value |
 |----------|-------|
 | File | `collated-reports.yml` |
-| Triggers | `workflow_call` |
 
 ## Workflow call API
 
@@ -1929,12 +1998,15 @@ collated-reports.yml
      - `REPORT_REPO_ID`: `${{ inputs.report_repo_id }}`
      - `GPU_NAME`: `${{ inputs.gpu_name }}`
 
+[Back to top](#contents)
+
 # Doctest job
+
+**Triggers:** `workflow_call`
 
 | Property | Value |
 |----------|-------|
 | File | `doctest_job.yml` |
-| Triggers | `workflow_call` |
 
 ## Workflow call API
 
@@ -2006,12 +2078,17 @@ doctest_job.yml
      - `name`: `doc_tests_gpu_test_reports_${{ env.split_keys }}`
      - `path`: `/transformers/reports/doc_tests_gpu_${{ env.split_keys }}`
 
+[Back to top](#contents)
+
 # Doctests
+
+**Triggers:** `push`, `repository_dispatch`, `schedule`
 
 | Property | Value |
 |----------|-------|
 | File | `doctests.yml` |
-| Triggers | `push`, `repository_dispatch`, `schedule` |
+
+**Jobs:** [Setup](#setup-setup), [Call doctest jobs](#call-doctest-jobs-call_doctest_job), [Send results to webhook](#send-results-to-webhook-send_results)
 
 ## Schedule
 
@@ -2124,12 +2201,17 @@ Permissions declared across the chain: `contents: read`
      - `name`: `doc_test_results`
      - `path`: `doc_test_results`
 
+[Back to top](#contents)
+
 # Extras Smoke Test
+
+**Triggers:** `schedule`
 
 | Property | Value |
 |----------|-------|
 | File | `extras-smoke-test.yml` |
-| Triggers | `schedule` |
+
+**Jobs:** [Get supported Python versions](#get-supported-python-versions-get-python-versions), [Test extras on Python ${{ matrix.python-version }}](#test-extras-on-python--matrixpython-version--test-extras), [Check Slack token availability](#check-slack-token-availability-precheck-slack), [Notify failures to Slack](#notify-failures-to-slack-notify-failures)
 
 ## Schedule
 
@@ -2275,12 +2357,15 @@ Permissions declared across the chain: `contents: read`
    - Env:
      - `SLACK_BOT_TOKEN`: `${{ secrets.SLACK_CIFEEDBACK_BOT_TOKEN }}`
 
+[Back to top](#contents)
+
 # Get PR commit SHA
+
+**Triggers:** `workflow_call`
 
 | Property | Value |
 |----------|-------|
 | File | `get-pr-info.yml` |
-| Triggers | `workflow_call` |
 
 ## Workflow call API
 
@@ -2354,12 +2439,15 @@ get-pr-info.yml
      - `head_commit_date`: `${{ steps.pr_info.outputs.head_commit_date }}`
      - `merge_commit_date`: `${{ steps.pr_info.outputs.merge_commit_date }}`
 
+[Back to top](#contents)
+
 # Get PR number
+
+**Triggers:** `workflow_call`
 
 | Property | Value |
 |----------|-------|
 | File | `get-pr-number.yml` |
-| Triggers | `workflow_call` |
 
 ## Workflow call API
 
@@ -2408,12 +2496,17 @@ get-pr-number.yml
 3. **Set PR number**
    - ID: `set_pr_number`
 
+[Back to top](#contents)
+
 # model jobs
+
+**Triggers:** `workflow_call`
 
 | Property | Value |
 |----------|-------|
 | File | `model_jobs.yml` |
-| Triggers | `workflow_call` |
+
+**Jobs:** [`run_models_gpu`](#run_models_gpu), [Collated Reports](#collated-reports-collated_reports)
 
 ## Workflow call API
 
@@ -2617,12 +2710,15 @@ model_jobs.yml
 
 - `secrets: inherit` (all caller secrets are passed to the callee)
 
+[Back to top](#contents)
+
 # model jobs
+
+**Triggers:** `workflow_call`
 
 | Property | Value |
 |----------|-------|
 | File | `model_jobs_intel_gaudi.yml` |
-| Triggers | `workflow_call` |
 
 ## Workflow call API
 
@@ -2741,14 +2837,17 @@ model_jobs_intel_gaudi.yml
      - `name`: `${{ env.machine_type }}_${{ inputs.report_name_prefix }}_${{ env.matrix_folders }}_test_reports`
      - `path`: `reports/${{ env.machine_type }}_${{ inputs.report_name_prefix }}_${{ matrix.folders }}_test_reports`
 
+[Back to top](#contents)
+
 # New model PR merged notification
+
+**Triggers:** `push`
 
 Used to notify core maintainers about new model PR being merged
 
 | Property | Value |
 |----------|-------|
 | File | `new_model_pr_merged_notification.yml` |
-| Triggers | `push` |
 
 ## Event filters
 
@@ -2801,12 +2900,15 @@ Used to notify core maintainers about new model PR being merged
    - Env:
      - `SLACK_BOT_TOKEN`: `${{ secrets.SLACK_CIFEEDBACK_BOT_TOKEN }}`
 
+[Back to top](#contents)
+
 # PR CI
+
+**Triggers:** `pull_request`
 
 | Property | Value |
 |----------|-------|
 | File | `pr-ci-caller.yml` |
-| Triggers | `pull_request` |
 
 ## Permissions
 
@@ -2852,12 +2954,17 @@ External workflows referenced: `huggingface/transformers-test-ci/.github/workflo
 - `OTEL_EXPORTER_OTLP_ENDPOINT`: `${{ secrets.OTEL_EXPORTER_OTLP_ENDPOINT }}`
 - `OTEL_TOKEN`: `${{ secrets.OTEL_TOKEN }}`
 
+[Back to top](#contents)
+
 # PR Repo. Consistency Bot
+
+**Triggers:** `issue_comment`
 
 | Property | Value |
 |----------|-------|
 | File | `pr-repo-consistency-bot.yml` |
-| Triggers | `issue_comment` |
+
+**Jobs:** [Get PR number](#get-pr-number-get-pr-number), [Get PR commit SHA](#get-pr-commit-sha-get-pr-info), [Check timestamps (security check)](#check-timestamps-security-check-check-timestamps), [Init Comment on PR](#init-comment-on-pr-init_comment_with_url), [`run-repo-consistency-checks`](#run-repo-consistency-checks), [`commit-and-comment`](#commit-and-comment)
 
 ## Event filters
 
@@ -3053,12 +3160,17 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pul
      - `COMMENT_ID`: `${{ needs.init_comment_with_url.outputs.comment_id }}`
      - `FINAL_COMMENT`: `${{ steps.prepare_final_comment.outputs.final_comment }}`
 
+[Back to top](#contents)
+
 # PR - build doc via comment
+
+**Triggers:** `issue_comment`
 
 | Property | Value |
 |----------|-------|
 | File | `pr_build_doc_with_comment.yml` |
-| Triggers | `issue_comment` |
+
+**Jobs:** [Get PR number](#get-pr-number-get-pr-number), [Get PR commit SHA](#get-pr-commit-sha-get-pr-info), [Verity PR commit corresponds to a specific event by comparing timestamps](#verity-pr-commit-corresponds-to-a-specific-event-by-comparing-timestamps-verity_pr_commit), [Create run](#create-run-create_run), [Reply to the comment](#reply-to-the-comment-reply_to_comment), [Build doc](#build-doc-build-doc), [Update Check Run Status](#update-check-run-status-update_run_status)
 
 ## Event filters
 
@@ -3222,12 +3334,17 @@ External workflows referenced: `huggingface/doc-builder/.github/workflows/build_
    - Env:
      - `NEEDS_GET_PR_INFO_OUTPUTS_PR_HEAD_SHA`: `${{ needs.get-pr-info.outputs.PR_HEAD_SHA }}`
 
+[Back to top](#contents)
+
 # PR slow CI - Suggestion
+
+**Triggers:** `pull_request_target`
 
 | Property | Value |
 |----------|-------|
 | File | `pr_slow_ci_suggestion.yml` |
-| Triggers | `pull_request_target` |
+
+**Jobs:** [Get PR number](#get-pr-number-get-pr-number), [Get PR commit SHA](#get-pr-commit-sha-get-pr-info), [Get test files to run](#get-test-files-to-run-get-jobs), [Send a comment to suggest jobs to run](#send-a-comment-to-suggest-jobs-to-run-send_comment)
 
 ## Event filters
 
@@ -3327,12 +3444,17 @@ Permissions declared across the chain: `contents: read`, `pull-requests: write`
      - `BODY`: `run-slow: ${{ needs.get-jobs.outputs.jobs }}`
      - `PR_NUMBER`: `${{ needs.get-pr-number.outputs.PR_NUMBER }}`
 
+[Back to top](#contents)
+
 # Slow tests on important models (on Push - A10)
+
+**Triggers:** `push`
 
 | Property | Value |
 |----------|-------|
 | File | `push-important-models.yml` |
-| Triggers | `push` |
+
+**Jobs:** [Get all modified files](#get-all-modified-files-get_modified_models), [Model CI](#model-ci-model-ci)
 
 ## Event filters
 
@@ -3411,12 +3533,15 @@ Permissions declared across the chain: `contents: read`
 
 - `secrets: inherit` (all caller secrets are passed to the callee)
 
+[Back to top](#contents)
+
 # Release - Conda
+
+**Triggers:** `push`
 
 | Property | Value |
 |----------|-------|
 | File | `release-conda.yml` |
-| Triggers | `push` |
 
 ## Event filters
 
@@ -3476,12 +3601,17 @@ Permissions declared across the chain: `contents: read`
 
 6. **Upload to Anaconda**
 
+[Back to top](#contents)
+
 # Release
+
+**Triggers:** `push`
 
 | Property | Value |
 |----------|-------|
 | File | `release.yml` |
-| Triggers | `push` |
+
+**Jobs:** [build release](#build-release-build_and_test), [`upload_package`](#upload_package)
 
 ## Event filters
 
@@ -3573,12 +3703,17 @@ Permissions declared across the chain: `contents: read`
    - With:
      - `verbose`: `true`
 
+[Back to top](#contents)
+
 # PR comment GitHub CI
+
+**Triggers:** `issue_comment`
 
 | Property | Value |
 |----------|-------|
 | File | `self-comment-ci.yml` |
-| Triggers | `issue_comment` |
+
+**Jobs:** [Get PR number](#get-pr-number-get-pr-number), [Get PR commit SHA](#get-pr-commit-sha-get-pr-info), [Check timestamps (security check)](#check-timestamps-security-check-check-timestamps), [`get-tests`](#get-tests), [Report error earlier](#report-error-earlier-report_error_earlier), [Reply to the comment](#reply-to-the-comment-reply_to_comment), [Create run](#create-run-create_run), [Model CI](#model-ci-model-ci), [Quantization CI](#quantization-ci-quantization-ci), [Check & Report](#check--report-report)
 
 ## Event filters
 
@@ -3866,12 +4001,17 @@ Permissions declared across the chain: `contents: read`, `pull-requests: write`,
      - `github_repository`: `${{ github.repository }}`
      - `pr_head_sha`: `${{ needs.check-timestamps.outputs.PR_HEAD_SHA }}`
 
+[Back to top](#contents)
+
 # Nvidia CI with nightly torch
+
+**Triggers:** `repository_dispatch`, `workflow_run`, `push`
 
 | Property | Value |
 |----------|-------|
 | File | `self-nightly-caller.yml` |
-| Triggers | `repository_dispatch`, `workflow_run`, `push` |
+
+**Jobs:** [Build CI Docker Images with nightly torch](#build-ci-docker-images-with-nightly-torch-build_nightly_torch_ci_images), [Setup](#setup-setup), [Model CI](#model-ci-model-ci)
 
 ## Event filters
 
@@ -3969,12 +4109,17 @@ Permissions declared across the chain: `contents: read`
 
 - `secrets: inherit` (all caller secrets are passed to the callee)
 
+[Back to top](#contents)
+
 # Self-hosted runner (nightly-past-ci-caller)
+
+**Triggers:** `schedule`, `push`
 
 | Property | Value |
 |----------|-------|
 | File | `self-nightly-past-ci-caller.yml` |
-| Triggers | `schedule`, `push` |
+
+**Jobs:** [Get number](#get-number-get_number), [TensorFlow 2.11](#tensorflow-211-run_past_ci_tensorflow_2-11), [TensorFlow 2.10](#tensorflow-210-run_past_ci_tensorflow_2-10), [TensorFlow 2.9](#tensorflow-29-run_past_ci_tensorflow_2-9), [TensorFlow 2.8](#tensorflow-28-run_past_ci_tensorflow_2-8), [TensorFlow 2.7](#tensorflow-27-run_past_ci_tensorflow_2-7), [TensorFlow 2.6](#tensorflow-26-run_past_ci_tensorflow_2-6), [TensorFlow 2.5](#tensorflow-25-run_past_ci_tensorflow_2-5)
 
 ## Schedule
 
@@ -4245,12 +4390,17 @@ Permissions declared across the chain: `contents: read`
 
 - `secrets: inherit` (all caller secrets are passed to the callee)
 
+[Back to top](#contents)
+
 # Self-hosted runner (past-ci)
+
+**Triggers:** `workflow_call`
 
 | Property | Value |
 |----------|-------|
 | File | `self-past-caller.yml` |
-| Triggers | `workflow_call` |
+
+**Jobs:** [Model CI](#model-ci-model-ci), [DeepSpeed CI](#deepspeed-ci-deepspeed-ci)
 
 ## Workflow call API
 
@@ -4319,12 +4469,15 @@ self-past-caller.yml
 
 - `secrets: inherit` (all caller secrets are passed to the callee)
 
+[Back to top](#contents)
+
 # Self-hosted runner (AMD scheduled CI caller)
+
+**Triggers:** `schedule`
 
 | Property | Value |
 |----------|-------|
 | File | `self-scheduled-amd-caller.yml` |
-| Triggers | `schedule` |
 
 ## Schedule
 
@@ -4347,12 +4500,17 @@ self-past-caller.yml
 
 1. **Trigger scheduled AMD CI via workflow\_run**
 
+[Back to top](#contents)
+
 # Self-hosted runner (AMD mi250 scheduled CI caller)
+
+**Triggers:** `workflow_run`, `push`
 
 | Property | Value |
 |----------|-------|
 | File | `self-scheduled-amd-mi250-caller.yml` |
-| Triggers | `workflow_run`, `push` |
+
+**Jobs:** [Model CI](#model-ci-model-ci), [Torch pipeline CI](#torch-pipeline-ci-torch-pipeline), [Example CI](#example-ci-example-ci), [DeepSpeed CI](#deepspeed-ci-deepspeed-ci)
 
 ## Event filters
 
@@ -4461,12 +4619,17 @@ External workflows referenced: `huggingface/hf-workflows/.github/workflows/trans
 
 - `secrets: inherit` (all caller secrets are passed to the callee)
 
+[Back to top](#contents)
+
 # Self-hosted runner scale set (AMD mi325 scheduled CI caller)
+
+**Triggers:** `workflow_run`, `push`
 
 | Property | Value |
 |----------|-------|
 | File | `self-scheduled-amd-mi325-caller.yml` |
-| Triggers | `workflow_run`, `push` |
+
+**Jobs:** [Model CI](#model-ci-model-ci), [Torch pipeline CI](#torch-pipeline-ci-torch-pipeline), [Example CI](#example-ci-example-ci), [DeepSpeed CI](#deepspeed-ci-deepspeed-ci)
 
 ## Event filters
 
@@ -4579,12 +4742,17 @@ External workflows referenced: `huggingface/hf-workflows/.github/workflows/trans
 
 - `secrets: inherit` (all caller secrets are passed to the callee)
 
+[Back to top](#contents)
+
 # Self-hosted runner scale set (AMD mi355 scheduled CI caller)
+
+**Triggers:** `workflow_run`, `push`
 
 | Property | Value |
 |----------|-------|
 | File | `self-scheduled-amd-mi355-caller.yml` |
-| Triggers | `workflow_run`, `push` |
+
+**Jobs:** [Model CI](#model-ci-model-ci), [Torch pipeline CI](#torch-pipeline-ci-torch-pipeline), [Example CI](#example-ci-example-ci), [DeepSpeed CI](#deepspeed-ci-deepspeed-ci)
 
 ## Event filters
 
@@ -4693,12 +4861,17 @@ External workflows referenced: `huggingface/hf-workflows/.github/workflows/trans
 
 - `secrets: inherit` (all caller secrets are passed to the callee)
 
+[Back to top](#contents)
+
 # Nvidia CI
+
+**Triggers:** `repository_dispatch`, `schedule`, `push`, `workflow_dispatch`
 
 | Property | Value |
 |----------|-------|
 | File | `self-scheduled-caller.yml` |
-| Triggers | `repository_dispatch`, `schedule`, `push`, `workflow_dispatch` |
+
+**Jobs:** [Setup](#setup-setup), [Model CI](#model-ci-model-ci), [Torch pipeline CI](#torch-pipeline-ci-torch-pipeline), [Example CI](#example-ci-example-ci), [Trainer/FSDP CI](#trainerfsdp-ci-trainer-fsdp-ci), [DeepSpeed CI](#deepspeed-ci-deepspeed-ci), [Quantization CI](#quantization-ci-quantization-ci), [Kernels CI](#kernels-ci-kernels-ci)
 
 ## Manual trigger inputs
 
@@ -4947,12 +5120,17 @@ Permissions declared across the chain: `contents: read`
 
 - `secrets: inherit` (all caller secrets are passed to the callee)
 
+[Back to top](#contents)
+
 # Nvidia CI - Flash Attn
+
+**Triggers:** `repository_dispatch`, `schedule`, `push`, `workflow_dispatch`
 
 | Property | Value |
 |----------|-------|
 | File | `self-scheduled-flash-attn-caller.yml` |
-| Triggers | `repository_dispatch`, `schedule`, `push`, `workflow_dispatch` |
+
+**Jobs:** [Setup](#setup-setup), [Model CI](#model-ci-model-ci)
 
 ## Manual trigger inputs
 
@@ -5044,12 +5222,17 @@ Permissions declared across the chain: `contents: read`
 
 - `secrets: inherit` (all caller secrets are passed to the callee)
 
+[Back to top](#contents)
+
 # Self-hosted runner (scheduled-intel-gaudi)
+
+**Triggers:** `workflow_call`
 
 | Property | Value |
 |----------|-------|
 | File | `self-scheduled-intel-gaudi.yml` |
-| Triggers | `workflow_call` |
+
+**Jobs:** [Setup](#setup-setup), [`run_models_gpu`](#run_models_gpu), [`run_trainer_and_fsdp_gpu`](#run_trainer_and_fsdp_gpu), [Pipelines](#pipelines-run_pipelines_torch_gpu), [Examples directory](#examples-directory-run_examples_gpu), [Intel Gaudi deepspeed tests](#intel-gaudi-deepspeed-tests-run_torch_cuda_extensions_gpu), [Slack Report](#slack-report-send_results)
 
 ## Workflow call API
 
@@ -5309,12 +5492,17 @@ self-scheduled-intel-gaudi.yml
 
 - `secrets: inherit` (all caller secrets are passed to the callee)
 
+[Back to top](#contents)
+
 # Self-hosted runner (Intel Gaudi3 scheduled CI caller)
+
+**Triggers:** `repository_dispatch`, `workflow_dispatch`, `schedule`
 
 | Property | Value |
 |----------|-------|
 | File | `self-scheduled-intel-gaudi3-caller.yml` |
-| Triggers | `repository_dispatch`, `workflow_dispatch`, `schedule` |
+
+**Jobs:** [Model CI](#model-ci-model-ci), [Pipeline CI](#pipeline-ci-pipeline-ci), [Example CI](#example-ci-example-ci), [DeepSpeed CI](#deepspeed-ci-deepspeed-ci), [Trainer/FSDP CI](#trainerfsdp-ci-trainer-fsdp-ci)
 
 ## Schedule
 
@@ -5448,12 +5636,17 @@ Permissions declared across the chain: `contents: read`
 
 - `secrets: inherit` (all caller secrets are passed to the callee)
 
+[Back to top](#contents)
+
 # Nvidia CI (job definitions)
+
+**Triggers:** `workflow_call`
 
 | Property | Value |
 |----------|-------|
 | File | `self-scheduled.yml` |
-| Triggers | `workflow_call` |
+
+**Jobs:** [Setup](#setup-setup), [`run_models_gpu`](#run_models_gpu), [`run_trainer_and_fsdp_gpu`](#run_trainer_and_fsdp_gpu), [PyTorch pipelines](#pytorch-pipelines-run_pipelines_torch_gpu), [Examples directory](#examples-directory-run_examples_gpu), [Torch CUDA extension tests](#torch-cuda-extension-tests-run_torch_cuda_extensions_gpu), [`run_quantization_torch_gpu`](#run_quantization_torch_gpu), [Kernel tests](#kernel-tests-run_kernels_gpu), [Extract warnings in CI artifacts](#extract-warnings-in-ci-artifacts-run_extract_warnings), [Slack Report](#slack-report-send_results), [Check new failures](#check-new-failures-check_new_failures)
 
 ## Workflow call API
 
@@ -5926,12 +6119,15 @@ self-scheduled.yml
 
 - `secrets: inherit` (all caller secrets are passed to the callee)
 
+[Back to top](#contents)
+
 # CI slack report
+
+**Triggers:** `workflow_call`
 
 | Property | Value |
 |----------|-------|
 | File | `slack-report.yml` |
-| Triggers | `workflow_call` |
 
 ## Workflow call API
 
@@ -6075,12 +6271,17 @@ slack-report.yml
      - `name`: `ci_results_${{ inputs.job }}`
      - `path`: `ci_results_${{ inputs.job }}`
 
+[Back to top](#contents)
+
 # SSH into our runners
+
+**Triggers:** `workflow_dispatch`
 
 | Property | Value |
 |----------|-------|
 | File | `ssh-runner.yml` |
-| Triggers | `workflow_dispatch` |
+
+**Jobs:** [Get runner to use](#get-runner-to-use-get_runner), [SSH](#ssh-ssh_runner)
 
 ## Manual trigger inputs
 
@@ -6187,12 +6388,15 @@ Inputs for the `workflow_dispatch` event.
      - `waitForSSH`: `true`
      - `sshTimeout`: `15m`
 
+[Back to top](#contents)
+
 # Stale Bot
+
+**Triggers:** `schedule`
 
 | Property | Value |
 |----------|-------|
 | File | `stale.yml` |
-| Triggers | `schedule` |
 
 ## Schedule
 
@@ -6245,14 +6449,17 @@ Inputs for the `workflow_dispatch` event.
 
 4. **Close stale issues**
 
+[Back to top](#contents)
+
 # TRL CI bot
+
+**Triggers:** `issue_comment`
 
 This workflow allows trusted contributors to trigger TRL CI runs against specific Transformers commits by commenting `/trl-ci` on a PR in the TRL repo. It is meant to be used during the ongoing Trainer refactor/unbloat in Transformers, to help evaluate the downstream impact on TRL.
 
 | Property | Value |
 |----------|-------|
 | File | `trl-ci-bot.yml` |
-| Triggers | `issue_comment` |
 
 ## Event filters
 
@@ -6317,12 +6524,15 @@ This workflow allows trusted contributors to trigger TRL CI runs against specifi
      - `STEPS_PR_OUTPUTS_SHA`: `${{ steps.pr.outputs.sha }}`
      - `STEPS_FIND_RUN_OUTPUTS_URL`: `${{ steps.find_run.outputs.url }}`
 
+[Back to top](#contents)
+
 # Secret Leaks
+
+**Triggers:** `push`
 
 | Property | Value |
 |----------|-------|
 | File | `trufflehog.yml` |
-| Triggers | `push` |
 
 ## Permissions
 
@@ -6349,12 +6559,15 @@ This workflow allows trusted contributors to trigger TRL CI runs against specifi
    - With:
      - `extra_args`: `--results=verified,unknown`
 
+[Back to top](#contents)
+
 # Update Transformers metadata
+
+**Triggers:** `push`
 
 | Property | Value |
 |----------|-------|
 | File | `update_metdata.yml` |
-| Triggers | `push` |
 
 ## Event filters
 
@@ -6396,12 +6609,15 @@ This workflow allows trusted contributors to trigger TRL CI runs against specifi
    - Env:
      - `HF_TOKEN`: `${{ secrets.LYSANDRE_HF_TOKEN }}`
 
+[Back to top](#contents)
+
 # Upload PR Documentation
+
+**Triggers:** `workflow_run`
 
 | Property | Value |
 |----------|-------|
 | File | `upload_pr_documentation.yml` |
-| Triggers | `workflow_run` |
 
 ## Event filters
 
@@ -6453,4 +6669,6 @@ External workflows referenced: `huggingface/doc-builder/.github/workflows/upload
 
 - `hf_token`: `${{ secrets.HF_DOC_BUILD_PUSH }}`
 - `comment_bot_token`: `${{ secrets.COMMENT_BOT_TOKEN }}`
+
+[Back to top](#contents)
 

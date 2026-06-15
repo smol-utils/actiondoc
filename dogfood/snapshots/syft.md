@@ -17,10 +17,11 @@
 
 # CodeQL
 
+**Triggers:** `push`, `pull_request`, `schedule`
+
 | Property | Value |
 |----------|-------|
 | File | `codeql.yaml` |
-| Triggers | `push`, `pull_request`, `schedule` |
 
 ## Schedule
 
@@ -65,12 +66,17 @@ External workflows referenced: `anchore/workflows/.github/workflows/codeql.yaml@
 - `actions`: `read`
 - `contents`: `read`
 
+[Back to top](#contents)
+
 # Release
+
+**Triggers:** `workflow_dispatch`
 
 | Property | Value |
 |----------|-------|
 | File | `release.yaml` |
-| Triggers | `workflow_dispatch` |
+
+**Jobs:** [`version-available`](#version-available), [`check-gate`](#check-gate), [`release`](#release), [`release-install-script`](#release-install-script)
 
 ## Manual trigger inputs
 
@@ -243,12 +249,15 @@ External workflows referenced: `anchore/workflows/.github/workflows/check-gate.y
 - `S3_INSTALL_AWS_ACCESS_KEY_ID`: `${{ secrets.TOOLBOX_AWS_ACCESS_KEY_ID }}`
 - `S3_INSTALL_AWS_SECRET_ACCESS_KEY`: `${{ secrets.TOOLBOX_AWS_SECRET_ACCESS_KEY }}`
 
+[Back to top](#contents)
+
 # Validate GitHub Actions
+
+**Triggers:** `workflow_dispatch`, `pull_request`, `push`
 
 | Property | Value |
 |----------|-------|
 | File | `validate-github-actions.yaml` |
-| Triggers | `workflow_dispatch`, `pull_request`, `push` |
 
 ## Event filters
 
@@ -286,12 +295,17 @@ No permissions granted (`permissions: {}` -- default-deny).
      - `advanced-security`: `true`
      - `inputs`: `.github`
 
+[Back to top](#contents)
+
 # Validations
+
+**Triggers:** `workflow_dispatch`, `pull_request`, `push`
 
 | Property | Value |
 |----------|-------|
 | File | `validations.yaml` |
-| Triggers | `workflow_dispatch`, `pull_request`, `push` |
+
+**Jobs:** [Static analysis](#static-analysis-static-analysis), [Unit tests](#unit-tests-unit-test), [Integration tests](#integration-tests-integration-test), [Build snapshot artifacts](#build-snapshot-artifacts-build-snapshot-artifacts), [Acceptance tests (Linux)](#acceptance-tests-linux-acceptance-linux), [Acceptance tests (Mac)](#acceptance-tests-mac-acceptance-mac), [CLI tests (Linux)](#cli-tests-linux-cli-linux)
 
 ## Event filters
 
@@ -546,6 +560,8 @@ Permissions declared across the chain: `contents: read`
 
 5. **Run CLI Tests (Linux)**
 
+[Back to top](#contents)
+
 # Bootstrap
 
 Bootstrap all syft tools and dependencies on top of go-make's setup action
@@ -564,4 +580,6 @@ Bootstrap all syft tools and dependencies on top of go-make's setup action
 | `cache-enabled` | Enable build/mod and tool caching (passed to go-make/setup) | Yes | `true` |
 | `download-test-fixture-cache` | Download test fixture cache from OCI and github actions | Yes | `false` |
 | `bootstrap-apt-packages` | Space delimited list of tools to install via apt | No | `libxml2-utils` |
+
+[Back to top](#contents)
 

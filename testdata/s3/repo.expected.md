@@ -18,10 +18,13 @@
 
 # CI
 
+**Triggers:** `push`
+
 | Property | Value |
 |----------|-------|
 | File | `ci.yml` |
-| Triggers | `push` |
+
+**Jobs:** [`build`](#build), [`deploy`](#deploy)
 
 ## Call graph (rooted at this workflow)
 
@@ -83,12 +86,15 @@ Permissions declared across the chain: `contents: read`, `id-token: write (OIDC)
      - `environment`: `staging` - Target environment name (required)
      - `token`: `${{ secrets.DEPLOY_TOKEN }}` - Deployment token
 
+[Back to top](#contents)
+
 # Reusable Build
+
+**Triggers:** `workflow_call`
 
 | Property | Value |
 |----------|-------|
 | File | `reusable.yml` |
-| Triggers | `workflow_call` |
 
 ## Workflow call API
 
@@ -125,6 +131,8 @@ reusable.yml
 
 1. **Build**
 
+[Back to top](#contents)
+
 # Deploy
 
 Deploys the application to an environment.
@@ -140,4 +148,6 @@ Deploys the application to an environment.
 |------|-------------|----------|--------|
 | `environment` | Target environment name | Yes | - |
 | `token` | Deployment token | No | - |
+
+[Back to top](#contents)
 

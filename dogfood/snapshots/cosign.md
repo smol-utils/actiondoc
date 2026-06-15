@@ -26,10 +26,11 @@
 
 # CI-Container-Build
 
+**Triggers:** `push`
+
 | Property | Value |
 |----------|-------|
 | File | `build.yaml` |
-| Triggers | `push` |
 
 ## Event filters
 
@@ -107,12 +108,15 @@ No permissions granted (`permissions: {}` -- default-deny).
      - `KO_PREFIX`: `ghcr.io/sigstore/cosign/cosign/ci`
      - `COSIGN_PASSWORD`: `${{secrets.COSIGN_PASSWORD}}`
 
+[Back to top](#contents)
+
 # CodeQL
+
+**Triggers:** `push`
 
 | Property | Value |
 |----------|-------|
 | File | `codeql-analysis.yml` |
-| Triggers | `push` |
 
 ## Event filters
 
@@ -179,12 +183,15 @@ No permissions granted (`permissions: {}` -- default-deny).
 7. **Perform CodeQL Analysis**
    - Uses: `github/codeql-action/analyze@65c74964a9ed8c44ed9f19d4bbc5757a6a8e9ab9` (v2.16.1)
 
+[Back to top](#contents)
+
 # Conformance Tests Nightly
+
+**Triggers:** `schedule`, `workflow_dispatch`
 
 | Property | Value |
 |----------|-------|
 | File | `conformance-nightly.yml` |
-| Triggers | `schedule`, `workflow_dispatch` |
 
 ## Schedule
 
@@ -242,12 +249,15 @@ No permissions granted (`permissions: {}` -- default-deny).
      - `github-token`: `${{ secrets.GITHUB_TOKEN }}`
      - `script`: `` const { owner, repo } = context.repo; const runId = context.runId; const issueTitle = 'Conformance Tests Failed'; const issueBody = `The nightly conformance tests have failed. Please check the logs for more details.\n\nWorkflow run: https://github.com/${owner}/${repo}/actions/runs/${runId}\n\ncc @sigstore/security-response-team @sigstore/cosign-codeowners`; const issueLabel = 'bug';  const existingIssues = await github.rest.issues.listForRepo({   owner,   repo,   state: 'open',   labels: issueLabel, });  const issueExists = existingIssues.data.some(issue => issue.title === issueTitle);  if (!issueExists) {   await github.rest.issues.create({     owner,     repo,     title: issueTitle,     body: issueBody,     labels: [issueLabel],   }); } ``
 
+[Back to top](#contents)
+
 # Conformance Tests
+
+**Triggers:** `push`, `pull_request`
 
 | Property | Value |
 |----------|-------|
 | File | `conformance.yml` |
-| Triggers | `push`, `pull_request` |
 
 ## Event filters
 
@@ -292,12 +302,15 @@ No permissions granted (`permissions: {}` -- default-deny).
      - `entrypoint`: `${{ github.workspace }}/conformance`
      - `xfail`: `test_verify*PATH-message-digest-mismatch_fail]`
 
+[Back to top](#contents)
+
 # Cut Release
+
+**Triggers:** `workflow_dispatch`
 
 | Property | Value |
 |----------|-------|
 | File | `cut-release.yml` |
-| Triggers | `workflow_dispatch` |
 
 ## Manual trigger inputs
 
@@ -346,12 +359,15 @@ External workflows referenced: `sigstore/community/.github/workflows/reusable-re
 - `service_account`: `github-actions-cosign@projectsigstore.iam.gserviceaccount.com`
 - `repo`: `cosign`
 
+[Back to top](#contents)
+
 # Dependency Review
+
+**Triggers:** `pull_request`
 
 | Property | Value |
 |----------|-------|
 | File | `depsreview.yml` |
-| Triggers | `pull_request` |
 
 ## Permissions
 
@@ -383,12 +399,15 @@ External workflows referenced: `sigstore/community/.github/workflows/reusable-de
 
 - `contents`: `read`
 
+[Back to top](#contents)
+
 # Do Not Submit
+
+**Triggers:** `pull_request`
 
 | Property | Value |
 |----------|-------|
 | File | `donotsubmit.yaml` |
-| Triggers | `pull_request` |
 
 ## Event filters
 
@@ -422,12 +441,17 @@ No permissions granted (`permissions: {}` -- default-deny).
 2. **Do Not Submit**
    - Uses: `chainguard-dev/actions/donotsubmit@c69a264ec2a5934c3186c618f368fc1c86f16cff` (v1.6.19)
 
+[Back to top](#contents)
+
 # e2e-tests
+
+**Triggers:** `push`, `pull_request`, `workflow_dispatch`
 
 | Property | Value |
 |----------|-------|
 | File | `e2e-tests.yml` |
-| Triggers | `push`, `pull_request`, `workflow_dispatch` |
+
+**Jobs:** [`e2e-cross`](#e2e-cross), [`e2e-test-pkcs11`](#e2e-test-pkcs11), [`e2e-kms`](#e2e-kms), [`e2e-registry`](#e2e-registry)
 
 ## Event filters
 
@@ -606,12 +630,15 @@ No permissions granted (`permissions: {}` -- default-deny).
    - Uses: `chainguard-dev/actions/kind-diag@c69a264ec2a5934c3186c618f368fc1c86f16cff` (v1.6.19)
    - Condition: `${{ failure() }}`
 
+[Back to top](#contents)
+
 # e2e-with-binary
+
+**Triggers:** `push`, `workflow_dispatch`
 
 | Property | Value |
 |----------|-------|
 | File | `e2e-with-binary.yml` |
-| Triggers | `push`, `workflow_dispatch` |
 
 ## Event filters
 
@@ -662,12 +689,15 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 4. **build cosign and check sign-blob and verify-blob**
 
+[Back to top](#contents)
+
 # Test GitHub OIDC
+
+**Triggers:** `push`, `schedule`, `workflow_dispatch`
 
 | Property | Value |
 |----------|-------|
 | File | `github-oidc.yaml` |
-| Triggers | `push`, `schedule`, `workflow_dispatch` |
 
 ## Schedule
 
@@ -731,12 +761,17 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 6. **Build and sign a container image**
 
+[Back to top](#contents)
+
 # golangci-lint
+
+**Triggers:** `push`, `pull_request`
 
 | Property | Value |
 |----------|-------|
 | File | `golangci-lint.yml` |
-| Triggers | `push`, `pull_request` |
+
+**Jobs:** [lint](#lint-golangci), [lint-test-e2e](#lint-test-e2e-golangci-test-e2e)
 
 ## Event filters
 
@@ -812,12 +847,15 @@ No permissions granted (`permissions: {}` -- default-deny).
      - `version`: `v2.9`
      - `args`: `--build-tags e2e ./test`
 
+[Back to top](#contents)
+
 # Test attest / verify-attestation
+
+**Triggers:** `pull_request`, `workflow_dispatch`
 
 | Property | Value |
 |----------|-------|
 | File | `kind-verify-attestation.yaml` |
-| Triggers | `pull_request`, `workflow_dispatch` |
 
 ## Event filters
 
@@ -923,12 +961,15 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 24. **Verify vuln attestation with cosign, fails**
 
+[Back to top](#contents)
+
 # Scorecards supply-chain security
+
+**Triggers:** `branch_protection_rule`, `schedule`, `push`
 
 | Property | Value |
 |----------|-------|
 | File | `scorecard-action.yml` |
-| Triggers | `branch_protection_rule`, `schedule`, `push` |
 
 ## Schedule
 
@@ -994,12 +1035,17 @@ No permissions granted (`permissions: {}` -- default-deny).
    - With:
      - `sarif_file`: `results.sarif`
 
+[Back to top](#contents)
+
 # CI-Tests
+
+**Triggers:** `workflow_dispatch`, `push`, `pull_request`
 
 | Property | Value |
 |----------|-------|
 | File | `tests.yaml` |
-| Triggers | `workflow_dispatch`, `push`, `pull_request` |
+
+**Jobs:** [Run unit tests](#run-unit-tests-unit-tests), [Run e2e tests](#run-e2e-tests-e2e-tests), [Run PowerShell E2E tests](#run-powershell-e2e-tests-e2e-windows-powershell-tests), [license boilerplate check](#license-boilerplate-check-license-check)
 
 ## Event filters
 
@@ -1172,12 +1218,17 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 5. **Check license headers**
 
+[Back to top](#contents)
+
 # CI-Validate-Release-Job
+
+**Triggers:** `pull_request`
 
 | Property | Value |
 |----------|-------|
 | File | `validate-release.yml` |
-| Triggers | `pull_request` |
+
+**Jobs:** [`check-signature`](#check-signature), [`validate-release-job`](#validate-release-job)
 
 ## Event filters
 
@@ -1237,12 +1288,15 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 6. **check binaries**
 
+[Back to top](#contents)
+
 # Docgen
+
+**Triggers:** `workflow_dispatch`, `push`, `pull_request`
 
 | Property | Value |
 |----------|-------|
 | File | `verify-docgen.yaml` |
-| Triggers | `workflow_dispatch`, `push`, `pull_request` |
 
 ## Event filters
 
@@ -1285,12 +1339,15 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 5. **./cmd/help/verify.sh**
 
+[Back to top](#contents)
+
 # Whitespace
+
+**Triggers:** `pull_request`
 
 | Property | Value |
 |----------|-------|
 | File | `whitespace.yaml` |
-| Triggers | `pull_request` |
 
 ## Event filters
 
@@ -1327,4 +1384,6 @@ No permissions granted (`permissions: {}` -- default-deny).
 3. **chainguard-dev/actions/eof-newline@v1.6.19**
    - Uses: `chainguard-dev/actions/eof-newline@c69a264ec2a5934c3186c618f368fc1c86f16cff` (v1.6.19)
    - Condition: `${{ always() }}`
+
+[Back to top](#contents)
 

@@ -1,9 +1,10 @@
 # Licensed CI
 
+**Triggers:** `push`
+
 | Property | Value |
 |----------|-------|
 | File | `license-header.yml` |
-| Triggers | `push` |
 
 ## Event filters
 

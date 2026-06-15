@@ -35,10 +35,13 @@
 
 # Build and Deploy Snapshot
 
+**Triggers:** `workflow_dispatch`, `push`
+
 | Property | Value |
 |----------|-------|
 | File | `build-and-deploy-snapshot.yml` |
-| Triggers | `workflow_dispatch`, `push` |
+
+**Jobs:** [Build and Deploy Snapshot](#build-and-deploy-snapshot-build-and-deploy-snapshot), [Trigger Docs Build](#trigger-docs-build-trigger-docs-build), [Verify](#verify-verify)
 
 ## Event filters
 
@@ -181,12 +184,15 @@ Permissions declared across the chain: `actions: write`, `contents: read`
 - `opensource-repository-username`: `${{ secrets.ARTIFACTORY_USERNAME }}`
 - `token`: `${{ secrets.GH_ACTIONS_REPO_TOKEN }}`
 
+[Back to top](#contents)
+
 # Build Pull Request
+
+**Triggers:** `pull_request`
 
 | Property | Value |
 |----------|-------|
 | File | `build-pull-request.yml` |
-| Triggers | `pull_request` |
 
 ## Permissions
 
@@ -233,12 +239,15 @@ Permissions declared across the chain: `contents: read`
      - `name`: `build-reports`
      - `path`: `**/build/reports/`
 
+[Back to top](#contents)
+
 # CI
+
+**Triggers:** `push`
 
 | Property | Value |
 |----------|-------|
 | File | `ci.yml` |
-| Triggers | `push` |
 
 ## Event filters
 
@@ -325,12 +334,15 @@ Permissions declared across the chain: `contents: read`
      - `status`: `${{ job.status }}` - Status of the job (required)
      - `webhook-url`: `${{ secrets.GOOGLE_CHAT_WEBHOOK_URL }}` - Google Chat Webhook URL (required)
 
+[Back to top](#contents)
+
 # Distribute
+
+**Triggers:** `workflow_dispatch`
 
 | Property | Value |
 |----------|-------|
 | File | `distribute.yml` |
-| Triggers | `workflow_dispatch` |
 
 ## Manual trigger inputs
 
@@ -380,12 +392,17 @@ Inputs for the `workflow_dispatch` event.
 3. **Distribute Bundle**
    - Condition: `${{ vars.COMMERCIAL }}`
 
+[Back to top](#contents)
+
 # Release Milestone
+
+**Triggers:** `push`
 
 | Property | Value |
 |----------|-------|
 | File | `release-milestone.yml` |
-| Triggers | `push` |
+
+**Jobs:** [Build and Stage Release](#build-and-stage-release-build-and-stage-release), [Verify](#verify-verify), [Sync to Maven Central](#sync-to-maven-central-sync-to-maven-central), [Promote Release](#promote-release-promote-release), [Publish Gradle Plugin](#publish-gradle-plugin-publish-gradle-plugin), [Trigger Docs Build](#trigger-docs-build-trigger-docs-build), [Create GitHub Release](#create-github-release-create-github-release)
 
 ## Event filters
 
@@ -597,12 +614,17 @@ Permissions declared across the chain: `actions: write`, `contents: read`
      - `pre-release`: `true` - Whether the release is a pre-release (a milestone or release candidate)
      - `token`: `${{ secrets.GH_ACTIONS_REPO_TOKEN }}` - Token to use for authentication with GitHub (required)
 
+[Back to top](#contents)
+
 # Release
+
+**Triggers:** `push`
 
 | Property | Value |
 |----------|-------|
 | File | `release.yml` |
-| Triggers | `push` |
+
+**Jobs:** [Build and Stage Release](#build-and-stage-release-build-and-stage-release), [Verify](#verify-verify), [Sync to Maven Central](#sync-to-maven-central-sync-to-maven-central), [Promote Release](#promote-release-promote-release), [Publish Gradle Plugin](#publish-gradle-plugin-publish-gradle-plugin), [Publish to SDKMAN!](#publish-to-sdkman-publish-to-sdkman), [Update Homebrew Tap](#update-homebrew-tap-update-homebrew-tap), [Trigger Docs Build](#trigger-docs-build-trigger-docs-build), [Create GitHub Release](#create-github-release-create-github-release)
 
 ## Event filters
 
@@ -878,12 +900,15 @@ Permissions declared across the chain: `actions: write`, `contents: read`
      - `milestone`: `${{ needs.build-and-stage-release.outputs.version }}` - Name of the GitHub milestone for which a release will be created (required)
      - `token`: `${{ secrets.GH_ACTIONS_REPO_TOKEN }}` - Token to use for authentication with GitHub (required)
 
+[Back to top](#contents)
+
 # Run CodeQL Analysis
+
+**Triggers:** `push`, `pull_request`, `workflow_dispatch`
 
 | Property | Value |
 |----------|-------|
 | File | `run-codeql-analysis.yml` |
-| Triggers | `push`, `pull_request`, `workflow_dispatch` |
 
 ## Permissions
 
@@ -916,12 +941,15 @@ External workflows referenced: `spring-io/github-actions/.github/workflows/codeq
 - `contents`: `read`
 - `security-events`: `write`
 
+[Back to top](#contents)
+
 # Run System Tests
+
+**Triggers:** `push`
 
 | Property | Value |
 |----------|-------|
 | File | `run-system-tests.yml` |
-| Triggers | `push` |
 
 ## Event filters
 
@@ -997,12 +1025,15 @@ Permissions declared across the chain: `contents: read`
      - `status`: `${{ job.status }}` - Status of the job (required)
      - `webhook-url`: `${{ secrets.GOOGLE_CHAT_WEBHOOK_URL }}` - Google Chat Webhook URL (required)
 
+[Back to top](#contents)
+
 # Trigger Docs Build
+
+**Triggers:** `push`, `workflow_dispatch`
 
 | Property | Value |
 |----------|-------|
 | File | `trigger-docs-build.yml` |
-| Triggers | `push`, `workflow_dispatch` |
 
 ## Manual trigger inputs
 
@@ -1056,12 +1087,15 @@ Inputs for the `workflow_dispatch` event.
    - Env:
      - `GH_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
 
+[Back to top](#contents)
+
 # Verify
+
+**Triggers:** `workflow_call`
 
 | Property | Value |
 |----------|-------|
 | File | `verify.yml` |
-| Triggers | `workflow_call` |
 
 ## Workflow call API
 
@@ -1184,6 +1218,8 @@ verify.yml
      - `status`: `${{ job.status }}`
      - `webhook-url`: `${{ secrets.google-chat-webhook-url }}`
 
+[Back to top](#contents)
+
 # Await HTTP Resource
 
 Waits for an HTTP resource to be available (a HEAD request succeeds)
@@ -1198,6 +1234,8 @@ Waits for an HTTP resource to be available (a HEAD request succeeds)
 | Name | Description | Required | Default |
 |------|-------------|----------|--------|
 | `url` | URL of the resource to await | Yes | - |
+
+[Back to top](#contents)
 
 # Build
 
@@ -1231,6 +1269,8 @@ Builds the project, optionally publishing it to a local deployment repository
 | `build-scan-url` | URL, if any, of the build scan produced by the build |
 | `version` | Version that was built |
 
+[Back to top](#contents)
+
 # Create GitHub Release
 
 Create the release on GitHub with a changelog
@@ -1248,6 +1288,8 @@ Create the release on GitHub with a changelog
 | `milestone` | Name of the GitHub milestone for which a release will be created | Yes | - |
 | `pre-release` | Whether the release is a pre-release (a milestone or release candidate) | No | `false` |
 | `token` | Token to use for authentication with GitHub | Yes | - |
+
+[Back to top](#contents)
 
 # Prepare Gradle Build
 
@@ -1269,6 +1311,8 @@ Prepares a Gradle build. Sets up Java and Gradle and configures Gradle propertie
 | `java-toolchain` | Whether a Java toolchain should be used | No | `false` |
 | `java-version` | Java version to use for the build | No | `25` |
 
+[Back to top](#contents)
+
 # Print JVM thread dumps
 
 Prints a thread dump for all running JVMs
@@ -1277,6 +1321,8 @@ Prints a thread dump for all running JVMs
 |----------|-------|
 | File | `action.yml` |
 | Runs with | `composite` |
+
+[Back to top](#contents)
 
 # Publish Gradle Plugin
 
@@ -1297,6 +1343,8 @@ Publishes Spring Boot's Gradle plugin to the Plugin Portal
 | `jfrog-cli-config-token` | Config token for the JFrog CLI | Yes | - |
 | `plugin-version` | Version of the plugin | Yes | - |
 
+[Back to top](#contents)
+
 # Publish to SDKMAN!
 
 Publishes the release as a new candidate version on SDKMAN!
@@ -1314,6 +1362,8 @@ Publishes the release as a new candidate version on SDKMAN!
 | `sdkman-consumer-key` | Key for publishing to SDKMAN! | Yes | - |
 | `sdkman-consumer-token` | Token for publishing to SDKMAN! | Yes | - |
 | `spring-boot-version` | Version to publish | Yes | - |
+
+[Back to top](#contents)
 
 # Send Notification
 
@@ -1333,6 +1383,8 @@ Sends a Google Chat message as a notification of the job's outcome
 | `status` | Status of the job | Yes | - |
 | `webhook-url` | Google Chat Webhook URL | Yes | - |
 
+[Back to top](#contents)
+
 # Sync to Maven Central
 
 Syncs a release to Maven Central and waits for it to be available for use
@@ -1351,6 +1403,8 @@ Syncs a release to Maven Central and waits for it to be available for use
 | `jfrog-cli-config-token` | Config token for the JFrog CLI | Yes | - |
 | `spring-boot-version` | Version of Spring Boot that is being synced to Central | Yes | - |
 
+[Back to top](#contents)
+
 # Update Homebrew Tap
 
 Updates the Homebrew Tap for the Spring Boot CLI
@@ -1366,4 +1420,6 @@ Updates the Homebrew Tap for the Spring Boot CLI
 |------|-------------|----------|--------|
 | `spring-boot-version` | The version to publish | Yes | - |
 | `token` | Token to use for GitHub authentication | Yes | - |
+
+[Back to top](#contents)
 

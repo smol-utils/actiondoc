@@ -177,16 +177,21 @@ func renderMarkdownOutput(sources []callgraph.Source, graph *callgraph.Graph, in
 			sections = append(sections, renderer.RenderActionMarkdown(s.Action))
 		}
 	}
-	body := strings.Join(sections, "")
-
 	// A single document is self-describing (its own H1 + properties); the orientation
-	// header and contents list only earn their space once there are several sections.
+	// header, contents list, and per-section back-to-top links only earn their space once
+	// there are several sections to navigate between.
 	if len(sources) < 2 {
-		return body
+		return strings.Join(sections, "")
+	}
+
+	// Each top-level section ends with a link back to the Contents list, so a reader deep in
+	// one section can return to navigation without scrolling.
+	for i := range sections {
+		sections[i] += "[Back to top](#contents)\n\n"
 	}
 
 	header, toc := renderDocumentNav(sources, graph, slugs, inputPath)
-	return header + toc + body
+	return header + toc + strings.Join(sections, "")
 }
 
 // tocGroup indexes the three TOC families in render order.
@@ -265,13 +270,26 @@ func titleOf(s callgraph.Source) string {
 }
 
 // sourceDisambiguator returns the path fragment that distinguishes a source from a
-// same-named sibling in the TOC. Workflows use their filename; composite actions use their
-// containing directory, since every action metadata file is named action.yml/action.yaml.
+// same-named sibling in the TOC. Workflows use their filename; composite actions use the
+// last two segments of their containing directory, since every action metadata file is
+// named action.yml/action.yaml and actions are discovered at any depth -- a single leaf
+// directory name can repeat across depths, so two segments keep the label unambiguous while
+// staying compact.
 func sourceDisambiguator(s callgraph.Source) string {
 	if s.Action != nil {
-		return filepath.Base(filepath.Dir(s.Path))
+		return lastTwoPathSegments(filepath.Dir(s.Path))
 	}
 	return filepath.Base(s.Path)
+}
+
+// lastTwoPathSegments returns the final two segments of a slash- or OS-separated path joined
+// with "/", or the whole path when it has fewer than two segments.
+func lastTwoPathSegments(p string) string {
+	parts := strings.Split(filepath.ToSlash(filepath.Clean(p)), "/")
+	if len(parts) >= 2 {
+		return parts[len(parts)-2] + "/" + parts[len(parts)-1]
+	}
+	return parts[len(parts)-1]
 }
 
 // documentTitle derives the document/repo title from the scanned path. A path of the form

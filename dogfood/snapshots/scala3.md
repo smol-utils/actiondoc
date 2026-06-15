@@ -32,12 +32,13 @@
 
 # Build 'scala' Chocolatey Package
 
+**Triggers:** `workflow_call`
+
 THIS IS A REUSABLE WORKFLOW TO BUILD SCALA WITH CHOCOLATEY HOW TO USE: NOTE:
 
 | Property | Value |
 |----------|-------|
 | File | `build-chocolatey.yml` |
-| Triggers | `workflow_call` |
 
 ## Workflow call API
 
@@ -102,14 +103,17 @@ build-chocolatey.yml
      - `path`: `./pkgs/chocolatey/scala.${{ inputs.version }}.nupkg`
      - `if-no-files-found`: `error`
 
+[Back to top](#contents)
+
 # Build the MSI Package
+
+**Triggers:** `workflow_call`
 
 THIS IS A REUSABLE WORKFLOW TO BUILD SCALA MSI HOW TO USE: - THE RELEASE WORKFLOW SHOULD CALL THIS WORKFLOW - IT WILL UPLOAD TO GITHUB THE MSI FILE FOR SCALA UNDER THE 'scala.msi' NAME NOTE: - WE SHOULD BUILD SCALA USING JAVA 8
 
 | Property | Value |
 |----------|-------|
 | File | `build-msi.yml` |
-| Triggers | `workflow_call` |
 
 ## Workflow call API
 
@@ -165,14 +169,17 @@ build-msi.yml
      - `name`: `scala.msi`
      - `path`: `./dist/win-x86_64/target/windows/scala.msi`
 
+[Back to top](#contents)
+
 # Build Scala Launchers
+
+**Triggers:** `workflow_call`
 
 THIS IS A REUSABLE WORKFLOW TO BUILD THE SCALA LAUNCHERS HOW TO USE: - THSI WORKFLOW WILL PACKAGE THE ALL THE LAUNCHERS AND UPLOAD THEM TO GITHUB ARTIFACTS NOTE: - SEE THE WORFLOW FOR THE NAMES OF THE ARTIFACTS
 
 | Property | Value |
 |----------|-------|
 | File | `build-sdk.yml` |
-| Triggers | `workflow_call` |
 
 ## Workflow call API
 
@@ -291,12 +298,17 @@ build-sdk.yml
 16. **Compute SHA256 of the uploaded artifact (win x86-64)**
    - ID: `win-x86_64-digest`
 
+[Back to top](#contents)
+
 # Scala 3
+
+**Triggers:** `push`, `pull_request`, `merge_group`, `workflow_dispatch`
 
 | Property | Value |
 |----------|-------|
 | File | `ci.yaml` |
-| Triggers | `push`, `pull_request`, `merge_group`, `workflow_dispatch` |
+
+**Jobs:** [`stdlib-tests`](#stdlib-tests), [`test_windows_full`](#test_windows_full), [`publish_release`](#publish_release), [`build-msi-package`](#build-msi-package), [`test-msi-package`](#test-msi-package), [`build-sdk-package`](#build-sdk-package), [`build-chocolatey-package`](#build-chocolatey-package), [`test-chocolatey-package`](#test-chocolatey-package), [`scalafmt`](#scalafmt)
 
 ## Event filters
 
@@ -513,12 +525,15 @@ Permissions declared across the chain: `contents: read`, `contents: write`
 
 4. **scala-cli format --check**
 
+[Back to top](#contents)
+
 # Scala CLA
+
+**Triggers:** `pull_request`
 
 | Property | Value |
 |----------|-------|
 | File | `cla.yml` |
-| Triggers | `pull_request` |
 
 ## Event filters
 
@@ -541,12 +556,15 @@ Permissions declared across the chain: `contents: read`, `contents: write`
    - With:
      - `author`: `${{ github.event.pull_request.user.login }}`
 
+[Back to top](#contents)
+
 # Update Dependency Graph
+
+**Triggers:** `push`
 
 | Property | Value |
 |----------|-------|
 | File | `dependency-graph.yml` |
-| Triggers | `push` |
 
 ## Event filters
 
@@ -572,12 +590,15 @@ Permissions declared across the chain: `contents: read`, `contents: write`
 3. **scalacenter/sbt-dependency-submission@v3**
    - Uses: `scalacenter/sbt-dependency-submission@v3`
 
+[Back to top](#contents)
+
 # Language reference documentation
+
+**Triggers:** `push`, `pull_request`, `workflow_dispatch`
 
 | Property | Value |
 |----------|-------|
 | File | `language-reference.yaml` |
-| Triggers | `push`, `pull_request`, `workflow_dispatch` |
 
 ## Event filters
 
@@ -648,12 +669,15 @@ Permissions declared across the chain: `contents: read`, `contents: write`
 7. **\cp -a dotty/scaladoc/output/reference/. scala3-reference...**
    - Condition: `github.event_name == 'push'`
 
+[Back to top](#contents)
+
 # Add to backporting project
+
+**Triggers:** `push`
 
 | Property | Value |
 |----------|-------|
 | File | `lts-backport.yaml` |
-| Triggers | `push` |
 
 ## Event filters
 
@@ -703,14 +727,17 @@ Permissions declared across the chain: `contents: read`, `contents: write`
    - Env:
      - `GRAPHQL_API_TOKEN`: `${{ steps.app-token.outputs.token }}`
 
+[Back to top](#contents)
+
 # Publish Scala to Chocolatey
+
+**Triggers:** `workflow_call`
 
 THIS IS A REUSABLE WORKFLOW TO PUBLISH SCALA TO CHOCOLATEY HOW TO USE: - THE RELEASE WORKFLOW SHOULD CALL THIS WORKFLOW - IT WILL PUBLISH TO CHOCOLATEY THE MSI NOTE: - WE SHOULD KEEP IN SYNC THE NAME OF THE MSI WITH THE ACTUAL BUILD - WE SHOULD KEEP IN SYNC THE URL OF THE RELEASE - IT ASSUMES THAT THE `build-chocolatey` WORKFLOW WAS EXECUTED BEFORE
 
 | Property | Value |
 |----------|-------|
 | File | `publish-chocolatey.yml` |
-| Triggers | `workflow_call` |
 
 ## Workflow call API
 
@@ -763,14 +790,19 @@ publish-chocolatey.yml
      - `VERSION`: `${{ inputs.version }}`
      - `KEY`: `${{ secrets.API-KEY }}`
 
+[Back to top](#contents)
+
 # Publish Scala to SDKMAN!
+
+**Triggers:** `workflow_call`
 
 THIS IS A REUSABLE WORKFLOW TO PUBLISH SCALA TO SDKMAN! HOW TO USE: - THE RELEASE WORKFLOW SHOULD CALL THIS WORKFLOW - IT WILL PUBLISH TO SDKMAN! THE BINARIES TO EACH SUPPORTED PLATFORM AND A UNIVERSAL JAR - IT CHANGES THE DEFAULT VERSION IN SDKMAN! NOTE: - WE SHOULD KEEP IN SYNC THE NAME OF THE ARCHIVES WITH THE ACTUAL BUILD - WE SHOULD KEEP IN SYNC THE URL OF THE RELEASE
 
 | Property | Value |
 |----------|-------|
 | File | `publish-sdkman.yml` |
-| Triggers | `workflow_call` |
+
+**Jobs:** [`publish`](#publish), [`default`](#default)
 
 ## Workflow call API
 
@@ -849,14 +881,17 @@ publish-sdkman.yml
      - `CANDIDATE`: `scala`
      - `VERSION`: `${{ inputs.version }}`
 
+[Back to top](#contents)
+
 # Publish Scala to winget
+
+**Triggers:** `workflow_call`
 
 THIS IS A REUSABLE WORKFLOW TO PUBLISH SCALA TO WINGET HOW TO USE: - THE RELEASE WORKFLOW SHOULD CALL THIS WORKFLOW - IT WILL PUBLISH THE MSI TO WINGET NOTE: - WE SHOULD KEEP IN SYNC THE https://github.com/dottybot/winget-pkgs REPOSITORY
 
 | Property | Value |
 |----------|-------|
 | File | `publish-winget.yml` |
-| Triggers | `workflow_call` |
 
 ## Workflow call API
 
@@ -909,12 +944,17 @@ publish-winget.yml
      - `fork-user`: `dottybot`
      - `token`: `${{ secrets.DOTTYBOT-TOKEN }}`
 
+[Back to top](#contents)
+
 # Release Artifacts to Maven
+
+**Triggers:** `workflow_call`
 
 | Property | Value |
 |----------|-------|
 | File | `release-maven-artifacts.yml` |
-| Triggers | `workflow_call` |
+
+**Jobs:** [`release-maven-artifacts`](#release-maven-artifacts), [`release-maven-lts-artifacts`](#release-maven-lts-artifacts)
 
 ## Workflow call API
 
@@ -1073,12 +1113,17 @@ release-maven-artifacts.yml
      - `PGP_PW`: `${{ secrets.PGP_PW }}`
      - `PGP_SECRET`: `${{ secrets.PGP_SECRET }}`
 
+[Back to top](#contents)
+
 # Nightly Release of Scala 3
+
+**Triggers:** `workflow_dispatch`, `schedule`
 
 | Property | Value |
 |----------|-------|
 | File | `release-nightly.yml` |
-| Triggers | `workflow_dispatch`, `schedule` |
+
+**Jobs:** [`stdlib-tests`](#stdlib-tests), [`release-maven-artifacts`](#release-maven-artifacts), [`release-documentation`](#release-documentation)
 
 ## Schedule
 
@@ -1193,14 +1238,19 @@ Permissions declared across the chain: `contents: read`
      - `external_repository`: `scala/nightly.scala-lang.org`
      - `publish_branch`: `main`
 
+[Back to top](#contents)
+
 # Official release of Scala
+
+**Triggers:** `workflow_dispatch`
 
 OFFICIAL RELEASE WORKFLOW HOW TO USE: - THIS WORKFLOW WILL NEED TO BE TRIGGERED MANUALLY NOTE: - THIS WORKFLOW SHOULD ONLY BE RUN ON STABLE RELEASES - IT ASSUMES THAT THE PRE-RELEASE WORKFLOW WAS PREVIOUSLY EXECUTED
 
 | Property | Value |
 |----------|-------|
 | File | `releases.yml` |
-| Triggers | `workflow_dispatch` |
+
+**Jobs:** [`publish-sdkman`](#publish-sdkman), [`publish-winget`](#publish-winget), [`compute-digest`](#compute-digest), [`build-chocolatey`](#build-chocolatey), [`test-chocolatey`](#test-chocolatey), [`publish-chocolatey`](#publish-chocolatey)
 
 ## Manual trigger inputs
 
@@ -1321,12 +1371,17 @@ Secrets referenced (literal names): `API-KEY`, `CHOCOLATEY_KEY`, `CONSUMER-KEY`,
 
 - `API-KEY`: `${{ secrets.CHOCOLATEY_KEY }}`
 
+[Back to top](#contents)
+
 # scaladoc
+
+**Triggers:** `push`, `pull_request`, `merge_group`
 
 | Property | Value |
 |----------|-------|
 | File | `scaladoc.yaml` |
-| Triggers | `push`, `pull_request`, `merge_group` |
+
+**Jobs:** [`build`](#build), [`validate-docs`](#validate-docs), [`validate-generated-docs`](#validate-generated-docs), [`stdlib-sourcelinks-test`](#stdlib-sourcelinks-test), [`check-error-code-snippets`](#check-error-code-snippets)
 
 ## Event filters
 
@@ -1481,12 +1536,15 @@ Secrets referenced (literal names): `API-KEY`, `CHOCOLATEY_KEY`, `CONSUMER-KEY`,
 6. **[On failure] Print reproduction/fix steps**
    - Condition: `failure()`
 
+[Back to top](#contents)
+
 # Specification
+
+**Triggers:** `push`, `pull_request`, `merge_group`, `workflow_dispatch`
 
 | Property | Value |
 |----------|-------|
 | File | `spec.yml` |
-| Triggers | `push`, `pull_request`, `merge_group`, `workflow_dispatch` |
 
 ## Event filters
 
@@ -1551,12 +1609,17 @@ Secrets referenced (literal names): `API-KEY`, `CHOCOLATEY_KEY`, `CONSUMER-KEY`,
    - Env:
      - `USER_FOR_TEST`: `${{ secrets.SPEC_DEPLOY_USER }}`
 
+[Back to top](#contents)
+
 # Compile Full Standard Library
+
+**Triggers:** `push`, `pull_request`, `workflow_call`
 
 | Property | Value |
 |----------|-------|
 | File | `stdlib.yaml` |
-| Triggers | `push`, `pull_request`, `workflow_call` |
+
+**Jobs:** [Non-Bootstrapped Library Unit Tests](#non-bootstrapped-library-unit-tests-test-scala-library-nonbootstrapped), [Bootstrapped Library Unit Tests](#bootstrapped-library-unit-tests-test-scala-library-bootstrapped), [`mima-scala-library-nonbootstrapped`](#mima-scala-library-nonbootstrapped), [`mima-scala3-interfaces`](#mima-scala3-interfaces), [`mima-tasty-core-nonbootstrapped`](#mima-tasty-core-nonbootstrapped), [`static-analysis-scala-library-bootstrapped`](#static-analysis-scala-library-bootstrapped), [`mima-tasty-core-bootstrapped`](#mima-tasty-core-bootstrapped), [`mima-scala-library-sjs`](#mima-scala-library-sjs), [`test-scala3-compiler-nonbootstrapped`](#test-scala3-compiler-nonbootstrapped), [`test-scala3-compiler-bootstrapped`](#test-scala3-compiler-bootstrapped), [`test-scala3-bootstrapped-compilation-coverage`](#test-scala3-bootstrapped-compilation-coverage), [`test-scala3-sbt-bridge-nonbootstrapped`](#test-scala3-sbt-bridge-nonbootstrapped), [`test-scala3-sbt-bridge-bootstrapped`](#test-scala3-sbt-bridge-bootstrapped), [`test-tasty-core-nonbootstrapped`](#test-tasty-core-nonbootstrapped), [`test-tasty-core-bootstrapped`](#test-tasty-core-bootstrapped), [`test-scala-js`](#test-scala-js), [`test-repl`](#test-repl), [`test-presentation-compiler`](#test-presentation-compiler), [`test-language-server`](#test-language-server), [`scripted-tests`](#scripted-tests), [`community_build_a`](#community_build_a), [`community_build_b`](#community_build_b), [`community_build_c`](#community_build_c), [`scala-library-docs`](#scala-library-docs)
 
 ## Workflow call API
 
@@ -2165,14 +2228,17 @@ stdlib.yaml
 
 4. **Generate Documentation of the Standard Library**
 
+[Back to top](#contents)
+
 # Test 'scala' Chocolatey Package
+
+**Triggers:** `workflow_call`
 
 THIS IS A REUSABLE WORKFLOW TO TEST SCALA WITH CHOCOLATEY HOW TO USE: NOTE:
 
 | Property | Value |
 |----------|-------|
 | File | `test-chocolatey.yml` |
-| Triggers | `workflow_call` |
 
 ## Workflow call API
 
@@ -2240,12 +2306,17 @@ test-chocolatey.yml
 
 7. **Uninstall the \`scala\` package**
 
+[Back to top](#contents)
+
 # Test CLI Launchers on all the platforms
+
+**Triggers:** `pull_request`, `workflow_dispatch`
 
 | Property | Value |
 |----------|-------|
 | File | `test-launchers.yml` |
-| Triggers | `pull_request`, `workflow_dispatch` |
+
+**Jobs:** [Deploy and Test on Linux x64 architecture](#deploy-and-test-on-linux-x64-architecture-linux-x86_64), [Deploy and Test on Linux ARM64 architecture](#deploy-and-test-on-linux-arm64-architecture-linux-aarch64), [Deploy and Test on Mac x64 architecture](#deploy-and-test-on-mac-x64-architecture-mac-x86_64), [Deploy and Test on Mac ARM64 architecture](#deploy-and-test-on-mac-arm64-architecture-mac-aarch64), [Deploy and Test on Windows x64 architecture](#deploy-and-test-on-windows-x64-architecture-win-x86_64)
 
 ## Jobs
 
@@ -2378,14 +2449,17 @@ test-chocolatey.yml
 
 5. **Run the launcher command tests**
 
+[Back to top](#contents)
+
 # Test 'scala' MSI Package
+
+**Triggers:** `workflow_call`
 
 THIS IS A REUSABLE WORKFLOW TO TEST SCALA WITH MSI RUNNER HOW TO USE: Provide optional `version` to test if installed binaries are installed with correct Scala version. NOTE: Requires `scala.msi` artifact uploaded within the same run
 
 | Property | Value |
 |----------|-------|
 | File | `test-msi.yml` |
-| Triggers | `workflow_call` |
 
 ## Workflow call API
 
@@ -2446,4 +2520,6 @@ test-msi.yml
 8. **Smoke test - compile and run**
 
 9. **Uninstall the \`scala\` package**
+
+[Back to top](#contents)
 

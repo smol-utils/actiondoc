@@ -1,11 +1,14 @@
 # Release
 
+**Triggers:** `workflow_dispatch`
+
 Orchestrates the full release: build, publish, and notify.
 
 | Property | Value |
 |----------|-------|
 | File | `release.yml` |
-| Triggers | `workflow_dispatch` |
+
+**Jobs:** [`publish`](#publish), [`notify`](#notify), [`tag`](#tag)
 
 ## Manual trigger inputs
 
@@ -90,12 +93,15 @@ Tag the release commit.
 
 # Build and Publish
 
+**Triggers:** `workflow_call`
+
 Builds the artifacts for every architecture and publishes them.
 
 | Property | Value |
 |----------|-------|
 | File | `build_and_publish.yml` |
-| Triggers | `workflow_call` |
+
+**Jobs:** [`build-matrix`](#build-matrix), [`publish`](#publish)
 
 ## Workflow call API
 
@@ -150,12 +156,13 @@ Upload the built artifacts to the package registry.
 
 # Build
 
+**Triggers:** `workflow_call`
+
 Compiles the project for a set of architectures.
 
 | Property | Value |
 |----------|-------|
 | File | `build.yml` |
-| Triggers | `workflow_call` |
 
 ## Workflow call API
 

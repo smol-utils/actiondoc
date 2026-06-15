@@ -1,11 +1,14 @@
 # Release
 
+**Triggers:** `workflow_dispatch`, `push`, `pull_request`, `repository_dispatch`, `schedule`
+
 Release pipeline: builds artifacts and deploys to the production environment. Triggered manually, on a weekly schedule, and on tagged pushes.
 
 | Property | Value |
 |----------|-------|
 | File | `surface.yml` |
-| Triggers | `workflow_dispatch`, `push`, `pull_request`, `repository_dispatch`, `schedule` |
+
+**Jobs:** [Build](#build-build), [Deploy](#deploy-deploy)
 
 ## Manual trigger inputs
 

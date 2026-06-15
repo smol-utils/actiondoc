@@ -21,10 +21,13 @@
 
 # _meta-build.yaml
 
+**Triggers:** `workflow_call`
+
 | Property | Value |
 |----------|-------|
 | File | `_meta-build.yaml` |
-| Triggers | `workflow_call` |
+
+**Jobs:** [`build-java`](#build-java), [`build-container`](#build-container)
 
 ## Workflow call API
 
@@ -167,12 +170,15 @@ _meta-build.yaml
      - `context`: `.`
      - `file`: `src/main/docker/Dockerfile.alpine`
 
+[Back to top](#contents)
+
 # Build CI
+
+**Triggers:** `push`, `pull_request`, `workflow_dispatch`
 
 | Property | Value |
 |----------|-------|
 | File | `ci-build.yaml` |
-| Triggers | `push`, `pull_request`, `workflow_dispatch` |
 
 ## Event filters
 
@@ -232,12 +238,15 @@ Permissions declared across the chain: `security-events: write`
 - `registry-0-usr`: `${{ secrets.HUB_USERNAME }}`
 - `registry-0-psw`: `${{ secrets.HUB_ACCESSS_TOKEN }}`
 
+[Back to top](#contents)
+
 # PR Template Check
+
+**Triggers:** `pull_request`
 
 | Property | Value |
 |----------|-------|
 | File | `ci-pr-template.yml` |
-| Triggers | `pull_request` |
 
 ## Event filters
 
@@ -264,14 +273,19 @@ No permissions granted (`permissions: {}` -- default-deny).
      - `PR_AUTHOR_TYPE`: `${{ github.event.pull_request.user.type }}`
      - `PR_AUTHOR_LOGIN`: `${{ github.event.pull_request.user.login }}`
 
+[Back to top](#contents)
+
 # Publish CI
+
+**Triggers:** `push`, `workflow_dispatch`
 
 This workflow is responsible to build and publish a release build It triggers once a new GitHub Release is published
 
 | Property | Value |
 |----------|-------|
 | File | `ci-publish.yaml` |
-| Triggers | `push`, `workflow_dispatch` |
+
+**Jobs:** [`read-version`](#read-version), [`call-build`](#call-build), [`update-github-release`](#update-github-release)
 
 ## Event filters
 
@@ -383,12 +397,17 @@ Permissions declared across the chain: `contents: write`, `security-events: writ
      - `GITHUB_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
      - `VERSION`: `${{ needs.read-version.outputs.version }}`
 
+[Back to top](#contents)
+
 # Release CI
+
+**Triggers:** `workflow_dispatch`
 
 | Property | Value |
 |----------|-------|
 | File | `ci-release.yaml` |
-| Triggers | `workflow_dispatch` |
+
+**Jobs:** [`prepare-release`](#prepare-release), [`create-release`](#create-release), [`post-release`](#post-release)
 
 ## Manual trigger inputs
 
@@ -500,12 +519,15 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 3. **Set SNAPSHOT Version after Release**
 
+[Back to top](#contents)
+
 # Report PR Test Coverage
+
+**Triggers:** `workflow_run`
 
 | Property | Value |
 |----------|-------|
 | File | `ci-test-pr-coverage.yml` |
-| Triggers | `workflow_run` |
 
 ## Event filters
 
@@ -549,12 +571,15 @@ No permissions granted (`permissions: {}` -- default-deny).
      - `CODACY_PROJECT_TOKEN`: `${{ secrets.CODACY_PROJECT_TOKEN }}`
      - `HEAD_SHA`: `${{ github.event.workflow_run.head_sha }}`
 
+[Back to top](#contents)
+
 # Tests CI
+
+**Triggers:** `push`, `pull_request`, `workflow_dispatch`
 
 | Property | Value |
 |----------|-------|
 | File | `ci-test.yaml` |
-| Triggers | `push`, `pull_request`, `workflow_dispatch` |
 
 ## Event filters
 
@@ -621,12 +646,15 @@ No permissions granted (`permissions: {}` -- default-deny).
      - `name`: `pr-test-coverage-report`
      - `path`: `pr-commit.txt pr-number.txt target/jacoco-ut/jacoco.xml`
 
+[Back to top](#contents)
+
 # Dependency Review
+
+**Triggers:** `pull_request`
 
 | Property | Value |
 |----------|-------|
 | File | `dependency-review.yaml` |
-| Triggers | `pull_request` |
 
 ## Permissions
 
@@ -650,12 +678,15 @@ No permissions granted (`permissions: {}` -- default-deny).
 2. **Dependency Review**
    - Uses: `actions/dependency-review-action@2031cfc080254a8a887f58cffee85186f0e49e48`
 
+[Back to top](#contents)
+
 # Lock Threads
+
+**Triggers:** `schedule`
 
 | Property | Value |
 |----------|-------|
 | File | `lock.yaml` |
-| Triggers | `schedule` |
 
 ## Schedule
 
@@ -698,4 +729,6 @@ No permissions granted (`permissions: {}` -- default-deny).
      - `pr-comment`: -
      - `pr-lock-reason`: `resolved`
      - `process-only`: -
+
+[Back to top](#contents)
 

@@ -1,9 +1,10 @@
 # Reusable Build
 
+**Triggers:** `workflow_call`
+
 | Property | Value |
 |----------|-------|
 | File | `reusable.yml` |
-| Triggers | `workflow_call` |
 
 ## Workflow call API
 
