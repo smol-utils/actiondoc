@@ -142,12 +142,14 @@ func buildInventoryRefs(byName map[string]map[string]bool, g *callgraph.Graph) [
 
 // ambiguousWorkflowNames returns the set of workflow display names shared by more than one
 // workflow node in the graph. Such names need a filename suffix in cross-links so their
-// otherwise-identical link text stays distinguishable. Action nodes are excluded: they never
-// appear in the secrets/variables "Used by" lists this set guards.
+// otherwise-identical link text stays distinguishable. Action nodes and external (cross-repo)
+// nodes are excluded: neither appears in the secrets/variables "Used by" lists this set
+// guards, so counting them could only invent a false collision that adds a needless filename
+// suffix to a local workflow's label.
 func ambiguousWorkflowNames(g *callgraph.Graph) map[string]bool {
 	counts := map[string]int{}
 	for _, n := range g.Nodes {
-		if n.IsAction {
+		if n.IsAction || n.External {
 			continue
 		}
 		counts[n.Name]++
