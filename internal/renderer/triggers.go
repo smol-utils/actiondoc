@@ -21,9 +21,13 @@ func renderTriggers(b *strings.Builder, t *model.Triggers) {
 		writeInputTable(b, t.Dispatch.Inputs)
 	}
 
-	if t.Call != nil {
+	// The "## Workflow call API" heading is emitted only when the workflow_call trigger
+	// actually declares a public surface (inputs, outputs, or secrets). The bare fact that a
+	// workflow is reusable is already carried by `workflow_call` in the promoted Triggers
+	// line, so a parameter-less call trigger needs neither a heading nor a restating
+	// sentence here.
+	if t.Call != nil && (len(t.Call.Inputs) > 0 || len(t.Call.Outputs) > 0 || len(t.Call.Secrets) > 0) {
 		b.WriteString("## Workflow call API\n\n")
-		b.WriteString("This workflow is reusable via `workflow_call`.\n\n")
 		if len(t.Call.Inputs) > 0 {
 			b.WriteString("**Inputs:**\n\n")
 			writeInputTable(b, t.Call.Inputs)

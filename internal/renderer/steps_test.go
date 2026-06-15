@@ -146,35 +146,83 @@ func TestRenderStepDetails(t *testing.T) {
 		}
 	}
 
-	// SHA-pinned uses gets its version annotation on the detail line.
+	// An unnamed SHA-pinned step is titled by its collapsed ref@version, so the redundant
+	// full-SHA Uses: detail line is dropped entirely (the title already carries the version).
 	var b2 strings.Builder
 	renderStep(&b2, &model.Step{Uses: "actions/checkout@" + shaPin, UsesVersion: "v4.1.1"}, 1)
-	if !strings.Contains(b2.String(), "`actions/checkout@"+shaPin+"` (v4.1.1)") {
-		t.Errorf("missing version annotation on uses detail line:\n%s", b2.String())
+	if got := b2.String(); !strings.Contains(got, "**actions/checkout@v4.1.1**") || strings.Contains(got, shaPin) {
+		t.Errorf("unnamed SHA pin should title as ref@version with no redundant Uses line:\n%s", got)
+	}
+
+	// A named SHA-pinned step keeps the Uses: line (so the action it runs is visible) but
+	// collapses to ref@version -- the 40-char SHA is dropped when a version is known.
+	var b3 strings.Builder
+	renderStep(&b3, &model.Step{Name: "Checkout", Uses: "actions/checkout@" + shaPin, UsesVersion: "v4.1.1"}, 1)
+	if got := b3.String(); !strings.Contains(got, "   - Uses: `actions/checkout@v4.1.1`\n") || strings.Contains(got, shaPin) {
+		t.Errorf("named SHA pin should show collapsed ref@version on the Uses line:\n%s", got)
+	}
+
+	// A bare SHA pin (no known version) keeps its full ref on the Uses line so nothing is
+	// lost: the title collapses to the bare ref, so the SHA only survives on the detail line.
+	var b4 strings.Builder
+	renderStep(&b4, &model.Step{Uses: "actions/checkout@" + shaPin}, 1)
+	if got := b4.String(); !strings.Contains(got, "   - Uses: `actions/checkout@"+shaPin+"`\n") {
+		t.Errorf("bare SHA pin should keep its full SHA on the Uses line:\n%s", got)
 	}
 }
 
-// TestRenderTOC covers the contents listing, the under-two-entries suppression, and
-// duplicate-title anchor disambiguation.
+// TestRenderTOC covers the grouped contents listing, the under-two-entries suppression,
+// group headings, and that only non-empty groups render.
 func TestRenderTOC(t *testing.T) {
-	if got := RenderTOC([]string{"Only One"}); got != "" {
+	if got := RenderTOC([]TOCGroup{{Heading: "Workflows", Entries: []TOCEntry{{Label: "Only One", Anchor: "only-one"}}}}); got != "" {
 		t.Errorf("single-entry TOC = %q, want empty", got)
 	}
 	if got := RenderTOC(nil); got != "" {
 		t.Errorf("empty TOC = %q, want empty", got)
 	}
 
-	got := RenderTOC([]string{"CI Pipeline", "Release", "CI Pipeline"})
+	got := RenderTOC([]TOCGroup{
+		{Heading: "Workflows", Entries: []TOCEntry{
+			{Label: "CI Pipeline", Anchor: "ci-pipeline"},
+			{Label: "Release - workflow_dispatch, push", Anchor: "release"},
+		}},
+		{Heading: "Reusable workflows"}, // empty: must not render
+		{Heading: "Composite actions", Entries: []TOCEntry{
+			{Label: "Setup", Anchor: "setup"},
+		}},
+	})
 	checks := []string{
-		"# Contents",
+		"## Contents",
+		"**Workflows**\n\n",
 		"- [CI Pipeline](#ci-pipeline)\n",
-		"- [Release](#release)\n",
-		"- [CI Pipeline](#ci-pipeline-1)\n", // duplicate title gets the -1 anchor suffix
+		"- [Release - workflow_dispatch, push](#release)\n",
+		"**Composite actions**\n\n",
+		"- [Setup](#setup)\n",
 	}
 	for _, want := range checks {
 		if !strings.Contains(got, want) {
 			t.Errorf("TOC missing %q\n\nFull output:\n%s", want, got)
 		}
+	}
+	if strings.Contains(got, "Reusable workflows") {
+		t.Errorf("empty group should not render:\n%s", got)
+	}
+}
+
+// TestRenderDocumentHeader covers title emission, zero-count omission, and pluralization.
+func TestRenderDocumentHeader(t *testing.T) {
+	got := RenderDocumentHeader("airflow", 12, 0, 1)
+	if !strings.Contains(got, "# airflow\n\n") {
+		t.Errorf("missing title:\n%s", got)
+	}
+	if !strings.Contains(got, "12 workflows, 1 composite action\n") {
+		t.Errorf("inventory wrong (zero omitted, plural/singular):\n%s", got)
+	}
+	if strings.Contains(got, "reusable") {
+		t.Errorf("zero count should be omitted:\n%s", got)
+	}
+	if got := RenderDocumentHeader("", 1, 0, 0); got != "" {
+		t.Errorf("empty title should suppress header, got %q", got)
 	}
 }
 

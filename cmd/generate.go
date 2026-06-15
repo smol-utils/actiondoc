@@ -87,7 +87,7 @@ func Generate(args []string) error {
 			return err
 		}
 	} else {
-		output = renderMarkdownOutput(sources, graph)
+		output = renderMarkdownOutput(sources, graph, path)
 	}
 
 	if *outFlag != "" {
@@ -145,11 +145,13 @@ func renderJSONOutput(sources []callgraph.Source) (string, error) {
 	return string(data) + "\n", nil
 }
 
-// renderMarkdownOutput renders each document as a section with a table of contents
-// linking them. Anchors are assigned before any section renders: cross-links built
-// during rendering must use the same duplicate-name disambiguation the TOC will use, so
-// the assignment is computed once here and stored on the graph nodes.
-func renderMarkdownOutput(sources []callgraph.Source, graph *callgraph.Graph) string {
+// renderMarkdownOutput renders each document as a section, prefaced by a document header
+// (repo title + inventory) and a grouped table of contents. Anchors are assigned before
+// any section renders: cross-links built during rendering must use the same duplicate-name
+// disambiguation the TOC will use, so the assignment is computed once here and stored on
+// the graph nodes. inputPath is the path the scan was launched from; it supplies the repo
+// title. The header and TOC are emitted only for multi-document output.
+func renderMarkdownOutput(sources []callgraph.Source, graph *callgraph.Graph, inputPath string) string {
 	var titles []string
 	for _, s := range sources {
 		if s.Workflow != nil {
@@ -158,9 +160,40 @@ func renderMarkdownOutput(sources []callgraph.Source, graph *callgraph.Graph) st
 			titles = append(titles, s.Action.Name)
 		}
 	}
-	for i, slug := range renderer.AssignAnchors(titles) {
+	slugs := renderer.AssignAnchors(titles)
+	for i, slug := range slugs {
 		if n := graph.Nodes[sources[i].Path]; n != nil {
 			n.Anchor = slug
+		}
+	}
+
+	// Job heading anchors are assigned the same way section anchors are: document-wide.
+	// GitHub disambiguates repeated heading slugs across the whole rendered document, so a
+	// job heading text that recurs in a later workflow must carry the running "-N" suffix.
+	// Collect every job heading in document order (source order, then job order within each
+	// workflow) -- using the renderer's own JobHeadingText so the slug input matches the
+	// rendered "### ..." heading exactly -- run one AssignAnchors pass, then store each
+	// workflow's slice on its graph node for renderJobMiniTOC to use.
+	var jobTexts []string
+	type jobSpan struct {
+		path  string
+		start int
+		count int
+	}
+	var spans []jobSpan
+	for _, s := range sources {
+		if s.Workflow == nil {
+			continue
+		}
+		spans = append(spans, jobSpan{path: s.Path, start: len(jobTexts), count: len(s.Workflow.Jobs)})
+		for i := range s.Workflow.Jobs {
+			jobTexts = append(jobTexts, renderer.JobHeadingText(&s.Workflow.Jobs[i]))
+		}
+	}
+	jobSlugs := renderer.AssignAnchors(jobTexts)
+	for _, sp := range spans {
+		if n := graph.Nodes[sp.path]; n != nil {
+			n.JobAnchors = jobSlugs[sp.start : sp.start+sp.count]
 		}
 	}
 
@@ -174,7 +207,137 @@ func renderMarkdownOutput(sources []callgraph.Source, graph *callgraph.Graph) st
 			sections = append(sections, renderer.RenderActionMarkdown(s.Action))
 		}
 	}
-	return renderer.RenderTOC(titles) + strings.Join(sections, "")
+	// A single document is self-describing (its own H1 + properties); the orientation
+	// header, contents list, and per-section back-to-top links only earn their space once
+	// there are several sections to navigate between.
+	if len(sources) < 2 {
+		return strings.Join(sections, "")
+	}
+
+	// Each top-level section ends with a link back to the Contents list, so a reader deep in
+	// one section can return to navigation without scrolling.
+	for i := range sections {
+		sections[i] += "[Back to top](#contents)\n\n"
+	}
+
+	header, toc := renderDocumentNav(sources, graph, slugs, inputPath)
+	return header + toc + strings.Join(sections, "")
+}
+
+// tocGroup indexes the three TOC families in render order.
+const (
+	groupWorkflow  = iota // entry-point workflows
+	groupReusable         // workflow_call-only workflows
+	groupComposite        // composite actions
+)
+
+// renderDocumentNav builds the document header (title + inventory) and the grouped table of
+// contents. Each source is classified via the call graph: composite actions, entry-point
+// workflows (a trigger other than workflow_call), and reusable (workflow_call-only)
+// workflows. Entry-point labels carry their trigger list; labels that would otherwise read
+// identically are disambiguated with their source filename (for actions, the action's
+// directory, since every action file is named action.yml).
+func renderDocumentNav(sources []callgraph.Source, graph *callgraph.Graph, slugs []string, inputPath string) (header, toc string) {
+	type item struct {
+		label  string
+		anchor string
+		group  int
+	}
+	items := make([]item, len(sources))
+	var nWorkflow, nReusable, nComposite int
+	for i, s := range sources {
+		label := titleOf(s)
+		var group int
+		switch {
+		case s.Action != nil:
+			group = groupComposite
+			nComposite++
+		case graph.IsEntryPoint(s.Path):
+			group = groupWorkflow
+			nWorkflow++
+			if len(s.Workflow.On) > 0 {
+				label += " - " + strings.Join(s.Workflow.On, ", ")
+			}
+		default:
+			group = groupReusable
+			nReusable++
+		}
+		items[i] = item{label: label, anchor: slugs[i], group: group}
+	}
+
+	// Disambiguate entries whose visible label collides with another's.
+	counts := map[string]int{}
+	for _, it := range items {
+		counts[it.label]++
+	}
+	for i := range items {
+		if counts[items[i].label] > 1 {
+			items[i].label += " (" + sourceDisambiguator(sources[i]) + ")"
+		}
+	}
+
+	groups := []renderer.TOCGroup{
+		groupWorkflow:  {Heading: "Workflows"},
+		groupReusable:  {Heading: "Reusable workflows"},
+		groupComposite: {Heading: "Composite actions"},
+	}
+	for _, it := range items {
+		groups[it.group].Entries = append(groups[it.group].Entries,
+			renderer.TOCEntry{Label: it.label, Anchor: it.anchor})
+	}
+
+	header = renderer.RenderDocumentHeader(documentTitle(inputPath), nWorkflow, nReusable, nComposite)
+	toc = renderer.RenderTOC(groups)
+	return header, toc
+}
+
+// titleOf returns a source's display name (workflow or action).
+func titleOf(s callgraph.Source) string {
+	if s.Workflow != nil {
+		return s.Workflow.Name
+	}
+	return s.Action.Name
+}
+
+// sourceDisambiguator returns the path fragment that distinguishes a source from a
+// same-named sibling in the TOC. Workflows use their filename; composite actions use the
+// last two segments of their containing directory, since every action metadata file is
+// named action.yml/action.yaml and actions are discovered at any depth -- a single leaf
+// directory name can repeat across depths, so two segments keep the label unambiguous while
+// staying compact.
+func sourceDisambiguator(s callgraph.Source) string {
+	if s.Action != nil {
+		return lastTwoPathSegments(filepath.Dir(s.Path))
+	}
+	return filepath.Base(s.Path)
+}
+
+// lastTwoPathSegments returns the final two segments of a slash- or OS-separated path joined
+// with "/", or the whole path when it has fewer than two segments.
+func lastTwoPathSegments(p string) string {
+	parts := strings.Split(filepath.ToSlash(filepath.Clean(p)), "/")
+	if len(parts) >= 2 {
+		return parts[len(parts)-2] + "/" + parts[len(parts)-1]
+	}
+	return parts[len(parts)-1]
+}
+
+// documentTitle derives the document/repo title from the scanned path. A path of the form
+// .../<repo>/.github/workflows yields <repo>; anything else falls back to a generic title.
+func documentTitle(inputPath string) string {
+	p := filepath.ToSlash(filepath.Clean(inputPath))
+	const suffix = ".github/workflows"
+	if p == suffix || !strings.HasSuffix(p, "/"+suffix) {
+		return "GitHub Actions"
+	}
+	repoPath := strings.TrimSuffix(p, "/"+suffix)
+	if i := strings.LastIndex(repoPath, "/"); i >= 0 {
+		repoPath = repoPath[i+1:]
+	}
+	if repoPath == "" || repoPath == "." {
+		return "GitHub Actions"
+	}
+	return repoPath
 }
 
 // parseSources parses each file into a callgraph source, skipping (with a warning) files

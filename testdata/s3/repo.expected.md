@@ -1,15 +1,30 @@
-# Contents
+# repo
 
-- [CI](#ci)
+1 workflow, 1 reusable workflow, 1 composite action
+
+## Contents
+
+**Workflows**
+
+- [CI - push](#ci)
+
+**Reusable workflows**
+
 - [Reusable Build](#reusable-build)
+
+**Composite actions**
+
 - [Deploy](#deploy)
 
 # CI
 
+**Triggers:** `push`
+
 | Property | Value |
 |----------|-------|
 | File | `ci.yml` |
-| Triggers | `push` |
+
+**Jobs:** [`build`](#build), [`deploy`](#deploy)
 
 ## Call graph (rooted at this workflow)
 
@@ -63,7 +78,8 @@ Permissions declared across the chain: `contents: read`, `id-token: write (OIDC)
 | Runs on | `ubuntu-latest` |
 | Depends on | `build` |
 
-#### Steps
+<details>
+<summary>Steps (1)</summary>
 
 1. **Deploy to staging** `[continue-on-error]`
    - Uses: `./.github/actions/deploy`
@@ -71,16 +87,19 @@ Permissions declared across the chain: `contents: read`, `id-token: write (OIDC)
      - `environment`: `staging` - Target environment name (required)
      - `token`: `${{ secrets.DEPLOY_TOKEN }}` - Deployment token
 
+</details>
+
+[Back to top](#contents)
+
 # Reusable Build
+
+**Triggers:** `workflow_call`
 
 | Property | Value |
 |----------|-------|
 | File | `reusable.yml` |
-| Triggers | `workflow_call` |
 
 ## Workflow call API
-
-This workflow is reusable via `workflow_call`.
 
 **Inputs:**
 
@@ -109,9 +128,14 @@ reusable.yml
 |----------|-------|
 | Runs on | `ubuntu-latest` |
 
-#### Steps
+<details>
+<summary>Steps (1)</summary>
 
 1. **Build**
+
+</details>
+
+[Back to top](#contents)
 
 # Deploy
 
@@ -128,4 +152,6 @@ Deploys the application to an environment.
 |------|-------------|----------|--------|
 | `environment` | Target environment name | Yes | - |
 | `token` | Deployment token | No | - |
+
+[Back to top](#contents)
 

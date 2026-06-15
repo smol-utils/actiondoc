@@ -44,7 +44,10 @@ func TestGenerateDirectoryGolden(t *testing.T) {
 	// a missing section.
 	g := string(got)
 	for _, must := range []string{
-		"# Contents",                          // table of contents
+		"## Contents",                         // table of contents
+		"**Triggers:**",                       // promoted trigger line under a workflow heading
+		"**Jobs:**",                           // per-workflow job mini-TOC roster
+		"[Back to top](#contents)",            // per-section back-to-top link
 		"## Call graph",                       // downstream call-graph tree
 		"## Called by",                        // upstream caller chain on the reusable workflow
 		"## Referenced secrets and variables", // auto-collected references

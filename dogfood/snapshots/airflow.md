@@ -1,49 +1,61 @@
-# Contents
+# airflow
+
+25 workflows, 19 reusable workflows, 8 composite actions
+
+## Contents
+
+**Workflows**
+
+- [Airflow E2E Tests - workflow_dispatch, workflow_call](#airflow-e2e-tests)
+- [ASF Allowlist Check - pull_request, push](#asf-allowlist-check)
+- [Automatic Backport - push](#automatic-backport)
+- [Backport Commit - workflow_dispatch, workflow_call](#backport-commit)
+- [Check newsfragment PR number - pull_request](#check-newsfragment-pr-number)
+- [Tests (AMD) - schedule, pull_request, push, workflow_dispatch](#tests-amd)
+- [Tests (ARM) - schedule, push, workflow_dispatch](#tests-arm)
+- [CI Notification - schedule, workflow_dispatch](#ci-notification)
+- [CodeQL - pull_request, push, schedule](#codeql)
+- [E2E Flaky Tests Report - schedule, workflow_dispatch](#e2e-flaky-tests-report)
+- [Milestone Tag Assistant - push](#milestone-tag-assistant)
+- [Notify uv.lock conflicts - push](#notify-uvlock-conflicts)
+- [Publish Docs to S3 - workflow_dispatch](#publish-docs-to-s3)
+- [Recheck old bug reports - schedule](#recheck-old-bug-reports)
+- [Registry Backfill - workflow_dispatch](#registry-backfill)
+- [Build & Publish Registry - workflow_dispatch, workflow_call](#build--publish-registry)
+- [Registry Tests - pull_request, push](#registry-tests)
+- [Release PROD images - workflow_dispatch](#release-prod-images)
+- [\[main\] Scheduled CI upgrade check - schedule, workflow_dispatch](#main-scheduled-ci-upgrade-check)
+- [\[v3-2-test\] Scheduled CI upgrade check - schedule, workflow_dispatch](#v3-2-test-scheduled-ci-upgrade-check)
+- [Scheduled verify release calendar - schedule, workflow_dispatch](#scheduled-verify-release-calendar)
+- [Close stale PRs & Issues - schedule](#close-stale-prs--issues)
+- [UI End-to-End Tests - workflow_dispatch, workflow_call](#ui-end-to-end-tests)
+- [Update constraints on push for stable branch (always) - push](#update-constraints-on-push-for-stable-branch-always)
+- [Update constraints on push for main (only when uv.lock changes) - push](#update-constraints-on-push-for-main-only-when-uvlock-changes)
+
+**Reusable workflows**
 
 - [Additional CI image checks](#additional-ci-image-checks)
 - [Additional PROD image tests](#additional-prod-image-tests)
 - [Non-core Distribution tests](#non-core-distribution-tests)
-- [Airflow E2E Tests](#airflow-e2e-tests)
-- [ASF Allowlist Check](#asf-allowlist-check)
-- [Automatic Backport](#automatic-backport)
-- [Backport Commit](#backport-commit)
 - [Basic tests](#basic-tests)
-- [Check newsfragment PR number](#check-newsfragment-pr-number)
-- [Tests (AMD)](#tests-amd)
-- [Tests (ARM)](#tests-arm)
 - [Build CI images](#build-ci-images)
 - [CI Image Checks](#ci-image-checks)
-- [CI Notification](#ci-notification)
-- [CodeQL](#codeql)
-- [E2E Flaky Tests Report](#e2e-flaky-tests-report)
 - [Finalize tests](#finalize-tests)
 - [Generate constraints](#generate-constraints)
 - [Helm tests](#helm-tests)
 - [Integration and system tests](#integration-and-system-tests)
 - [K8s tests](#k8s-tests)
-- [Milestone Tag Assistant](#milestone-tag-assistant)
-- [Notify uv.lock conflicts](#notify-uvlock-conflicts)
 - [Build PROD images](#build-prod-images)
 - [PROD images extra checks](#prod-images-extra-checks)
-- [Publish Docs to S3](#publish-docs-to-s3)
 - [Push image cache](#push-image-cache)
-- [Recheck old bug reports](#recheck-old-bug-reports)
-- [Registry Backfill](#registry-backfill)
-- [Build & Publish Registry](#build--publish-registry)
-- [Registry Tests](#registry-tests)
-- [Release PROD images](#release-prod-images)
 - [Release single PROD image](#release-single-prod-image)
 - [Unit tests](#unit-tests)
-- [\[main\] Scheduled CI upgrade check](#main-scheduled-ci-upgrade-check)
-- [\[v3-2-test\] Scheduled CI upgrade check](#v3-2-test-scheduled-ci-upgrade-check)
-- [Scheduled verify release calendar](#scheduled-verify-release-calendar)
 - [Special tests](#special-tests)
-- [Close stale PRs & Issues](#close-stale-prs--issues)
 - [Provider tests](#provider-tests)
-- [UI End-to-End Tests](#ui-end-to-end-tests)
-- [Update constraints on push for stable branch (always)](#update-constraints-on-push-for-stable-branch-always)
-- [Update constraints on push for main (only when uv.lock changes)](#update-constraints-on-push-for-main-only-when-uvlock-changes)
 - [Upgrade check](#upgrade-check)
+
+**Composite actions**
+
 - [Setup Breeze](#setup-breeze)
 - [Install prek](#install-prek)
 - [Run migration tests](#run-migration-tests)
@@ -55,14 +67,15 @@
 
 # Additional CI image checks
 
+**Triggers:** `workflow_call`
+
 | Property | Value |
 |----------|-------|
 | File | `additional-ci-image-checks.yml` |
-| Triggers | `workflow_call` |
+
+**Jobs:** [Push Early Image Cache](#push-early-image-cache-push-early-buildx-cache-to-github-registry), [Check that image builds quickly](#check-that-image-builds-quickly-check-that-image-builds-quickly)
 
 ## Workflow call API
-
-This workflow is reusable via `workflow_call`.
 
 **Inputs:**
 
@@ -153,12 +166,13 @@ additional-ci-image-checks.yml
 | `VERBOSE` | `true` |
 | `PLATFORM` | `${{ inputs.platform }}` |
 
-#### Steps
+<details>
+<summary>Steps (4)</summary>
 
 1. **Cleanup repo**
 
 2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
 
@@ -167,16 +181,22 @@ additional-ci-image-checks.yml
 
 4. **Check that image builds quickly**
 
+</details>
+
+[Back to top](#contents)
+
 # Additional PROD image tests
+
+**Triggers:** `workflow_call`
 
 | Property | Value |
 |----------|-------|
 | File | `additional-prod-image-tests.yml` |
-| Triggers | `workflow_call` |
+| Default runs-on | `${{ fromJSON(inputs.runners) }}` |
+
+**Jobs:** [PROD image extra checks (main)](#prod-image-extra-checks-main-prod-image-extra-checks-main), [PROD image extra checks (release)](#prod-image-extra-checks-release-prod-image-extra-checks-release-branch), [Test examples of PROD image building](#test-examples-of-prod-image-building-test-examples-of-prod-image-building), [Docker Compose quick start with PROD image verifying](#docker-compose-quick-start-with-prod-image-verifying-test-docker-compose-quick-start), [Task SDK integration tests with PROD image](#task-sdk-integration-tests-with-prod-image-task-sdk-integration-tests), [Test e2e integration tests with PROD image](#test-e2e-integration-tests-with-prod-image-test-e2e-integration-tests-basic), [Remote logging tests with PROD image](#remote-logging-tests-with-prod-image-test-e2e-integration-tests-remote-log), [Elasticsearch remote logging tests with PROD image](#elasticsearch-remote-logging-tests-with-prod-image-test-e2e-integration-tests-remote-log-elasticsearch), [OpenSearch remote logging tests with PROD image](#opensearch-remote-logging-tests-with-prod-image-test-e2e-integration-tests-remote-log-opensearch), [XCom object storage backend tests with PROD image](#xcom-object-storage-backend-tests-with-prod-image-test-e2e-integration-tests-xcom-object-storage), [Event driven tests with PROD image](#event-driven-tests-with-prod-image-test-e2e-integration-tests-event-driven), [Chromium UI e2e tests with PROD image](#chromium-ui-e2e-tests-with-prod-image-test-ui-e2e-chromium), [Firefox UI e2e tests with PROD image](#firefox-ui-e2e-tests-with-prod-image-test-ui-e2e-firefox), [WebKit UI e2e tests with PROD image](#webkit-ui-e2e-tests-with-prod-image-test-ui-e2e-webkit), [Airflow CTL integration tests with PROD image](#airflow-ctl-integration-tests-with-prod-image-airflow-ctl-integration-tests)
 
 ## Workflow call API
-
-This workflow is reusable via `workflow_call`.
 
 **Inputs:**
 
@@ -262,10 +282,6 @@ additional-prod-image-tests.yml
 
 ### Test examples of PROD image building (`test-examples-of-prod-image-building`)
 
-| Property | Value |
-|----------|-------|
-| Runs on | `${{ fromJSON(inputs.runners) }}` |
-
 **Environment (`env`):**
 
 | Variable | Value |
@@ -275,12 +291,13 @@ additional-prod-image-tests.yml
 | `GITHUB_USERNAME` | `${{ github.actor }}` |
 | `VERBOSE` | `true` |
 
-#### Steps
+<details>
+<summary>Steps (4)</summary>
 
 1. **Cleanup repo**
 
 2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `fetch-depth`: `2`
      - `persist-credentials`: `false`
@@ -300,11 +317,9 @@ additional-prod-image-tests.yml
      - `DEFAULT_BRANCH`: `${{ inputs.default-branch }}`
      - `DEFAULT_PYTHON_VERSION`: `${{ inputs.default-python-version }}`
 
-### Docker Compose quick start with PROD image verifying (`test-docker-compose-quick-start`)
+</details>
 
-| Property | Value |
-|----------|-------|
-| Runs on | `${{ fromJSON(inputs.runners) }}` |
+### Docker Compose quick start with PROD image verifying (`test-docker-compose-quick-start`)
 
 **Environment (`env`):**
 
@@ -316,12 +331,13 @@ additional-prod-image-tests.yml
 | `GITHUB_USERNAME` | `${{ github.actor }}` |
 | `VERBOSE` | `true` |
 
-#### Steps
+<details>
+<summary>Steps (4)</summary>
 
 1. **Cleanup repo**
 
 2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `fetch-depth`: `2`
      - `persist-credentials`: `false`
@@ -338,11 +354,12 @@ additional-prod-image-tests.yml
 
 4. **Test docker-compose quick start**
 
+</details>
+
 ### Task SDK integration tests with PROD image (`task-sdk-integration-tests`)
 
 | Property | Value |
 |----------|-------|
-| Runs on | `${{ fromJSON(inputs.runners) }}` |
 | Condition | `inputs.run-task-sdk-integration-tests == 'true'` |
 
 **Environment (`env`):**
@@ -355,12 +372,13 @@ additional-prod-image-tests.yml
 | `GITHUB_USERNAME` | `${{ github.actor }}` |
 | `VERBOSE` | `true` |
 
-#### Steps
+<details>
+<summary>Steps (4)</summary>
 
 1. **Cleanup repo**
 
 2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `fetch-depth`: `2`
      - `persist-credentials`: `false`
@@ -376,6 +394,8 @@ additional-prod-image-tests.yml
      - `make-mnt-writeable-and-cleanup`: `true` - Whether to cleanup /mnt (required)
 
 4. **Run Task SDK integration tests**
+
+</details>
 
 ### Test e2e integration tests with PROD image (`test-e2e-integration-tests-basic`)
 
@@ -522,7 +542,6 @@ additional-prod-image-tests.yml
 
 | Property | Value |
 |----------|-------|
-| Runs on | `${{ fromJSON(inputs.runners) }}` |
 | Condition | `inputs.run-airflow-ctl-integration-tests == 'true'` |
 
 **Environment (`env`):**
@@ -535,12 +554,13 @@ additional-prod-image-tests.yml
 | `GITHUB_USERNAME` | `${{ github.actor }}` |
 | `VERBOSE` | `true` |
 
-#### Steps
+<details>
+<summary>Steps (4)</summary>
 
 1. **Cleanup repo**
 
 2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `fetch-depth`: `2`
      - `persist-credentials`: `false`
@@ -557,16 +577,19 @@ additional-prod-image-tests.yml
 
 4. **Run airflowctl integration tests**
 
+</details>
+
+[Back to top](#contents)
+
 # Non-core Distribution tests
+
+**Triggers:** `workflow_call`
 
 | Property | Value |
 |----------|-------|
 | File | `airflow-distributions-tests.yml` |
-| Triggers | `workflow_call` |
 
 ## Workflow call API
-
-This workflow is reusable via `workflow_call`.
 
 **Inputs:**
 
@@ -626,12 +649,13 @@ airflow-distributions-tests.yml
 | `PYTHON_MAJOR_MINOR_VERSION` | `${{ inputs.default-python-version }}` |
 | `VERBOSE` | `true` |
 
-#### Steps
+<details>
+<summary>Steps (8)</summary>
 
 1. **Cleanup repo**
 
 2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
 
@@ -665,12 +689,17 @@ airflow-distributions-tests.yml
      - `PYTHON_VERSION`: `${{ matrix.python-version }}`
      - `TEST_TYPE`: `${{ inputs.test-type }}`
 
+</details>
+
+[Back to top](#contents)
+
 # Airflow E2E Tests
+
+**Triggers:** `workflow_dispatch`, `workflow_call`
 
 | Property | Value |
 |----------|-------|
 | File | `airflow-e2e-tests.yml` |
-| Triggers | `workflow_dispatch`, `workflow_call` |
 
 ## Manual trigger inputs
 
@@ -687,8 +716,6 @@ Inputs for the `workflow_dispatch` event.
 | `e2e_test_mode` | string | No | `basic` | Test mode - basic, remote_log, remote_log_elasticsearch, remote_log_opensearch, xcom_object_storage, or event_driven |
 
 ## Workflow call API
-
-This workflow is reusable via `workflow_call`.
 
 **Inputs:**
 
@@ -727,20 +754,15 @@ airflow-e2e-tests.yml
 |   +-- ci-amd.yml (job: additional-prod-image-tests)  <- entry point
 |   +-- ci-arm.yml (job: additional-prod-image-tests)  <- entry point
 +-- additional-prod-image-tests.yml (job: test-e2e-integration-tests-remote-log)
-|   +-- ci-amd.yml (job: additional-prod-image-tests)  <- entry point
-|   +-- ci-arm.yml (job: additional-prod-image-tests)  <- entry point
+|   +-- (same entry points as above)
 +-- additional-prod-image-tests.yml (job: test-e2e-integration-tests-remote-log-elasticsearch)
-|   +-- ci-amd.yml (job: additional-prod-image-tests)  <- entry point
-|   +-- ci-arm.yml (job: additional-prod-image-tests)  <- entry point
+|   +-- (same entry points as above)
 +-- additional-prod-image-tests.yml (job: test-e2e-integration-tests-remote-log-opensearch)
-|   +-- ci-amd.yml (job: additional-prod-image-tests)  <- entry point
-|   +-- ci-arm.yml (job: additional-prod-image-tests)  <- entry point
+|   +-- (same entry points as above)
 +-- additional-prod-image-tests.yml (job: test-e2e-integration-tests-xcom-object-storage)
-|   +-- ci-amd.yml (job: additional-prod-image-tests)  <- entry point
-|   +-- ci-arm.yml (job: additional-prod-image-tests)  <- entry point
+|   +-- (same entry points as above)
 +-- additional-prod-image-tests.yml (job: test-e2e-integration-tests-event-driven)
-    +-- ci-amd.yml (job: additional-prod-image-tests)  <- entry point
-    +-- ci-arm.yml (job: additional-prod-image-tests)  <- entry point
+    +-- (same entry points as above)
 ```
 
 ## Referenced secrets and variables
@@ -769,12 +791,13 @@ airflow-e2e-tests.yml
 | `GITHUB_USERNAME` | `${{ github.actor }}` |
 | `VERBOSE` | `true` |
 
-#### Steps
+<details>
+<summary>Steps (6)</summary>
 
 1. **Cleanup repo**
 
 2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `fetch-depth`: `2`
      - `persist-credentials`: `false`
@@ -798,7 +821,7 @@ airflow-e2e-tests.yml
    - Condition: `always()`
 
 6. **Upload logs**
-   - Uses: `actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a` (v7.0.1)
+   - Uses: `actions/upload-artifact@v7.0.1`
    - Condition: `always()`
    - With:
      - `name`: `e2e-test-logs-${{ inputs.e2e_test_mode }}`
@@ -806,12 +829,17 @@ airflow-e2e-tests.yml
      - `retention-days`: `7`
      - `if-no-files-found`: `error`
 
+</details>
+
+[Back to top](#contents)
+
 # ASF Allowlist Check
+
+**Triggers:** `pull_request`, `push`
 
 | Property | Value |
 |----------|-------|
 | File | `asf-allowlist-check.yml` |
-| Triggers | `pull_request`, `push` |
 
 ## Event filters
 
@@ -833,22 +861,29 @@ airflow-e2e-tests.yml
 |----------|-------|
 | Runs on | `ubuntu-latest` |
 
-#### Steps
+<details>
+<summary>Steps (2)</summary>
 
 1. **actions/checkout@v6.0.2**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
    - With:
      - `persist-credentials`: `false`
 
 2. **apache/infrastructure-actions/allowlist-check**
    - Uses: `apache/infrastructure-actions/allowlist-check@4e9c961f587f72b170874b6f5cd4ac15f7f26eb8`
 
+</details>
+
+[Back to top](#contents)
+
 # Automatic Backport
+
+**Triggers:** `push`
 
 | Property | Value |
 |----------|-------|
 | File | `automatic-backport.yml` |
-| Triggers | `push` |
+
+**Jobs:** [Get PR information](#get-pr-information-get-pr-info), [Trigger Backport](#trigger-backport-trigger-backport)
 
 ## Event filters
 
@@ -888,7 +923,8 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pul
 |----------|-------|
 | Runs on | `ubuntu-latest` |
 
-#### Steps
+<details>
+<summary>Steps (3)</summary>
 
 1. **Get commit SHA**
    - ID: `get-sha`
@@ -897,11 +933,13 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pul
 
 3. **Find PR information**
    - ID: `pr-info`
-   - Uses: `actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3` (v9.0.0)
+   - Uses: `actions/github-script@v9.0.0`
    - With:
      - `script`: `` const { data: pullRequest } = await github.rest.repos.listPullRequestsAssociatedWithCommit({     owner: context.repo.owner,     repo: context.repo.repo,     commit_sha: process.env.GITHUB_SHA }); if (pullRequest.length > 0) {     const pr = pullRequest[0];     const backportBranches = pr.labels           .filter(label => label.name.startsWith('backport-to-'))           .map(label => label.name.replace('backport-to-', ''));      console.log(`Commit ${process.env.GITHUB_SHA} is associated with PR ${pr.number}`);     console.log(`Backport branches: ${backportBranches}`);     core.setOutput('branches', JSON.stringify(backportBranches)); } else {     console.log('⚠️ No pull request found for this commit.');     core.setOutput('branches', '[]'); } ``
    - Env:
      - `GITHUB_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
+
+</details>
 
 ### Trigger Backport (`trigger-backport`)
 
@@ -922,12 +960,15 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pul
 - `target-branch`: `${{ matrix.branch }}`
 - `commit-sha`: `${{ needs.get-pr-info.outputs.commit-sha }}`
 
+[Back to top](#contents)
+
 # Backport Commit
+
+**Triggers:** `workflow_dispatch`, `workflow_call`
 
 | Property | Value |
 |----------|-------|
 | File | `backport-cli.yml` |
-| Triggers | `workflow_dispatch`, `workflow_call` |
 
 ## Manual trigger inputs
 
@@ -939,8 +980,6 @@ Inputs for the `workflow_dispatch` event.
 | `target-branch` | string | Yes | - | Target branch to backport. |
 
 ## Workflow call API
-
-This workflow is reusable via `workflow_call`.
 
 **Inputs:**
 
@@ -977,11 +1016,12 @@ backport-cli.yml
 |----------|-------|
 | Runs on | `ubuntu-latest` |
 
-#### Steps
+<details>
+<summary>Steps (5)</summary>
 
 1. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
    - ID: `checkout-for-backport`
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `true`
      - `fetch-depth`: `0`
@@ -1010,16 +1050,22 @@ backport-cli.yml
      - `TARGET_BRANCH`: `${{ inputs.target-branch }}`
      - `BACKPORT_URL`: `${{ steps.parse-backport-output.outputs.backport-url }}`
 
+</details>
+
+[Back to top](#contents)
+
 # Basic tests
+
+**Triggers:** `workflow_call`
 
 | Property | Value |
 |----------|-------|
 | File | `basic-tests.yml` |
-| Triggers | `workflow_call` |
+| Default runs-on | `${{ fromJSON(inputs.runners) }}` |
+
+**Jobs:** [Breeze unit tests](#breeze-unit-tests-run-breeze-tests), [Breeze integration tests](#breeze-integration-tests-run-breeze-integration-tests), [Shared ${{ matrix.shared-distribution }} tests](#shared--matrixshared-distribution--tests-tests-shared-distributions), [Scripts tests](#scripts-tests-tests-scripts), [React UI tests](#react-ui-tests-tests-ui), [Check translation completeness](#check-translation-completeness-check-translation-completness), [Static checks: basic checks only](#static-checks-basic-checks-only-static-checks-basic-checks-only), [Test git clone on Windows](#test-git-clone-on-windows-test-git-clone-on-windows), [Test Airflow release commands](#test-airflow-release-commands-test-airflow-release-commands), [Test Airflow standalone commands](#test-airflow-standalone-commands-test-airflow-standalone)
 
 ## Workflow call API
-
-This workflow is reusable via `workflow_call`.
 
 **Inputs:**
 
@@ -1064,16 +1110,12 @@ basic-tests.yml
 
 ### Breeze unit tests (`run-breeze-tests`)
 
-| Property | Value |
-|----------|-------|
-| Runs on | `${{ fromJSON(inputs.runners) }}` |
-
-#### Steps
+<details>
+<summary>Steps (4)</summary>
 
 1. **Cleanup repo**
 
 2. **actions/checkout@v6.0.2**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
    - With:
      - `fetch-depth`: `0`
      - `persist-credentials`: `false`
@@ -1083,19 +1125,20 @@ basic-tests.yml
 
 4. **Run unit tests**
 
+</details>
+
 ### Breeze integration tests (`run-breeze-integration-tests`)
 
 | Property | Value |
 |----------|-------|
-| Runs on | `${{ fromJSON(inputs.runners) }}` |
 | Condition | `inputs.run-breeze-integration-tests == 'true'` |
 
-#### Steps
+<details>
+<summary>Steps (7)</summary>
 
 1. **Cleanup repo**
 
 2. **actions/checkout@v6.0.2**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
    - With:
      - `fetch-depth`: `0`
      - `persist-credentials`: `false`
@@ -1106,7 +1149,7 @@ basic-tests.yml
 4. **Install SVN**
 
 5. **Install Java (for Apache RAT)**
-   - Uses: `actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654` (v5.2.0)
+   - Uses: `actions/setup-java@v5.2.0`
    - With:
      - `distribution`: `temurin`
      - `java-version`: `17`
@@ -1115,17 +1158,19 @@ basic-tests.yml
 
 7. **Run integration tests**
 
+</details>
+
 ### Shared ${{ matrix.shared-distribution }} tests (`tests-shared-distributions`)
 
 | Property | Value |
 |----------|-------|
-| Runs on | `${{ fromJSON(inputs.runners) }}` |
 | Matrix | `shared-distribution`: ${{ fromJSON(inputs.shared-distributions-as-json) }} |
 
-#### Steps
+<details>
+<summary>Steps (3)</summary>
 
 1. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `fetch-depth`: `1`
      - `persist-credentials`: `false`
@@ -1134,17 +1179,19 @@ basic-tests.yml
 
 3. **Run shared ${{ matrix.shared-distribution }} tests**
 
+</details>
+
 ### Scripts tests (`tests-scripts`)
 
 | Property | Value |
 |----------|-------|
-| Runs on | `${{ fromJSON(inputs.runners) }}` |
 | Condition | `inputs.run-scripts-tests == 'true'` |
 
-#### Steps
+<details>
+<summary>Steps (3)</summary>
 
 1. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `fetch-depth`: `1`
      - `persist-credentials`: `false`
@@ -1153,30 +1200,32 @@ basic-tests.yml
 
 3. **Run scripts tests**
 
+</details>
+
 ### React UI tests (`tests-ui`)
 
 | Property | Value |
 |----------|-------|
-| Runs on | `${{ fromJSON(inputs.runners) }}` |
 | Condition | `inputs.run-ui-tests == 'true'` |
 
-#### Steps
+<details>
+<summary>Steps (12)</summary>
 
 1. **Cleanup repo**
 
 2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
 
 3. **Setup pnpm**
-   - Uses: `pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093` (v6.0.8)
+   - Uses: `pnpm/action-setup@v6.0.8`
    - With:
      - `version`: `9`
      - `run_install`: `false`
 
 4. **Setup node**
-   - Uses: `actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e` (v6.4.0)
+   - Uses: `actions/setup-node@v6.4.0`
    - With:
      - `node-version`: `24`
      - `cache`: `pnpm`
@@ -1226,16 +1275,15 @@ basic-tests.yml
      - `if-no-files-found`: `error`
      - `retention-days`: `2`
 
+</details>
+
 ### Check translation completeness (`check-translation-completness`)
 
-| Property | Value |
-|----------|-------|
-| Runs on | `${{ fromJSON(inputs.runners) }}` |
-
-#### Steps
+<details>
+<summary>Steps (3)</summary>
 
 1. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
 
@@ -1244,19 +1292,21 @@ basic-tests.yml
 
 3. **Check translation completeness**
 
+</details>
+
 ### Static checks: basic checks only (`static-checks-basic-checks-only`)
 
 | Property | Value |
 |----------|-------|
-| Runs on | `${{ fromJSON(inputs.runners) }}` |
 | Condition | `inputs.basic-checks-only == 'true'` |
 
-#### Steps
+<details>
+<summary>Steps (6)</summary>
 
 1. **Cleanup repo**
 
 2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
 
@@ -1273,7 +1323,7 @@ basic-tests.yml
      - `save-cache`: `true` - Whether to save prek cache (required)
 
 5. **Fetch incoming commit ${{ github.sha }} with its parent**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `ref`: `${{ github.sha }}`
      - `fetch-depth`: `2`
@@ -1286,25 +1336,29 @@ basic-tests.yml
      - `SKIP`: `${{ inputs.skip-prek-hooks }}`
      - `COLUMNS`: `202`
 
+</details>
+
 ### Test git clone on Windows (`test-git-clone-on-windows`)
 
 | Property | Value |
 |----------|-------|
 | Runs on | `windows-2025` |
 
-#### Steps
+<details>
+<summary>Steps (1)</summary>
 
 1. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `fetch-depth`: `2`
      - `persist-credentials`: `false`
+
+</details>
 
 ### Test Airflow release commands (`test-airflow-release-commands`)
 
 | Property | Value |
 |----------|-------|
-| Runs on | `${{ fromJSON(inputs.runners) }}` |
 | Condition | `inputs.canary-run == 'true'` |
 
 **Environment (`env`):**
@@ -1317,12 +1371,13 @@ basic-tests.yml
 | `GITHUB_USERNAME` | `${{ github.actor }}` |
 | `VERBOSE` | `true` |
 
-#### Steps
+<details>
+<summary>Steps (12)</summary>
 
 1. **Cleanup repo**
 
 2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
 
@@ -1349,11 +1404,9 @@ basic-tests.yml
 
 12. **Test airflow core issue generation automatically**
 
-### Test Airflow standalone commands (`test-airflow-standalone`)
+</details>
 
-| Property | Value |
-|----------|-------|
-| Runs on | `${{ fromJSON(inputs.runners) }}` |
+### Test Airflow standalone commands (`test-airflow-standalone`)
 
 **Environment (`env`):**
 
@@ -1362,10 +1415,11 @@ basic-tests.yml
 | `AIRFLOW_HOME` | `~/airflow` |
 | `FORCE_COLOR` | `1` |
 
-#### Steps
+<details>
+<summary>Steps (5)</summary>
 
 1. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
 
@@ -1377,12 +1431,17 @@ basic-tests.yml
 
 5. **Test airflow standalone command**
 
+</details>
+
+[Back to top](#contents)
+
 # Check newsfragment PR number
+
+**Triggers:** `pull_request`
 
 | Property | Value |
 |----------|-------|
 | File | `check-newsfragment-pr-number.yml` |
-| Triggers | `pull_request` |
 
 ## Event filters
 
@@ -1406,19 +1465,28 @@ basic-tests.yml
 | Runs on | `ubuntu-latest` |
 | Condition | `${{ !contains(github.event.pull_request.labels.*.name, 'skip newsfragment check') }}` |
 
-#### Steps
+<details>
+<summary>Steps (1)</summary>
 
 1. **Check newsfragment PR number**
    - Env:
      - `GH_TOKEN`: `${{ github.token }}`
      - `PR_NUMBER`: `${{ github.event.pull_request.number }}`
 
+</details>
+
+[Back to top](#contents)
+
 # Tests (AMD)
+
+**Triggers:** `schedule`, `pull_request`, `push`, `workflow_dispatch`
 
 | Property | Value |
 |----------|-------|
 | File | `ci-amd.yml` |
-| Triggers | `schedule`, `pull_request`, `push`, `workflow_dispatch` |
+| Default runs-on | `${{ fromJSON(needs.build-info.outputs.runner-type) }}` |
+
+**Jobs:** [Build info](#build-info-build-info), [Platform: AMD](#platform-amd-print-platform), [Basic tests](#basic-tests-basic-tests), [Build CI images](#build-ci-images-build-ci-images), [Additional CI image checks](#additional-ci-image-checks-additional-ci-image-checks), [Generate constraints](#generate-constraints-generate-constraints), [CI image checks](#ci-image-checks-ci-image-checks), [MyPy providers checks](#mypy-providers-checks-mypy-providers), [Migration round-trip check](#migration-round-trip-check-migration-round-trip), [provider distributions tests](#provider-distributions-tests-providers), [Helm tests](#helm-tests-tests-helm), [Postgres tests: core](#postgres-tests-core-tests-postgres-core), [Postgres tests: providers](#postgres-tests-providers-tests-postgres-providers), [MySQL tests: core](#mysql-tests-core-tests-mysql-core), [MySQL tests: providers](#mysql-tests-providers-tests-mysql-providers), [Sqlite tests: core](#sqlite-tests-core-tests-sqlite-core), [Sqlite tests: providers](#sqlite-tests-providers-tests-sqlite-providers), [Non-DB tests: core](#non-db-tests-core-tests-non-db-core), [Non-DB tests: providers](#non-db-tests-providers-tests-non-db-providers), [Special tests](#special-tests-tests-special), [Integration and System Tests](#integration-and-system-tests-tests-integration-system), [Low dep tests:core](#low-dep-testscore-tests-with-lowest-direct-resolution-core), [Low dep tests: providers](#low-dep-tests-providers-tests-with-lowest-direct-resolution-providers), [Build PROD images](#build-prod-images-build-prod-images), [Additional PROD image tests](#additional-prod-image-tests-additional-prod-image-tests), [Kubernetes tests](#kubernetes-tests-tests-kubernetes), [Task SDK tests](#task-sdk-tests-tests-task-sdk), [Go SDK tests](#go-sdk-tests-tests-go-sdk), [Airflow CTL tests](#airflow-ctl-tests-tests-airflow-ctl), [Finalize tests](#finalize-tests-finalize-tests), [Notify Slack](#notify-slack-notify-slack), [Summarize warnings](#summarize-warnings-summarize-warnings)
 
 ## Schedule
 
@@ -1684,17 +1752,18 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
 |----------|-------|
 | Runs on | `ubuntu-22.04` |
 
-#### Steps
+<details>
+<summary>Steps (8)</summary>
 
 1. **Cleanup repo**
 
 2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
 
 3. **Fetch incoming commit ${{ github.sha }} with its parent**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `ref`: `${{ github.sha }}`
      - `fetch-depth`: `2`
@@ -1724,6 +1793,8 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
    - Env:
      - `PR_LABELS`: `${{ steps.source-run-info.outputs.pr-labels }}`
 
+</details>
+
 ### Platform: AMD (`print-platform`)
 
 | Property | Value |
@@ -1731,9 +1802,12 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
 | Runs on | `ubuntu-22.04` |
 | Depends on | `build-info` |
 
-#### Steps
+<details>
+<summary>Steps (1)</summary>
 
 1. **Print architecture**
+
+</details>
 
 ### Basic tests (`basic-tests`)
 
@@ -1883,7 +1957,6 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
 
 | Property | Value |
 |----------|-------|
-| Runs on | `${{ fromJSON(needs.build-info.outputs.runner-type) }}` |
 | Depends on | `build-info`, `build-ci-images` |
 | Condition | `needs.build-info.outputs.run-mypy-providers == 'true'` |
 
@@ -1894,12 +1967,13 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
 | `PYTHON_MAJOR_MINOR_VERSION` | `${{ needs.build-info.outputs.default-python-version }}` |
 | `GITHUB_TOKEN` | `${{ secrets.GITHUB_TOKEN }}` |
 
-#### Steps
+<details>
+<summary>Steps (5)</summary>
 
 1. **Cleanup repo**
 
 2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
 
@@ -1929,11 +2003,12 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
      - `RUFF_FORMAT`: `github`
      - `INCLUDE_MYPY_VOLUME`: `false`
 
+</details>
+
 ### Migration round-trip check (`migration-round-trip`)
 
 | Property | Value |
 |----------|-------|
-| Runs on | `${{ fromJSON(needs.build-info.outputs.runner-type) }}` |
 | Depends on | `build-info`, `build-ci-images` |
 | Condition | `needs.build-info.outputs.has-migrations == 'true'` |
 
@@ -1944,12 +2019,13 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
 | `PYTHON_MAJOR_MINOR_VERSION` | `${{ needs.build-info.outputs.default-python-version }}` |
 | `GITHUB_TOKEN` | `${{ secrets.GITHUB_TOKEN }}` |
 
-#### Steps
+<details>
+<summary>Steps (5)</summary>
 
 1. **Cleanup repo**
 
 2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
 
@@ -1976,6 +2052,8 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
      - `COLUMNS`: `202`
      - `SKIP_GROUP_OUTPUT`: `true`
      - `DEFAULT_BRANCH`: `${{ needs.build-info.outputs.default-branch }}`
+
+</details>
 
 ### provider distributions tests (`providers`)
 
@@ -2542,7 +2620,6 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
 
 | Property | Value |
 |----------|-------|
-| Runs on | `${{ fromJSON(needs.build-info.outputs.runner-type) }}` |
 | Depends on | `build-info` |
 | Condition | `needs.build-info.outputs.run-go-sdk-tests == 'true'` |
 
@@ -2560,15 +2637,16 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
 | `GITHUB_USERNAME` | `${{ github.actor }}` |
 | `VERBOSE` | `true` |
 
-#### Steps
+<details>
+<summary>Steps (5)</summary>
 
 1. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
 
 2. **Setup Go**
-   - Uses: `actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c` (v6.4.0)
+   - Uses: `actions/setup-go@v6.4.0`
    - With:
      - `go-version`: `1.24`
      - `cache-dependency-path`: `go-sdk/go.sum`
@@ -2578,6 +2656,8 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
 4. **Cleanup dist files**
 
 5. **Run Go tests**
+
+</details>
 
 ### Airflow CTL tests (`tests-airflow-ctl`)
 
@@ -2644,10 +2724,11 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
 | Depends on | `build-info`, `finalize-tests` |
 | Condition | `always() && !cancelled() && github.event_name == 'schedule' && github.run_attempt == 1` |
 
-#### Steps
+<details>
+<summary>Steps (7)</summary>
 
 1. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
 
@@ -2664,7 +2745,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
      - `GITHUB_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
 
 4. **Upload notification state**
-   - Uses: `actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a` (v7.0.1)
+   - Uses: `actions/upload-artifact@v7.0.1`
    - With:
      - `name`: `slack-state-tests-${{ github.ref_name }}-amd`
      - `path`: `./slack-state/`
@@ -2672,7 +2753,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
      - `overwrite`: `true`
 
 5. **Notify Slack (new/changed failures)**
-   - Uses: `slackapi/slack-github-action@45a88b9581bfab2566dc881e2cd66d334e621e2c` (v3.0.3)
+   - Uses: `slackapi/slack-github-action@v3.0.3`
    - Condition: `steps.notification.outputs.action == 'notify_new'`
    - With:
      - `method`: `chat.postMessage`
@@ -2680,7 +2761,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
      - `payload`: `channel: "internal-airflow-ci-cd" text: "🚨 Failure Alert: Scheduled CI (${{ needs.build-info.outputs.platform }}) on branch *${{ github.ref_name }}*\n\nFailing jobs:\n${{ steps.get-failures.outputs.failed-jobs }}\n\n*Details:* <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|View the failure log>" blocks:   - type: "section"     text:       type: "mrkdwn"       text: "🚨 Failure Alert: Scheduled CI (${{ needs.build-info.outputs.platform }}) on *${{ github.ref_name }}*\n\nFailing jobs:\n${{ steps.get-failures.outputs.failed-jobs }}\n\n*Details:* <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|View the failure log>"`
 
 6. **Notify Slack (still not fixed)**
-   - Uses: `slackapi/slack-github-action@45a88b9581bfab2566dc881e2cd66d334e621e2c` (v3.0.3)
+   - Uses: `slackapi/slack-github-action@v3.0.3`
    - Condition: `steps.notification.outputs.action == 'notify_reminder'`
    - With:
      - `method`: `chat.postMessage`
@@ -2688,47 +2769,49 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
      - `payload`: `channel: "internal-airflow-ci-cd" text: "🚨🔁 Still not fixed: Scheduled CI (${{ needs.build-info.outputs.platform }}) on branch *${{ github.ref_name }}*\n\nFailing jobs:\n${{ steps.get-failures.outputs.failed-jobs }}\n\n*Details:* <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|View the failure log>" blocks:   - type: "section"     text:       type: "mrkdwn"       text: "🚨🔁 Still not fixed: Scheduled CI (${{ needs.build-info.outputs.platform }}) on *${{ github.ref_name }}*\n\nFailing jobs:\n${{ steps.get-failures.outputs.failed-jobs }}\n\n*Details:* <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|View the failure log>"`
 
 7. **Notify Slack (all tests passing)**
-   - Uses: `slackapi/slack-github-action@45a88b9581bfab2566dc881e2cd66d334e621e2c` (v3.0.3)
+   - Uses: `slackapi/slack-github-action@v3.0.3`
    - Condition: `steps.notification.outputs.action == 'notify_recovery'`
    - With:
      - `method`: `chat.postMessage`
      - `token`: `${{ env.SLACK_BOT_TOKEN }}`
      - `payload`: `channel: "internal-airflow-ci-cd" text: "✅ All tests passing: Scheduled CI (${{ needs.build-info.outputs.platform }}) on branch *${{ github.ref_name }}*\n\n*Details:* <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|View the run log>" blocks:   - type: "section"     text:       type: "mrkdwn"       text: "✅ All tests passing: Scheduled CI (${{ needs.build-info.outputs.platform }}) on *${{ github.ref_name }}*\n\n*Details:* <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|View the run log>"`
 
+</details>
+
 ### Summarize warnings (`summarize-warnings`)
 
 | Property | Value |
 |----------|-------|
-| Runs on | `${{ fromJSON(needs.build-info.outputs.runner-type) }}` |
 | Depends on | `build-info`, `tests-mysql-core`, `tests-mysql-providers`, `tests-non-db-core`, `tests-non-db-providers`, `tests-postgres-core`, `tests-postgres-providers`, `tests-sqlite-core`, `tests-sqlite-providers`, `tests-task-sdk`, `tests-airflow-ctl`, `tests-special`, `tests-with-lowest-direct-resolution-core`, `tests-with-lowest-direct-resolution-providers` |
 | Condition | `needs.build-info.outputs.run-unit-tests == 'true'` |
 
-#### Steps
+<details>
+<summary>Steps (7)</summary>
 
 1. **Cleanup repo**
 
 2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
 
 3. **Free up disk space**
 
 4. **Download all test warning artifacts from the current build**
-   - Uses: `actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c` (v8.0.1)
+   - Uses: `actions/download-artifact@v8.0.1`
    - With:
      - `path`: `./artifacts`
      - `pattern`: `test-warnings-*`
 
 5. **Setup python**
-   - Uses: `actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405` (v6.2.0)
+   - Uses: `actions/setup-python@v6.2.0`
    - With:
      - `python-version`: `${{ inputs.default-python-version }}`
 
 6. **Summarize all warnings**
 
 7. **Upload artifact for summarized warnings**
-   - Uses: `actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a` (v7.0.1)
+   - Uses: `actions/upload-artifact@v7.0.1`
    - With:
      - `name`: `test-summarized-warnings`
      - `path`: `./files/warn-summary-*.txt`
@@ -2736,12 +2819,20 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
      - `if-no-files-found`: `ignore`
      - `overwrite`: `true`
 
+</details>
+
+[Back to top](#contents)
+
 # Tests (ARM)
+
+**Triggers:** `schedule`, `push`, `workflow_dispatch`
 
 | Property | Value |
 |----------|-------|
 | File | `ci-arm.yml` |
-| Triggers | `schedule`, `push`, `workflow_dispatch` |
+| Default runs-on | `${{ fromJSON(needs.build-info.outputs.runner-type) }}` |
+
+**Jobs:** [Build info](#build-info-build-info-1), [Platform: ARM](#platform-arm-print-platform), [Basic tests](#basic-tests-basic-tests-1), [Build CI images](#build-ci-images-build-ci-images-1), [Additional CI image checks](#additional-ci-image-checks-additional-ci-image-checks-1), [Generate constraints](#generate-constraints-generate-constraints-1), [CI image checks](#ci-image-checks-ci-image-checks-1), [MyPy providers checks](#mypy-providers-checks-mypy-providers-1), [Migration round-trip check](#migration-round-trip-check-migration-round-trip-1), [provider distributions tests](#provider-distributions-tests-providers-1), [Helm tests](#helm-tests-tests-helm-1), [Postgres tests: core](#postgres-tests-core-tests-postgres-core-1), [Postgres tests: providers](#postgres-tests-providers-tests-postgres-providers-1), [MySQL tests: core](#mysql-tests-core-tests-mysql-core-1), [MySQL tests: providers](#mysql-tests-providers-tests-mysql-providers-1), [Sqlite tests: core](#sqlite-tests-core-tests-sqlite-core-1), [Sqlite tests: providers](#sqlite-tests-providers-tests-sqlite-providers-1), [Non-DB tests: core](#non-db-tests-core-tests-non-db-core-1), [Non-DB tests: providers](#non-db-tests-providers-tests-non-db-providers-1), [Special tests](#special-tests-tests-special-1), [Integration and System Tests](#integration-and-system-tests-tests-integration-system-1), [Low dep tests:core](#low-dep-testscore-tests-with-lowest-direct-resolution-core-1), [Low dep tests: providers](#low-dep-tests-providers-tests-with-lowest-direct-resolution-providers-1), [Build PROD images](#build-prod-images-build-prod-images-1), [Additional PROD image tests](#additional-prod-image-tests-additional-prod-image-tests-1), [Kubernetes tests](#kubernetes-tests-tests-kubernetes-1), [Task SDK tests](#task-sdk-tests-tests-task-sdk-1), [Go SDK tests](#go-sdk-tests-tests-go-sdk-1), [Airflow CTL tests](#airflow-ctl-tests-tests-airflow-ctl-1), [Finalize tests](#finalize-tests-finalize-tests-1), [Notify Slack](#notify-slack-notify-slack-1), [Summarize warnings](#summarize-warnings-summarize-warnings-1)
 
 ## Schedule
 
@@ -3004,17 +3095,18 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
 |----------|-------|
 | Runs on | `ubuntu-22.04` |
 
-#### Steps
+<details>
+<summary>Steps (8)</summary>
 
 1. **Cleanup repo**
 
 2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
 
 3. **Fetch incoming commit ${{ github.sha }} with its parent**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `ref`: `${{ github.sha }}`
      - `fetch-depth`: `2`
@@ -3044,6 +3136,8 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
    - Env:
      - `PR_LABELS`: `${{ steps.source-run-info.outputs.pr-labels }}`
 
+</details>
+
 ### Platform: ARM (`print-platform`)
 
 | Property | Value |
@@ -3051,9 +3145,12 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
 | Runs on | `ubuntu-22.04` |
 | Depends on | `build-info` |
 
-#### Steps
+<details>
+<summary>Steps (1)</summary>
 
 1. **Print architecture**
+
+</details>
 
 ### Basic tests (`basic-tests`)
 
@@ -3203,7 +3300,6 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
 
 | Property | Value |
 |----------|-------|
-| Runs on | `${{ fromJSON(needs.build-info.outputs.runner-type) }}` |
 | Depends on | `build-info`, `build-ci-images` |
 | Condition | `needs.build-info.outputs.run-mypy-providers == 'true'` |
 
@@ -3214,12 +3310,13 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
 | `PYTHON_MAJOR_MINOR_VERSION` | `${{ needs.build-info.outputs.default-python-version }}` |
 | `GITHUB_TOKEN` | `${{ secrets.GITHUB_TOKEN }}` |
 
-#### Steps
+<details>
+<summary>Steps (5)</summary>
 
 1. **Cleanup repo**
 
 2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
 
@@ -3249,11 +3346,12 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
      - `RUFF_FORMAT`: `github`
      - `INCLUDE_MYPY_VOLUME`: `false`
 
+</details>
+
 ### Migration round-trip check (`migration-round-trip`)
 
 | Property | Value |
 |----------|-------|
-| Runs on | `${{ fromJSON(needs.build-info.outputs.runner-type) }}` |
 | Depends on | `build-info`, `build-ci-images` |
 | Condition | `needs.build-info.outputs.has-migrations == 'true'` |
 
@@ -3264,12 +3362,13 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
 | `PYTHON_MAJOR_MINOR_VERSION` | `${{ needs.build-info.outputs.default-python-version }}` |
 | `GITHUB_TOKEN` | `${{ secrets.GITHUB_TOKEN }}` |
 
-#### Steps
+<details>
+<summary>Steps (5)</summary>
 
 1. **Cleanup repo**
 
 2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
 
@@ -3296,6 +3395,8 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
      - `COLUMNS`: `202`
      - `SKIP_GROUP_OUTPUT`: `true`
      - `DEFAULT_BRANCH`: `${{ needs.build-info.outputs.default-branch }}`
+
+</details>
 
 ### provider distributions tests (`providers`)
 
@@ -3862,7 +3963,6 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
 
 | Property | Value |
 |----------|-------|
-| Runs on | `${{ fromJSON(needs.build-info.outputs.runner-type) }}` |
 | Depends on | `build-info` |
 | Condition | `needs.build-info.outputs.run-go-sdk-tests == 'true'` |
 
@@ -3880,15 +3980,16 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
 | `GITHUB_USERNAME` | `${{ github.actor }}` |
 | `VERBOSE` | `true` |
 
-#### Steps
+<details>
+<summary>Steps (5)</summary>
 
 1. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
 
 2. **Setup Go**
-   - Uses: `actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c` (v6.4.0)
+   - Uses: `actions/setup-go@v6.4.0`
    - With:
      - `go-version`: `1.24`
      - `cache-dependency-path`: `go-sdk/go.sum`
@@ -3898,6 +3999,8 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
 4. **Cleanup dist files**
 
 5. **Run Go tests**
+
+</details>
 
 ### Airflow CTL tests (`tests-airflow-ctl`)
 
@@ -3964,10 +4067,11 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
 | Depends on | `build-info`, `finalize-tests` |
 | Condition | `always() && !cancelled() && github.event_name == 'schedule' && github.run_attempt == 1` |
 
-#### Steps
+<details>
+<summary>Steps (7)</summary>
 
 1. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
 
@@ -3984,7 +4088,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
      - `GITHUB_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
 
 4. **Upload notification state**
-   - Uses: `actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a` (v7.0.1)
+   - Uses: `actions/upload-artifact@v7.0.1`
    - With:
      - `name`: `slack-state-tests-${{ github.ref_name }}-arm`
      - `path`: `./slack-state/`
@@ -3992,7 +4096,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
      - `overwrite`: `true`
 
 5. **Notify Slack (new/changed failures)**
-   - Uses: `slackapi/slack-github-action@45a88b9581bfab2566dc881e2cd66d334e621e2c` (v3.0.3)
+   - Uses: `slackapi/slack-github-action@v3.0.3`
    - Condition: `steps.notification.outputs.action == 'notify_new'`
    - With:
      - `method`: `chat.postMessage`
@@ -4000,7 +4104,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
      - `payload`: `channel: "internal-airflow-ci-cd" text: "🚨 Failure Alert: Scheduled CI (${{ needs.build-info.outputs.platform }}) on branch *${{ github.ref_name }}*\n\nFailing jobs:\n${{ steps.get-failures.outputs.failed-jobs }}\n\n*Details:* <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|View the failure log>" blocks:   - type: "section"     text:       type: "mrkdwn"       text: "🚨 Failure Alert: Scheduled CI (${{ needs.build-info.outputs.platform }}) on *${{ github.ref_name }}*\n\nFailing jobs:\n${{ steps.get-failures.outputs.failed-jobs }}\n\n*Details:* <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|View the failure log>"`
 
 6. **Notify Slack (still not fixed)**
-   - Uses: `slackapi/slack-github-action@45a88b9581bfab2566dc881e2cd66d334e621e2c` (v3.0.3)
+   - Uses: `slackapi/slack-github-action@v3.0.3`
    - Condition: `steps.notification.outputs.action == 'notify_reminder'`
    - With:
      - `method`: `chat.postMessage`
@@ -4008,47 +4112,49 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
      - `payload`: `channel: "internal-airflow-ci-cd" text: "🚨🔁 Still not fixed: Scheduled CI (${{ needs.build-info.outputs.platform }}) on branch *${{ github.ref_name }}*\n\nFailing jobs:\n${{ steps.get-failures.outputs.failed-jobs }}\n\n*Details:* <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|View the failure log>" blocks:   - type: "section"     text:       type: "mrkdwn"       text: "🚨🔁 Still not fixed: Scheduled CI (${{ needs.build-info.outputs.platform }}) on *${{ github.ref_name }}*\n\nFailing jobs:\n${{ steps.get-failures.outputs.failed-jobs }}\n\n*Details:* <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|View the failure log>"`
 
 7. **Notify Slack (all tests passing)**
-   - Uses: `slackapi/slack-github-action@45a88b9581bfab2566dc881e2cd66d334e621e2c` (v3.0.3)
+   - Uses: `slackapi/slack-github-action@v3.0.3`
    - Condition: `steps.notification.outputs.action == 'notify_recovery'`
    - With:
      - `method`: `chat.postMessage`
      - `token`: `${{ env.SLACK_BOT_TOKEN }}`
      - `payload`: `channel: "internal-airflow-ci-cd" text: "✅ All tests passing: Scheduled CI (${{ needs.build-info.outputs.platform }}) on branch *${{ github.ref_name }}*\n\n*Details:* <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|View the run log>" blocks:   - type: "section"     text:       type: "mrkdwn"       text: "✅ All tests passing: Scheduled CI (${{ needs.build-info.outputs.platform }}) on *${{ github.ref_name }}*\n\n*Details:* <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|View the run log>"`
 
+</details>
+
 ### Summarize warnings (`summarize-warnings`)
 
 | Property | Value |
 |----------|-------|
-| Runs on | `${{ fromJSON(needs.build-info.outputs.runner-type) }}` |
 | Depends on | `build-info`, `tests-mysql-core`, `tests-mysql-providers`, `tests-non-db-core`, `tests-non-db-providers`, `tests-postgres-core`, `tests-postgres-providers`, `tests-sqlite-core`, `tests-sqlite-providers`, `tests-task-sdk`, `tests-airflow-ctl`, `tests-special`, `tests-with-lowest-direct-resolution-core`, `tests-with-lowest-direct-resolution-providers` |
 | Condition | `needs.build-info.outputs.run-unit-tests == 'true'` |
 
-#### Steps
+<details>
+<summary>Steps (7)</summary>
 
 1. **Cleanup repo**
 
 2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
 
 3. **Free up disk space**
 
 4. **Download all test warning artifacts from the current build**
-   - Uses: `actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c` (v8.0.1)
+   - Uses: `actions/download-artifact@v8.0.1`
    - With:
      - `path`: `./artifacts`
      - `pattern`: `test-warnings-*`
 
 5. **Setup python**
-   - Uses: `actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405` (v6.2.0)
+   - Uses: `actions/setup-python@v6.2.0`
    - With:
      - `python-version`: `${{ inputs.default-python-version }}`
 
 6. **Summarize all warnings**
 
 7. **Upload artifact for summarized warnings**
-   - Uses: `actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a` (v7.0.1)
+   - Uses: `actions/upload-artifact@v7.0.1`
    - With:
      - `name`: `test-summarized-warnings`
      - `path`: `./files/warn-summary-*.txt`
@@ -4056,16 +4162,19 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
      - `if-no-files-found`: `ignore`
      - `overwrite`: `true`
 
+</details>
+
+[Back to top](#contents)
+
 # Build CI images
+
+**Triggers:** `workflow_call`
 
 | Property | Value |
 |----------|-------|
 | File | `ci-image-build.yml` |
-| Triggers | `workflow_call` |
 
 ## Workflow call API
-
-This workflow is reusable via `workflow_call`.
 
 **Inputs:**
 
@@ -4137,12 +4246,13 @@ ci-image-build.yml
 | `GITHUB_USERNAME` | `${{ github.actor }}` |
 | `VERBOSE` | `true` |
 
-#### Steps
+<details>
+<summary>Steps (16)</summary>
 
 1. **Cleanup repo**
 
 2. **Checkout target branch**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
 
@@ -4221,16 +4331,22 @@ ci-image-build.yml
 
 16. **Check disk space after build**
 
+</details>
+
+[Back to top](#contents)
+
 # CI Image Checks
+
+**Triggers:** `workflow_call`
 
 | Property | Value |
 |----------|-------|
 | File | `ci-image-checks.yml` |
-| Triggers | `workflow_call` |
+| Default runs-on | `${{ fromJSON(inputs.runners) }}` |
+
+**Jobs:** [Static checks](#static-checks-static-checks), [Build documentation](#build-documentation-build-docs), [Publish documentation and validate versions](#publish-documentation-and-validate-versions-publish-docs), [Test Python API client](#test-python-api-client-test-python-api-client)
 
 ## Workflow call API
-
-This workflow is reusable via `workflow_call`.
 
 **Inputs:**
 
@@ -4295,7 +4411,6 @@ ci-image-checks.yml
 
 | Property | Value |
 |----------|-------|
-| Runs on | `${{ fromJSON(inputs.runners) }}` |
 | Condition | `inputs.basic-checks-only == 'false' && inputs.latest-versions-only != 'true'` |
 
 **Environment (`env`):**
@@ -4306,12 +4421,13 @@ ci-image-checks.yml
 | `UPGRADE_TO_NEWER_DEPENDENCIES` | `${{ inputs.upgrade-to-newer-dependencies }}` |
 | `GITHUB_TOKEN` | `${{ secrets.GITHUB_TOKEN }}` |
 
-#### Steps
+<details>
+<summary>Steps (6)</summary>
 
 1. **Cleanup repo**
 
 2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
 
@@ -4344,11 +4460,12 @@ ci-image-checks.yml
 6. **Show prek log on failure**
    - Condition: `failure()`
 
+</details>
+
 ### Build documentation (`build-docs`)
 
 | Property | Value |
 |----------|-------|
-| Runs on | `${{ fromJSON(inputs.runners) }}` |
 | Matrix | `flag`: --docs-only, --spellcheck-only |
 | Condition | `inputs.docs-build == 'true'` |
 
@@ -4364,12 +4481,13 @@ ci-image-checks.yml
 | `PYTHON_MAJOR_MINOR_VERSION` | `${{ inputs.default-python-version }}` |
 | `VERBOSE` | `true` |
 
-#### Steps
+<details>
+<summary>Steps (14)</summary>
 
 1. **Cleanup repo**
 
 2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
 
@@ -4411,7 +4529,7 @@ ci-image-checks.yml
      - `GITHUB_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
 
 9. **Upload inventory notification state**
-   - Uses: `actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a` (v7.0.1)
+   - Uses: `actions/upload-artifact@v7.0.1`
    - Condition: `always() && inputs.canary-run == 'true' && matrix.flag == '--docs-only'`
    - With:
      - `name`: `slack-state-inventory-${{ inputs.branch }}-${{ contains(inputs.platform, 'arm') && 'arm' || 'amd' }}`
@@ -4420,7 +4538,7 @@ ci-image-checks.yml
      - `overwrite`: `true`
 
 10. **Notify Slack about missing inventories (new/changed)**
-   - Uses: `slackapi/slack-github-action@45a88b9581bfab2566dc881e2cd66d334e621e2c` (v3.0.3)
+   - Uses: `slackapi/slack-github-action@v3.0.3`
    - Condition: `inputs.canary-run == 'true' && matrix.flag == '--docs-only' && steps.inventory-notification.outputs.action == 'notify_new'`
    - With:
      - `method`: `chat.postMessage`
@@ -4430,7 +4548,7 @@ ci-image-checks.yml
      - `SLACK_BOT_TOKEN`: `${{ secrets.SLACK_BOT_TOKEN }}`
 
 11. **Notify Slack about missing inventories (still not fixed)**
-   - Uses: `slackapi/slack-github-action@45a88b9581bfab2566dc881e2cd66d334e621e2c` (v3.0.3)
+   - Uses: `slackapi/slack-github-action@v3.0.3`
    - Condition: `inputs.canary-run == 'true' && matrix.flag == '--docs-only' && steps.inventory-notification.outputs.action == 'notify_reminder'`
    - With:
      - `method`: `chat.postMessage`
@@ -4440,7 +4558,7 @@ ci-image-checks.yml
      - `SLACK_BOT_TOKEN`: `${{ secrets.SLACK_BOT_TOKEN }}`
 
 12. **Notify Slack about inventory recovery**
-   - Uses: `slackapi/slack-github-action@45a88b9581bfab2566dc881e2cd66d334e621e2c` (v3.0.3)
+   - Uses: `slackapi/slack-github-action@v3.0.3`
    - Condition: `inputs.canary-run == 'true' && matrix.flag == '--docs-only' && steps.inventory-notification.outputs.action == 'notify_recovery'`
    - With:
      - `method`: `chat.postMessage`
@@ -4459,7 +4577,7 @@ ci-image-checks.yml
      - `retention-days`: `2`
 
 14. **Upload build docs**
-   - Uses: `actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a` (v7.0.1)
+   - Uses: `actions/upload-artifact@v7.0.1`
    - Condition: `matrix.flag == '--docs-only'`
    - With:
      - `name`: `airflow-docs`
@@ -4467,11 +4585,12 @@ ci-image-checks.yml
      - `retention-days`: `7`
      - `if-no-files-found`: `error`
 
+</details>
+
 ### Publish documentation and validate versions (`publish-docs`)
 
 | Property | Value |
 |----------|-------|
-| Runs on | `${{ fromJSON(inputs.runners) }}` |
 | Depends on | `build-docs` |
 
 **Permissions:**
@@ -4493,12 +4612,13 @@ ci-image-checks.yml
 | `HEAD_REPO` | `${{ inputs.source-head-repo }}` |
 | `HEAD_REF` | `${{ inputs.source-head-ref }}` |
 
-#### Steps
+<details>
+<summary>Steps (22)</summary>
 
 1. **Cleanup repo**
 
 2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
 
@@ -4511,7 +4631,7 @@ ci-image-checks.yml
      - `make-mnt-writeable-and-cleanup`: `true` - Whether to cleanup /mnt (required)
 
 4. **Download docs prepared as artifacts**
-   - Uses: `actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c` (v8.0.1)
+   - Uses: `actions/download-artifact@v8.0.1`
    - With:
      - `name`: `airflow-docs`
      - `path`: `./generated/_build`
@@ -4561,7 +4681,7 @@ ci-image-checks.yml
    - Condition: `inputs.canary-run == 'true' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')`
 
 21. **Configure AWS credentials**
-   - Uses: `aws-actions/configure-aws-credentials@d979d5b3a71173a29b74b5b88418bfda9437d885` (v6.1.1)
+   - Uses: `aws-actions/configure-aws-credentials@v6.1.1`
    - Condition: `inputs.canary-run == 'true' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')`
    - With:
      - `aws-access-key-id`: `${{ secrets.DOCS_AWS_ACCESS_KEY_ID }}`
@@ -4571,11 +4691,12 @@ ci-image-checks.yml
 22. **Upload documentation to AWS S3**
    - Condition: `inputs.canary-run == 'true' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')`
 
+</details>
+
 ### Test Python API client (`test-python-api-client`)
 
 | Property | Value |
 |----------|-------|
-| Runs on | `${{ fromJSON(inputs.runners) }}` |
 | Condition | `inputs.run-api-codegen == 'true'` |
 
 **Environment (`env`):**
@@ -4593,18 +4714,19 @@ ci-image-checks.yml
 | `PYTHON_MAJOR_MINOR_VERSION` | `${{ inputs.default-python-version }}` |
 | `VERBOSE` | `true` |
 
-#### Steps
+<details>
+<summary>Steps (7)</summary>
 
 1. **Cleanup repo**
 
 2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `fetch-depth`: `2`
      - `persist-credentials`: `false`
 
 3. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `repository`: `apache/airflow-client-python`
      - `fetch-depth`: `1`
@@ -4625,12 +4747,17 @@ ci-image-checks.yml
 
 7. **Python API client tests**
 
+</details>
+
+[Back to top](#contents)
+
 # CI Notification
+
+**Triggers:** `schedule`, `workflow_dispatch`
 
 | Property | Value |
 |----------|-------|
 | File | `ci-notification.yml` |
-| Triggers | `schedule`, `workflow_dispatch` |
 
 ## Schedule
 
@@ -4668,10 +4795,11 @@ ci-image-checks.yml
 | Runs on | `ubuntu-latest` |
 | Matrix | `branch`: v3-2-test; `workflow-id`: ci-amd.yml |
 
-#### Steps
+<details>
+<summary>Steps (7)</summary>
 
 1. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
 
@@ -4690,7 +4818,7 @@ ci-image-checks.yml
      - `GITHUB_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
 
 4. **Upload notification state**
-   - Uses: `actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a` (v7.0.1)
+   - Uses: `actions/upload-artifact@v7.0.1`
    - With:
      - `name`: `slack-state-ci-${{ matrix.branch }}-${{ matrix.workflow-id }}`
      - `path`: `./slack-state/`
@@ -4698,7 +4826,7 @@ ci-image-checks.yml
      - `overwrite`: `true`
 
 5. **Send Slack notification (new/changed failures)**
-   - Uses: `slackapi/slack-github-action@45a88b9581bfab2566dc881e2cd66d334e621e2c` (v3.0.3)
+   - Uses: `slackapi/slack-github-action@v3.0.3`
    - Condition: `steps.notification.outputs.action == 'notify_new'`
    - With:
      - `method`: `chat.postMessage`
@@ -4710,7 +4838,7 @@ ci-image-checks.yml
      - `workflow_id`: `${{ matrix.workflow-id }}`
 
 6. **Send Slack notification (still not fixed)**
-   - Uses: `slackapi/slack-github-action@45a88b9581bfab2566dc881e2cd66d334e621e2c` (v3.0.3)
+   - Uses: `slackapi/slack-github-action@v3.0.3`
    - Condition: `steps.notification.outputs.action == 'notify_reminder'`
    - With:
      - `method`: `chat.postMessage`
@@ -4722,7 +4850,7 @@ ci-image-checks.yml
      - `workflow_id`: `${{ matrix.workflow-id }}`
 
 7. **Send Slack notification (all passing)**
-   - Uses: `slackapi/slack-github-action@45a88b9581bfab2566dc881e2cd66d334e621e2c` (v3.0.3)
+   - Uses: `slackapi/slack-github-action@v3.0.3`
    - Condition: `steps.notification.outputs.action == 'notify_recovery'`
    - With:
      - `method`: `chat.postMessage`
@@ -4733,12 +4861,17 @@ ci-image-checks.yml
      - `branch`: `${{ matrix.branch }}`
      - `workflow_id`: `${{ matrix.workflow-id }}`
 
+</details>
+
+[Back to top](#contents)
+
 # CodeQL
+
+**Triggers:** `pull_request`, `push`, `schedule`
 
 | Property | Value |
 |----------|-------|
 | File | `codeql-analysis.yml` |
-| Triggers | `pull_request`, `push`, `schedule` |
 
 ## Schedule
 
@@ -4773,32 +4906,38 @@ ci-image-checks.yml
 - `pull-requests`: `read`
 - `security-events`: `write`
 
-#### Steps
+<details>
+<summary>Steps (4)</summary>
 
 1. **Checkout repository**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
 
 2. **Initialize CodeQL**
-   - Uses: `github/codeql-action/init@9e0d7b8d25671d64c341c19c0152d693099fb5ba` (v4.35.5)
+   - Uses: `github/codeql-action/init@v4.35.5`
    - With:
      - `languages`: `${{ matrix.language }}`
 
 3. **Autobuild**
-   - Uses: `github/codeql-action/autobuild@9e0d7b8d25671d64c341c19c0152d693099fb5ba` (v4.35.5)
+   - Uses: `github/codeql-action/autobuild@v4.35.5`
 
 4. **Perform CodeQL Analysis**
-   - Uses: `github/codeql-action/analyze@9e0d7b8d25671d64c341c19c0152d693099fb5ba` (v4.35.5)
+   - Uses: `github/codeql-action/analyze@v4.35.5`
    - With:
      - `category`: `/language:${{matrix.language}}`
 
+</details>
+
+[Back to top](#contents)
+
 # E2E Flaky Tests Report
+
+**Triggers:** `schedule`, `workflow_dispatch`
 
 | Property | Value |
 |----------|-------|
 | File | `e2e-flaky-tests-report.yml` |
-| Triggers | `schedule`, `workflow_dispatch` |
 
 ## Schedule
 
@@ -4834,10 +4973,11 @@ ci-image-checks.yml
 |----------|-------|
 | Runs on | `ubuntu-latest` |
 
-#### Steps
+<details>
+<summary>Steps (4)</summary>
 
 1. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
 
@@ -4851,7 +4991,7 @@ ci-image-checks.yml
      - `OUTPUT_FILE`: `slack-message.json`
 
 3. **Post report to Slack**
-   - Uses: `slackapi/slack-github-action@45a88b9581bfab2566dc881e2cd66d334e621e2c` (v3.0.3)
+   - Uses: `slackapi/slack-github-action@v3.0.3`
    - Condition: `always() && steps.analyze.outcome == 'success'`
    - With:
      - `method`: `chat.postMessage`
@@ -4859,23 +4999,29 @@ ci-image-checks.yml
      - `payload-file-path`: `slack-message.json`
 
 4. **Upload analysis results**
-   - Uses: `actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a` (v7.0.1)
+   - Uses: `actions/upload-artifact@v7.0.1`
    - Condition: `always()`
    - With:
      - `name`: `e2e-flaky-test-analysis`
      - `path`: `slack-message.json`
      - `retention-days`: `14`
 
+</details>
+
+[Back to top](#contents)
+
 # Finalize tests
+
+**Triggers:** `workflow_call`
 
 | Property | Value |
 |----------|-------|
 | File | `finalize-tests.yml` |
-| Triggers | `workflow_call` |
+| Default runs-on | `${{ fromJSON(inputs.runners) }}` |
+
+**Jobs:** [Update constraints](#update-constraints-update-constraints), [Deps ${{ matrix.python-version }}:${{ matrix.constraints-mode }}](#deps--matrixpython-version--matrixconstraints-mode--dependency-upgrade-summary), [Push Regular Image Cache ${{ inputs.platform }}](#push-regular-image-cache--inputsplatform--push-buildx-cache-to-github-registry)
 
 ## Workflow call API
-
-This workflow is reusable via `workflow_call`.
 
 **Inputs:**
 
@@ -4922,7 +5068,6 @@ finalize-tests.yml
 
 | Property | Value |
 |----------|-------|
-| Runs on | `${{ fromJSON(inputs.runners) }}` |
 | Condition | `inputs.upgrade-to-newer-dependencies != 'false' && inputs.platform == 'linux/amd64'` |
 
 **Permissions:**
@@ -4941,12 +5086,13 @@ finalize-tests.yml
 | `GITHUB_USERNAME` | `${{ github.actor }}` |
 | `VERBOSE` | `true` |
 
-#### Steps
+<details>
+<summary>Steps (6)</summary>
 
 1. **Cleanup repo**
 
 2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
 
@@ -4954,7 +5100,7 @@ finalize-tests.yml
    - ID: `constraints-branch`
 
 4. **Checkout ${{ steps.constraints-branch.outputs.branch }}**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `path`: `constraints`
      - `ref`: `${{ steps.constraints-branch.outputs.branch }}`
@@ -4962,18 +5108,19 @@ finalize-tests.yml
      - `fetch-depth`: `0`
 
 5. **Download constraints from the constraints generated by build CI image**
-   - Uses: `actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c` (v8.0.1)
+   - Uses: `actions/download-artifact@v8.0.1`
    - With:
      - `pattern`: `constraints-*`
      - `path`: `./files`
 
 6. **Diff in constraints for Python: ${{ inputs.python-versions-list-as-string }}**
 
+</details>
+
 ### Deps ${{ matrix.python-version }}:${{ matrix.constraints-mode }} (`dependency-upgrade-summary`)
 
 | Property | Value |
 |----------|-------|
-| Runs on | `${{ fromJSON(inputs.runners) }}` |
 | Matrix | `python-version`: ${{ fromJson(inputs.python-versions) }}; `constraints-mode`: constraints, constraints-source-providers, constraints-no-providers |
 | Depends on | `update-constraints` |
 | Condition | `inputs.upgrade-to-newer-dependencies == 'true' && inputs.platform == 'linux/amd64'` |
@@ -4984,12 +5131,13 @@ finalize-tests.yml
 |----------|-------|
 | `GITHUB_TOKEN` | `${{ secrets.GITHUB_TOKEN }}` |
 
-#### Steps
+<details>
+<summary>Steps (4)</summary>
 
 1. **Cleanup repo**
 
 2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
 
@@ -5006,6 +5154,8 @@ finalize-tests.yml
      - `MATRIX_PYTHON_VERSION`: `${{ matrix.python-version }}`
      - `MATRIX_CONSTRAINTS_MODE`: `${{ matrix.constraints-mode }}`
      - `VERBOSE`: `false`
+
+</details>
 
 ### Push Regular Image Cache ${{ inputs.platform }} (`push-buildx-cache-to-github-registry`)
 
@@ -5035,16 +5185,17 @@ finalize-tests.yml
 - `docker-cache`: `${{ inputs.docker-cache }}`
 - `disable-airflow-repo-cache`: `${{ inputs.disable-airflow-repo-cache }}`
 
+[Back to top](#contents)
+
 # Generate constraints
+
+**Triggers:** `workflow_call`
 
 | Property | Value |
 |----------|-------|
 | File | `generate-constraints.yml` |
-| Triggers | `workflow_call` |
 
 ## Workflow call API
-
-This workflow is reusable via `workflow_call`.
 
 **Inputs:**
 
@@ -5102,12 +5253,13 @@ generate-constraints.yml
 | `PYTHON_VERSION` | `${{ matrix.python-version }}` |
 | `VERBOSE` | `true` |
 
-#### Steps
+<details>
+<summary>Steps (12)</summary>
 
 1. **Cleanup repo**
 
 2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
 
@@ -5145,7 +5297,7 @@ generate-constraints.yml
    - Condition: `inputs.generate-pypi-constraints == 'true'`
 
 11. **Upload constraint artifacts**
-   - Uses: `actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a` (v7.0.1)
+   - Uses: `actions/upload-artifact@v7.0.1`
    - With:
      - `name`: `constraints-${{ matrix.python-version }}`
      - `path`: `./files/constraints-${{ matrix.python-version }}/constraints-*.txt`
@@ -5156,16 +5308,22 @@ generate-constraints.yml
    - Env:
      - `PYTHON_VERSION`: `${{ matrix.python-version }}`
 
+</details>
+
+[Back to top](#contents)
+
 # Helm tests
+
+**Triggers:** `workflow_call`
 
 | Property | Value |
 |----------|-------|
 | File | `helm-tests.yml` |
-| Triggers | `workflow_call` |
+| Default runs-on | `${{ fromJSON(inputs.runners) }}` |
+
+**Jobs:** [Unit tests Helm: ${{ matrix.helm-test-package }} (K8S ${{ matrix.kubernetes-version }})](#unit-tests-helm--matrixhelm-test-package--k8s--matrixkubernetes-version--tests-helm), [Release Helm](#release-helm-tests-helm-release)
 
 ## Workflow call API
-
-This workflow is reusable via `workflow_call`.
 
 **Inputs:**
 
@@ -5204,7 +5362,6 @@ helm-tests.yml
 
 | Property | Value |
 |----------|-------|
-| Runs on | `${{ fromJSON(inputs.runners) }}` |
 | Matrix | `helm-test-package`: ${{ fromJSON(inputs.helm-test-packages) }}; `kubernetes-version`: ${{ fromJSON(inputs.helm-test-kubernetes-versions) }} |
 
 **Environment (`env`):**
@@ -5222,12 +5379,13 @@ helm-tests.yml
 | `GITHUB_USERNAME` | `${{ github.actor }}` |
 | `VERBOSE` | `true` |
 
-#### Steps
+<details>
+<summary>Steps (4)</summary>
 
 1. **Cleanup repo**
 
 2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
 
@@ -5244,11 +5402,9 @@ helm-tests.yml
      - `HELM_TEST_PACKAGE`: `${{ matrix.helm-test-package }}`
      - `HELM_TEST_KUBERNETES_VERSION`: `${{ matrix.kubernetes-version }}`
 
-### Release Helm (`tests-helm-release`)
+</details>
 
-| Property | Value |
-|----------|-------|
-| Runs on | `${{ fromJSON(inputs.runners) }}` |
+### Release Helm (`tests-helm-release`)
 
 **Environment (`env`):**
 
@@ -5257,12 +5413,13 @@ helm-tests.yml
 | `PYTHON_MAJOR_MINOR_VERSION` | `${{inputs.default-python-version}}` |
 | `GITHUB_TOKEN` | `${{ secrets.GITHUB_TOKEN }}` |
 
-#### Steps
+<details>
+<summary>Steps (15)</summary>
 
 1. **Cleanup repo**
 
 2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
 
@@ -5294,23 +5451,29 @@ helm-tests.yml
 14. **Test helm chart issue generation**
 
 15. **Upload Helm artifacts**
-   - Uses: `actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a` (v7.0.1)
+   - Uses: `actions/upload-artifact@v7.0.1`
    - With:
      - `name`: `Helm artifacts`
      - `path`: `./dist/airflow-*`
      - `retention-days`: `7`
      - `if-no-files-found`: `error`
 
+</details>
+
+[Back to top](#contents)
+
 # Integration and system tests
+
+**Triggers:** `workflow_call`
 
 | Property | Value |
 |----------|-------|
 | File | `integration-system-tests.yml` |
-| Triggers | `workflow_call` |
+| Default runs-on | `${{ fromJSON(inputs.runners) }}` |
+
+**Jobs:** [Integration core ${{ matrix.integration }}](#integration-core--matrixintegration--tests-core-integration), [Integration: providers ${{ matrix.integration }}](#integration-providers--matrixintegration--tests-providers-integration), [System Tests](#system-tests-tests-system)
 
 ## Workflow call API
-
-This workflow is reusable via `workflow_call`.
 
 **Inputs:**
 
@@ -5356,7 +5519,6 @@ integration-system-tests.yml
 
 | Property | Value |
 |----------|-------|
-| Runs on | `${{ fromJSON(inputs.runners) }}` |
 | Matrix | `integration`: ${{ fromJSON(inputs.testable-core-integrations) }} |
 | Condition | `inputs.testable-core-integrations != '[]'` |
 
@@ -5376,12 +5538,13 @@ integration-system-tests.yml
 | `GITHUB_USERNAME` | `${{ github.actor }}` |
 | `VERBOSE` | `true` |
 
-#### Steps
+<details>
+<summary>Steps (6)</summary>
 
 1. **Cleanup repo**
 
 2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
 
@@ -5407,11 +5570,12 @@ integration-system-tests.yml
    - Uses: `./.github/actions/post_tests_failure`
    - Condition: `failure()`
 
+</details>
+
 ### Integration: providers ${{ matrix.integration }} (`tests-providers-integration`)
 
 | Property | Value |
 |----------|-------|
-| Runs on | `${{ fromJSON(inputs.runners) }}` |
 | Matrix | `integration`: ${{ fromJSON(inputs.testable-providers-integrations) }} |
 | Condition | `inputs.testable-providers-integrations != '[]' && inputs.skip-providers-tests != 'true'` |
 
@@ -5431,12 +5595,13 @@ integration-system-tests.yml
 | `GITHUB_USERNAME` | `${{ github.actor }}` |
 | `VERBOSE` | `true` |
 
-#### Steps
+<details>
+<summary>Steps (6)</summary>
 
 1. **Cleanup repo**
 
 2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
 
@@ -5462,11 +5627,12 @@ integration-system-tests.yml
    - Uses: `./.github/actions/post_tests_failure`
    - Condition: `failure()`
 
+</details>
+
 ### System Tests (`tests-system`)
 
 | Property | Value |
 |----------|-------|
-| Runs on | `${{ fromJSON(inputs.runners) }}` |
 | Condition | `inputs.run-system-tests == 'true'` |
 
 **Environment (`env`):**
@@ -5485,12 +5651,13 @@ integration-system-tests.yml
 | `GITHUB_USERNAME` | `${{ github.actor }}` |
 | `VERBOSE` | `true` |
 
-#### Steps
+<details>
+<summary>Steps (6)</summary>
 
 1. **Cleanup repo**
 
 2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
 
@@ -5514,16 +5681,19 @@ integration-system-tests.yml
    - Uses: `./.github/actions/post_tests_failure`
    - Condition: `failure()`
 
+</details>
+
+[Back to top](#contents)
+
 # K8s tests
+
+**Triggers:** `workflow_call`
 
 | Property | Value |
 |----------|-------|
 | File | `k8s-tests.yml` |
-| Triggers | `workflow_call` |
 
 ## Workflow call API
-
-This workflow is reusable via `workflow_call`.
 
 **Inputs:**
 
@@ -5577,7 +5747,8 @@ k8s-tests.yml
 | `GITHUB_USERNAME` | `${{ github.actor }}` |
 | `VERBOSE` | `true` |
 
-#### Steps
+<details>
+<summary>Steps (8)</summary>
 
 1. **Cleanup repo**
 
@@ -5587,7 +5758,7 @@ k8s-tests.yml
      - `KUBERNETES_COMBO`: `${{ matrix.kubernetes-combo }}`
 
 3. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
 
@@ -5611,7 +5782,7 @@ k8s-tests.yml
    - Condition: `failure() || cancelled() || inputs.include-success-outputs == 'true'`
 
 7. **Upload KinD logs ${{ matrix.executor }}-${{ matrix.kubernetes-combo }}-${{ matrix.use-standard-naming }}**
-   - Uses: `actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a` (v7.0.1)
+   - Uses: `actions/upload-artifact@v7.0.1`
    - Condition: `failure() || cancelled() || inputs.include-success-outputs == 'true'`
    - With:
      - `name`: `kind-logs-${{ matrix.kubernetes-combo }}-${{ matrix.executor }}-${{ matrix.use-standard-naming }}`
@@ -5621,12 +5792,20 @@ k8s-tests.yml
 8. **Delete clusters just in case they are left**
    - Condition: `always()`
 
+</details>
+
+[Back to top](#contents)
+
 # Milestone Tag Assistant
+
+**Triggers:** `push`
 
 | Property | Value |
 |----------|-------|
 | File | `milestone-tag-assistant.yml` |
-| Triggers | `push` |
+| Default runs-on | `ubuntu-latest` |
+
+**Jobs:** [Get PR information](#get-pr-information-get-pr-info-1), [Set milestone on merged PR](#set-milestone-on-merged-pr-set-milestone)
 
 ## Event filters
 
@@ -5663,34 +5842,33 @@ Permissions declared across the chain: `contents: write`, `pull-requests: write`
 
 ### Get PR information (`get-pr-info`)
 
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-latest` |
-
-#### Steps
+<details>
+<summary>Steps (2)</summary>
 
 1. **Add delay for GitHub to process PR merge**
 
 2. **Find PR information**
    - ID: `pr-info`
-   - Uses: `actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3` (v9.0.0)
+   - Uses: `actions/github-script@v9.0.0`
    - With:
      - `script`: `` const { data: pullRequests } = await github.rest.repos.listPullRequestsAssociatedWithCommit({     owner: context.repo.owner,     repo: context.repo.repo,     commit_sha: process.env.GITHUB_SHA });  if (pullRequests.length === 0) {     console.log('⚠️ No pull request found for this commit.');     core.setOutput('should-run', 'false');     return; }  const pr = pullRequests[0];  // Skip if PR already has a milestone if (pr.milestone !== null) {     console.log(`PR #${pr.number} already has milestone: ${pr.milestone.title}`);     core.setOutput('should-run', 'false');     return; }  const labels = pr.labels.map(label => label.name);  console.log(`Commit ${process.env.GITHUB_SHA} is associated with PR #${pr.number}`); console.log(`Title: ${pr.title}`); console.log(`Labels: ${JSON.stringify(labels)}`); console.log(`Base branch: ${pr.base.ref}`); console.log(`Merged by: ${pr.merged_by?.login || 'unknown'}`);  core.setOutput('should-run', 'true'); core.setOutput('pr-number', pr.number.toString()); core.setOutput('pr-title', pr.title); core.setOutput('pr-labels', JSON.stringify(labels)); core.setOutput('base-branch', pr.base.ref); core.setOutput('merged-by', pr.merged_by?.login || 'unknown'); ``
    - Env:
      - `GITHUB_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
 
+</details>
+
 ### Set milestone on merged PR (`set-milestone`)
 
 | Property | Value |
 |----------|-------|
-| Runs on | `ubuntu-latest` |
 | Depends on | `get-pr-info` |
 | Condition | `${{ needs.get-pr-info.outputs.should-run == 'true' }}` |
 
-#### Steps
+<details>
+<summary>Steps (3)</summary>
 
 1. **Checkout repository**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
      - `ref`: `main`
@@ -5709,12 +5887,17 @@ Permissions declared across the chain: `contents: write`, `pull-requests: write`
      - `BASE_BRANCH`: `${{ needs.get-pr-info.outputs.base-branch }}`
      - `MERGED_BY`: `${{ needs.get-pr-info.outputs.merged-by }}`
 
+</details>
+
+[Back to top](#contents)
+
 # Notify uv.lock conflicts
+
+**Triggers:** `push`
 
 | Property | Value |
 |----------|-------|
 | File | `notify-uv-lock-conflicts.yml` |
-| Triggers | `push` |
 
 ## Event filters
 
@@ -5743,10 +5926,11 @@ Permissions declared across the chain: `contents: write`, `pull-requests: write`
 |----------|-------|
 | Runs on | `ubuntu-22.04` |
 
-#### Steps
+<details>
+<summary>Steps (3)</summary>
 
 1. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
 
@@ -5758,16 +5942,22 @@ Permissions declared across the chain: `contents: write`, `pull-requests: write`
      - `GITHUB_REPOSITORY`: `${{ github.repository }}`
      - `GITHUB_SHA`: `${{ github.sha }}`
 
+</details>
+
+[Back to top](#contents)
+
 # Build PROD images
+
+**Triggers:** `workflow_call`
 
 | Property | Value |
 |----------|-------|
 | File | `prod-image-build.yml` |
-| Triggers | `workflow_call` |
+| Default runs-on | `${{ fromJSON(inputs.runners) }}` |
+
+**Jobs:** [Build Airflow and provider distributions](#build-airflow-and-provider-distributions-build-prod-packages), [Build PROD ${{ inputs.build-type }} image ${{ matrix.python-version }}](#build-prod--inputsbuild-type--image--matrixpython-version--build-prod-images)
 
 ## Workflow call API
-
-This workflow is reusable via `workflow_call`.
 
 **Inputs:**
 
@@ -5809,8 +5999,7 @@ prod-image-build.yml
     |   +-- ci-amd.yml (job: additional-prod-image-tests)  <- entry point
     |   +-- ci-arm.yml (job: additional-prod-image-tests)  <- entry point
     +-- additional-prod-image-tests.yml (job: prod-image-extra-checks-release-branch)
-        +-- ci-amd.yml (job: additional-prod-image-tests)  <- entry point
-        +-- ci-arm.yml (job: additional-prod-image-tests)  <- entry point
+        +-- (same entry points as above)
 ```
 
 ## Referenced secrets and variables
@@ -5828,7 +6017,6 @@ prod-image-build.yml
 
 | Property | Value |
 |----------|-------|
-| Runs on | `${{ fromJSON(inputs.runners) }}` |
 | Condition | `inputs.prod-image-build == 'true'` |
 
 **Environment (`env`):**
@@ -5837,13 +6025,14 @@ prod-image-build.yml
 |----------|-------|
 | `PYTHON_MAJOR_MINOR_VERSION` | `${{ inputs.default-python-version }}` |
 
-#### Steps
+<details>
+<summary>Steps (13)</summary>
 
 1. **Cleanup repo**
    - Condition: `inputs.upload-package-artifact == 'true'`
 
 2. **Checkout target branch**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
 
@@ -5884,7 +6073,7 @@ prod-image-build.yml
    - Condition: `inputs.upload-package-artifact == 'true'`
 
 13. **Upload prepared packages as artifacts**
-   - Uses: `actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a` (v7.0.1)
+   - Uses: `actions/upload-artifact@v7.0.1`
    - Condition: `inputs.upload-package-artifact == 'true'`
    - With:
      - `name`: `prod-packages`
@@ -5892,11 +6081,12 @@ prod-image-build.yml
      - `retention-days`: `7`
      - `if-no-files-found`: `error`
 
+</details>
+
 ### Build PROD ${{ inputs.build-type }} image ${{ matrix.python-version }} (`build-prod-images`)
 
 | Property | Value |
 |----------|-------|
-| Runs on | `${{ fromJSON(inputs.runners) }}` |
 | Matrix | `python-version`: ${{ fromJSON(inputs.python-versions) }} |
 | Depends on | `build-prod-packages` |
 
@@ -5916,12 +6106,13 @@ prod-image-build.yml
 | `PLATFORM` | `${{ inputs.platform }}` |
 | `VERBOSE` | `true` |
 
-#### Steps
+<details>
+<summary>Steps (14)</summary>
 
 1. **Cleanup repo**
 
 2. **Checkout target branch**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
 
@@ -5933,13 +6124,13 @@ prod-image-build.yml
 5. **Cleanup dist and context file**
 
 6. **Download packages prepared as artifacts**
-   - Uses: `actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c` (v8.0.1)
+   - Uses: `actions/download-artifact@v8.0.1`
    - With:
      - `name`: `prod-packages`
      - `path`: `./docker-context-files`
 
 7. **Download constraints**
-   - Uses: `actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c` (v8.0.1)
+   - Uses: `actions/download-artifact@v8.0.1`
    - With:
      - `name`: `constraints-${{ matrix.python-version }}`
      - `path`: `./docker-context-files/constraints-${{ matrix.python-version }}`
@@ -5980,16 +6171,19 @@ prod-image-build.yml
      - `if-no-files-found`: `error`
      - `retention-days`: `2`
 
+</details>
+
+[Back to top](#contents)
+
 # PROD images extra checks
+
+**Triggers:** `workflow_call`
 
 | Property | Value |
 |----------|-------|
 | File | `prod-image-extra-checks.yml` |
-| Triggers | `workflow_call` |
 
 ## Workflow call API
-
-This workflow is reusable via `workflow_call`.
 
 **Inputs:**
 
@@ -6017,8 +6211,7 @@ prod-image-extra-checks.yml
 |   +-- ci-amd.yml (job: additional-prod-image-tests)  <- entry point
 |   +-- ci-arm.yml (job: additional-prod-image-tests)  <- entry point
 +-- additional-prod-image-tests.yml (job: prod-image-extra-checks-release-branch)
-    +-- ci-amd.yml (job: additional-prod-image-tests)  <- entry point
-    +-- ci-arm.yml (job: additional-prod-image-tests)  <- entry point
+    +-- (same entry points as above)
 ```
 
 ## Jobs
@@ -6048,12 +6241,18 @@ prod-image-extra-checks.yml
 - `disable-airflow-repo-cache`: `${{ inputs.disable-airflow-repo-cache }}`
 - `prod-image-build`: `true`
 
+[Back to top](#contents)
+
 # Publish Docs to S3
+
+**Triggers:** `workflow_dispatch`
 
 | Property | Value |
 |----------|-------|
 | File | `publish-docs-to-s3.yml` |
-| Triggers | `workflow_dispatch` |
+| Default runs-on | `ubuntu-latest` |
+
+**Jobs:** [Build Info](#build-info-build-info-2), [Build documentation](#build-documentation-build-docs-1), [Publish documentation to S3](#publish-documentation-to-s3-publish-docs-to-s3), [Update Provider Registry](#update-provider-registry-update-registry)
 
 ## Manual trigger inputs
 
@@ -6128,10 +6327,11 @@ Permissions declared across the chain: `contents: read`, `id-token: write (OIDC)
 | `AIRFLOW_VERSION` | `${{ inputs.airflow-version \|\| '' }}` |
 | `APPLY_COMMITS` | `${{ inputs.apply-commits \|\| '' }}` |
 
-#### Steps
+<details>
+<summary>Steps (3)</summary>
 
 1. **Checkout for wave provider derivation**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
      - `ref`: `${{ inputs.ref }}`
@@ -6147,11 +6347,12 @@ Permissions declared across the chain: `contents: read`, `id-token: write (OIDC)
 3. **Input parameters summary**
    - ID: `parameters`
 
+</details>
+
 ### Build documentation (`build-docs`)
 
 | Property | Value |
 |----------|-------|
-| Runs on | `ubuntu-latest` |
 | Depends on | `build-info` |
 
 **Permissions:**
@@ -6173,12 +6374,13 @@ Permissions declared across the chain: `contents: read`, `id-token: write (OIDC)
 | `PYTHON_MAJOR_MINOR_VERSION` | `${{ needs.build-info.outputs.default-python-version }}` |
 | `DOCKER_CACHE` | `registry` |
 
-#### Steps
+<details>
+<summary>Steps (17)</summary>
 
 1. **Cleanup repo**
 
 2. **Checkout current version first to clean-up stuff**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
      - `path`: `current-version`
@@ -6192,7 +6394,7 @@ Permissions declared across the chain: `contents: read`, `id-token: write (OIDC)
 6. **Copy the version retrieval script**
 
 7. **Checkout ${{ inputs.ref }}**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
      - `ref`: `${{ inputs.ref }}`
@@ -6243,7 +6445,7 @@ Permissions declared across the chain: `contents: read`, `id-token: write (OIDC)
 16. **Saving build docs folder**
 
 17. **Upload build docs**
-   - Uses: `actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a` (v7.0.1)
+   - Uses: `actions/upload-artifact@v7.0.1`
    - With:
      - `name`: `airflow-docs`
      - `path`: `/mnt/_build`
@@ -6251,11 +6453,12 @@ Permissions declared across the chain: `contents: read`, `id-token: write (OIDC)
      - `if-no-files-found`: `error`
      - `overwrite`: `true`
 
+</details>
+
 ### Publish documentation to S3 (`publish-docs-to-s3`)
 
 | Property | Value |
 |----------|-------|
-| Runs on | `ubuntu-latest` |
 | Depends on | `build-docs`, `build-info` |
 
 **Permissions:**
@@ -6275,12 +6478,13 @@ Permissions declared across the chain: `contents: read`, `id-token: write (OIDC)
 | `PYTHON_MAJOR_MINOR_VERSION` | `3.10` |
 | `VERBOSE` | `true` |
 
-#### Steps
+<details>
+<summary>Steps (17)</summary>
 
 1. **Cleanup repo**
 
 2. **Checkout current version with all history for SBOM**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
      - `fetch-depth`: `0`
@@ -6291,7 +6495,7 @@ Permissions declared across the chain: `contents: read`, `id-token: write (OIDC)
    - Uses: `./.github/actions/breeze`
 
 5. **Download docs prepared as artifacts**
-   - Uses: `actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c` (v8.0.1)
+   - Uses: `actions/download-artifact@v8.0.1`
    - With:
      - `name`: `airflow-docs`
      - `path`: `/mnt/_build`
@@ -6330,7 +6534,7 @@ Permissions declared across the chain: `contents: read`, `id-token: write (OIDC)
 15. **Install AWS CLI v2**
 
 16. **Configure AWS credentials**
-   - Uses: `aws-actions/configure-aws-credentials@d979d5b3a71173a29b74b5b88418bfda9437d885` (v6.1.1)
+   - Uses: `aws-actions/configure-aws-credentials@v6.1.1`
    - With:
      - `aws-access-key-id`: `${{ secrets.DOCS_AWS_ACCESS_KEY_ID }}`
      - `aws-secret-access-key`: `${{ secrets.DOCS_AWS_SECRET_ACCESS_KEY }}`
@@ -6342,6 +6546,8 @@ Permissions declared across the chain: `contents: read`, `id-token: write (OIDC)
      - `SOURCE_DIR_PATH`: `/mnt/airflow-site/docs-archive/`
      - `EXCLUDE_DOCS`: `${{ inputs.exclude-docs }}`
      - `SKIP_WRITE_TO_STABLE_FOLDER`: `${{ needs.build-info.outputs.skip-write-to-stable-folder }}`
+
+</details>
 
 ### Update Provider Registry (`update-registry`)
 
@@ -6366,16 +6572,20 @@ Permissions declared across the chain: `contents: read`, `id-token: write (OIDC)
 - `DOCS_AWS_ACCESS_KEY_ID`: `${{ secrets.DOCS_AWS_ACCESS_KEY_ID }}`
 - `DOCS_AWS_SECRET_ACCESS_KEY`: `${{ secrets.DOCS_AWS_SECRET_ACCESS_KEY }}`
 
+[Back to top](#contents)
+
 # Push image cache
+
+**Triggers:** `workflow_call`
 
 | Property | Value |
 |----------|-------|
 | File | `push-image-cache.yml` |
-| Triggers | `workflow_call` |
+| Default runs-on | `${{ fromJSON(inputs.runners) }}` |
+
+**Jobs:** [Push CI ${{ inputs.cache-type }}:${{ matrix.python }} image cache](#push-ci--inputscache-type--matrixpython--image-cache-push-ci-image-cache), [Push PROD ${{ inputs.cache-type }}:${{ matrix.python }} image cache](#push-prod--inputscache-type--matrixpython--image-cache-push-prod-image-cache)
 
 ## Workflow call API
-
-This workflow is reusable via `workflow_call`.
 
 **Inputs:**
 
@@ -6423,7 +6633,6 @@ push-image-cache.yml
 
 | Property | Value |
 |----------|-------|
-| Runs on | `${{ fromJSON(inputs.runners) }}` |
 | Matrix | `python`: ${{ fromJSON(inputs.python-versions) }} |
 
 **Permissions:**
@@ -6451,12 +6660,13 @@ push-image-cache.yml
 | `UPGRADE_TO_NEWER_DEPENDENCIES` | `false` |
 | `VERBOSE` | `true` |
 
-#### Steps
+<details>
+<summary>Steps (7)</summary>
 
 1. **Cleanup repo**
 
 2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
 
@@ -6479,11 +6689,12 @@ push-image-cache.yml
    - Env:
      - `PLATFORM`: `${{ inputs.platform }}`
 
+</details>
+
 ### Push PROD ${{ inputs.cache-type }}:${{ matrix.python }} image cache (`push-prod-image-cache`)
 
 | Property | Value |
 |----------|-------|
-| Runs on | `${{ fromJSON(inputs.runners) }}` |
 | Matrix | `python`: ${{ fromJSON(inputs.python-versions) }} |
 | Condition | `inputs.include-prod-images == 'true'` |
 
@@ -6511,12 +6722,13 @@ push-image-cache.yml
 | `UPGRADE_TO_NEWER_DEPENDENCIES` | `false` |
 | `VERBOSE` | `true` |
 
-#### Steps
+<details>
+<summary>Steps (9)</summary>
 
 1. **Cleanup repo**
 
 2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
 
@@ -6528,7 +6740,7 @@ push-image-cache.yml
 5. **Cleanup dist and context file**
 
 6. **Download packages prepared as artifacts**
-   - Uses: `actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c` (v8.0.1)
+   - Uses: `actions/download-artifact@v8.0.1`
    - With:
      - `name`: `prod-packages`
      - `path`: `./docker-context-files`
@@ -6547,12 +6759,17 @@ push-image-cache.yml
    - Env:
      - `PLATFORM`: `${{ inputs.platform }}`
 
+</details>
+
+[Back to top](#contents)
+
 # Recheck old bug reports
+
+**Triggers:** `schedule`
 
 | Property | Value |
 |----------|-------|
 | File | `recheck-old-bug-report.yml` |
-| Triggers | `schedule` |
 
 ## Schedule
 
@@ -6570,10 +6787,10 @@ push-image-cache.yml
 |----------|-------|
 | Runs on | `ubuntu-22.04` |
 
-#### Steps
+<details>
+<summary>Steps (1)</summary>
 
 1. **actions/stale@v10.2.0**
-   - Uses: `actions/stale@b5d41d4e1d5dceea10e7104786b73624c18a190f` (v10.2.0)
    - With:
      - `only-issue-labels`: `kind:bug`
      - `stale-issue-label`: `Stale Bug Report`
@@ -6588,12 +6805,20 @@ push-image-cache.yml
      - `stale-issue-message`: `This issue has been automatically marked as stale because it has been open for 365 days without any activity. There has been several Airflow releases since last activity on this issue. Kindly asking to recheck the report against latest Airflow version and let us know if the issue is reproducible. The issue will be closed in next 30 days if no further activity occurs from the issue author.`
      - `close-issue-message`: `This issue has been closed because it has not received response from the issue author.`
 
+</details>
+
+[Back to top](#contents)
+
 # Registry Backfill
+
+**Triggers:** `workflow_dispatch`
 
 | Property | Value |
 |----------|-------|
 | File | `registry-backfill.yml` |
-| Triggers | `workflow_dispatch` |
+| Default runs-on | `ubuntu-latest` |
+
+**Jobs:** [Build CI image](#build-ci-image-build-ci-image), [`prepare`](#prepare), [Backfill ${{ matrix.provider }} (${{ matrix.versions }})](#backfill--matrixprovider---matrixversions--backfill), [Publish versions.json](#publish-versionsjson-publish-versions)
 
 ## Manual trigger inputs
 
@@ -6665,11 +6890,8 @@ Permissions declared across the chain: `contents: read`, `packages: read`, `pack
 
 ### `prepare`
 
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-latest` |
-
-#### Steps
+<details>
+<summary>Steps (2)</summary>
 
 1. **Build provider matrix**
    - ID: `matrix`
@@ -6681,11 +6903,12 @@ Permissions declared across the chain: `contents: read`, `packages: read`, `pack
    - Env:
      - `DESTINATION`: `${{ inputs.destination }}`
 
+</details>
+
 ### Backfill ${{ matrix.provider }} (${{ matrix.versions }}) (`backfill`)
 
 | Property | Value |
 |----------|-------|
-| Runs on | `ubuntu-latest` |
 | Depends on | `prepare`, `build-ci-image` |
 
 **Permissions:**
@@ -6693,10 +6916,11 @@ Permissions declared across the chain: `contents: read`, `packages: read`, `pack
 - `contents`: `read`
 - `packages`: `read`
 
-#### Steps
+<details>
+<summary>Steps (14)</summary>
 
 1. **Checkout repository**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
      - `fetch-depth`: `0`
@@ -6717,7 +6941,7 @@ Permissions declared across the chain: `contents: read`, `packages: read`, `pack
 4. **Install AWS CLI v2**
 
 5. **Configure AWS credentials**
-   - Uses: `aws-actions/configure-aws-credentials@d979d5b3a71173a29b74b5b88418bfda9437d885` (v6.1.1)
+   - Uses: `aws-actions/configure-aws-credentials@v6.1.1`
    - With:
      - `aws-access-key-id`: `${{ secrets.DOCS_AWS_ACCESS_KEY_ID }}`
      - `aws-secret-access-key`: `${{ secrets.DOCS_AWS_SECRET_ACCESS_KEY }}`
@@ -6742,12 +6966,12 @@ Permissions declared across the chain: `contents: read`, `packages: read`, `pack
      - `PROVIDER`: `${{ matrix.provider }}`
 
 10. **Setup pnpm**
-   - Uses: `pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093` (v6.0.8)
+   - Uses: `pnpm/action-setup@v6.0.8`
    - With:
      - `version`: `10`
 
 11. **Setup Node.js**
-   - Uses: `actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e` (v6.4.0)
+   - Uses: `actions/setup-node@v6.4.0`
    - With:
      - `node-version`: `24`
      - `cache`: `pnpm`
@@ -6766,17 +6990,19 @@ Permissions declared across the chain: `contents: read`, `packages: read`, `pack
      - `VERSIONS`: `${{ matrix.versions }}`
      - `PROVIDER`: `${{ matrix.provider }}`
 
+</details>
+
 ### Publish versions.json (`publish-versions`)
 
 | Property | Value |
 |----------|-------|
-| Runs on | `ubuntu-latest` |
 | Depends on | `prepare`, `backfill` |
 
-#### Steps
+<details>
+<summary>Steps (6)</summary>
 
 1. **Checkout repository**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
 
@@ -6788,7 +7014,7 @@ Permissions declared across the chain: `contents: read`, `packages: read`, `pack
 3. **Install AWS CLI v2**
 
 4. **Configure AWS credentials**
-   - Uses: `aws-actions/configure-aws-credentials@d979d5b3a71173a29b74b5b88418bfda9437d885` (v6.1.1)
+   - Uses: `aws-actions/configure-aws-credentials@v6.1.1`
    - With:
      - `aws-access-key-id`: `${{ secrets.DOCS_AWS_ACCESS_KEY_ID }}`
      - `aws-secret-access-key`: `${{ secrets.DOCS_AWS_SECRET_ACCESS_KEY }}`
@@ -6802,12 +7028,19 @@ Permissions declared across the chain: `contents: read`, `packages: read`, `pack
    - Env:
      - `S3_BUCKET`: `${{ needs.prepare.outputs.bucket }}`
 
+</details>
+
+[Back to top](#contents)
+
 # Build & Publish Registry
+
+**Triggers:** `workflow_dispatch`, `workflow_call`
 
 | Property | Value |
 |----------|-------|
 | File | `registry-build.yml` |
-| Triggers | `workflow_dispatch`, `workflow_call` |
+
+**Jobs:** [Build CI image](#build-ci-image-build-ci-image-1), [Build & Publish Registry](#build--publish-registry-build-and-publish-registry)
 
 ## Manual trigger inputs
 
@@ -6819,8 +7052,6 @@ Inputs for the `workflow_dispatch` event.
 | `provider` | string | No | - | Provider ID(s) for incremental build (space-separated, empty = full build) |
 
 ## Workflow call API
-
-This workflow is reusable via `workflow_call`.
 
 **Inputs:**
 
@@ -6927,10 +7158,11 @@ registry-build.yml
 | `REGISTRY_SITE_LOGOS_DIR` | `registry/public/logos` |
 | `REGISTRY_CACHE_CONTROL` | `public, max-age=300` |
 
-#### Steps
+<details>
+<summary>Steps (17)</summary>
 
 1. **Checkout repository**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
      - `fetch-tags`: `true`
@@ -6946,7 +7178,7 @@ registry-build.yml
 3. **Install AWS CLI v2**
 
 4. **Configure AWS credentials**
-   - Uses: `aws-actions/configure-aws-credentials@d979d5b3a71173a29b74b5b88418bfda9437d885` (v6.1.1)
+   - Uses: `aws-actions/configure-aws-credentials@v6.1.1`
    - With:
      - `aws-access-key-id`: `${{ secrets.DOCS_AWS_ACCESS_KEY_ID }}`
      - `aws-secret-access-key`: `${{ secrets.DOCS_AWS_SECRET_ACCESS_KEY }}`
@@ -6974,12 +7206,12 @@ registry-build.yml
 9. **Copy breeze output to registry data**
 
 10. **Setup pnpm**
-   - Uses: `pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093` (v6.0.8)
+   - Uses: `pnpm/action-setup@v6.0.8`
    - With:
      - `version`: `10`
 
 11. **Setup Node.js**
-   - Uses: `actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e` (v6.4.0)
+   - Uses: `actions/setup-node@v6.4.0`
    - With:
      - `node-version`: `24`
      - `cache`: `pnpm`
@@ -6992,7 +7224,7 @@ registry-build.yml
      - `REGISTRY_PATH_PREFIX`: `/registry/`
 
 14. **Upload registry artifact**
-   - Uses: `actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a` (v7.0.1)
+   - Uses: `actions/upload-artifact@v7.0.1`
    - With:
      - `name`: `registry-site`
      - `path`: `registry/_site`
@@ -7012,12 +7244,17 @@ registry-build.yml
    - Env:
      - `S3_BUCKET`: `${{ steps.destination.outputs.bucket }}`
 
+</details>
+
+[Back to top](#contents)
+
 # Registry Tests
+
+**Triggers:** `pull_request`, `push`
 
 | Property | Value |
 |----------|-------|
 | File | `registry-tests.yml` |
-| Triggers | `pull_request`, `push` |
 
 ## Event filters
 
@@ -7042,26 +7279,34 @@ registry-build.yml
 |----------|-------|
 | Runs on | `ubuntu-latest` |
 
-#### Steps
+<details>
+<summary>Steps (3)</summary>
 
 1. **Checkout repository**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
 
 2. **Install uv**
-   - Uses: `astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b` (v8.1.0)
+   - Uses: `astral-sh/setup-uv@v8.1.0`
    - With:
      - `python-version`: `3.12`
 
 3. **Run registry extraction tests**
 
+</details>
+
+[Back to top](#contents)
+
 # Release PROD images
+
+**Triggers:** `workflow_dispatch`
 
 | Property | Value |
 |----------|-------|
 | File | `release_dockerhub_image.yml` |
-| Triggers | `workflow_dispatch` |
+
+**Jobs:** [Build Info](#build-info-build-info-3), [Release images](#release-images-release-images)
 
 ## Manual trigger inputs
 
@@ -7131,14 +7376,15 @@ Permissions declared across the chain: `contents: read`, `packages: read`
 | `AMD_ONLY` | `${{ github.event.inputs.amdOnly }}` |
 | `LIMIT_PYTHON_VERSIONS` | `${{ github.event.inputs.limitPythonVersions }}` |
 
-#### Steps
+<details>
+<summary>Steps (9)</summary>
 
 1. **Input parameters summary**
 
 2. **Cleanup repo**
 
 3. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
 
@@ -7163,6 +7409,8 @@ Permissions declared across the chain: `contents: read`, `packages: read`
    - ID: `determine-python-versions`
    - Env:
      - `ALL_PYTHON_VERSIONS`: `${{ steps.selective-checks.outputs.all-python-versions }}`
+
+</details>
 
 ### Release images (`release-images`)
 
@@ -7190,16 +7438,19 @@ Permissions declared across the chain: `contents: read`, `packages: read`
 - `DOCKERHUB_USER`: `${{ secrets.DOCKERHUB_USER }}`
 - `DOCKERHUB_TOKEN`: `${{ secrets.DOCKERHUB_TOKEN }}`
 
+[Back to top](#contents)
+
 # Release single PROD image
+
+**Triggers:** `workflow_call`
 
 | Property | Value |
 |----------|-------|
 | File | `release_single_dockerhub_image.yml` |
-| Triggers | `workflow_call` |
+
+**Jobs:** [Build: ${{ inputs.airflowVersion }}, ${{ inputs.pythonVersion }}, ${{ matrix.platform }}](#build--inputsairflowversion---inputspythonversion---matrixplatform--build-images), [Merge: ${{ inputs.airflowVersion }}, ${{ inputs.pythonVersion }}](#merge--inputsairflowversion---inputspythonversion--merge-images)
 
 ## Workflow call API
-
-This workflow is reusable via `workflow_call`.
 
 **Inputs:**
 
@@ -7267,12 +7518,13 @@ release_single_dockerhub_image.yml
 | `COMMIT_SHA` | `${{ github.sha }}` |
 | `REPOSITORY` | `${{ github.repository }}` |
 
-#### Steps
+<details>
+<summary>Steps (17)</summary>
 
 1. **Cleanup repo**
 
 2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
 
@@ -7307,7 +7559,7 @@ release_single_dockerhub_image.yml
 15. **List upload-able artifacts**
 
 16. **Upload metadata artifact ${{ env.ARTIFACT\_NAME }}**
-   - Uses: `actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a` (v7.0.1)
+   - Uses: `actions/upload-artifact@v7.0.1`
    - With:
      - `name`: `${{ env.ARTIFACT_NAME }}`
      - `path`: `./dist/metadata-*`
@@ -7316,6 +7568,8 @@ release_single_dockerhub_image.yml
 
 17. **Docker logout**
    - Condition: `always()`
+
+</details>
 
 ### Merge: ${{ inputs.airflowVersion }}, ${{ inputs.pythonVersion }} (`merge-images`)
 
@@ -7334,12 +7588,13 @@ release_single_dockerhub_image.yml
 | `COMMIT_SHA` | `${{ github.sha }}` |
 | `REPOSITORY` | `${{ github.repository }}` |
 
-#### Steps
+<details>
+<summary>Steps (14)</summary>
 
 1. **Cleanup repo**
 
 2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
 
@@ -7358,7 +7613,7 @@ release_single_dockerhub_image.yml
      - `ACTOR`: `${{ github.actor }}`
 
 8. **Download metadata artifacts**
-   - Uses: `actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c` (v8.0.1)
+   - Uses: `actions/download-artifact@v8.0.1`
    - With:
      - `path`: `./dist`
      - `pattern`: `metadata-${{ inputs.pythonVersion }}-*`
@@ -7376,16 +7631,19 @@ release_single_dockerhub_image.yml
 14. **Docker logout**
    - Condition: `always()`
 
+</details>
+
+[Back to top](#contents)
+
 # Unit tests
+
+**Triggers:** `workflow_call`
 
 | Property | Value |
 |----------|-------|
 | File | `run-unit-tests.yml` |
-| Triggers | `workflow_call` |
 
 ## Workflow call API
-
-This workflow is reusable via `workflow_call`.
 
 **Inputs:**
 
@@ -7449,35 +7707,25 @@ run-unit-tests.yml
 |   +-- ci-amd.yml (job: tests-special)  <- entry point
 |   +-- ci-arm.yml (job: tests-special)  <- entry point
 +-- special-tests.yml (job: tests-min-sqlalchemy-providers)
-|   +-- ci-amd.yml (job: tests-special)  <- entry point
-|   +-- ci-arm.yml (job: tests-special)  <- entry point
+|   +-- (same entry points as above)
 +-- special-tests.yml (job: tests-latest-sqlalchemy)
-|   +-- ci-amd.yml (job: tests-special)  <- entry point
-|   +-- ci-arm.yml (job: tests-special)  <- entry point
+|   +-- (same entry points as above)
 +-- special-tests.yml (job: tests-latest-sqlalchemy-providers)
-|   +-- ci-amd.yml (job: tests-special)  <- entry point
-|   +-- ci-arm.yml (job: tests-special)  <- entry point
+|   +-- (same entry points as above)
 +-- special-tests.yml (job: tests-boto-core)
-|   +-- ci-amd.yml (job: tests-special)  <- entry point
-|   +-- ci-arm.yml (job: tests-special)  <- entry point
+|   +-- (same entry points as above)
 +-- special-tests.yml (job: tests-boto-providers)
-|   +-- ci-amd.yml (job: tests-special)  <- entry point
-|   +-- ci-arm.yml (job: tests-special)  <- entry point
+|   +-- (same entry points as above)
 +-- special-tests.yml (job: tests-pendulum-2-core)
-|   +-- ci-amd.yml (job: tests-special)  <- entry point
-|   +-- ci-arm.yml (job: tests-special)  <- entry point
+|   +-- (same entry points as above)
 +-- special-tests.yml (job: tests-pendulum-2-providers)
-|   +-- ci-amd.yml (job: tests-special)  <- entry point
-|   +-- ci-arm.yml (job: tests-special)  <- entry point
+|   +-- (same entry points as above)
 +-- special-tests.yml (job: tests-quarantined-core)
-|   +-- ci-amd.yml (job: tests-special)  <- entry point
-|   +-- ci-arm.yml (job: tests-special)  <- entry point
+|   +-- (same entry points as above)
 +-- special-tests.yml (job: tests-quarantined-providers)
-|   +-- ci-amd.yml (job: tests-special)  <- entry point
-|   +-- ci-arm.yml (job: tests-special)  <- entry point
+|   +-- (same entry points as above)
 +-- special-tests.yml (job: tests-system-core)
-    +-- ci-amd.yml (job: tests-special)  <- entry point
-    +-- ci-arm.yml (job: tests-special)  <- entry point
+    +-- (same entry points as above)
 ```
 
 ## Referenced secrets and variables
@@ -7528,12 +7776,13 @@ run-unit-tests.yml
 | `DEFAULT_BRANCH` | `${{ inputs.default-branch }}` |
 | `TOTAL_TEST_TIMEOUT` | `3600` |
 
-#### Steps
+<details>
+<summary>Steps (9)</summary>
 
 1. **Cleanup repo**
 
 2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
 
@@ -7571,12 +7820,17 @@ run-unit-tests.yml
    - Uses: `./.github/actions/post_tests_failure`
    - Condition: `failure() || cancelled()`
 
+</details>
+
+[Back to top](#contents)
+
 # [main] Scheduled CI upgrade check
+
+**Triggers:** `schedule`, `workflow_dispatch`
 
 | Property | Value |
 |----------|-------|
 | File | `scheduled-upgrade-check-main.yml` |
-| Triggers | `schedule`, `workflow_dispatch` |
 
 ## Schedule
 
@@ -7626,12 +7880,15 @@ Permissions declared across the chain: `contents: write`, `pull-requests: write`
 
 - `SLACK_BOT_TOKEN`: `${{ secrets.SLACK_BOT_TOKEN }}`
 
+[Back to top](#contents)
+
 # [v3-2-test] Scheduled CI upgrade check
+
+**Triggers:** `schedule`, `workflow_dispatch`
 
 | Property | Value |
 |----------|-------|
 | File | `scheduled-upgrade-check-v3-2-test.yml` |
-| Triggers | `schedule`, `workflow_dispatch` |
 
 ## Schedule
 
@@ -7681,12 +7938,15 @@ Permissions declared across the chain: `contents: write`, `pull-requests: write`
 
 - `SLACK_BOT_TOKEN`: `${{ secrets.SLACK_BOT_TOKEN }}`
 
+[Back to top](#contents)
+
 # Scheduled verify release calendar
+
+**Triggers:** `schedule`, `workflow_dispatch`
 
 | Property | Value |
 |----------|-------|
 | File | `scheduled-verify-release-calendar.yml` |
-| Triggers | `schedule`, `workflow_dispatch` |
 
 ## Schedule
 
@@ -7712,10 +7972,11 @@ Permissions declared across the chain: `contents: write`, `pull-requests: write`
 |----------|-------|
 | Runs on | `ubuntu-22.04` |
 
-#### Steps
+<details>
+<summary>Steps (4)</summary>
 
 1. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
 
@@ -7731,16 +7992,21 @@ Permissions declared across the chain: `contents: write`, `pull-requests: write`
      - `token`: `${{ secrets.SLACK_BOT_TOKEN }}`
      - `payload`: `` channel: "release-management" text: >-   :warning: Release calendar verification failed.   See:   ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} blocks:   - type: section     text:       type: mrkdwn       text: >-         :warning: *Release calendar verification failed*          The scheduled `verify_release_calendar.py` check         failed. Please review and fix the mismatch between         the Confluence release wiki and the Google         Calendar entries.          • <https://cwiki.apache.org/confluence/display/AIRFLOW/Release+Plan|Release Plan wiki>          • <https://calendar.google.com/calendar/u/0?cid=Y19kZTIxNGU5MmRmM2I3NTk3NzljYjY1ZjNlNDllNTYyNzk2YzYxMjZlNzUwMGNmYTdlNTI0YmY3ODE4NmQ4YjVlQGdyb3VwLmNhbGVuZGFyLmdvb2dsZS5jb20|Release Calendar>          • <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View failed run> ``
 
+</details>
+
+[Back to top](#contents)
+
 # Special tests
+
+**Triggers:** `workflow_call`
 
 | Property | Value |
 |----------|-------|
 | File | `special-tests.yml` |
-| Triggers | `workflow_call` |
+
+**Jobs:** [Min SQLAlchemy test: core](#min-sqlalchemy-test-core-tests-min-sqlalchemy), [Min SQLAlchemy test: providers](#min-sqlalchemy-test-providers-tests-min-sqlalchemy-providers), [Latest SQLAlchemy test: core](#latest-sqlalchemy-test-core-tests-latest-sqlalchemy), [Latest SQLAlchemy test: providers](#latest-sqlalchemy-test-providers-tests-latest-sqlalchemy-providers), [Latest Boto test: core](#latest-boto-test-core-tests-boto-core), [Latest Boto test: providers](#latest-boto-test-providers-tests-boto-providers), [Pendulum2 test: core](#pendulum2-test-core-tests-pendulum-2-core), [Pendulum2 test: providers](#pendulum2-test-providers-tests-pendulum-2-providers), [Quarantined test: core](#quarantined-test-core-tests-quarantined-core), [Quarantined test: providers](#quarantined-test-providers-tests-quarantined-providers), [System test: ${{ matrix.test-group }}](#system-test--matrixtest-group--tests-system-core)
 
 ## Workflow call API
-
-This workflow is reusable via `workflow_call`.
 
 **Inputs:**
 
@@ -8122,12 +8388,15 @@ special-tests.yml
 - `use-uv`: `${{ inputs.use-uv }}`
 - `default-branch`: `${{ inputs.default-branch }}`
 
+[Back to top](#contents)
+
 # Close stale PRs & Issues
+
+**Triggers:** `schedule`
 
 | Property | Value |
 |----------|-------|
 | File | `stale.yml` |
-| Triggers | `schedule` |
 
 ## Schedule
 
@@ -8146,10 +8415,10 @@ special-tests.yml
 |----------|-------|
 | Runs on | `ubuntu-22.04` |
 
-#### Steps
+<details>
+<summary>Steps (2)</summary>
 
 1. **actions/stale@v10.2.0**
-   - Uses: `actions/stale@b5d41d4e1d5dceea10e7104786b73624c18a190f` (v10.2.0)
    - With:
      - `stale-pr-message`: `This pull request has been automatically marked as stale because it has not had recent activity. It will be closed in 5 days if no further activity occurs. Thank you for your contributions.`
      - `days-before-pr-stale`: `45`
@@ -8163,7 +8432,6 @@ special-tests.yml
      - `close-issue-message`: `This issue has been closed because it has not received response from the issue author.`
 
 2. **actions/stale@v10.2.0**
-   - Uses: `actions/stale@b5d41d4e1d5dceea10e7104786b73624c18a190f` (v10.2.0)
    - With:
      - `only-pr-labels`: `pending-response`
      - `days-before-pr-stale`: `7`
@@ -8175,16 +8443,22 @@ special-tests.yml
      - `days-before-issue-stale`: `-1`
      - `days-before-issue-close`: `-1`
 
+</details>
+
+[Back to top](#contents)
+
 # Provider tests
+
+**Triggers:** `workflow_call`
 
 | Property | Value |
 |----------|-------|
 | File | `test-providers.yml` |
-| Triggers | `workflow_call` |
+| Default runs-on | `${{ fromJSON(inputs.runners) }}` |
+
+**Jobs:** [Providers ${{ matrix.package-format }} tests](#providers--matrixpackage-format--tests-prepare-install-verify-provider-distributions), [Compat ${{ matrix.compat.airflow-version }}:P${{ matrix.compat.python-version }}:${{ matrix.compat.test-types.description }}](#compat--matrixcompatairflow-version-p-matrixcompatpython-version--matrixcompattest-typesdescription--providers-compatibility-tests-matrix)
 
 ## Workflow call API
-
-This workflow is reusable via `workflow_call`.
 
 **Inputs:**
 
@@ -8228,7 +8502,6 @@ test-providers.yml
 
 | Property | Value |
 |----------|-------|
-| Runs on | `${{ fromJSON(inputs.runners) }}` |
 | Matrix | `package-format`: wheel, sdist |
 
 **Environment (`env`):**
@@ -8242,12 +8515,13 @@ test-providers.yml
 | `PYTHON_MAJOR_MINOR_VERSION` | `${{ inputs.default-python-version }}` |
 | `VERBOSE` | `true` |
 
-#### Steps
+<details>
+<summary>Steps (16)</summary>
 
 1. **Cleanup repo**
 
 2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
 
@@ -8301,11 +8575,12 @@ test-providers.yml
    - Env:
      - `DISTRIBUTION_FORMAT`: `${{ matrix.package-format }}`
 
+</details>
+
 ### Compat ${{ matrix.compat.airflow-version }}:P${{ matrix.compat.python-version }}:${{ matrix.compat.test-types.description }} (`providers-compatibility-tests-matrix`)
 
 | Property | Value |
 |----------|-------|
-| Runs on | `${{ fromJSON(inputs.runners) }}` |
 | Matrix | `compat`: ${{fromJSON(inputs.providers-compatibility-tests-matrix)}}; `test-types`: ${{ fromJSON(inputs.providers-test-types-list-as-strings-in-json) }} |
 | Condition | `inputs.skip-providers-tests != 'true'` |
 
@@ -8321,12 +8596,13 @@ test-providers.yml
 | `VERBOSE` | `true` |
 | `CLEAN_AIRFLOW_INSTALLATION` | `true` |
 
-#### Steps
+<details>
+<summary>Steps (11)</summary>
 
 1. **Cleanup repo**
 
 2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
 
@@ -8371,12 +8647,17 @@ test-providers.yml
      - `AIRFLOW_VERSION`: `${{ matrix.compat.airflow-version }}`
      - `REMOVE_PROVIDERS`: `${{ matrix.compat.remove-providers }}`
 
+</details>
+
+[Back to top](#contents)
+
 # UI End-to-End Tests
+
+**Triggers:** `workflow_dispatch`, `workflow_call`
 
 | Property | Value |
 |----------|-------|
 | File | `ui-e2e-tests.yml` |
-| Triggers | `workflow_dispatch`, `workflow_call` |
 
 ## Manual trigger inputs
 
@@ -8393,8 +8674,6 @@ Inputs for the `workflow_dispatch` event.
 | `browser` | string | No | `all` | Browser to test (chromium, firefox, webkit, all) |
 
 ## Workflow call API
-
-This workflow is reusable via `workflow_call`.
 
 **Inputs:**
 
@@ -8434,11 +8713,9 @@ ui-e2e-tests.yml
 |   +-- ci-amd.yml (job: additional-prod-image-tests)  <- entry point
 |   +-- ci-arm.yml (job: additional-prod-image-tests)  <- entry point
 +-- additional-prod-image-tests.yml (job: test-ui-e2e-firefox)
-|   +-- ci-amd.yml (job: additional-prod-image-tests)  <- entry point
-|   +-- ci-arm.yml (job: additional-prod-image-tests)  <- entry point
+|   +-- (same entry points as above)
 +-- additional-prod-image-tests.yml (job: test-ui-e2e-webkit)
-    +-- ci-amd.yml (job: additional-prod-image-tests)  <- entry point
-    +-- ci-arm.yml (job: additional-prod-image-tests)  <- entry point
+    +-- (same entry points as above)
 ```
 
 ## Referenced secrets and variables
@@ -8470,12 +8747,13 @@ ui-e2e-tests.yml
 | `PLATFORM` | `${{ inputs.platform \|\| 'linux/amd64' }}` |
 | `USE_UV` | `${{ inputs.use-uv \|\| 'true' }}` |
 
-#### Steps
+<details>
+<summary>Steps (12)</summary>
 
 1. **Cleanup repo**
 
 2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `fetch-depth`: `2`
      - `persist-credentials`: `false`
@@ -8496,13 +8774,13 @@ ui-e2e-tests.yml
    - Condition: `github.event_name == 'workflow_dispatch'`
 
 5. **Setup pnpm**
-   - Uses: `pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093` (v6.0.8)
+   - Uses: `pnpm/action-setup@v6.0.8`
    - With:
      - `version`: `9`
      - `run_install`: `false`
 
 6. **Setup node**
-   - Uses: `actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e` (v6.4.0)
+   - Uses: `actions/setup-node@v6.4.0`
    - With:
      - `node-version`: `24`
 
@@ -8516,7 +8794,7 @@ ui-e2e-tests.yml
      - `DOCKER_IMAGE`: `${{ inputs.docker-image-tag || '' }}`
 
 10. **Upload test results**
-   - Uses: `actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a` (v7.0.1)
+   - Uses: `actions/upload-artifact@v7.0.1`
    - Condition: `always()`
    - With:
      - `name`: `playwright-report-${{ env.BROWSER }}`
@@ -8534,7 +8812,7 @@ ui-e2e-tests.yml
      - `RUN_ATTEMPT`: `${{ github.run_attempt }}`
 
 12. **Upload E2E test report**
-   - Uses: `actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a` (v7.0.1)
+   - Uses: `actions/upload-artifact@v7.0.1`
    - Condition: `always()`
    - With:
      - `name`: `e2e-test-report-${{ env.BROWSER }}`
@@ -8542,12 +8820,20 @@ ui-e2e-tests.yml
      - `retention-days`: `14`
      - `if-no-files-found`: `warn`
 
+</details>
+
+[Back to top](#contents)
+
 # Update constraints on push for stable branch (always)
+
+**Triggers:** `push`
 
 | Property | Value |
 |----------|-------|
 | File | `update-constraints-on-push-stable.yml` |
-| Triggers | `push` |
+| Default runs-on | `ubuntu-22.04` |
+
+**Jobs:** [Build info](#build-info-build-info-4), [Build CI images](#build-ci-images-build-ci-images-2), [Generate constraints](#generate-constraints-generate-constraints-2), [Commit and push constraints](#commit-and-push-constraints-update-constraints), [Notify on failure](#notify-on-failure-notify-on-failure)
 
 ## Event filters
 
@@ -8600,21 +8886,18 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 ### Build info (`build-info`)
 
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-22.04` |
-
-#### Steps
+<details>
+<summary>Steps (6)</summary>
 
 1. **Cleanup repo**
 
 2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
 
 3. **Fetch incoming commit ${{ github.sha }} with its parent**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `ref`: `${{ github.sha }}`
      - `fetch-depth`: `2`
@@ -8633,6 +8916,8 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
      - `COMMIT_REF`: `${{ github.sha }}`
      - `VERBOSE`: `false`
      - `GITHUB_CONTEXT_INPUT`: `${{ runner.temp }}/github_context.json`
+
+</details>
 
 ### Build CI images (`build-ci-images`)
 
@@ -8683,7 +8968,6 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 | Property | Value |
 |----------|-------|
-| Runs on | `ubuntu-22.04` |
 | Depends on | `build-info`, `generate-constraints` |
 
 **Permissions:**
@@ -8697,12 +8981,13 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 |----------|-------|
 | `PYTHON_VERSIONS` | `${{ needs.build-info.outputs.python-versions-list-as-string }}` |
 
-#### Steps
+<details>
+<summary>Steps (8)</summary>
 
 1. **Cleanup repo**
 
 2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
 
@@ -8710,7 +8995,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
    - ID: `constraints-branch`
 
 4. **Checkout ${{ steps.constraints-branch.outputs.branch }}**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `path`: `constraints`
      - `ref`: `${{ steps.constraints-branch.outputs.branch }}`
@@ -8718,7 +9003,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
      - `fetch-depth`: `0`
 
 5. **Download constraints from the generate-constraints job**
-   - Uses: `actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c` (v8.0.1)
+   - Uses: `actions/download-artifact@v8.0.1`
    - With:
      - `pattern`: `constraints-*`
      - `path`: `./files`
@@ -8729,11 +9014,12 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 8. **Push changes**
 
+</details>
+
 ### Notify on failure (`notify-on-failure`)
 
 | Property | Value |
 |----------|-------|
-| Runs on | `ubuntu-22.04` |
 | Depends on | `build-info`, `build-ci-images`, `generate-constraints`, `update-constraints` |
 | Condition | `failure()` |
 
@@ -8743,21 +9029,30 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 |----------|-------|
 | `SLACK_BOT_TOKEN` | `${{ secrets.SLACK_BOT_TOKEN }}` |
 
-#### Steps
+<details>
+<summary>Steps (1)</summary>
 
 1. **Send Slack notification**
-   - Uses: `slackapi/slack-github-action@45a88b9581bfab2566dc881e2cd66d334e621e2c` (v3.0.3)
+   - Uses: `slackapi/slack-github-action@v3.0.3`
    - With:
      - `method`: `chat.postMessage`
      - `token`: `${{ env.SLACK_BOT_TOKEN }}`
      - `payload`: `channel: "internal-airflow-ci-cd" text: "🚨 Update constraints workflow failed on branch *${{ github.ref_name }}*\n\n*Details:* <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View the failure log>" blocks:   - type: "section"     text:       type: "mrkdwn"       text: "🚨 Update constraints workflow failed on *${{ github.ref_name }}*\n\n*Details:* <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View the failure log>"`
 
+</details>
+
+[Back to top](#contents)
+
 # Update constraints on push for main (only when uv.lock changes)
+
+**Triggers:** `push`
 
 | Property | Value |
 |----------|-------|
 | File | `update-constraints-on-push.yml` |
-| Triggers | `push` |
+| Default runs-on | `ubuntu-22.04` |
+
+**Jobs:** [Build info](#build-info-build-info-5), [Build CI images](#build-ci-images-build-ci-images-3), [Generate constraints](#generate-constraints-generate-constraints-3), [Commit and push constraints](#commit-and-push-constraints-update-constraints-1), [Notify on failure](#notify-on-failure-notify-on-failure-1)
 
 ## Event filters
 
@@ -8811,21 +9106,18 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 ### Build info (`build-info`)
 
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-22.04` |
-
-#### Steps
+<details>
+<summary>Steps (6)</summary>
 
 1. **Cleanup repo**
 
 2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
 
 3. **Fetch incoming commit ${{ github.sha }} with its parent**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `ref`: `${{ github.sha }}`
      - `fetch-depth`: `2`
@@ -8844,6 +9136,8 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
      - `COMMIT_REF`: `${{ github.sha }}`
      - `VERBOSE`: `false`
      - `GITHUB_CONTEXT_INPUT`: `${{ runner.temp }}/github_context.json`
+
+</details>
 
 ### Build CI images (`build-ci-images`)
 
@@ -8894,7 +9188,6 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 | Property | Value |
 |----------|-------|
-| Runs on | `ubuntu-22.04` |
 | Depends on | `build-info`, `generate-constraints` |
 
 **Permissions:**
@@ -8908,12 +9201,13 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 |----------|-------|
 | `PYTHON_VERSIONS` | `${{ needs.build-info.outputs.python-versions-list-as-string }}` |
 
-#### Steps
+<details>
+<summary>Steps (8)</summary>
 
 1. **Cleanup repo**
 
 2. **Checkout ${{ github.ref }} ( ${{ github.sha }} )**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `persist-credentials`: `false`
 
@@ -8921,7 +9215,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
    - ID: `constraints-branch`
 
 4. **Checkout ${{ steps.constraints-branch.outputs.branch }}**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `path`: `constraints`
      - `ref`: `${{ steps.constraints-branch.outputs.branch }}`
@@ -8929,7 +9223,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
      - `fetch-depth`: `0`
 
 5. **Download constraints from the generate-constraints job**
-   - Uses: `actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c` (v8.0.1)
+   - Uses: `actions/download-artifact@v8.0.1`
    - With:
      - `pattern`: `constraints-*`
      - `path`: `./files`
@@ -8940,11 +9234,12 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 8. **Push changes**
 
+</details>
+
 ### Notify on failure (`notify-on-failure`)
 
 | Property | Value |
 |----------|-------|
-| Runs on | `ubuntu-22.04` |
 | Depends on | `build-info`, `build-ci-images`, `generate-constraints`, `update-constraints` |
 | Condition | `failure()` |
 
@@ -8954,25 +9249,29 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 |----------|-------|
 | `SLACK_BOT_TOKEN` | `${{ secrets.SLACK_BOT_TOKEN }}` |
 
-#### Steps
+<details>
+<summary>Steps (1)</summary>
 
 1. **Send Slack notification**
-   - Uses: `slackapi/slack-github-action@45a88b9581bfab2566dc881e2cd66d334e621e2c` (v3.0.3)
+   - Uses: `slackapi/slack-github-action@v3.0.3`
    - With:
      - `method`: `chat.postMessage`
      - `token`: `${{ env.SLACK_BOT_TOKEN }}`
      - `payload`: `channel: "internal-airflow-ci-cd" text: "🚨 Update constraints workflow failed on branch *${{ github.ref_name }}*\n\n*Details:* <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View the failure log>" blocks:   - type: "section"     text:       type: "mrkdwn"       text: "🚨 Update constraints workflow failed on *${{ github.ref_name }}*\n\n*Details:* <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View the failure log>"`
 
+</details>
+
+[Back to top](#contents)
+
 # Upgrade check
+
+**Triggers:** `workflow_call`
 
 | Property | Value |
 |----------|-------|
 | File | `upgrade-check.yml` |
-| Triggers | `workflow_call` |
 
 ## Workflow call API
-
-This workflow is reusable via `workflow_call`.
 
 **Inputs:**
 
@@ -9024,12 +9323,13 @@ upgrade-check.yml
 |----------|-------|
 | Runs on | `ubuntu-22.04` |
 
-#### Steps
+<details>
+<summary>Steps (9)</summary>
 
 1. **[${{ inputs.target-branch }}] Cleanup repo**
 
 2. **[${{ inputs.target-branch }}] Checkout**
-   - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd` (v6.0.2)
+   - Uses: `actions/checkout@v6.0.2`
    - With:
      - `ref`: `${{ inputs.target-branch }}`
      - `fetch-depth`: `0`
@@ -9070,6 +9370,10 @@ upgrade-check.yml
      - `token`: `${{ env.SLACK_BOT_TOKEN }}`
      - `payload`: `` channel: "internal-airflow-ci-cd" text: >-   ⚠️ [${{ inputs.target-branch }}] Scheduled CI upgrade FAILED.   See: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} blocks:   - type: section     text:       type: mrkdwn       text: >-         ⚠️ *[${{ inputs.target-branch }}] Scheduled CI upgrade         FAILED*          The `breeze ci upgrade` job on the         `${{ inputs.target-branch }}` branch did not complete         successfully. Please investigate the failed run and         re-run the workflow if needed.          <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View failed run> ``
 
+</details>
+
+[Back to top](#contents)
+
 # Setup Breeze
 
 Sets up Python and Breeze
@@ -9091,6 +9395,8 @@ Sets up Python and Breeze
 |------|-------------|
 | `host-python-version` | Python version used in host |
 
+[Back to top](#contents)
+
 # Install prek
 
 Installs prek and related packages
@@ -9108,6 +9414,8 @@ Installs prek and related packages
 | `save-cache` | Whether to save prek cache | Yes | - |
 | `platform` | Platform for the build - linux/amd64 or linux/arm64 | Yes | - |
 
+[Back to top](#contents)
+
 # Run migration tests
 
 Runs migration tests
@@ -9123,6 +9431,8 @@ Runs migration tests
 |------|-------------|----------|--------|
 | `python-version` | Python version to run the tests on | Yes | - |
 
+[Back to top](#contents)
+
 # Post tests on failure
 
 Run post tests actions on failure
@@ -9131,6 +9441,8 @@ Run post tests actions on failure
 |----------|-------|
 | File | `action.yml` |
 | Runs with | `composite` |
+
+[Back to top](#contents)
 
 # Post tests on success
 
@@ -9148,6 +9460,8 @@ Run post tests actions on success
 | `codecov-token` | Codecov token | Yes | - |
 | `python-version` | Python version | Yes | - |
 
+[Back to top](#contents)
+
 # Prepare all CI images
 
 Recreates current python CI images from artifacts for all python versions
@@ -9164,6 +9478,8 @@ Recreates current python CI images from artifacts for all python versions
 | `python-versions-list-as-string` | Stringified array of all Python versions to test - separated by spaces. | Yes | - |
 | `docker-volume-location` | File system location where to move docker space to | No | `/mnt/var-lib-docker` |
 | `platform` | Platform for the build - linux/amd64 or linux/arm64 | Yes | - |
+
+[Back to top](#contents)
 
 # Prepare breeze && current image (CI or PROD)
 
@@ -9190,6 +9506,8 @@ Installs breeze and recreates current python image from artifact
 |------|-------------|
 | `host-python-version` | Python version used in host |
 
+[Back to top](#contents)
+
 # Prepare single CI image
 
 Recreates current python image from artifacts (needed for the hard-coded actions calling all possible Python versions in "prepare_all_ci_images" action. Hopefully we can get rid of it when the https://github.com/apache/airflow/issues/45268 is resolved and we contribute capability of downloading multiple keys to the stash action.
@@ -9207,4 +9525,6 @@ Recreates current python image from artifacts (needed for the hard-coded actions
 | `python` | Python version for image to prepare | Yes | - |
 | `python-versions-list-as-string` | Stringified array of all Python versions to prepare - separated by spaces. | Yes | - |
 | `platform` | Platform for the build - linux/amd64 or linux/arm64 | Yes | - |
+
+[Back to top](#contents)
 

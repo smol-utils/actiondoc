@@ -1,13 +1,12 @@
 # Reusable Build
 
+**Triggers:** `workflow_call`
+
 | Property | Value |
 |----------|-------|
 | File | `reusable.yml` |
-| Triggers | `workflow_call` |
 
 ## Workflow call API
-
-This workflow is reusable via `workflow_call`.
 
 **Inputs:**
 
@@ -37,7 +36,10 @@ This workflow is reusable via `workflow_call`.
 |----------|-------|
 | Runs on | `ubuntu-latest` |
 
-#### Steps
+<details>
+<summary>Steps (1)</summary>
 
 1. **echo build**
+
+</details>
 

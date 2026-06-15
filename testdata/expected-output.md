@@ -1,14 +1,18 @@
 # CI Pipeline
 
+**Triggers:** `push`, `pull_request`
+
 Main CI pipeline for building and testing the application.
 
 | Property | Value |
 |----------|-------|
 | File | `sample-workflow.yml` |
-| Triggers | `push`, `pull_request` |
+| Default runs-on | `ubuntu-latest` |
 | Since | v1.0.0 |
 
 **See also:** https://docs.example.com/ci
+
+**Jobs:** [Build](#build-build), [Run Tests](#run-tests-test), [Deploy](#deploy-deploy)
 
 ## Event filters
 
@@ -35,16 +39,15 @@ Main CI pipeline for building and testing the application.
 
 Compile the application and produce build artifacts.
 
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-latest` |
-
-#### Steps
+<details>
+<summary>Steps (2)</summary>
 
 1. **Checkout**
    - Uses: `actions/checkout@v4`
 
 2. **Build**
+
+</details>
 
 ### Run Tests (`test`)
 
@@ -52,7 +55,6 @@ Runs the full test suite against the compiled artifacts.
 
 | Property | Value |
 |----------|-------|
-| Runs on | `ubuntu-latest` |
 | Depends on | `build` |
 | Condition | `github.event_name == 'push'` |
 
@@ -68,7 +70,8 @@ Runs the full test suite against the compiled artifacts.
 |------|------|-------------|
 | `DATABASE_URL` | - | Connection string for the test database |
 
-#### Steps
+<details>
+<summary>Steps (2)</summary>
 
 1. **Checkout**
    - Uses: `actions/checkout@v4`
@@ -76,6 +79,8 @@ Runs the full test suite against the compiled artifacts.
 2. **Run tests** - Execute unit and integration tests.
    - ID: `tests`
    - Output: `test-results` {path} - Path to the JUnit XML report
+
+</details>
 
 ### Deploy (`deploy`)
 
@@ -85,7 +90,6 @@ Builds the production Docker image and pushes to registry.
 
 | Property | Value |
 |----------|-------|
-| Runs on | `ubuntu-latest` |
 | Depends on | `build`, `test` |
 
 **Example:**
@@ -95,9 +99,12 @@ Builds the production Docker image and pushes to registry.
   gh workflow run ci.yml -f deploy=true
 ```
 
-#### Steps
+<details>
+<summary>Steps (2)</summary>
 
 1. **Build image**
 
 2. **Push image**
+
+</details>
 

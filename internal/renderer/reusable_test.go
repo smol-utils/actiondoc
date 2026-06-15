@@ -99,8 +99,8 @@ func TestRenderCallerJobForwarding(t *testing.T) {
 			t.Errorf("output missing %q\n\nFull output:\n%s", want, md)
 		}
 	}
-	// Caller jobs have no steps and must not render an empty Steps section.
-	if strings.Contains(md, "#### Steps") {
+	// Caller jobs have no steps and must not render an empty collapsed Steps block.
+	if strings.Contains(md, "<summary>Steps") {
 		t.Errorf("caller job rendered a Steps section:\n%s", md)
 	}
 }

@@ -1,25 +1,36 @@
-# Contents
+# dependency-track
+
+8 workflows, 1 reusable workflow
+
+## Contents
+
+**Workflows**
+
+- [Build CI - push, pull_request, workflow_dispatch](#build-ci)
+- [PR Template Check - pull_request](#pr-template-check)
+- [Publish CI - push, workflow_dispatch](#publish-ci)
+- [Release CI - workflow_dispatch](#release-ci)
+- [Report PR Test Coverage - workflow_run](#report-pr-test-coverage)
+- [Tests CI - push, pull_request, workflow_dispatch](#tests-ci)
+- [Dependency Review - pull_request](#dependency-review)
+- [Lock Threads - schedule](#lock-threads)
+
+**Reusable workflows**
 
 - [_meta-build.yaml](#_meta-buildyaml)
-- [Build CI](#build-ci)
-- [PR Template Check](#pr-template-check)
-- [Publish CI](#publish-ci)
-- [Release CI](#release-ci)
-- [Report PR Test Coverage](#report-pr-test-coverage)
-- [Tests CI](#tests-ci)
-- [Dependency Review](#dependency-review)
-- [Lock Threads](#lock-threads)
 
 # _meta-build.yaml
+
+**Triggers:** `workflow_call`
 
 | Property | Value |
 |----------|-------|
 | File | `_meta-build.yaml` |
-| Triggers | `workflow_call` |
+| Default runs-on | `ubuntu-latest` |
+
+**Jobs:** [`build-java`](#build-java), [`build-container`](#build-container)
 
 ## Workflow call API
-
-This workflow is reusable via `workflow_call`.
 
 **Inputs:**
 
@@ -61,11 +72,8 @@ _meta-build.yaml
 
 ### `build-java`
 
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-latest` |
-
-#### Steps
+<details>
+<summary>Steps (5)</summary>
 
 1. **Checkout Repository**
    - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd`
@@ -89,11 +97,12 @@ _meta-build.yaml
      - `name`: `assembled-wars`
      - `path`: `target/*.jar target/bom.json`
 
+</details>
+
 ### `build-container`
 
 | Property | Value |
 |----------|-------|
-| Runs on | `ubuntu-latest` |
 | Matrix | `distribution`: apiserver, bundled |
 | Depends on | `build-java` |
 
@@ -101,7 +110,8 @@ _meta-build.yaml
 
 - `security-events`: `write` - Required to upload trivy's SARIF output
 
-#### Steps
+<details>
+<summary>Steps (8)</summary>
 
 1. **Checkout Repository**
    - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd`
@@ -158,12 +168,17 @@ _meta-build.yaml
      - `context`: `.`
      - `file`: `src/main/docker/Dockerfile.alpine`
 
+</details>
+
+[Back to top](#contents)
+
 # Build CI
+
+**Triggers:** `push`, `pull_request`, `workflow_dispatch`
 
 | Property | Value |
 |----------|-------|
 | File | `ci-build.yaml` |
-| Triggers | `push`, `pull_request`, `workflow_dispatch` |
 
 ## Event filters
 
@@ -223,12 +238,15 @@ Permissions declared across the chain: `security-events: write`
 - `registry-0-usr`: `${{ secrets.HUB_USERNAME }}`
 - `registry-0-psw`: `${{ secrets.HUB_ACCESSS_TOKEN }}`
 
+[Back to top](#contents)
+
 # PR Template Check
+
+**Triggers:** `pull_request`
 
 | Property | Value |
 |----------|-------|
 | File | `ci-pr-template.yml` |
-| Triggers | `pull_request` |
 
 ## Event filters
 
@@ -247,7 +265,8 @@ No permissions granted (`permissions: {}` -- default-deny).
 |----------|-------|
 | Runs on | `ubuntu-latest` |
 
-#### Steps
+<details>
+<summary>Steps (1)</summary>
 
 1. **Validate PR body**
    - Env:
@@ -255,14 +274,22 @@ No permissions granted (`permissions: {}` -- default-deny).
      - `PR_AUTHOR_TYPE`: `${{ github.event.pull_request.user.type }}`
      - `PR_AUTHOR_LOGIN`: `${{ github.event.pull_request.user.login }}`
 
+</details>
+
+[Back to top](#contents)
+
 # Publish CI
+
+**Triggers:** `push`, `workflow_dispatch`
 
 This workflow is responsible to build and publish a release build It triggers once a new GitHub Release is published
 
 | Property | Value |
 |----------|-------|
 | File | `ci-publish.yaml` |
-| Triggers | `push`, `workflow_dispatch` |
+| Default runs-on | `ubuntu-latest` |
+
+**Jobs:** [`read-version`](#read-version), [`call-build`](#call-build-1), [`update-github-release`](#update-github-release)
 
 ## Event filters
 
@@ -300,11 +327,8 @@ Permissions declared across the chain: `contents: write`, `security-events: writ
 
 ### `read-version`
 
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-latest` |
-
-#### Steps
+<details>
+<summary>Steps (3)</summary>
 
 1. **Assert ref type**
 
@@ -315,6 +339,8 @@ Permissions declared across the chain: `contents: write`, `security-events: writ
 
 3. **Parse Version from POM**
    - ID: `parse`
+
+</details>
 
 ### `call-build`
 
@@ -342,14 +368,14 @@ Permissions declared across the chain: `contents: write`, `security-events: writ
 
 | Property | Value |
 |----------|-------|
-| Runs on | `ubuntu-latest` |
 | Depends on | `read-version`, `call-build` |
 
 **Permissions:**
 
 - `contents`: `write` - Required to update GitHub release assets and notes
 
-#### Steps
+<details>
+<summary>Steps (5)</summary>
 
 1. **Checkout Repository**
    - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd`
@@ -374,12 +400,20 @@ Permissions declared across the chain: `contents: write`, `security-events: writ
      - `GITHUB_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
      - `VERSION`: `${{ needs.read-version.outputs.version }}`
 
+</details>
+
+[Back to top](#contents)
+
 # Release CI
+
+**Triggers:** `workflow_dispatch`
 
 | Property | Value |
 |----------|-------|
 | File | `ci-release.yaml` |
-| Triggers | `workflow_dispatch` |
+| Default runs-on | `ubuntu-latest` |
+
+**Jobs:** [`prepare-release`](#prepare-release), [`create-release`](#create-release), [`post-release`](#post-release)
 
 ## Manual trigger inputs
 
@@ -405,11 +439,8 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 ### `prepare-release`
 
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-latest` |
-
-#### Steps
+<details>
+<summary>Steps (2)</summary>
 
 1. **Checkout Repository**
    - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd`
@@ -421,11 +452,12 @@ No permissions granted (`permissions: {}` -- default-deny).
    - Env:
      - `VERSION_OVERWRITE`: `${{ github.event.inputs.version-overwrite }}`
 
+</details>
+
 ### `create-release`
 
 | Property | Value |
 |----------|-------|
-| Runs on | `ubuntu-latest` |
 | Depends on | `prepare-release` |
 
 **Environment (`env`):**
@@ -435,7 +467,8 @@ No permissions granted (`permissions: {}` -- default-deny).
 | `VERSION` | `${{ needs.prepare-release.outputs.version }}` |
 | `BRANCH_NAME` | `${{ needs.prepare-release.outputs.release-branch }}` |
 
-#### Steps
+<details>
+<summary>Steps (4)</summary>
 
 1. **Checkout Repository**
    - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd`
@@ -457,11 +490,12 @@ No permissions granted (`permissions: {}` -- default-deny).
      - `RELEASE_VERSION`: `${{ needs.prepare-release.outputs.version }}`
      - `RELEASE_BRANCH`: `${{ needs.prepare-release.outputs.release-branch }}`
 
+</details>
+
 ### `post-release`
 
 | Property | Value |
 |----------|-------|
-| Runs on | `ubuntu-latest` |
 | Depends on | `prepare-release`, `create-release` |
 
 **Permissions:**
@@ -475,7 +509,8 @@ No permissions granted (`permissions: {}` -- default-deny).
 | `NEXT_VERSION` | `${{ needs.prepare-release.outputs.next-version }}` |
 | `BRANCH_NAME` | `${{ needs.prepare-release.outputs.release-branch }}` |
 
-#### Steps
+<details>
+<summary>Steps (3)</summary>
 
 1. **Checkout Repository**
    - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd`
@@ -491,12 +526,17 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 3. **Set SNAPSHOT Version after Release**
 
+</details>
+
+[Back to top](#contents)
+
 # Report PR Test Coverage
+
+**Triggers:** `workflow_run`
 
 | Property | Value |
 |----------|-------|
 | File | `ci-test-pr-coverage.yml` |
-| Triggers | `workflow_run` |
 
 ## Event filters
 
@@ -526,7 +566,8 @@ No permissions granted (`permissions: {}` -- default-deny).
 | Runs on | `ubuntu-latest` |
 | Condition | `github.event.workflow_run.event == 'pull_request'<br>  && github.event.workflow_run.conclusion == 'success'` |
 
-#### Steps
+<details>
+<summary>Steps (2)</summary>
 
 1. **Download PR test coverage report**
    - Uses: `actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c`
@@ -540,12 +581,17 @@ No permissions granted (`permissions: {}` -- default-deny).
      - `CODACY_PROJECT_TOKEN`: `${{ secrets.CODACY_PROJECT_TOKEN }}`
      - `HEAD_SHA`: `${{ github.event.workflow_run.head_sha }}`
 
+</details>
+
+[Back to top](#contents)
+
 # Tests CI
+
+**Triggers:** `push`, `pull_request`, `workflow_dispatch`
 
 | Property | Value |
 |----------|-------|
 | File | `ci-test.yaml` |
-| Triggers | `push`, `pull_request`, `workflow_dispatch` |
 
 ## Event filters
 
@@ -578,7 +624,8 @@ No permissions granted (`permissions: {}` -- default-deny).
 |----------|-------|
 | Runs on | `ubuntu-latest` |
 
-#### Steps
+<details>
+<summary>Steps (6)</summary>
 
 1. **Checkout repository**
    - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd`
@@ -612,12 +659,17 @@ No permissions granted (`permissions: {}` -- default-deny).
      - `name`: `pr-test-coverage-report`
      - `path`: `pr-commit.txt pr-number.txt target/jacoco-ut/jacoco.xml`
 
+</details>
+
+[Back to top](#contents)
+
 # Dependency Review
+
+**Triggers:** `pull_request`
 
 | Property | Value |
 |----------|-------|
 | File | `dependency-review.yaml` |
-| Triggers | `pull_request` |
 
 ## Permissions
 
@@ -631,7 +683,8 @@ No permissions granted (`permissions: {}` -- default-deny).
 |----------|-------|
 | Runs on | `ubuntu-latest` |
 
-#### Steps
+<details>
+<summary>Steps (2)</summary>
 
 1. **Checkout Repository**
    - Uses: `actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd`
@@ -641,12 +694,17 @@ No permissions granted (`permissions: {}` -- default-deny).
 2. **Dependency Review**
    - Uses: `actions/dependency-review-action@2031cfc080254a8a887f58cffee85186f0e49e48`
 
+</details>
+
+[Back to top](#contents)
+
 # Lock Threads
+
+**Triggers:** `schedule`
 
 | Property | Value |
 |----------|-------|
 | File | `lock.yaml` |
-| Triggers | `schedule` |
 
 ## Schedule
 
@@ -670,7 +728,8 @@ No permissions granted (`permissions: {}` -- default-deny).
 - `issues`: `write` - Required to lock issues
 - `pull-requests`: `write` - Required to lock PRs
 
-#### Steps
+<details>
+<summary>Steps (1)</summary>
 
 1. **dessant/lock-threads**
    - Uses: `dessant/lock-threads@7266a7ce5c1df01b1c6db85bf8cd86c737dadbe7`
@@ -689,4 +748,8 @@ No permissions granted (`permissions: {}` -- default-deny).
      - `pr-comment`: -
      - `pr-lock-reason`: `resolved`
      - `process-only`: -
+
+</details>
+
+[Back to top](#contents)
 

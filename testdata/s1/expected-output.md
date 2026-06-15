@@ -1,11 +1,14 @@
 # Release
 
+**Triggers:** `workflow_dispatch`
+
 Orchestrates the full release: build, publish, and notify.
 
 | Property | Value |
 |----------|-------|
 | File | `release.yml` |
-| Triggers | `workflow_dispatch` |
+
+**Jobs:** [`publish`](#publish), [`notify`](#notify), [`tag`](#tag)
 
 ## Manual trigger inputs
 
@@ -81,25 +84,29 @@ Tag the release commit.
 | Runs on | `ubuntu-latest` |
 | Depends on | `publish` |
 
-#### Steps
+<details>
+<summary>Steps (2)</summary>
 
 1. **Checkout**
    - Uses: `actions/checkout@v4`
 
 2. **Tag**
 
+</details>
+
 # Build and Publish
+
+**Triggers:** `workflow_call`
 
 Builds the artifacts for every architecture and publishes them.
 
 | Property | Value |
 |----------|-------|
 | File | `build_and_publish.yml` |
-| Triggers | `workflow_call` |
+
+**Jobs:** [`build-matrix`](#build-matrix), [`publish`](#publish)
 
 ## Workflow call API
-
-This workflow is reusable via `workflow_call`.
 
 **Inputs:**
 
@@ -138,7 +145,8 @@ Upload the built artifacts to the package registry.
 | Runs on | `ubuntu-latest` |
 | Depends on | `build-matrix` |
 
-#### Steps
+<details>
+<summary>Steps (3)</summary>
 
 1. **Checkout**
    - Uses: `actions/checkout@v4`
@@ -148,18 +156,19 @@ Upload the built artifacts to the package registry.
 
 3. **Publish**
 
+</details>
+
 # Build
+
+**Triggers:** `workflow_call`
 
 Compiles the project for a set of architectures.
 
 | Property | Value |
 |----------|-------|
 | File | `build.yml` |
-| Triggers | `workflow_call` |
 
 ## Workflow call API
-
-This workflow is reusable via `workflow_call`.
 
 **Inputs:**
 
@@ -191,7 +200,8 @@ Compile and sign the artifacts.
 |----------|-------|
 | Runs on | `ubuntu-latest` |
 
-#### Steps
+<details>
+<summary>Steps (3)</summary>
 
 1. **Checkout**
    - Uses: `actions/checkout@v4`
@@ -199,6 +209,8 @@ Compile and sign the artifacts.
 2. **Compile**
 
 3. **Sign**
+
+</details>
 
 # Setup Toolchain
 

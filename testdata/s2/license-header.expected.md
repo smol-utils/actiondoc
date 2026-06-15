@@ -1,9 +1,10 @@
 # Licensed CI
 
+**Triggers:** `push`
+
 | Property | Value |
 |----------|-------|
 | File | `license-header.yml` |
-| Triggers | `push` |
 
 ## Event filters
 
@@ -18,7 +19,10 @@
 |----------|-------|
 | Runs on | `ubuntu-latest` |
 
-#### Steps
+<details>
+<summary>Steps (1)</summary>
 
 1. **make build**
+
+</details>
 

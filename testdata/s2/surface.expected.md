@@ -1,11 +1,15 @@
 # Release
 
+**Triggers:** `workflow_dispatch`, `push`, `pull_request`, `repository_dispatch`, `schedule`
+
 Release pipeline: builds artifacts and deploys to the production environment. Triggered manually, on a weekly schedule, and on tagged pushes.
 
 | Property | Value |
 |----------|-------|
 | File | `surface.yml` |
-| Triggers | `workflow_dispatch`, `push`, `pull_request`, `repository_dispatch`, `schedule` |
+| Default runs-on | `ubuntu-latest` |
+
+**Jobs:** [Build](#build-build), [Deploy](#deploy-deploy)
 
 ## Manual trigger inputs
 
@@ -53,10 +57,6 @@ Inputs for the `workflow_dispatch` event.
 
 ### Build (`build`)
 
-| Property | Value |
-|----------|-------|
-| Runs on | `ubuntu-latest` |
-
 **Permissions:**
 
 No permissions granted (`permissions: {}` -- default-deny).
@@ -67,23 +67,22 @@ No permissions granted (`permissions: {}` -- default-deny).
 |----------|-------|
 | `BUILD_MODE` | `release` |
 
-#### Steps
+<details>
+<summary>Steps (2)</summary>
 
 1. **actions/checkout@v4**
-   - Uses: `actions/checkout@v4`
 
 2. **make build**
+
+</details>
 
 ### Deploy (`deploy`)
 
 | Property | Value |
 |----------|-------|
-| Runs on | `ubuntu-latest` |
 | Depends on | `build` |
 
 **Deploys to environment:** `production` (`https://app.example.com`) [gated]
-
-> Environment protection rules (required reviewers, wait timers, branch policies) are configured in the repository's Settings -> Environments and are not represented here.
 
 **Permissions:**
 
@@ -94,7 +93,10 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 **Defaults:** working-directory `./deploy`
 
-#### Steps
+<details>
+<summary>Steps (1)</summary>
 
 1. **./publish.sh**
+
+</details>
 
