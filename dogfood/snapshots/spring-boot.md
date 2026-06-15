@@ -350,7 +350,7 @@ Permissions declared across the chain: `contents: read`
 
 ## Jobs
 
-### ${{ matrix.os.name}} | Java ${{ matrix.java.version}} (`ci`)
+### (name) | Java (version) (`ci`)
 
 | Property | Value |
 |----------|-------|
@@ -1087,7 +1087,7 @@ Permissions declared across the chain: `contents: read`
 
 ## Jobs
 
-### Java ${{ matrix.java.version}} (`run-system-tests`)
+### Java (version) (`run-system-tests`)
 
 | Property | Value |
 |----------|-------|

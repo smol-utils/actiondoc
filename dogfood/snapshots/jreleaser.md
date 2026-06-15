@@ -946,12 +946,12 @@ External workflows referenced: `slsa-framework/slsa-github-generator/.github/wor
 **Jobs:**
 
 - [Precheck](#precheck-precheck-4)
-- [CLI ${{ matrix.job.os }}](#cli--matrixjobos--build-cli)
-- [Tool ${{ matrix.job.os }}](#tool--matrixjobos--build-tool)
-- [Ant ${{ matrix.job.os }}](#ant--matrixjobos--build-ant)
-- [Gradle ${{ matrix.job.os }}](#gradle--matrixjobos--build-gradle)
-- [Maven ${{ matrix.job.os }}](#maven--matrixjobos--build-maven)
-- [Unit Test ${{ matrix.os }}](#unit-test--matrixos--unit-tests)
+- [CLI (os)](#cli-os-build-cli)
+- [Tool (os)](#tool-os-build-tool)
+- [Ant (os)](#ant-os-build-ant)
+- [Gradle (os)](#gradle-os-build-gradle)
+- [Maven (os)](#maven-os-build-maven)
+- [Unit Test (os)](#unit-test-os-unit-tests)
 - [Coveralls](#coveralls-coveralls)
 - [Codecov](#codecov-codecov)
 - [Sonar](#sonar-sonar)
@@ -1020,7 +1020,7 @@ Permissions declared across the chain: `contents: read`
 
 - `github-token`: `${{ secrets.GITHUB_TOKEN }}`
 
-### CLI ${{ matrix.job.os }} (`build-cli`)
+### CLI (os) (`build-cli`)
 
 | Property | Value |
 |----------|-------|
@@ -1105,7 +1105,7 @@ Permissions declared across the chain: `contents: read`
 
 </details>
 
-### Tool ${{ matrix.job.os }} (`build-tool`)
+### Tool (os) (`build-tool`)
 
 | Property | Value |
 |----------|-------|
@@ -1190,7 +1190,7 @@ Permissions declared across the chain: `contents: read`
 
 </details>
 
-### Ant ${{ matrix.job.os }} (`build-ant`)
+### Ant (os) (`build-ant`)
 
 | Property | Value |
 |----------|-------|
@@ -1275,7 +1275,7 @@ Permissions declared across the chain: `contents: read`
 
 </details>
 
-### Gradle ${{ matrix.job.os }} (`build-gradle`)
+### Gradle (os) (`build-gradle`)
 
 | Property | Value |
 |----------|-------|
@@ -1369,7 +1369,7 @@ Permissions declared across the chain: `contents: read`
 
 </details>
 
-### Maven ${{ matrix.job.os }} (`build-maven`)
+### Maven (os) (`build-maven`)
 
 | Property | Value |
 |----------|-------|
@@ -1454,7 +1454,7 @@ Permissions declared across the chain: `contents: read`
 
 </details>
 
-### Unit Test ${{ matrix.os }} (`unit-tests`)
+### Unit Test (os) (`unit-tests`)
 
 | Property | Value |
 |----------|-------|
@@ -1977,7 +1977,7 @@ Permissions declared across the chain: `contents: read`
 
 ## Jobs
 
-### ${{ matrix.job.jdkOs }} (`jpackage`)
+### `jpackage`
 
 | Property | Value |
 |----------|-------|
@@ -2107,7 +2107,7 @@ Permissions declared across the chain: `contents: read`
 
 ## Jobs
 
-### ${{ matrix.job.jdkOs }} (`native-image`)
+### `native-image`
 
 | Property | Value |
 |----------|-------|
@@ -2299,7 +2299,7 @@ Permissions declared across the chain: `contents: read`
 
 ## Jobs
 
-### Update wiki for Release ${{ inputs.project-tag }} (`update-wiki`)
+### Update wiki for Release (project-tag) (`update-wiki`)
 
 | Property | Value |
 |----------|-------|

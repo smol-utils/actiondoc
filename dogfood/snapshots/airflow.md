@@ -275,7 +275,7 @@ Permissions declared across the chain: `contents: read`
 
 ## Jobs
 
-### ${{ inputs.workflow-name }} (`test-e2e-integration-tests`)
+### `test-e2e-integration-tests`
 
 | Property | Value |
 |----------|-------|
@@ -1657,7 +1657,7 @@ Permissions declared across the chain: `contents: read`, `id-token: write (OIDC)
 | File | `registry-backfill.yml` |
 | Default runs-on | `ubuntu-latest` |
 
-**Jobs:** [Build CI image](#build-ci-image-build-ci-image-1), [`prepare`](#prepare), [Backfill ${{ matrix.provider }} (${{ matrix.versions }})](#backfill--matrixprovider---matrixversions--backfill), [Publish versions.json](#publish-versionsjson-publish-versions)
+**Jobs:** [Build CI image](#build-ci-image-build-ci-image-1), [`prepare`](#prepare), [Backfill (provider) ((versions))](#backfill-provider-versions-backfill), [Publish versions.json](#publish-versionsjson-publish-versions)
 
 ## Manual trigger inputs
 
@@ -1743,7 +1743,7 @@ Permissions declared across the chain: `contents: read`, `packages: read`, `pack
 
 </details>
 
-### Backfill ${{ matrix.provider }} (${{ matrix.versions }}) (`backfill`)
+### Backfill (provider) ((versions)) (`backfill`)
 
 | Property | Value |
 |----------|-------|
@@ -4654,7 +4654,7 @@ Permissions declared across the chain: `contents: read`
 
 ## Jobs
 
-### ${{ inputs.workflow-name || 'UI E2E Tests' }} (`test-ui-e2e-tests`)
+### `test-ui-e2e-tests`
 
 | Property | Value |
 |----------|-------|
@@ -5730,7 +5730,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 - [Breeze unit tests](#breeze-unit-tests-run-breeze-tests)
 - [Breeze integration tests](#breeze-integration-tests-run-breeze-integration-tests)
-- [Shared ${{ matrix.shared-distribution }} tests](#shared--matrixshared-distribution--tests-tests-shared-distributions)
+- [Shared (shared-distribution) tests](#shared-shared-distribution-tests-tests-shared-distributions)
 - [Scripts tests](#scripts-tests-tests-scripts)
 - [React UI tests](#react-ui-tests-tests-ui)
 - [Check translation completeness](#check-translation-completeness-check-translation-completness)
@@ -5833,7 +5833,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 </details>
 
-### Shared ${{ matrix.shared-distribution }} tests (`tests-shared-distributions`)
+### Shared (shared-distribution) tests (`tests-shared-distributions`)
 
 | Property | Value |
 |----------|-------|
@@ -6167,7 +6167,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 ## Jobs
 
-### Build CI ${{ inputs.platform }} image ${{ matrix.python-version }} (`build-ci-images`)
+### Build CI (platform) image (python-version) (`build-ci-images`)
 
 | Property | Value |
 |----------|-------|
@@ -6285,7 +6285,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 | File | `prod-image-build.yml` |
 | Default runs-on | `${{ fromJSON(inputs.runners) }}` |
 
-**Jobs:** [Build Airflow and provider distributions](#build-airflow-and-provider-distributions-build-prod-packages), [Build PROD ${{ inputs.build-type }} image ${{ matrix.python-version }}](#build-prod--inputsbuild-type--image--matrixpython-version--build-prod-images)
+**Jobs:** [Build Airflow and provider distributions](#build-airflow-and-provider-distributions-build-prod-packages), [Build PROD (build-type) image (python-version)](#build-prod-build-type-image-python-version-build-prod-images)
 
 ## Workflow call API
 
@@ -6410,7 +6410,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 </details>
 
-### Build PROD ${{ inputs.build-type }} image ${{ matrix.python-version }} (`build-prod-images`)
+### Build PROD (build-type) image (python-version) (`build-prod-images`)
 
 | Property | Value |
 |----------|-------|
@@ -6926,7 +6926,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 | File | `finalize-tests.yml` |
 | Default runs-on | `${{ fromJSON(inputs.runners) }}` |
 
-**Jobs:** [Update constraints](#update-constraints-update-constraints), [Deps ${{ matrix.python-version }}:${{ matrix.constraints-mode }}](#deps--matrixpython-version--matrixconstraints-mode--dependency-upgrade-summary), [Push Regular Image Cache ${{ inputs.platform }}](#push-regular-image-cache--inputsplatform--push-buildx-cache-to-github-registry)
+**Jobs:** [Update constraints](#update-constraints-update-constraints), [Deps (python-version):(constraints-mode)](#deps-python-versionconstraints-mode-dependency-upgrade-summary), [Push Regular Image Cache (platform)](#push-regular-image-cache-platform-push-buildx-cache-to-github-registry)
 
 ## Workflow call API
 
@@ -7023,7 +7023,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 </details>
 
-### Deps ${{ matrix.python-version }}:${{ matrix.constraints-mode }} (`dependency-upgrade-summary`)
+### Deps (python-version):(constraints-mode) (`dependency-upgrade-summary`)
 
 | Property | Value |
 |----------|-------|
@@ -7063,7 +7063,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 </details>
 
-### Push Regular Image Cache ${{ inputs.platform }} (`push-buildx-cache-to-github-registry`)
+### Push Regular Image Cache (platform) (`push-buildx-cache-to-github-registry`)
 
 | Property | Value |
 |----------|-------|
@@ -7135,7 +7135,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 ## Jobs
 
-### Generate constraints for ${{ matrix.python-version }} on ${{ inputs.platform }} (`generate-constraints-matrix`)
+### Generate constraints for (python-version) on (platform) (`generate-constraints-matrix`)
 
 | Property | Value |
 |----------|-------|
@@ -7226,7 +7226,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 | File | `helm-tests.yml` |
 | Default runs-on | `${{ fromJSON(inputs.runners) }}` |
 
-**Jobs:** [Unit tests Helm: ${{ matrix.helm-test-package }} (K8S ${{ matrix.kubernetes-version }})](#unit-tests-helm--matrixhelm-test-package--k8s--matrixkubernetes-version--tests-helm), [Release Helm](#release-helm-tests-helm-release)
+**Jobs:** [Unit tests Helm: (helm-test-package) (K8S (kubernetes-version))](#unit-tests-helm-helm-test-package-k8s-kubernetes-version-tests-helm), [Release Helm](#release-helm-tests-helm-release)
 
 ## Workflow call API
 
@@ -7262,7 +7262,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 ## Jobs
 
-### Unit tests Helm: ${{ matrix.helm-test-package }} (K8S ${{ matrix.kubernetes-version }}) (`tests-helm`)
+### Unit tests Helm: (helm-test-package) (K8S (kubernetes-version)) (`tests-helm`)
 
 | Property | Value |
 |----------|-------|
@@ -7375,7 +7375,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 | File | `integration-system-tests.yml` |
 | Default runs-on | `${{ fromJSON(inputs.runners) }}` |
 
-**Jobs:** [Integration core ${{ matrix.integration }}](#integration-core--matrixintegration--tests-core-integration), [Integration: providers ${{ matrix.integration }}](#integration-providers--matrixintegration--tests-providers-integration), [System Tests](#system-tests-tests-system)
+**Jobs:** [Integration core (integration)](#integration-core-integration-tests-core-integration), [Integration: providers (integration)](#integration-providers-integration-tests-providers-integration), [System Tests](#system-tests-tests-system)
 
 ## Workflow call API
 
@@ -7418,7 +7418,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 ## Jobs
 
-### Integration core ${{ matrix.integration }} (`tests-core-integration`)
+### Integration core (integration) (`tests-core-integration`)
 
 | Property | Value |
 |----------|-------|
@@ -7475,7 +7475,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 </details>
 
-### Integration: providers ${{ matrix.integration }} (`tests-providers-integration`)
+### Integration: providers (integration) (`tests-providers-integration`)
 
 | Property | Value |
 |----------|-------|
@@ -7631,7 +7631,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 ## Jobs
 
-### K8S System:${{ matrix.executor }}-${{ matrix.kubernetes-combo }}-${{ matrix.use-standard-naming }} (`tests-kubernetes`)
+### K8S System:(executor)-(kubernetes-combo)-(use-standard-naming) (`tests-kubernetes`)
 
 | Property | Value |
 |----------|-------|
@@ -7745,7 +7745,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 ## Jobs
 
-### ${{ inputs.distribution-name }}:P${{ matrix.python-version }} tests (`distributions-tests`)
+### (distribution-name):P(python-version) tests (`distributions-tests`)
 
 | Property | Value |
 |----------|-------|
@@ -7881,7 +7881,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 | File | `test-providers.yml` |
 | Default runs-on | `${{ fromJSON(inputs.runners) }}` |
 
-**Jobs:** [Providers ${{ matrix.package-format }} tests](#providers--matrixpackage-format--tests-prepare-install-verify-provider-distributions), [Compat ${{ matrix.compat.airflow-version }}:P${{ matrix.compat.python-version }}:${{ matrix.compat.test-types.description }}](#compat--matrixcompatairflow-version-p-matrixcompatpython-version--matrixcompattest-typesdescription--providers-compatibility-tests-matrix)
+**Jobs:** [Providers (package-format) tests](#providers-package-format-tests-prepare-install-verify-provider-distributions), [Compat (airflow-version):P(python-version):(description)](#compat-airflow-versionppython-versiondescription-providers-compatibility-tests-matrix)
 
 ## Workflow call API
 
@@ -7922,7 +7922,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 ## Jobs
 
-### Providers ${{ matrix.package-format }} tests (`prepare-install-verify-provider-distributions`)
+### Providers (package-format) tests (`prepare-install-verify-provider-distributions`)
 
 | Property | Value |
 |----------|-------|
@@ -8001,7 +8001,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 </details>
 
-### Compat ${{ matrix.compat.airflow-version }}:P${{ matrix.compat.python-version }}:${{ matrix.compat.test-types.description }} (`providers-compatibility-tests-matrix`)
+### Compat (airflow-version):P(python-version):(description) (`providers-compatibility-tests-matrix`)
 
 | Property | Value |
 |----------|-------|
@@ -8084,7 +8084,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 | File | `push-image-cache.yml` |
 | Default runs-on | `${{ fromJSON(inputs.runners) }}` |
 
-**Jobs:** [Push CI ${{ inputs.cache-type }}:${{ matrix.python }} image cache](#push-ci--inputscache-type--matrixpython--image-cache-push-ci-image-cache), [Push PROD ${{ inputs.cache-type }}:${{ matrix.python }} image cache](#push-prod--inputscache-type--matrixpython--image-cache-push-prod-image-cache)
+**Jobs:** [Push CI (cache-type):(python) image cache](#push-ci-cache-typepython-image-cache-push-ci-image-cache), [Push PROD (cache-type):(python) image cache](#push-prod-cache-typepython-image-cache-push-prod-image-cache)
 
 ## Workflow call API
 
@@ -8114,7 +8114,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 - [additional-ci-image-checks.yml](#push-early-image-cache-push-early-buildx-cache-to-github-registry) (job: `push-early-buildx-cache-to-github-registry`)
   - [ci-amd.yml](#additional-ci-image-checks-additional-ci-image-checks) (job: `additional-ci-image-checks`) - entry point
   - [ci-arm.yml](#additional-ci-image-checks-additional-ci-image-checks-1) (job: `additional-ci-image-checks`) - entry point
-- [finalize-tests.yml](#push-regular-image-cache--inputsplatform--push-buildx-cache-to-github-registry) (job: `push-buildx-cache-to-github-registry`)
+- [finalize-tests.yml](#push-regular-image-cache-platform-push-buildx-cache-to-github-registry) (job: `push-buildx-cache-to-github-registry`)
   - [ci-amd.yml](#finalize-tests-finalize-tests) (job: `finalize-tests`) - entry point
   - [ci-arm.yml](#finalize-tests-finalize-tests-1) (job: `finalize-tests`) - entry point
 
@@ -8129,7 +8129,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 ## Jobs
 
-### Push CI ${{ inputs.cache-type }}:${{ matrix.python }} image cache (`push-ci-image-cache`)
+### Push CI (cache-type):(python) image cache (`push-ci-image-cache`)
 
 | Property | Value |
 |----------|-------|
@@ -8191,7 +8191,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 </details>
 
-### Push PROD ${{ inputs.cache-type }}:${{ matrix.python }} image cache (`push-prod-image-cache`)
+### Push PROD (cache-type):(python) image cache (`push-prod-image-cache`)
 
 | Property | Value |
 |----------|-------|
@@ -8271,7 +8271,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 |----------|-------|
 | File | `release_single_dockerhub_image.yml` |
 
-**Jobs:** [Build: ${{ inputs.airflowVersion }}, ${{ inputs.pythonVersion }}, ${{ matrix.platform }}](#build--inputsairflowversion---inputspythonversion---matrixplatform--build-images), [Merge: ${{ inputs.airflowVersion }}, ${{ inputs.pythonVersion }}](#merge--inputsairflowversion---inputspythonversion--merge-images)
+**Jobs:** [Build: (airflowVersion), (pythonVersion), (platform)](#build-airflowversion-pythonversion-platform-build-images), [Merge: (airflowVersion), (pythonVersion)](#merge-airflowversion-pythonversion-merge-images)
 
 ## Workflow call API
 
@@ -8322,7 +8322,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 ## Jobs
 
-### Build: ${{ inputs.airflowVersion }}, ${{ inputs.pythonVersion }}, ${{ matrix.platform }} (`build-images`)
+### Build: (airflowVersion), (pythonVersion), (platform) (`build-images`)
 
 | Property | Value |
 |----------|-------|
@@ -8393,7 +8393,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 </details>
 
-### Merge: ${{ inputs.airflowVersion }}, ${{ inputs.pythonVersion }} (`merge-images`)
+### Merge: (airflowVersion), (pythonVersion) (`merge-images`)
 
 | Property | Value |
 |----------|-------|
@@ -8477,7 +8477,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 - [Pendulum2 test: providers](#pendulum2-test-providers-tests-pendulum-2-providers)
 - [Quarantined test: core](#quarantined-test-core-tests-quarantined-core)
 - [Quarantined test: providers](#quarantined-test-providers-tests-quarantined-providers)
-- [System test: ${{ matrix.test-group }}](#system-test--matrixtest-group--tests-system-core)
+- [System test: (test-group)](#system-test-test-group-tests-system-core)
 
 ## Workflow call API
 
@@ -8829,7 +8829,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 - `use-uv`: `${{ inputs.use-uv }}`
 - `default-branch`: `${{ inputs.default-branch }}`
 
-### System test: ${{ matrix.test-group }} (`tests-system-core`)
+### System test: (test-group) (`tests-system-core`)
 
 | Property | Value |
 |----------|-------|
@@ -8927,7 +8927,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 ## Jobs
 
-### ${{ inputs.test-scope == 'All' && '' || inputs.test-scope == 'Quarantined' && 'Qrnt' || inputs.test-scope }}${{ inputs.test-scope == 'All' && '' || '-' }}${{ inputs.test-group == 'providers' && 'prov' || inputs.test-group}}:${{ inputs.test-name }}${{ inputs.test-name-separator }}${{ matrix.backend-version }}:${{ matrix.python-version}}:${{ matrix.test-types.description }} (`tests`)
+### `tests`
 
 | Property | Value |
 |----------|-------|
@@ -9065,7 +9065,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 ## Jobs
 
-### [${{ inputs.target-branch }}] Upgrade checks and PR (`createupgrade-check`)
+### [(target-branch)] Upgrade checks and PR (`createupgrade-check`)
 
 | Property | Value |
 |----------|-------|

@@ -34,11 +34,13 @@ func TestStepTitleFallback(t *testing.T) {
 	}
 }
 
-// TestJobNameRenderedVerbatim locks the rule that job headings show the name as written:
-// matrix placeholders are never expanded into joined value lists (GitHub creates one job
-// per combination; "Java 17, 21" is a job name that never exists). The Matrix property
-// row carries the axis values instead.
-func TestJobNameRenderedVerbatim(t *testing.T) {
+// TestJobNameDeTemplated locks the rule that a job name embedding ${{ ... }} expressions
+// is rendered as a readable label rather than leaking the raw expression into the heading:
+// each placeholder becomes its trailing identifier in parentheses. Matrix placeholders are
+// still never expanded into joined value lists (GitHub creates one job per combination;
+// "Java 17, 21" is a job name that never exists); the Matrix property row carries the axis
+// values instead.
+func TestJobNameDeTemplated(t *testing.T) {
 	w := &model.Workflow{
 		File: "test.yml",
 		Name: "Test",
@@ -56,9 +58,17 @@ func TestJobNameRenderedVerbatim(t *testing.T) {
 
 	md := RenderMarkdown(w)
 
-	// Heading: the template as written, never "Java 17, 21, 24 on ...".
-	if !strings.Contains(md, "### Java ${{ matrix.java }} on ${{ matrix.os }} (`build`)") {
-		t.Errorf("job heading must show the name verbatim:\n%s", md)
+	// Heading: the de-templated label, never the raw expression or expanded values.
+	heading := "### Java (java) on (os) (`build`)"
+	if !strings.Contains(md, heading) {
+		t.Errorf("job heading must show the de-templated label:\n%s", md)
+	}
+	// The heading line itself must not leak a raw ${{ ... }} expression (the runs-on cell
+	// below it legitimately keeps the expression, so this is scoped to the heading line).
+	for _, line := range strings.Split(md, "\n") {
+		if strings.HasPrefix(line, "### ") && strings.Contains(line, "${{") {
+			t.Errorf("job heading leaked a raw ${{ ... }} expression: %q", line)
+		}
 	}
 	if strings.Contains(md, "Java 17, 21, 24") {
 		t.Errorf("job heading must not expand matrix values:\n%s", md)

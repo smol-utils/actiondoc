@@ -1731,7 +1731,7 @@ Permissions declared across the chain: `contents: read`
 | File | `extras-smoke-test.yml` |
 | Default runs-on | `ubuntu-latest` |
 
-**Jobs:** [Get supported Python versions](#get-supported-python-versions-get-python-versions), [Test extras on Python ${{ matrix.python-version }}](#test-extras-on-python--matrixpython-version--test-extras), [Check Slack token availability](#check-slack-token-availability-precheck-slack), [Notify failures to Slack](#notify-failures-to-slack-notify-failures)
+**Jobs:** [Get supported Python versions](#get-supported-python-versions-get-python-versions), [Test extras on Python (python-version)](#test-extras-on-python-python-version-test-extras), [Check Slack token availability](#check-slack-token-availability-precheck-slack), [Notify failures to Slack](#notify-failures-to-slack-notify-failures)
 
 ## Schedule
 
@@ -1774,7 +1774,7 @@ Permissions declared across the chain: `contents: read`
 
 </details>
 
-### Test extras on Python ${{ matrix.python-version }} (`test-extras`)
+### Test extras on Python (python-version) (`test-extras`)
 
 | Property | Value |
 |----------|-------|

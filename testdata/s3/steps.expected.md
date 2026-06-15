@@ -8,7 +8,7 @@ Exercises step rendering, matrix job names, runs-on normalization, and secret ag
 |----------|-------|
 | File | `steps.yml` |
 
-**Jobs:** [Java ${{ matrix.java }}](#java--matrixjava--build), [Deploy ${{ matrix.target.env }}](#deploy--matrixtargetenv--deploy), [Verify ${{ matrix.case }}](#verify--matrixcase--verify)
+**Jobs:** [Java (java)](#java-java-build), [Deploy (env)](#deploy-env-deploy), [Verify (case)](#verify-case-verify)
 
 ## Event filters
 
@@ -36,7 +36,7 @@ Exercises step rendering, matrix job names, runs-on normalization, and secret ag
 
 ## Jobs
 
-### Java ${{ matrix.java }} (`build`)
+### Java (java) (`build`)
 
 | Property | Value |
 |----------|-------|
@@ -69,7 +69,7 @@ Exercises step rendering, matrix job names, runs-on normalization, and secret ag
 
 </details>
 
-### Deploy ${{ matrix.target.env }} (`deploy`)
+### Deploy (env) (`deploy`)
 
 | Property | Value |
 |----------|-------|
@@ -99,7 +99,7 @@ Exercises step rendering, matrix job names, runs-on normalization, and secret ag
 
 </details>
 
-### Verify ${{ matrix.case }} (`verify`)
+### Verify (case) (`verify`)
 
 | Property | Value |
 |----------|-------|

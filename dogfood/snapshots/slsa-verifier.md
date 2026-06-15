@@ -969,7 +969,7 @@ All scopes: `read-all`.
 | File | `release.yml` |
 | Default runs-on | `ubuntu-latest` |
 
-**Jobs:** [`args`](#args), [builder-${{matrix.os}}-${{matrix.arch}}](#builder-matrixos-matrixarch-builder), [`verification`](#verification), [`if-succeed`](#if-succeed-1), [`if-failed`](#if-failed-2)
+**Jobs:** [`args`](#args), [builder-(os)-(arch)](#builder-os-arch-builder), [`verification`](#verification), [`if-succeed`](#if-succeed-1), [`if-failed`](#if-failed-2)
 
 ## Schedule
 
@@ -1032,7 +1032,7 @@ External workflows referenced: `slsa-framework/slsa-github-generator/.github/wor
 
 </details>
 
-### builder-${{matrix.os}}-${{matrix.arch}} (`builder`)
+### builder-(os)-(arch) (`builder`)
 
 | Property | Value |
 |----------|-------|
