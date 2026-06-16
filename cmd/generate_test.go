@@ -194,7 +194,10 @@ jobs:
 	if err := Generate([]string{"-o", out, wf}); err != nil {
 		t.Fatalf("Generate: %v", err)
 	}
-	b, _ := os.ReadFile(out)
+	b, err := os.ReadFile(out)
+	if err != nil {
+		t.Fatalf("read output: %v", err)
+	}
 	md := string(b)
 
 	if !strings.Contains(md, "[Back to contents](#contents)") {
