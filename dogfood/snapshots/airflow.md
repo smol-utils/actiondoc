@@ -2753,7 +2753,6 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
 - `platform`: `${{ needs.build-info.outputs.platform }}`
 - `backend`: `sqlite`
 - `test-name`: `Sqlite`
-- `test-name-separator`: -
 - `test-scope`: `DB`
 - `test-group`: `core`
 - `python-versions`: `${{ needs.build-info.outputs.python-versions }}`
@@ -2788,7 +2787,6 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
 - `platform`: `${{ needs.build-info.outputs.platform }}`
 - `backend`: `sqlite`
 - `test-name`: `Sqlite`
-- `test-name-separator`: -
 - `test-scope`: `DB`
 - `test-group`: `providers`
 - `python-versions`: `${{ needs.build-info.outputs.python-versions }}`
@@ -2822,8 +2820,6 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
 - `runners`: `${{ needs.build-info.outputs.runner-type }}`
 - `platform`: `${{ needs.build-info.outputs.platform }}`
 - `backend`: `sqlite`
-- `test-name`: -
-- `test-name-separator`: -
 - `test-scope`: `Non-DB`
 - `test-group`: `core`
 - `python-versions`: `${{ needs.build-info.outputs.python-versions }}`
@@ -2856,8 +2852,6 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
 - `runners`: `${{ needs.build-info.outputs.runner-type }}`
 - `platform`: `${{ needs.build-info.outputs.platform }}`
 - `backend`: `sqlite`
-- `test-name`: -
-- `test-name-separator`: -
 - `test-scope`: `Non-DB`
 - `test-group`: `providers`
 - `python-versions`: `${{ needs.build-info.outputs.python-versions }}`
@@ -2956,7 +2950,6 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
 - `backend`: `sqlite`
 - `python-versions`: `${{ needs.build-info.outputs.python-versions }}`
 - `backend-versions`: `['${{ needs.build-info.outputs.default-postgres-version }}']`
-- `excluded-providers-as-string`: -
 - `excludes`: `[]`
 - `test-types-as-strings-in-json`: `${{ needs.build-info.outputs.core-test-types-list-as-strings-in-json }}`
 - `include-success-outputs`: `${{ needs.build-info.outputs.include-success-outputs }}`
@@ -3983,7 +3976,6 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
 - `platform`: `${{ needs.build-info.outputs.platform }}`
 - `backend`: `sqlite`
 - `test-name`: `Sqlite`
-- `test-name-separator`: -
 - `test-scope`: `DB`
 - `test-group`: `core`
 - `python-versions`: `${{ needs.build-info.outputs.python-versions }}`
@@ -4018,7 +4010,6 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
 - `platform`: `${{ needs.build-info.outputs.platform }}`
 - `backend`: `sqlite`
 - `test-name`: `Sqlite`
-- `test-name-separator`: -
 - `test-scope`: `DB`
 - `test-group`: `providers`
 - `python-versions`: `${{ needs.build-info.outputs.python-versions }}`
@@ -4052,8 +4043,6 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
 - `runners`: `${{ needs.build-info.outputs.runner-type }}`
 - `platform`: `${{ needs.build-info.outputs.platform }}`
 - `backend`: `sqlite`
-- `test-name`: -
-- `test-name-separator`: -
 - `test-scope`: `Non-DB`
 - `test-group`: `core`
 - `python-versions`: `${{ needs.build-info.outputs.python-versions }}`
@@ -4086,8 +4075,6 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
 - `runners`: `${{ needs.build-info.outputs.runner-type }}`
 - `platform`: `${{ needs.build-info.outputs.platform }}`
 - `backend`: `sqlite`
-- `test-name`: -
-- `test-name-separator`: -
 - `test-scope`: `Non-DB`
 - `test-group`: `providers`
 - `python-versions`: `${{ needs.build-info.outputs.python-versions }}`
@@ -4186,7 +4173,6 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
 - `backend`: `sqlite`
 - `python-versions`: `${{ needs.build-info.outputs.python-versions }}`
 - `backend-versions`: `['${{ needs.build-info.outputs.default-postgres-version }}']`
-- `excluded-providers-as-string`: -
 - `excludes`: `[]`
 - `test-types-as-strings-in-json`: `${{ needs.build-info.outputs.core-test-types-list-as-strings-in-json }}`
 - `include-success-outputs`: `${{ needs.build-info.outputs.include-success-outputs }}`

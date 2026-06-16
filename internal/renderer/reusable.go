@@ -47,10 +47,22 @@ func renderCallerJob(b *strings.Builder, job *model.Job, g *callgraph.Graph, fro
 	// dropped, since caller jobs skip the normal job body).
 	renderJobSurface(b, job)
 
-	if len(job.With) > 0 {
+	// Forwarded inputs whose value is empty/unset carry no information and would otherwise
+	// render as a column of bare dashes; omit them (mirrors the step `with:`/`env:` path) and
+	// drop the header entirely when nothing meaningful remains.
+	type forwarded struct{ key, value string }
+	var inputs []forwarded
+	for _, kv := range job.With {
+		value := oneLine(kv.Value)
+		if value == "" {
+			continue
+		}
+		inputs = append(inputs, forwarded{key: kv.Key, value: value})
+	}
+	if len(inputs) > 0 {
 		b.WriteString("#### Inputs forwarded\n\n")
-		for _, kv := range job.With {
-			fmt.Fprintf(b, "- `%s`: %s\n", kv.Key, codeSpan(oneLine(kv.Value)))
+		for _, in := range inputs {
+			fmt.Fprintf(b, "- `%s`: %s\n", in.key, codeSpan(in.value))
 		}
 		b.WriteString("\n")
 	}

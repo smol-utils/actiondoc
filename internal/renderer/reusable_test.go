@@ -131,6 +131,59 @@ func TestRenderCallerJobMultilineValue(t *testing.T) {
 	}
 }
 
+// TestRenderCallerJobOmitsEmptyForwardedInput verifies a forwarded `with:` entry whose value
+// is empty/unset is omitted (no bare-dash row), while an entry with a real value is kept. When
+// every forwarded input is empty, the "Inputs forwarded" header is dropped entirely.
+func TestRenderCallerJobOmitsEmptyForwardedInput(t *testing.T) {
+	caller := &model.Workflow{
+		File: "release.yml", Name: "Release", On: []string{"workflow_dispatch"},
+		Jobs: []model.Job{{
+			ID:   "publish",
+			Uses: "./.github/workflows/build.yml",
+			With: []model.KV{
+				{Key: "version", Value: "${{ inputs.version }}"},
+				{Key: "test-name-separator", Value: ""},
+				{Key: "blank", Value: "   "},
+			},
+		}},
+	}
+	build := &model.Workflow{File: "build.yml", Name: "Build", On: []string{"workflow_call"}}
+	g := callgraph.Build([]callgraph.Source{
+		{Path: ".github/workflows/release.yml", Workflow: caller},
+		{Path: ".github/workflows/build.yml", Workflow: build},
+	})
+
+	md := RenderMarkdownGraph(caller, g, ".github/workflows/release.yml")
+
+	if !strings.Contains(md, "- `version`: `${{ inputs.version }}`") {
+		t.Errorf("real forwarded input dropped:\n%s", md)
+	}
+	if strings.Contains(md, "test-name-separator") {
+		t.Errorf("empty forwarded input rendered:\n%s", md)
+	}
+	if strings.Contains(md, "`blank`") {
+		t.Errorf("whitespace-only forwarded input rendered:\n%s", md)
+	}
+
+	// And when every forwarded input is empty, the header itself is suppressed.
+	allEmpty := &model.Workflow{
+		File: "release.yml", Name: "Release", On: []string{"workflow_dispatch"},
+		Jobs: []model.Job{{
+			ID:   "publish",
+			Uses: "./.github/workflows/build.yml",
+			With: []model.KV{{Key: "test-name-separator", Value: ""}},
+		}},
+	}
+	g2 := callgraph.Build([]callgraph.Source{
+		{Path: ".github/workflows/release.yml", Workflow: allEmpty},
+		{Path: ".github/workflows/build.yml", Workflow: build},
+	})
+	md2 := RenderMarkdownGraph(allEmpty, g2, ".github/workflows/release.yml")
+	if strings.Contains(md2, "#### Inputs forwarded") {
+		t.Errorf("Inputs forwarded header rendered with no meaningful inputs:\n%s", md2)
+	}
+}
+
 // TestRenderCallerJobTags verifies that ActionDoc tags declared on a reusable-workflow
 // caller job (@secret/@env/@output/@example/@see) are rendered, not dropped on the early
 // return.
