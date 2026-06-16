@@ -25,6 +25,14 @@
 - [X-Precheck](#x-precheck)
 - [X-UpdateWiki](#x-updatewiki)
 
+## Workflows by trigger
+
+- **push**: [CodeQL](#codeql), [EarlyAccess](#earlyaccess), [Lint](#lint), [OpenSSF Scorecard](#openssf-scorecard), [SmokeTests](#smoketests)
+- **workflow_dispatch**: [Clear cache](#clear-cache), [CodeQL](#codeql), [OpenSSF Scorecard](#openssf-scorecard), [Release](#release), [Trigger Early Access](#trigger-early-access)
+- **pull_request**: [Build](#build), [CodeQL](#codeql)
+- **schedule**: [Clear cache](#clear-cache), [OpenSSF Scorecard](#openssf-scorecard)
+- **branch_protection_rule**: [OpenSSF Scorecard](#openssf-scorecard)
+
 ## Secrets and variables used across this repository
 
 **Secrets:**

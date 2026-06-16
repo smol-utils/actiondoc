@@ -15,6 +15,13 @@
 
 - [Bootstrap](#bootstrap)
 
+## Workflows by trigger
+
+- **pull_request**: [CodeQL](#codeql), [Validate GitHub Actions](#validate-github-actions), [Validations](#validations)
+- **push**: [CodeQL](#codeql), [Validate GitHub Actions](#validate-github-actions), [Validations](#validations)
+- **workflow_dispatch**: [Release](#release), [Validate GitHub Actions](#validate-github-actions), [Validations](#validations)
+- **schedule**: [CodeQL](#codeql)
+
 ## Secrets and variables used across this repository
 
 **Secrets:**

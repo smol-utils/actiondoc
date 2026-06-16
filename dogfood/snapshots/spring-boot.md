@@ -33,6 +33,12 @@
 - [Sync to Maven Central](#sync-to-maven-central)
 - [Update Homebrew Tap](#update-homebrew-tap)
 
+## Workflows by trigger
+
+- **push**: [Build and Deploy Snapshot](#build-and-deploy-snapshot), [CI](#ci), [Release](#release), [Release Milestone](#release-milestone), [Run CodeQL Analysis](#run-codeql-analysis), [Run System Tests](#run-system-tests), [Trigger Docs Build](#trigger-docs-build)
+- **workflow_dispatch**: [Build and Deploy Snapshot](#build-and-deploy-snapshot), [Distribute](#distribute), [Run CodeQL Analysis](#run-codeql-analysis), [Trigger Docs Build](#trigger-docs-build)
+- **pull_request**: [Build Pull Request](#build-pull-request), [Run CodeQL Analysis](#run-codeql-analysis)
+
 ## Secrets and variables used across this repository
 
 **Secrets:**

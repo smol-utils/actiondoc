@@ -30,6 +30,14 @@
 - [Test 'scala' Chocolatey Package](#test-scala-chocolatey-package)
 - [Test 'scala' MSI Package](#test-scala-msi-package)
 
+## Workflows by trigger
+
+- **pull_request**: [Compile Full Standard Library](#compile-full-standard-library), [Language reference documentation](#language-reference-documentation), [Scala 3](#scala-3), [Scala CLA](#scala-cla), [scaladoc](#scaladoc), [Specification](#specification), [Test CLI Launchers on all the platforms](#test-cli-launchers-on-all-the-platforms)
+- **push**: [Add to backporting project](#add-to-backporting-project), [Compile Full Standard Library](#compile-full-standard-library), [Language reference documentation](#language-reference-documentation), [Scala 3](#scala-3), [scaladoc](#scaladoc), [Specification](#specification), [Update Dependency Graph](#update-dependency-graph)
+- **workflow_dispatch**: [Language reference documentation](#language-reference-documentation), [Nightly Release of Scala 3](#nightly-release-of-scala-3), [Official release of Scala](#official-release-of-scala), [Scala 3](#scala-3), [Specification](#specification), [Test CLI Launchers on all the platforms](#test-cli-launchers-on-all-the-platforms)
+- **merge_group**: [Scala 3](#scala-3), [scaladoc](#scaladoc), [Specification](#specification)
+- **schedule**: [Nightly Release of Scala 3](#nightly-release-of-scala-3)
+
 ## Secrets and variables used across this repository
 
 **Secrets:**

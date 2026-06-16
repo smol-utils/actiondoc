@@ -16,6 +16,10 @@
 
 - [Deploy](#deploy)
 
+## Workflows by trigger
+
+- **push**: [CI](#ci)
+
 ## Secrets and variables used across this repository
 
 **Secrets:**

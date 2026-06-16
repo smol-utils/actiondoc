@@ -19,6 +19,14 @@
 
 - [_meta-build.yaml](#_meta-buildyaml)
 
+## Workflows by trigger
+
+- **pull_request**: [Build CI](#build-ci), [Dependency Review](#dependency-review), [PR Template Check](#pr-template-check), [Tests CI](#tests-ci)
+- **workflow_dispatch**: [Build CI](#build-ci), [Publish CI](#publish-ci), [Release CI](#release-ci), [Tests CI](#tests-ci)
+- **push**: [Build CI](#build-ci), [Publish CI](#publish-ci), [Tests CI](#tests-ci)
+- **schedule**: [Lock Threads](#lock-threads)
+- **workflow_run**: [Report PR Test Coverage](#report-pr-test-coverage)
+
 ## Secrets and variables used across this repository
 
 **Secrets:**

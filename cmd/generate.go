@@ -233,8 +233,9 @@ func renderMarkdownOutput(sources []callgraph.Source, graph *callgraph.Graph, in
 	// multi-document only -- the same condition that gates the header and TOC above -- and
 	// returns "" when there is nothing to inventory.
 	header, toc := renderDocumentNav(sources, graph, slugs, inputPath)
+	triggerIndex := renderer.RenderTriggerIndex(sources, graph)
 	inventory := renderer.RenderDocumentInventory(sources, graph)
-	return header + toc + inventory + strings.Join(sections, "")
+	return header + toc + triggerIndex + inventory + strings.Join(sections, "")
 }
 
 // tocGroup indexes the three TOC families in render order.

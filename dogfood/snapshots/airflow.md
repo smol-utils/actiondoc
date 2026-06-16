@@ -65,6 +65,13 @@
 - [Run migration tests](#run-migration-tests)
 - [Setup Breeze](#setup-breeze)
 
+## Workflows by trigger
+
+- **workflow_dispatch**: [Airflow E2E Tests](#airflow-e2e-tests), [Backport Commit](#backport-commit), [Build & Publish Registry](#build--publish-registry), [CI Notification](#ci-notification), [E2E Flaky Tests Report](#e2e-flaky-tests-report), [\[main\] Scheduled CI upgrade check](#main-scheduled-ci-upgrade-check), [Publish Docs to S3](#publish-docs-to-s3), [Registry Backfill](#registry-backfill), [Release PROD images](#release-prod-images), [Scheduled verify release calendar](#scheduled-verify-release-calendar), [Tests (AMD)](#tests-amd), [Tests (ARM)](#tests-arm), [UI End-to-End Tests](#ui-end-to-end-tests), [\[v3-2-test\] Scheduled CI upgrade check](#v3-2-test-scheduled-ci-upgrade-check)
+- **push**: [ASF Allowlist Check](#asf-allowlist-check), [Automatic Backport](#automatic-backport), [CodeQL](#codeql), [Milestone Tag Assistant](#milestone-tag-assistant), [Notify uv.lock conflicts](#notify-uvlock-conflicts), [Registry Tests](#registry-tests), [Tests (AMD)](#tests-amd), [Tests (ARM)](#tests-arm), [Update constraints on push for main (only when uv.lock changes)](#update-constraints-on-push-for-main-only-when-uvlock-changes), [Update constraints on push for stable branch (always)](#update-constraints-on-push-for-stable-branch-always)
+- **schedule**: [CI Notification](#ci-notification), [Close stale PRs & Issues](#close-stale-prs--issues), [CodeQL](#codeql), [E2E Flaky Tests Report](#e2e-flaky-tests-report), [\[main\] Scheduled CI upgrade check](#main-scheduled-ci-upgrade-check), [Recheck old bug reports](#recheck-old-bug-reports), [Scheduled verify release calendar](#scheduled-verify-release-calendar), [Tests (AMD)](#tests-amd), [Tests (ARM)](#tests-arm), [\[v3-2-test\] Scheduled CI upgrade check](#v3-2-test-scheduled-ci-upgrade-check)
+- **pull_request**: [ASF Allowlist Check](#asf-allowlist-check), [Check newsfragment PR number](#check-newsfragment-pr-number), [CodeQL](#codeql), [Registry Tests](#registry-tests), [Tests (AMD)](#tests-amd)
+
 ## Secrets and variables used across this repository
 
 **Secrets:**
