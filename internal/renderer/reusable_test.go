@@ -250,7 +250,6 @@ func TestCallGraphOnEntryPoint(t *testing.T) {
 		t.Fatalf("missing call graph section:\n%s", md)
 	}
 	checks := []string{
-		"`release.yml` [workflow_dispatch]",
 		"- `publish` uses [middle.yml](#middle)",
 		"  - `build` uses [leaf.yml](#leaf)",
 	}
@@ -258,6 +257,11 @@ func TestCallGraphOnEntryPoint(t *testing.T) {
 		if !strings.Contains(md, want) {
 			t.Errorf("call graph missing %q\n\nFull output:\n%s", want, md)
 		}
+	}
+	// The tree starts directly at its children: it must not restate the root workflow's
+	// file + triggers, which the section heading and property table already show.
+	if strings.Contains(md, "`release.yml` [workflow_dispatch]") {
+		t.Errorf("call graph should not restate the root file/triggers line:\n%s", md)
 	}
 	// The list rendering must not fall back to the old fenced ASCII tree.
 	if strings.Contains(md, "+-- ") {
@@ -316,6 +320,11 @@ func TestCalledByTransitiveChain(t *testing.T) {
 		if !strings.Contains(md, want) {
 			t.Errorf("Called by chain missing %q\n\nFull output:\n%s", want, md)
 		}
+	}
+	// The tree starts directly at its callers: it must not restate the root workflow's
+	// file basename, which the section heading already names.
+	if strings.Contains(md, "## Called by\n\n`leaf.yml`") {
+		t.Errorf("Called by tree should not restate the root file basename:\n%s", md)
 	}
 }
 

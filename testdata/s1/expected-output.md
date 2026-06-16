@@ -20,8 +20,6 @@ Inputs for the `workflow_dispatch` event.
 
 ## Call graph (rooted at this workflow)
 
-`release.yml` [workflow_dispatch]
-
 - `publish` uses [build_and_publish.yml](#build-and-publish)
   - `build-matrix` uses [build.yml](#build)
   - `publish / Set up toolchain` uses [./actions/setup](#setup-toolchain)
@@ -116,8 +114,6 @@ Builds the artifacts for every architecture and publishes them.
 
 ## Called by
 
-`build_and_publish.yml`
-
 - [release.yml](#release) (job: `publish`) - entry point
 
 ## Jobs
@@ -175,8 +171,6 @@ Compiles the project for a set of architectures.
 | `arch` | string | Yes | - | - |
 
 ## Called by
-
-`build.yml`
 
 - [build_and_publish.yml](#build-and-publish) (job: `build-matrix`)
   - [release.yml](#release) (job: `publish`) - entry point

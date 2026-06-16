@@ -110,8 +110,6 @@
 
 ## Call graph (rooted at this workflow)
 
-`scheduled-upgrade-check-main.yml` [schedule, workflow_dispatch]
-
 - `upgrade-main` uses [upgrade-check.yml](#upgrade-check)
   - `createupgrade-check / [${{ inputs.target-branch }}] Install Breeze` uses [./.github/actions/breeze](#setup-breeze)
   - `createupgrade-check / [${{ inputs.target-branch }}] Install prek` uses [./.github/actions/install-prek](#install-prek)
@@ -146,7 +144,7 @@ Permissions declared across the chain: `contents: write`, `pull-requests: write`
 
 - `SLACK_BOT_TOKEN`: `${{ secrets.SLACK_BOT_TOKEN }}`
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # [v3-2-test] Scheduled CI upgrade check
 
@@ -166,8 +164,6 @@ Permissions declared across the chain: `contents: write`, `pull-requests: write`
 - `pull-requests`: `write`
 
 ## Call graph (rooted at this workflow)
-
-`scheduled-upgrade-check-v3-2-test.yml` [schedule, workflow_dispatch]
 
 - `upgrade-v3-2-test` uses [upgrade-check.yml](#upgrade-check)
   - `createupgrade-check / [${{ inputs.target-branch }}] Install Breeze` uses [./.github/actions/breeze](#setup-breeze)
@@ -203,7 +199,7 @@ Permissions declared across the chain: `contents: write`, `pull-requests: write`
 
 - `SLACK_BOT_TOKEN`: `${{ secrets.SLACK_BOT_TOKEN }}`
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Airflow E2E Tests
 
@@ -247,8 +243,6 @@ Inputs for the `workflow_dispatch` event.
 
 ## Call graph (rooted at this workflow)
 
-`airflow-e2e-tests.yml` [workflow_dispatch, workflow_call]
-
 - `test-e2e-integration-tests / Prepare breeze & PROD image: ${{ env.PYTHON_MAJOR_MINOR_VERSION }}` uses [./.github/actions/prepare_breeze_and_image](#prepare-breeze--current-image-ci-or-prod)
 
 ## Transitive requirements (from full call graph)
@@ -256,8 +250,6 @@ Inputs for the `workflow_dispatch` event.
 Permissions declared across the chain: `contents: read`
 
 ## Called by
-
-`airflow-e2e-tests.yml`
 
 - **[additional-prod-image-tests.yml](#additional-prod-image-tests)** (x6)
   - [ci-amd.yml](#additional-prod-image-tests-additional-prod-image-tests) (job: `additional-prod-image-tests`) - entry point
@@ -329,7 +321,7 @@ Permissions declared across the chain: `contents: read`
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # ASF Allowlist Check
 
@@ -371,7 +363,7 @@ Permissions declared across the chain: `contents: read`
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Automatic Backport
 
@@ -393,8 +385,6 @@ Permissions declared across the chain: `contents: read`
 - `contents`: `read`
 
 ## Call graph (rooted at this workflow)
-
-`automatic-backport.yml` [push]
 
 - `trigger-backport` uses [backport-cli.yml](#backport-commit)
 
@@ -455,7 +445,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pul
 - `target-branch`: `${{ matrix.branch }}`
 - `commit-sha`: `${{ needs.get-pr-info.outputs.commit-sha }}`
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Backport Commit
 
@@ -489,8 +479,6 @@ Inputs for the `workflow_dispatch` event.
 - `pull-requests`: `write`
 
 ## Called by
-
-`backport-cli.yml`
 
 - [automatic-backport.yml](#trigger-backport-trigger-backport) (job: `trigger-backport`) - entry point
 
@@ -546,7 +534,7 @@ Inputs for the `workflow_dispatch` event.
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Build & Publish Registry
 
@@ -590,8 +578,6 @@ Inputs for the `workflow_dispatch` event.
 
 ## Call graph (rooted at this workflow)
 
-`registry-build.yml` [workflow_dispatch, workflow_call]
-
 - `build-ci-image` uses [ci-image-build.yml](#build-ci-images)
   - `build-ci-images / Install Breeze` uses [./.github/actions/breeze](#setup-breeze)
 - `build-and-publish-registry / Prepare breeze & CI image` uses [./.github/actions/prepare_breeze_and_image](#prepare-breeze--current-image-ci-or-prod)
@@ -603,8 +589,6 @@ Secrets required (declared/forwarded names): `DOCS_AWS_ACCESS_KEY_ID`, `DOCS_AWS
 Permissions declared across the chain: `contents: read`, `packages: read`, `packages: write`
 
 ## Called by
-
-`registry-build.yml`
 
 - [publish-docs-to-s3.yml](#update-provider-registry-update-registry) (job: `update-registry`) - entry point
 
@@ -760,7 +744,7 @@ Permissions declared across the chain: `contents: read`, `packages: read`, `pack
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Check newsfragment PR number
 
@@ -802,7 +786,7 @@ Permissions declared across the chain: `contents: read`, `packages: read`, `pack
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # CI Notification
 
@@ -916,7 +900,7 @@ Permissions declared across the chain: `contents: read`, `packages: read`, `pack
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Close stale PRs & Issues
 
@@ -973,7 +957,7 @@ Permissions declared across the chain: `contents: read`, `packages: read`, `pack
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # CodeQL
 
@@ -1039,7 +1023,7 @@ Permissions declared across the chain: `contents: read`, `packages: read`, `pack
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # E2E Flaky Tests Report
 
@@ -1118,7 +1102,7 @@ Permissions declared across the chain: `contents: read`, `packages: read`, `pack
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Milestone Tag Assistant
 
@@ -1142,8 +1126,6 @@ Permissions declared across the chain: `contents: read`, `packages: read`, `pack
 - `pull-requests`: `write` - zizmor: ignore[excessive-permissions]
 
 ## Call graph (rooted at this workflow)
-
-`milestone-tag-assistant.yml` [push]
 
 - `set-milestone / Install Breeze` uses [./.github/actions/breeze](#setup-breeze)
 
@@ -1210,7 +1192,7 @@ Permissions declared across the chain: `contents: write`, `pull-requests: write`
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Notify uv.lock conflicts
 
@@ -1265,7 +1247,7 @@ Permissions declared across the chain: `contents: write`, `pull-requests: write`
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Publish Docs to S3
 
@@ -1300,8 +1282,6 @@ Inputs for the `workflow_dispatch` event.
 - `contents`: `read`
 
 ## Call graph (rooted at this workflow)
-
-`publish-docs-to-s3.yml` [workflow_dispatch]
 
 - uses **[./.github/actions/breeze](#setup-breeze)** (x2)
 - `update-registry` uses [registry-build.yml](#build--publish-registry)
@@ -1594,7 +1574,7 @@ Permissions declared across the chain: `contents: read`, `id-token: write (OIDC)
 - `DOCS_AWS_ACCESS_KEY_ID`: `${{ secrets.DOCS_AWS_ACCESS_KEY_ID }}`
 - `DOCS_AWS_SECRET_ACCESS_KEY`: `${{ secrets.DOCS_AWS_SECRET_ACCESS_KEY }}`
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Recheck old bug reports
 
@@ -1640,7 +1620,7 @@ Permissions declared across the chain: `contents: read`, `id-token: write (OIDC)
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Registry Backfill
 
@@ -1668,8 +1648,6 @@ Inputs for the `workflow_dispatch` event.
 - `packages`: `read`
 
 ## Call graph (rooted at this workflow)
-
-`registry-backfill.yml` [workflow_dispatch]
 
 - `build-ci-image` uses [ci-image-build.yml](#build-ci-images)
   - `build-ci-images / Install Breeze` uses [./.github/actions/breeze](#setup-breeze)
@@ -1860,7 +1838,7 @@ Permissions declared across the chain: `contents: read`, `packages: read`, `pack
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Registry Tests
 
@@ -1910,7 +1888,7 @@ Permissions declared across the chain: `contents: read`, `packages: read`, `pack
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Release PROD images
 
@@ -1947,8 +1925,6 @@ Inputs for the `workflow_dispatch` event.
 **Concurrency:** group `${{ github.event.inputs.airflowVersion }}`, cancel-in-progress: `true`
 
 ## Call graph (rooted at this workflow)
-
-`release_dockerhub_image.yml` [workflow_dispatch]
 
 - `build-info / Install Breeze` uses [./.github/actions/breeze](#setup-breeze)
 - `release-images` uses [release_single_dockerhub_image.yml](#release-single-prod-image)
@@ -2050,7 +2026,7 @@ Permissions declared across the chain: `contents: read`, `packages: read`
 - `DOCKERHUB_USER`: `${{ secrets.DOCKERHUB_USER }}`
 - `DOCKERHUB_TOKEN`: `${{ secrets.DOCKERHUB_TOKEN }}`
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Scheduled verify release calendar
 
@@ -2106,7 +2082,7 @@ Permissions declared across the chain: `contents: read`, `packages: read`
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Tests (AMD)
 
@@ -2181,8 +2157,6 @@ Permissions declared across the chain: `contents: read`, `packages: read`
 **Concurrency:** group `ci-amd-${{ github.event.pull_request.number || github.ref }}`, cancel-in-progress: `true`
 
 ## Call graph (rooted at this workflow)
-
-`ci-amd.yml` [schedule, pull_request, push, workflow_dispatch]
 
 - `build-info / Install Breeze` uses [./.github/actions/breeze](#setup-breeze)
 - `basic-tests` uses [basic-tests.yml](#basic-tests)
@@ -3341,7 +3315,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Tests (ARM)
 
@@ -3413,8 +3387,6 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
 **Concurrency:** group `ci-arm-${{ github.event.pull_request.number || github.ref }}`, cancel-in-progress: `true`
 
 ## Call graph (rooted at this workflow)
-
-`ci-arm.yml` [schedule, push, workflow_dispatch]
 
 - `build-info / Install Breeze` uses [./.github/actions/breeze](#setup-breeze)
 - `basic-tests` uses [basic-tests.yml](#basic-tests)
@@ -4573,7 +4545,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # UI End-to-End Tests
 
@@ -4617,8 +4589,6 @@ Inputs for the `workflow_dispatch` event.
 
 ## Call graph (rooted at this workflow)
 
-`ui-e2e-tests.yml` [workflow_dispatch, workflow_call]
-
 - `test-ui-e2e-tests / Prepare breeze & PROD image: ${{ env.PYTHON_MAJOR_MINOR_VERSION }}` uses [./.github/actions/prepare_breeze_and_image](#prepare-breeze--current-image-ci-or-prod)
 - `test-ui-e2e-tests / Install Breeze (manual trigger)` uses [./.github/actions/breeze](#setup-breeze)
 
@@ -4627,8 +4597,6 @@ Inputs for the `workflow_dispatch` event.
 Permissions declared across the chain: `contents: read`
 
 ## Called by
-
-`ui-e2e-tests.yml`
 
 - **[additional-prod-image-tests.yml](#additional-prod-image-tests)** (x3)
   - [ci-amd.yml](#additional-prod-image-tests-additional-prod-image-tests) (job: `additional-prod-image-tests`) - entry point
@@ -4738,7 +4706,7 @@ Permissions declared across the chain: `contents: read`
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Update constraints on push for main (only when uv.lock changes)
 
@@ -4774,8 +4742,6 @@ Permissions declared across the chain: `contents: read`
 
 ## Call graph (rooted at this workflow)
 
-`update-constraints-on-push.yml` [push]
-
 - `build-info / Install Breeze` uses [./.github/actions/breeze](#setup-breeze)
 - `build-ci-images` uses [ci-image-build.yml](#build-ci-images)
   - `build-ci-images / Install Breeze` uses [./.github/actions/breeze](#setup-breeze)
@@ -4955,7 +4921,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Update constraints on push for stable branch (always)
 
@@ -4990,8 +4956,6 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 ## Call graph (rooted at this workflow)
 
-`update-constraints-on-push-stable.yml` [push]
-
 - `build-info / Install Breeze` uses [./.github/actions/breeze](#setup-breeze)
 - `build-ci-images` uses [ci-image-build.yml](#build-ci-images)
   - `build-ci-images / Install Breeze` uses [./.github/actions/breeze](#setup-breeze)
@@ -5171,7 +5135,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Additional CI image checks
 
@@ -5210,8 +5174,6 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 - `contents`: `read`
 
 ## Called by
-
-`additional-ci-image-checks.yml`
 
 - [ci-amd.yml](#additional-ci-image-checks-additional-ci-image-checks) (job: `additional-ci-image-checks`) - entry point
 - [ci-arm.yml](#additional-ci-image-checks-additional-ci-image-checks-1) (job: `additional-ci-image-checks`) - entry point
@@ -5290,7 +5252,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Additional PROD image tests
 
@@ -5348,8 +5310,6 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 - `contents`: `read`
 
 ## Called by
-
-`additional-prod-image-tests.yml`
 
 - [ci-amd.yml](#additional-prod-image-tests-additional-prod-image-tests) (job: `additional-prod-image-tests`) - entry point
 - [ci-arm.yml](#additional-prod-image-tests-additional-prod-image-tests-1) (job: `additional-prod-image-tests`) - entry point
@@ -5701,7 +5661,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Basic tests
 
@@ -5751,8 +5711,6 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 - `contents`: `read`
 
 ## Called by
-
-`basic-tests.yml`
 
 - [ci-amd.yml](#basic-tests-basic-tests) (job: `basic-tests`) - entry point
 - [ci-arm.yml](#basic-tests-basic-tests-1) (job: `basic-tests`) - entry point
@@ -6092,7 +6050,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Build CI images
 
@@ -6131,8 +6089,6 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 - `contents`: `read`
 
 ## Called by
-
-`ci-image-build.yml`
 
 - [ci-amd.yml](#build-ci-images-build-ci-images) (job: `build-ci-images`) - entry point
 - [ci-arm.yml](#build-ci-images-build-ci-images-1) (job: `build-ci-images`) - entry point
@@ -6260,7 +6216,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Build PROD images
 
@@ -6305,8 +6261,6 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 - `contents`: `read`
 
 ## Called by
-
-`prod-image-build.yml`
 
 - [ci-amd.yml](#build-prod-images-build-prod-images) (job: `build-prod-images`) - entry point
 - [ci-arm.yml](#build-prod-images-build-prod-images-1) (job: `build-prod-images`) - entry point
@@ -6486,7 +6440,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # CI Image Checks
 
@@ -6540,8 +6494,6 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 - `contents`: `read`
 
 ## Called by
-
-`ci-image-checks.yml`
 
 - [ci-amd.yml](#ci-image-checks-ci-image-checks) (job: `ci-image-checks`) - entry point
 - [ci-arm.yml](#ci-image-checks-ci-image-checks-1) (job: `ci-image-checks`) - entry point
@@ -6901,7 +6853,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Finalize tests
 
@@ -6940,8 +6892,6 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 - `contents`: `read`
 
 ## Called by
-
-`finalize-tests.yml`
 
 - [ci-amd.yml](#finalize-tests-finalize-tests) (job: `finalize-tests`) - entry point
 - [ci-arm.yml](#finalize-tests-finalize-tests-1) (job: `finalize-tests`) - entry point
@@ -7077,7 +7027,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 - `docker-cache`: `${{ inputs.docker-cache }}`
 - `disable-airflow-repo-cache`: `${{ inputs.disable-airflow-repo-cache }}`
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Generate constraints
 
@@ -7103,8 +7053,6 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 | `use-uv` | string | Yes | - | Whether to use uvloop (true/false) |
 
 ## Called by
-
-`generate-constraints.yml`
 
 - [ci-amd.yml](#generate-constraints-generate-constraints) (job: `generate-constraints`) - entry point
 - [ci-arm.yml](#generate-constraints-generate-constraints-1) (job: `generate-constraints`) - entry point
@@ -7201,7 +7149,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Helm tests
 
@@ -7232,8 +7180,6 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 - `contents`: `read`
 
 ## Called by
-
-`helm-tests.yml`
 
 - [ci-amd.yml](#helm-tests-tests-helm) (job: `tests-helm`) - entry point
 - [ci-arm.yml](#helm-tests-tests-helm-1) (job: `tests-helm`) - entry point
@@ -7350,7 +7296,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Integration and system tests
 
@@ -7387,8 +7333,6 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 - `contents`: `read`
 
 ## Called by
-
-`integration-system-tests.yml`
 
 - [ci-amd.yml](#integration-and-system-tests-tests-integration-system) (job: `tests-integration-system`) - entry point
 - [ci-arm.yml](#integration-and-system-tests-tests-integration-system-1) (job: `tests-integration-system`) - entry point
@@ -7572,7 +7516,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # K8s tests
 
@@ -7601,8 +7545,6 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 - `contents`: `read`
 
 ## Called by
-
-`k8s-tests.yml`
 
 - [ci-amd.yml](#kubernetes-tests-tests-kubernetes) (job: `tests-kubernetes`) - entry point
 - [ci-arm.yml](#kubernetes-tests-tests-kubernetes-1) (job: `tests-kubernetes`) - entry point
@@ -7682,7 +7624,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Non-core Distribution tests
 
@@ -7715,8 +7657,6 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 - `contents`: `read`
 
 ## Called by
-
-`airflow-distributions-tests.yml`
 
 - **[ci-amd.yml](#tests-amd)** - entry point (x2)
 - **[ci-arm.yml](#tests-arm)** - entry point (x2)
@@ -7791,7 +7731,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # PROD images extra checks
 
@@ -7822,8 +7762,6 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 - `contents`: `read`
 
 ## Called by
-
-`prod-image-extra-checks.yml`
 
 - **[additional-prod-image-tests.yml](#additional-prod-image-tests)** (x2)
   - [ci-amd.yml](#additional-prod-image-tests-additional-prod-image-tests) (job: `additional-prod-image-tests`) - entry point
@@ -7856,7 +7794,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 - `disable-airflow-repo-cache`: `${{ inputs.disable-airflow-repo-cache }}`
 - `prod-image-build`: `true`
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Provider tests
 
@@ -7892,8 +7830,6 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 - `contents`: `read`
 
 ## Called by
-
-`test-providers.yml`
 
 - [ci-amd.yml](#provider-distributions-tests-providers) (job: `providers`) - entry point
 - [ci-arm.yml](#provider-distributions-tests-providers-1) (job: `providers`) - entry point
@@ -8059,7 +7995,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Push image cache
 
@@ -8094,8 +8030,6 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 | `disable-airflow-repo-cache` | string | Yes | - | Disable airflow repo cache read from main. |
 
 ## Called by
-
-`push-image-cache.yml`
 
 - [additional-ci-image-checks.yml](#push-early-image-cache-push-early-buildx-cache-to-github-registry) (job: `push-early-buildx-cache-to-github-registry`)
   - [ci-amd.yml](#additional-ci-image-checks-additional-ci-image-checks) (job: `additional-ci-image-checks`) - entry point
@@ -8247,7 +8181,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Release single PROD image
 
@@ -8291,8 +8225,6 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 | `VERBOSE` | `true` |
 
 ## Called by
-
-`release_single_dockerhub_image.yml`
 
 - [release_dockerhub_image.yml](#release-images-release-images) (job: `release-images`) - entry point
 
@@ -8441,7 +8373,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Special tests
 
@@ -8493,8 +8425,6 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 - `contents`: `read`
 
 ## Called by
-
-`special-tests.yml`
 
 - [ci-amd.yml](#special-tests-tests-special) (job: `tests-special`) - entry point
 - [ci-arm.yml](#special-tests-tests-special-1) (job: `tests-special`) - entry point
@@ -8846,7 +8776,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 - `use-uv`: `${{ inputs.use-uv }}`
 - `default-branch`: `${{ inputs.default-branch }}`
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Unit tests
 
@@ -8893,8 +8823,6 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 - `contents`: `read`
 
 ## Called by
-
-`run-unit-tests.yml`
 
 - **[ci-amd.yml](#tests-amd)** - entry point (x10)
 - **[ci-arm.yml](#tests-arm)** - entry point (x10)
@@ -8996,7 +8924,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Upgrade check
 
@@ -9034,8 +8962,6 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 | `TARGET_BRANCH` | `${{ inputs.target-branch }}` |
 
 ## Called by
-
-`upgrade-check.yml`
 
 - [scheduled-upgrade-check-main.yml](#main-upgrade-upgrade-main) (job: `upgrade-main`) - entry point
 - [scheduled-upgrade-check-v3-2-test.yml](#v3-2-test-upgrade-upgrade-v3-2-test) (job: `upgrade-v3-2-test`) - entry point
@@ -9106,7 +9032,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Install prek
 
@@ -9125,7 +9051,7 @@ Installs prek and related packages
 | `save-cache` | Whether to save prek cache | Yes | - |
 | `platform` | Platform for the build - linux/amd64 or linux/arm64 | Yes | - |
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Post tests on failure
 
@@ -9136,7 +9062,7 @@ Run post tests actions on failure
 | File | `action.yml` |
 | Runs with | `composite` |
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Post tests on success
 
@@ -9154,7 +9080,7 @@ Run post tests actions on success
 | `codecov-token` | Codecov token | Yes | - |
 | `python-version` | Python version | Yes | - |
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Prepare all CI images
 
@@ -9173,7 +9099,7 @@ Recreates current python CI images from artifacts for all python versions
 | `docker-volume-location` | File system location where to move docker space to | No | `/mnt/var-lib-docker` |
 | `platform` | Platform for the build - linux/amd64 or linux/arm64 | Yes | - |
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Prepare breeze && current image (CI or PROD)
 
@@ -9200,7 +9126,7 @@ Installs breeze and recreates current python image from artifact
 |------|-------------|
 | `host-python-version` | Python version used in host |
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Prepare single CI image
 
@@ -9226,7 +9152,7 @@ Hopefully we can get rid of it when the https://github.com/apache/airflow/issues
 | `python-versions-list-as-string` | Stringified array of all Python versions to prepare - separated by spaces. | Yes | - |
 | `platform` | Platform for the build - linux/amd64 or linux/arm64 | Yes | - |
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Run migration tests
 
@@ -9243,7 +9169,7 @@ Runs migration tests
 |------|-------------|----------|--------|
 | `python-version` | Python version to run the tests on | Yes | - |
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Setup Breeze
 
@@ -9266,5 +9192,5 @@ Sets up Python and Breeze
 |------|-------------|
 | `host-python-version` | Python version used in host |
 
-[Back to top](#contents)
+[Back to contents](#contents)
 

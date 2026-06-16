@@ -44,8 +44,6 @@
 
 ## Call graph (rooted at this workflow)
 
-`ci.yml` [push]
-
 - `build` uses [reusable.yml](#reusable-build)
 - `deploy / Deploy to staging` uses [./.github/actions/deploy](#deploy)
 
@@ -104,7 +102,7 @@ Permissions declared across the chain: `contents: read`, `id-token: write (OIDC)
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Reusable Build
 
@@ -130,8 +128,6 @@ Permissions declared across the chain: `contents: read`, `id-token: write (OIDC)
 
 ## Called by
 
-`reusable.yml`
-
 - [ci.yml](#build) (job: `build`) - entry point
 
 ## Jobs
@@ -149,7 +145,7 @@ Permissions declared across the chain: `contents: read`, `id-token: write (OIDC)
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Deploy
 
@@ -167,5 +163,5 @@ Deploys the application to an environment.
 | `environment` | Target environment name | Yes | - |
 | `token` | Deployment token | No | - |
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
