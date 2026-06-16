@@ -131,6 +131,59 @@ func TestRenderCallerJobMultilineValue(t *testing.T) {
 	}
 }
 
+// TestRenderCallerJobOmitsEmptyForwardedInput verifies a forwarded `with:` entry whose value
+// is empty/unset is omitted (no bare-dash row), while an entry with a real value is kept. When
+// every forwarded input is empty, the "Inputs forwarded" header is dropped entirely.
+func TestRenderCallerJobOmitsEmptyForwardedInput(t *testing.T) {
+	caller := &model.Workflow{
+		File: "release.yml", Name: "Release", On: []string{"workflow_dispatch"},
+		Jobs: []model.Job{{
+			ID:   "publish",
+			Uses: "./.github/workflows/build.yml",
+			With: []model.KV{
+				{Key: "version", Value: "${{ inputs.version }}"},
+				{Key: "test-name-separator", Value: ""},
+				{Key: "blank", Value: "   "},
+			},
+		}},
+	}
+	build := &model.Workflow{File: "build.yml", Name: "Build", On: []string{"workflow_call"}}
+	g := callgraph.Build([]callgraph.Source{
+		{Path: ".github/workflows/release.yml", Workflow: caller},
+		{Path: ".github/workflows/build.yml", Workflow: build},
+	})
+
+	md := RenderMarkdownGraph(caller, g, ".github/workflows/release.yml")
+
+	if !strings.Contains(md, "- `version`: `${{ inputs.version }}`") {
+		t.Errorf("real forwarded input dropped:\n%s", md)
+	}
+	if strings.Contains(md, "test-name-separator") {
+		t.Errorf("empty forwarded input rendered:\n%s", md)
+	}
+	if strings.Contains(md, "`blank`") {
+		t.Errorf("whitespace-only forwarded input rendered:\n%s", md)
+	}
+
+	// And when every forwarded input is empty, the header itself is suppressed.
+	allEmpty := &model.Workflow{
+		File: "release.yml", Name: "Release", On: []string{"workflow_dispatch"},
+		Jobs: []model.Job{{
+			ID:   "publish",
+			Uses: "./.github/workflows/build.yml",
+			With: []model.KV{{Key: "test-name-separator", Value: ""}},
+		}},
+	}
+	g2 := callgraph.Build([]callgraph.Source{
+		{Path: ".github/workflows/release.yml", Workflow: allEmpty},
+		{Path: ".github/workflows/build.yml", Workflow: build},
+	})
+	md2 := RenderMarkdownGraph(allEmpty, g2, ".github/workflows/release.yml")
+	if strings.Contains(md2, "#### Inputs forwarded") {
+		t.Errorf("Inputs forwarded header rendered with no meaningful inputs:\n%s", md2)
+	}
+}
+
 // TestRenderCallerJobTags verifies that ActionDoc tags declared on a reusable-workflow
 // caller job (@secret/@env/@output/@example/@see) are rendered, not dropped on the early
 // return.
@@ -250,7 +303,6 @@ func TestCallGraphOnEntryPoint(t *testing.T) {
 		t.Fatalf("missing call graph section:\n%s", md)
 	}
 	checks := []string{
-		"`release.yml` [workflow_dispatch]",
 		"- `publish` uses [middle.yml](#middle)",
 		"  - `build` uses [leaf.yml](#leaf)",
 	}
@@ -258,6 +310,11 @@ func TestCallGraphOnEntryPoint(t *testing.T) {
 		if !strings.Contains(md, want) {
 			t.Errorf("call graph missing %q\n\nFull output:\n%s", want, md)
 		}
+	}
+	// The tree starts directly at its children: it must not restate the root workflow's
+	// file + triggers, which the section heading and property table already show.
+	if strings.Contains(md, "`release.yml` [workflow_dispatch]") {
+		t.Errorf("call graph should not restate the root file/triggers line:\n%s", md)
 	}
 	// The list rendering must not fall back to the old fenced ASCII tree.
 	if strings.Contains(md, "+-- ") {
@@ -316,6 +373,11 @@ func TestCalledByTransitiveChain(t *testing.T) {
 		if !strings.Contains(md, want) {
 			t.Errorf("Called by chain missing %q\n\nFull output:\n%s", want, md)
 		}
+	}
+	// The tree starts directly at its callers: it must not restate the root workflow's
+	// file basename, which the section heading already names.
+	if strings.Contains(md, "## Called by\n\n`leaf.yml`") {
+		t.Errorf("Called by tree should not restate the root file basename:\n%s", md)
 	}
 }
 

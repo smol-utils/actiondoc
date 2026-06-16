@@ -143,7 +143,7 @@
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Compile Full Standard Library
 
@@ -200,8 +200,6 @@
 | `DOTTY_CI_RUN` | `true` |
 
 ## Called by
-
-`stdlib.yaml`
 
 - [ci.yaml](#stdlib-tests-1) (job: `stdlib-tests`) - entry point
 - [release-nightly.yml](#stdlib-tests) (job: `stdlib-tests`) - entry point
@@ -736,7 +734,7 @@
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Language reference documentation
 
@@ -817,7 +815,7 @@
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Nightly Release of Scala 3
 
@@ -834,8 +832,6 @@
 - `0 3 * * *` - Every day at 3 AM
 
 ## Call graph (rooted at this workflow)
-
-`release-nightly.yml` [workflow_dispatch, schedule]
 
 - `stdlib-tests` uses [stdlib.yaml](#compile-full-standard-library)
 - `release-maven-artifacts` uses [release-maven-artifacts.yml](#release-artifacts-to-maven)
@@ -931,7 +927,7 @@
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Official release of Scala
 
@@ -954,8 +950,6 @@ Inputs for the `workflow_dispatch` event.
 | `version` | string | Yes | - | The version to officially release |
 
 ## Call graph (rooted at this workflow)
-
-`releases.yml` [workflow_dispatch]
 
 - `publish-sdkman` uses [publish-sdkman.yml](#publish-scala-to-sdkman)
 - `publish-winget` uses [publish-winget.yml](#publish-scala-to-winget)
@@ -1066,7 +1060,7 @@ Secrets required (declared/forwarded names): `API-KEY`, `CONSUMER-KEY`, `CONSUME
 
 - `API-KEY`: `${{ secrets.CHOCOLATEY_KEY }}`
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Scala 3
 
@@ -1103,8 +1097,6 @@ Secrets required (declared/forwarded names): `API-KEY`, `CONSUMER-KEY`, `CONSUME
 **Concurrency:** group `${{ github.workflow }}-${{ github.ref }}`, cancel-in-progress: `${{ github.ref != 'refs/heads/main' }}`
 
 ## Call graph (rooted at this workflow)
-
-`ci.yaml` [push, pull_request, merge_group, workflow_dispatch]
 
 - `stdlib-tests` uses [stdlib.yaml](#compile-full-standard-library)
 - `build-msi-package` uses [build-msi.yml](#build-the-msi-package)
@@ -1302,7 +1294,7 @@ Secrets required (declared/forwarded names): `API-KEY`, `CONSUMER-KEY`, `CONSUME
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Scala CLA
 
@@ -1336,7 +1328,7 @@ Secrets required (declared/forwarded names): `API-KEY`, `CONSUMER-KEY`, `CONSUME
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # scaladoc
 
@@ -1500,7 +1492,7 @@ Secrets required (declared/forwarded names): `API-KEY`, `CONSUMER-KEY`, `CONSUME
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Specification
 
@@ -1574,7 +1566,7 @@ Secrets required (declared/forwarded names): `API-KEY`, `CONSUMER-KEY`, `CONSUME
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Test CLI Launchers on all the platforms
 
@@ -1722,7 +1714,7 @@ Secrets required (declared/forwarded names): `API-KEY`, `CONSUMER-KEY`, `CONSUME
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Update Dependency Graph
 
@@ -1756,7 +1748,7 @@ Secrets required (declared/forwarded names): `API-KEY`, `CONSUMER-KEY`, `CONSUME
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Build 'scala' Chocolatey Package
 
@@ -1779,8 +1771,6 @@ THIS IS A REUSABLE WORKFLOW TO BUILD SCALA WITH CHOCOLATEY HOW TO USE: NOTE:
 | `digest` | string | Yes | - | - |
 
 ## Called by
-
-`build-chocolatey.yml`
 
 - [ci.yaml](#build-chocolatey-package) (job: `build-chocolatey-package`) - entry point
 - [releases.yml](#build-chocolatey) (job: `build-chocolatey`) - entry point
@@ -1830,7 +1820,7 @@ THIS IS A REUSABLE WORKFLOW TO BUILD SCALA WITH CHOCOLATEY HOW TO USE: NOTE:
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Build Scala Launchers
 
@@ -1863,8 +1853,6 @@ THIS IS A REUSABLE WORKFLOW TO BUILD THE SCALA LAUNCHERS HOW TO USE: - THSI WORK
 | `win-x86_64-digest` | The SHA256 of the uploaded artifact (`win x86-64`) | `${{ jobs.build.outputs.win-x86_64-digest }}` |
 
 ## Called by
-
-`build-sdk.yml`
 
 - [ci.yaml](#build-sdk-package) (job: `build-sdk-package`) - entry point
 
@@ -1956,7 +1944,7 @@ THIS IS A REUSABLE WORKFLOW TO BUILD THE SCALA LAUNCHERS HOW TO USE: - THSI WORK
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Build the MSI Package
 
@@ -1983,8 +1971,6 @@ THIS IS A REUSABLE WORKFLOW TO BUILD SCALA MSI HOW TO USE: - THE RELEASE WORKFLO
 | `RELEASEBUILD` | `${{ startsWith(github.event.ref, 'refs/tags/') && 'yes' \|\| 'no' }}` |
 
 ## Called by
-
-`build-msi.yml`
 
 - [ci.yaml](#build-msi-package) (job: `build-msi-package`) - entry point
 
@@ -2020,7 +2006,7 @@ THIS IS A REUSABLE WORKFLOW TO BUILD SCALA MSI HOW TO USE: - THE RELEASE WORKFLO
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Publish Scala to Chocolatey
 
@@ -2047,8 +2033,6 @@ THIS IS A REUSABLE WORKFLOW TO PUBLISH SCALA TO CHOCOLATEY HOW TO USE: - THE REL
 | `API-KEY` | Yes | - |
 
 ## Called by
-
-`publish-chocolatey.yml`
 
 - [releases.yml](#publish-chocolatey) (job: `publish-chocolatey`) - entry point
 
@@ -2083,7 +2067,7 @@ THIS IS A REUSABLE WORKFLOW TO PUBLISH SCALA TO CHOCOLATEY HOW TO USE: - THE REL
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Publish Scala to SDKMAN!
 
@@ -2120,8 +2104,6 @@ THIS IS A REUSABLE WORKFLOW TO PUBLISH SCALA TO SDKMAN! HOW TO USE: - THE RELEAS
 | `RELEASE-URL` | `https://github.com/scala/scala3/releases/download/${{ inputs.version }}` |
 
 ## Called by
-
-`publish-sdkman.yml`
 
 - [releases.yml](#publish-sdkman) (job: `publish-sdkman`) - entry point
 
@@ -2176,7 +2158,7 @@ THIS IS A REUSABLE WORKFLOW TO PUBLISH SCALA TO SDKMAN! HOW TO USE: - THE RELEAS
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Publish Scala to winget
 
@@ -2203,8 +2185,6 @@ THIS IS A REUSABLE WORKFLOW TO PUBLISH SCALA TO WINGET HOW TO USE: - THE RELEASE
 | `DOTTYBOT-TOKEN` | Yes | - |
 
 ## Called by
-
-`publish-winget.yml`
 
 - [releases.yml](#publish-winget) (job: `publish-winget`) - entry point
 
@@ -2239,7 +2219,7 @@ THIS IS A REUSABLE WORKFLOW TO PUBLISH SCALA TO WINGET HOW TO USE: - THE RELEASE
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Release Artifacts to Maven
 
@@ -2261,8 +2241,6 @@ THIS IS A REUSABLE WORKFLOW TO PUBLISH SCALA TO WINGET HOW TO USE: - THE RELEASE
 | `environment` | string | Yes | - | - |
 
 ## Called by
-
-`release-maven-artifacts.yml`
 
 - [release-nightly.yml](#release-maven-artifacts) (job: `release-maven-artifacts`) - entry point
 
@@ -2394,7 +2372,7 @@ THIS IS A REUSABLE WORKFLOW TO PUBLISH SCALA TO WINGET HOW TO USE: - THE RELEASE
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Test 'scala' Chocolatey Package
 
@@ -2423,8 +2401,6 @@ THIS IS A REUSABLE WORKFLOW TO TEST SCALA WITH CHOCOLATEY HOW TO USE: NOTE:
 | `DOTTY_CI_INSTALLATION` | `${{ endsWith(inputs.version, '-SNAPSHOT') && secrets.GITHUB_TOKEN \|\| '' }}` |
 
 ## Called by
-
-`test-chocolatey.yml`
 
 - [ci.yaml](#test-chocolatey-package) (job: `test-chocolatey-package`) - entry point
 - [releases.yml](#test-chocolatey) (job: `test-chocolatey`) - entry point
@@ -2471,7 +2447,7 @@ THIS IS A REUSABLE WORKFLOW TO TEST SCALA WITH CHOCOLATEY HOW TO USE: NOTE:
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Test 'scala' MSI Package
 
@@ -2500,8 +2476,6 @@ NOTE: Requires `scala.msi` artifact uploaded within the same run
 | `java-version` | string | Yes | - | - |
 
 ## Called by
-
-`test-msi.yml`
 
 - [ci.yaml](#test-msi-package) (job: `test-msi-package`) - entry point
 
@@ -2549,5 +2523,5 @@ NOTE: Requires `scala.msi` artifact uploaded within the same run
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 

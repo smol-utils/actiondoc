@@ -186,7 +186,7 @@
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Anti-Slop
 
@@ -227,16 +227,12 @@
      - `failure-pr-message`: `This PR was flagged by our automated quality checks. If you're a genuine` ... (+7 more lines)
      - `min-account-age`: `30`
      - `max-daily-forks`: `7`
-     - `blocked-source-branches`: -
-     - `blocked-paths`: -
      - `detect-spam-usernames`: `false`
      - `min-profile-completeness`: `0`
      - `require-description`: `false`
      - `require-linked-issue`: `false`
      - `require-conventional-title`: `false`
      - `require-pr-template`: `false`
-     - `strict-pr-template-sections`: -
-     - `optional-pr-template-sections`: -
      - `max-additional-pr-template-sections`: `0`
      - `max-description-length`: `0`
      - `require-conventional-commits`: `false`
@@ -255,7 +251,7 @@
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Assign PR Reviewers
 
@@ -315,7 +311,7 @@
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Benchmark v2 Framework
 
@@ -351,8 +347,6 @@ Inputs for the `workflow_dispatch` event.
 | `HF_TOKEN` | `${{ secrets.HF_HUB_READ_TOKEN }}` |
 
 ## Called by
-
-`benchmark_v2.yml`
 
 - [benchmark_v2_a10_caller.yml](#benchmark-v2---default-models-benchmark-v2-default) (job: `benchmark-v2-default`) - entry point
 - [benchmark_v2_mi325_caller.yml](#benchmark-v2---default-models-benchmark-v2-default-1) (job: `benchmark-v2-default`) - entry point
@@ -400,7 +394,7 @@ Inputs for the `workflow_dispatch` event.
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Benchmark v2 Scheduled Runner - A10 Single-GPU
 
@@ -415,8 +409,6 @@ Inputs for the `workflow_dispatch` event.
 - `contents`: `read`
 
 ## Call graph (rooted at this workflow)
-
-`benchmark_v2_a10_caller.yml` [workflow_dispatch]
 
 - `benchmark-v2-default` uses [benchmark_v2.yml](#benchmark-v2-framework)
 
@@ -441,7 +433,7 @@ Inputs for the `workflow_dispatch` event.
 
 - `secrets: inherit` (all caller secrets are passed to the callee)
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Benchmark v2 Scheduled Runner - MI325 Single-GPU
 
@@ -456,8 +448,6 @@ Inputs for the `workflow_dispatch` event.
 - `contents`: `read`
 
 ## Call graph (rooted at this workflow)
-
-`benchmark_v2_mi325_caller.yml` [workflow_dispatch]
 
 - `benchmark-v2-default` uses [benchmark_v2.yml](#benchmark-v2-framework)
 
@@ -482,7 +472,7 @@ Inputs for the `workflow_dispatch` event.
 
 - `secrets: inherit` (all caller secrets are passed to the callee)
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Build docker images (Nightly CI)
 
@@ -514,8 +504,6 @@ Inputs for the `workflow_dispatch` event.
 **Concurrency:** group `docker-images-builds`, cancel-in-progress: `false`
 
 ## Called by
-
-`build-nightly-ci-docker-images.yml`
 
 - [self-nightly-caller.yml](#build-ci-docker-images-with-nightly-torch-build_nightly_torch_ci_images) (job: `build_nightly_torch_ci_images`) - entry point
 
@@ -598,7 +586,7 @@ Inputs for the `workflow_dispatch` event.
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Build docker images (Past CI)
 
@@ -713,7 +701,7 @@ Inputs for the `workflow_dispatch` event.
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Build docker images (scheduled)
 
@@ -1051,7 +1039,7 @@ Inputs for the `workflow_dispatch` event.
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Build documentation
 
@@ -1073,8 +1061,6 @@ Inputs for the `workflow_dispatch` event.
 - `contents`: `read`
 
 ## Call graph (rooted at this workflow)
-
-`build_documentation.yml` [workflow_dispatch, push]
 
 - uses **`huggingface/doc-builder/.github/workflows/build_main_documentation.yml@2430c1ec91d04667414e2fa31ecfc36c153ea391`** (x2)
 
@@ -1133,7 +1119,7 @@ External workflows referenced: `huggingface/doc-builder/.github/workflows/build_
 - `token`: `${{ secrets.HUGGINGFACE_PUSH }}`
 - `hf_token`: `${{ secrets.HF_DOC_BUILD_PUSH }}`
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Build pr ci-docker
 
@@ -1240,7 +1226,7 @@ External workflows referenced: `huggingface/doc-builder/.github/workflows/build_
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Build PR Documentation
 
@@ -1260,8 +1246,6 @@ External workflows referenced: `huggingface/doc-builder/.github/workflows/build_
 **Concurrency:** group `${{ github.workflow }}-${{ github.head_ref || github.run_id }}`, cancel-in-progress: `true`
 
 ## Call graph (rooted at this workflow)
-
-`build_pr_documentation.yml` [pull_request, merge_group]
 
 - `build` uses `huggingface/doc-builder/.github/workflows/build_pr_documentation.yml@90b4ee2c10b81b5c1a6367c4e6fc9e2fb510a7e3`
 
@@ -1312,7 +1296,7 @@ External workflows referenced: `huggingface/doc-builder/.github/workflows/build_
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Check Permissions Advisor
 
@@ -1336,8 +1320,6 @@ Inputs for the `workflow_dispatch` event.
 - `contents`: `read`
 
 ## Call graph (rooted at this workflow)
-
-`check-workflow-permissions.yml` [workflow_dispatch]
 
 - `advisor` uses `huggingface/security-workflows/.github/workflows/permissions-advisor-reusable.yml@1b6a139c28db347498b30338da6a602e0a06f56c`
 
@@ -1363,7 +1345,7 @@ External workflows referenced: `huggingface/security-workflows/.github/workflows
 - `workflow_name`: `${{ inputs.workflow_name }}`
 - `run_count`: `${{ fromJSON(inputs.run_count) }}`
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Check Tiny Models
 
@@ -1442,7 +1424,7 @@ External workflows referenced: `huggingface/security-workflows/.github/workflows
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # CircleCI Failure Summary Comment
 
@@ -1536,7 +1518,7 @@ External workflows referenced: `huggingface/security-workflows/.github/workflows
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # CodeQL Security Analysis
 
@@ -1556,8 +1538,6 @@ External workflows referenced: `huggingface/security-workflows/.github/workflows
 - `contents`: `read`
 
 ## Call graph (rooted at this workflow)
-
-`codeql.yml` [push, workflow_dispatch]
 
 - `codeql` uses `huggingface/security-workflows/.github/workflows/codeql-reusable.yml@1b6a139c28db347498b30338da6a602e0a06f56c`
 
@@ -1586,7 +1566,7 @@ External workflows referenced: `huggingface/security-workflows/.github/workflows
 - `queries`: `security-extended,security-and-quality`
 - `runner`: `ubuntu-latest`
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Doctests
 
@@ -1618,8 +1598,6 @@ External workflows referenced: `huggingface/security-workflows/.github/workflows
 | `NUM_SLICES` | `3` |
 
 ## Call graph (rooted at this workflow)
-
-`doctests.yml` [push, repository_dispatch, schedule]
 
 - `call_doctest_job` uses [doctest_job.yml](#doctest-job)
 
@@ -1706,7 +1684,7 @@ External workflows referenced: `huggingface/security-workflows/.github/workflows
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Extras Smoke Test
 
@@ -1865,7 +1843,7 @@ External workflows referenced: `huggingface/security-workflows/.github/workflows
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # New model PR merged notification
 
@@ -1930,7 +1908,7 @@ Used to notify core maintainers about new model PR being merged
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Nvidia CI
 
@@ -1972,8 +1950,6 @@ Inputs for the `workflow_dispatch` event.
 | `other_workflow_run_id` | - |
 
 ## Call graph (rooted at this workflow)
-
-`self-scheduled-caller.yml` [repository_dispatch, schedule, push, workflow_dispatch]
 
 - uses **[self-scheduled.yml](#nvidia-ci-job-definitions)** (x7)
   - uses **[model_jobs.yml](#model-jobs)** (x2)
@@ -2141,7 +2117,7 @@ Inputs for the `workflow_dispatch` event.
 
 - `secrets: inherit` (all caller secrets are passed to the callee)
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Nvidia CI - Flash Attn
 
@@ -2183,8 +2159,6 @@ Inputs for the `workflow_dispatch` event.
 | `other_workflow_run_id` | - |
 
 ## Call graph (rooted at this workflow)
-
-`self-scheduled-flash-attn-caller.yml` [repository_dispatch, schedule, push, workflow_dispatch]
 
 - `model-ci` uses [self-scheduled.yml](#nvidia-ci-job-definitions)
   - uses **[model_jobs.yml](#model-jobs)** (x2)
@@ -2237,7 +2211,7 @@ Inputs for the `workflow_dispatch` event.
 
 - `secrets: inherit` (all caller secrets are passed to the callee)
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Nvidia CI with nightly torch
 
@@ -2270,8 +2244,6 @@ Inputs for the `workflow_dispatch` event.
 | `other_workflow_run_id` | - |
 
 ## Call graph (rooted at this workflow)
-
-`self-nightly-caller.yml` [repository_dispatch, workflow_run, push]
 
 - `build_nightly_torch_ci_images` uses [build-nightly-ci-docker-images.yml](#build-docker-images-nightly-ci)
 - `model-ci` uses [self-scheduled.yml](#nvidia-ci-job-definitions)
@@ -2339,7 +2311,7 @@ Inputs for the `workflow_dispatch` event.
 
 - `secrets: inherit` (all caller secrets are passed to the callee)
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # PR - build doc via comment
 
@@ -2365,8 +2337,6 @@ No permissions granted (`permissions: {}` -- default-deny).
 **Concurrency:** group `${{ github.workflow }}-${{ github.event.issue.number }}-${{ startsWith(github.event.comment.body, 'build-doc') }}`, cancel-in-progress: `true`
 
 ## Call graph (rooted at this workflow)
-
-`pr_build_doc_with_comment.yml` [issue_comment]
 
 - `get-pr-number` uses [get-pr-number.yml](#get-pr-number)
 - `get-pr-info` uses [get-pr-info.yml](#get-pr-commit-sha)
@@ -2517,7 +2487,7 @@ External workflows referenced: `huggingface/doc-builder/.github/workflows/build_
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # PR CI
 
@@ -2534,8 +2504,6 @@ External workflows referenced: `huggingface/doc-builder/.github/workflows/build_
 **Concurrency:** group `${{ github.workflow }}-${{ github.event.pull_request.number }}`, cancel-in-progress: `true`
 
 ## Call graph (rooted at this workflow)
-
-`pr-ci-caller.yml` [pull_request]
 
 - `pr-ci` uses `huggingface/transformers-test-ci/.github/workflows/pr-ci_dynamic_caller_example.yml@91d590c4f744e4564a8ae0d3810068c8a35b939e`
 
@@ -2568,7 +2536,7 @@ External workflows referenced: `huggingface/transformers-test-ci/.github/workflo
 - `OTEL_EXPORTER_OTLP_ENDPOINT`: `${{ secrets.OTEL_EXPORTER_OTLP_ENDPOINT }}`
 - `OTEL_TOKEN`: `${{ secrets.OTEL_TOKEN }}`
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # PR comment GitHub CI
 
@@ -2618,8 +2586,6 @@ External workflows referenced: `huggingface/transformers-test-ci/.github/workflo
 **Concurrency:** group `${{ github.workflow }}-${{ github.event.issue.number }}-${{ startsWith(github.event.comment.body, 'run-slow') || startsWith(github.event.comment.body, 'run slow') || startsWith(github.event.comment.body, 'run_slow') }}`, cancel-in-progress: `true`
 
 ## Call graph (rooted at this workflow)
-
-`self-comment-ci.yml` [issue_comment]
 
 - `get-pr-number` uses [get-pr-number.yml](#get-pr-number)
 - `get-pr-info` uses [get-pr-info.yml](#get-pr-commit-sha)
@@ -2872,7 +2838,7 @@ External workflows referenced: `huggingface/transformers-test-ci/.github/workflo
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # PR Repo. Consistency Bot
 
@@ -2898,8 +2864,6 @@ External workflows referenced: `huggingface/transformers-test-ci/.github/workflo
 **Concurrency:** group `${{ github.workflow }}-${{ github.event.issue.number }}-${{ startsWith(github.event.comment.body, '@bot /repo') || startsWith(github.event.comment.body, '@bot /style') }}`, cancel-in-progress: `true`
 
 ## Call graph (rooted at this workflow)
-
-`pr-repo-consistency-bot.yml` [issue_comment]
 
 - `get-pr-number` uses [get-pr-number.yml](#get-pr-number)
 - `get-pr-info` uses [get-pr-info.yml](#get-pr-commit-sha)
@@ -3080,7 +3044,7 @@ External workflows referenced: `huggingface/transformers-test-ci/.github/workflo
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # PR slow CI - Suggestion
 
@@ -3103,8 +3067,6 @@ External workflows referenced: `huggingface/transformers-test-ci/.github/workflo
 - `contents`: `read`
 
 ## Call graph (rooted at this workflow)
-
-`pr_slow_ci_suggestion.yml` [pull_request_target]
 
 - `get-pr-number` uses [get-pr-number.yml](#get-pr-number)
 - `get-pr-info` uses [get-pr-info.yml](#get-pr-commit-sha)
@@ -3189,7 +3151,7 @@ External workflows referenced: `huggingface/transformers-test-ci/.github/workflo
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Release
 
@@ -3289,7 +3251,7 @@ External workflows referenced: `huggingface/transformers-test-ci/.github/workflo
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Release - Conda
 
@@ -3360,7 +3322,7 @@ External workflows referenced: `huggingface/transformers-test-ci/.github/workflo
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Secret Leaks
 
@@ -3398,7 +3360,7 @@ External workflows referenced: `huggingface/transformers-test-ci/.github/workflo
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Self-hosted runner (AMD mi250 scheduled CI caller)
 
@@ -3424,8 +3386,6 @@ External workflows referenced: `huggingface/transformers-test-ci/.github/workflo
 - `contents`: `read`
 
 ## Call graph (rooted at this workflow)
-
-`self-scheduled-amd-mi250-caller.yml` [workflow_run, push]
 
 - uses **`huggingface/hf-workflows/.github/workflows/transformers_amd_ci_scheduled.yaml@63657f571a92cc9759159442936061c51d6d9ae4`** (x4)
 
@@ -3511,7 +3471,7 @@ External workflows referenced: `huggingface/hf-workflows/.github/workflows/trans
 
 - `secrets: inherit` (all caller secrets are passed to the callee)
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Self-hosted runner (AMD scheduled CI caller)
 
@@ -3545,7 +3505,7 @@ External workflows referenced: `huggingface/hf-workflows/.github/workflows/trans
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Self-hosted runner (benchmark)
 
@@ -3616,7 +3576,7 @@ External workflows referenced: `huggingface/hf-workflows/.github/workflows/trans
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Self-hosted runner (Intel Gaudi3 scheduled CI caller)
 
@@ -3637,8 +3597,6 @@ External workflows referenced: `huggingface/hf-workflows/.github/workflows/trans
 - `contents`: `read`
 
 ## Call graph (rooted at this workflow)
-
-`self-scheduled-intel-gaudi3-caller.yml` [repository_dispatch, workflow_dispatch, schedule]
 
 - uses **[self-scheduled-intel-gaudi.yml](#self-hosted-runner-scheduled-intel-gaudi)** (x5)
   - uses **[model_jobs_intel_gaudi.yml](#model-jobs-1)** (x2)
@@ -3736,7 +3694,7 @@ External workflows referenced: `huggingface/hf-workflows/.github/workflows/trans
 
 - `secrets: inherit` (all caller secrets are passed to the callee)
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Self-hosted runner (nightly-past-ci-caller)
 
@@ -3762,8 +3720,6 @@ External workflows referenced: `huggingface/hf-workflows/.github/workflows/trans
 - `contents`: `read`
 
 ## Call graph (rooted at this workflow)
-
-`self-nightly-past-ci-caller.yml` [schedule, push]
 
 - uses **[self-past-caller.yml](#self-hosted-runner-past-ci)** (x7)
   - uses **[self-scheduled.yml](#nvidia-ci-job-definitions)** (x2)
@@ -3914,7 +3870,7 @@ External workflows referenced: `huggingface/hf-workflows/.github/workflows/trans
 
 - `secrets: inherit` (all caller secrets are passed to the callee)
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Self-hosted runner scale set (AMD mi325 scheduled CI caller)
 
@@ -3940,8 +3896,6 @@ External workflows referenced: `huggingface/hf-workflows/.github/workflows/trans
 - `contents`: `read`
 
 ## Call graph (rooted at this workflow)
-
-`self-scheduled-amd-mi325-caller.yml` [workflow_run, push]
 
 - uses **`huggingface/hf-workflows/.github/workflows/transformers_amd_ci_scheduled_arc_scale_set.yaml@63657f571a92cc9759159442936061c51d6d9ae4`** (x4)
 
@@ -4031,7 +3985,7 @@ External workflows referenced: `huggingface/hf-workflows/.github/workflows/trans
 
 - `secrets: inherit` (all caller secrets are passed to the callee)
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Self-hosted runner scale set (AMD mi355 scheduled CI caller)
 
@@ -4057,8 +4011,6 @@ External workflows referenced: `huggingface/hf-workflows/.github/workflows/trans
 - `contents`: `read`
 
 ## Call graph (rooted at this workflow)
-
-`self-scheduled-amd-mi355-caller.yml` [workflow_run, push]
 
 - uses **`huggingface/hf-workflows/.github/workflows/transformers_amd_ci_scheduled_arc_scale_set.yaml@63657f571a92cc9759159442936061c51d6d9ae4`** (x4)
 
@@ -4144,7 +4096,7 @@ External workflows referenced: `huggingface/hf-workflows/.github/workflows/trans
 
 - `secrets: inherit` (all caller secrets are passed to the callee)
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Slow tests on important models (on Push - A10)
 
@@ -4166,8 +4118,6 @@ External workflows referenced: `huggingface/hf-workflows/.github/workflows/trans
 - `contents`: `read`
 
 ## Call graph (rooted at this workflow)
-
-`push-important-models.yml` [push]
 
 - `model-ci` uses [self-scheduled.yml](#nvidia-ci-job-definitions)
   - uses **[model_jobs.yml](#model-jobs)** (x2)
@@ -4227,7 +4177,7 @@ External workflows referenced: `huggingface/hf-workflows/.github/workflows/trans
 
 - `secrets: inherit` (all caller secrets are passed to the callee)
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # SSH into our runners
 
@@ -4350,7 +4300,7 @@ Inputs for the `workflow_dispatch` event.
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Stale Bot
 
@@ -4413,7 +4363,7 @@ Inputs for the `workflow_dispatch` event.
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # TRL CI bot
 
@@ -4498,7 +4448,7 @@ It is meant to be used during the ongoing Trainer refactor/unbloat in Transforme
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Update Transformers metadata
 
@@ -4550,7 +4500,7 @@ It is meant to be used during the ongoing Trainer refactor/unbloat in Transforme
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Upload PR Documentation
 
@@ -4571,8 +4521,6 @@ It is meant to be used during the ongoing Trainer refactor/unbloat in Transforme
 - `contents`: `read`
 
 ## Call graph (rooted at this workflow)
-
-`upload_pr_documentation.yml` [workflow_run]
 
 - `build` uses `huggingface/doc-builder/.github/workflows/upload_pr_documentation.yml@9ad2de8582b56c017cb530c1165116d40433f1c6`
 
@@ -4608,7 +4556,7 @@ External workflows referenced: `huggingface/doc-builder/.github/workflows/upload
 - `hf_token`: `${{ secrets.HF_DOC_BUILD_PUSH }}`
 - `comment_bot_token`: `${{ secrets.COMMENT_BOT_TOKEN }}`
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # CI collated reports
 
@@ -4634,8 +4582,6 @@ External workflows referenced: `huggingface/doc-builder/.github/workflows/upload
 - `contents`: `read`
 
 ## Called by
-
-`collated-reports.yml`
 
 - [model_jobs.yml](#collated-reports-collated_reports-1) (job: `collated_reports`)
   - **[self-scheduled.yml](#nvidia-ci-job-definitions)** (x2)
@@ -4686,7 +4632,7 @@ External workflows referenced: `huggingface/doc-builder/.github/workflows/upload
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # CI slack report
 
@@ -4728,8 +4674,6 @@ External workflows referenced: `huggingface/doc-builder/.github/workflows/upload
 | `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN` | `${{ secrets.TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN }}` |
 
 ## Called by
-
-`slack-report.yml`
 
 - [self-scheduled-intel-gaudi.yml](#slack-report-send_results-1) (job: `send_results`)
   - **[self-scheduled-intel-gaudi3-caller.yml](#self-hosted-runner-intel-gaudi3-scheduled-ci-caller)** - entry point (x5)
@@ -4811,7 +4755,7 @@ External workflows referenced: `huggingface/doc-builder/.github/workflows/upload
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Doctest job
 
@@ -4846,8 +4790,6 @@ External workflows referenced: `huggingface/doc-builder/.github/workflows/upload
 | `TF_FORCE_GPU_ALLOW_GROWTH` | `true` |
 
 ## Called by
-
-`doctest_job.yml`
 
 - [doctests.yml](#call-doctest-jobs-call_doctest_job) (job: `call_doctest_job`) - entry point
 
@@ -4891,7 +4833,7 @@ External workflows referenced: `huggingface/doc-builder/.github/workflows/upload
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Get PR commit SHA
 
@@ -4938,8 +4880,6 @@ External workflows referenced: `huggingface/doc-builder/.github/workflows/upload
 
 ## Called by
 
-`get-pr-info.yml`
-
 - [pr-repo-consistency-bot.yml](#get-pr-commit-sha-get-pr-info-2) (job: `get-pr-info`) - entry point
 - [pr_build_doc_with_comment.yml](#get-pr-commit-sha-get-pr-info) (job: `get-pr-info`) - entry point
 - [pr_slow_ci_suggestion.yml](#get-pr-commit-sha-get-pr-info-3) (job: `get-pr-info`) - entry point
@@ -4973,7 +4913,7 @@ External workflows referenced: `huggingface/doc-builder/.github/workflows/upload
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Get PR number
 
@@ -4996,8 +4936,6 @@ External workflows referenced: `huggingface/doc-builder/.github/workflows/upload
 - `contents`: `read`
 
 ## Called by
-
-`get-pr-number.yml`
 
 - [pr-repo-consistency-bot.yml](#get-pr-number-get-pr-number-2) (job: `get-pr-number`) - entry point
 - [pr_build_doc_with_comment.yml](#get-pr-number-get-pr-number) (job: `get-pr-number`) - entry point
@@ -5030,7 +4968,7 @@ External workflows referenced: `huggingface/doc-builder/.github/workflows/upload
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # model jobs
 
@@ -5076,8 +5014,6 @@ External workflows referenced: `huggingface/doc-builder/.github/workflows/upload
 | `CUDA_VISIBLE_DEVICES` | `0,1` |
 
 ## Called by
-
-`model_jobs.yml`
 
 - **[self-scheduled.yml](#nvidia-ci-job-definitions)** (x2)
   - [push-important-models.yml](#model-ci-model-ci-8) (job: `model-ci`) - entry point
@@ -5194,7 +5130,7 @@ External workflows referenced: `huggingface/doc-builder/.github/workflows/upload
 
 - `secrets: inherit` (all caller secrets are passed to the callee)
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # model jobs
 
@@ -5232,8 +5168,6 @@ External workflows referenced: `huggingface/doc-builder/.github/workflows/upload
 | `HF_HOME` | `/mnt/cache/.cache/huggingface` |
 
 ## Called by
-
-`model_jobs_intel_gaudi.yml`
 
 - **[self-scheduled-intel-gaudi.yml](#self-hosted-runner-scheduled-intel-gaudi)** (x2)
   - **[self-scheduled-intel-gaudi3-caller.yml](#self-hosted-runner-intel-gaudi3-scheduled-ci-caller)** - entry point (x5)
@@ -5311,7 +5245,7 @@ External workflows referenced: `huggingface/doc-builder/.github/workflows/upload
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Nvidia CI (job definitions)
 
@@ -5378,8 +5312,6 @@ External workflows referenced: `huggingface/doc-builder/.github/workflows/upload
 | `CUDA_VISIBLE_DEVICES` | `0,1` |
 
 ## Called by
-
-`self-scheduled.yml`
 
 - [push-important-models.yml](#model-ci-model-ci-8) (job: `model-ci`) - entry point
 - **[self-comment-ci.yml](#pr-comment-github-ci)** - entry point (x2)
@@ -5797,7 +5729,7 @@ External workflows referenced: `huggingface/doc-builder/.github/workflows/upload
 
 - `secrets: inherit` (all caller secrets are passed to the callee)
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Process failed tests
 
@@ -5849,8 +5781,6 @@ External workflows referenced: `huggingface/doc-builder/.github/workflows/upload
 | `CUDA_VISIBLE_DEVICES` | `0,1` |
 
 ## Called by
-
-`check_failed_tests.yml`
 
 - [self-scheduled.yml](#check-new-failures-check_new_failures) (job: `check_new_failures`)
   - [push-important-models.yml](#model-ci-model-ci-8) (job: `model-ci`) - entry point
@@ -6049,7 +5979,7 @@ External workflows referenced: `huggingface/doc-builder/.github/workflows/upload
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Self-hosted runner (past-ci)
 
@@ -6076,8 +6006,6 @@ External workflows referenced: `huggingface/doc-builder/.github/workflows/upload
 - `contents`: `read`
 
 ## Called by
-
-`self-past-caller.yml`
 
 - **[self-nightly-past-ci-caller.yml](#self-hosted-runner-nightly-past-ci-caller)** - entry point (x7)
 
@@ -6119,7 +6047,7 @@ External workflows referenced: `huggingface/doc-builder/.github/workflows/upload
 
 - `secrets: inherit` (all caller secrets are passed to the callee)
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Self-hosted runner (scheduled-intel-gaudi)
 
@@ -6161,8 +6089,6 @@ External workflows referenced: `huggingface/doc-builder/.github/workflows/upload
 | `HF_HOME` | `/mnt/cache/.cache/huggingface` |
 
 ## Called by
-
-`self-scheduled-intel-gaudi.yml`
 
 - **[self-scheduled-intel-gaudi3-caller.yml](#self-hosted-runner-intel-gaudi3-scheduled-ci-caller)** - entry point (x5)
 
@@ -6392,5 +6318,5 @@ External workflows referenced: `huggingface/doc-builder/.github/workflows/upload
 
 - `secrets: inherit` (all caller secrets are passed to the callee)
 
-[Back to top](#contents)
+[Back to contents](#contents)
 

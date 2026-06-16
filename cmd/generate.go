@@ -215,8 +215,8 @@ func renderMarkdownOutput(sources []callgraph.Source, graph *callgraph.Graph, in
 		}
 	}
 	// A single document is self-describing (its own H1 + properties); the orientation
-	// header, contents list, and per-section back-to-top links only earn their space once
-	// there are several sections to navigate between.
+	// header, contents list, and per-section back-to-contents links only earn their space
+	// once there are several sections to navigate between.
 	if len(sources) < 2 {
 		return strings.Join(sections, "")
 	}
@@ -224,7 +224,7 @@ func renderMarkdownOutput(sources []callgraph.Source, graph *callgraph.Graph, in
 	// Each top-level section ends with a link back to the Contents list, so a reader deep in
 	// one section can return to navigation without scrolling.
 	for i := range sections {
-		sections[i] += "[Back to top](#contents)\n\n"
+		sections[i] += "[Back to contents](#contents)\n\n"
 	}
 
 	// The document-level inventory (repo-wide secrets/variables + permissions) sits between

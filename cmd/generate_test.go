@@ -159,6 +159,55 @@ jobs:
 	}
 }
 
+// TestGenerateBackToContentsLabel verifies the per-section navigation link reads
+// "Back to contents" (its target is the Contents heading, not the document H1 title).
+func TestGenerateBackToContentsLabel(t *testing.T) {
+	root := t.TempDir()
+	wf := filepath.Join(root, ".github", "workflows")
+	if err := os.MkdirAll(wf, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	// Two workflows: the contents list and per-section navigation links only render once
+	// there are several sections to move between.
+	if err := os.WriteFile(filepath.Join(wf, "ci.yml"), []byte(`name: CI
+on: push
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo hi
+`), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(wf, "release.yml"), []byte(`name: Release
+on: push
+jobs:
+  ship:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo bye
+`), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	out := filepath.Join(t.TempDir(), "out.md")
+	if err := Generate([]string{"-o", out, wf}); err != nil {
+		t.Fatalf("Generate: %v", err)
+	}
+	b, err := os.ReadFile(out)
+	if err != nil {
+		t.Fatalf("read output: %v", err)
+	}
+	md := string(b)
+
+	if !strings.Contains(md, "[Back to contents](#contents)") {
+		t.Errorf("expected per-section link labelled 'Back to contents':\n%s", md)
+	}
+	if strings.Contains(md, "[Back to top]") {
+		t.Errorf("the old 'Back to top' label should be gone:\n%s", md)
+	}
+}
+
 // TestGenerateSkipsDisabledWorkflows verifies that a fully commented-out workflow file
 // (the common way to disable a workflow) is skipped with a note rather than treated as a
 // parse failure: the run still succeeds and the other workflows still render.

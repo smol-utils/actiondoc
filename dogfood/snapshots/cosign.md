@@ -135,7 +135,7 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # CI-Tests
 
@@ -311,7 +311,7 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # CI-Validate-Release-Job
 
@@ -382,7 +382,7 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # CodeQL
 
@@ -459,7 +459,7 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Conformance Tests
 
@@ -512,7 +512,7 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Conformance Tests Nightly
 
@@ -578,7 +578,7 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Cut Release
 
@@ -601,8 +601,6 @@ Inputs for the `workflow_dispatch` event.
 **Concurrency:** group `cut-release`
 
 ## Call graph (rooted at this workflow)
-
-`cut-release.yml` [workflow_dispatch]
 
 - `cut-release` uses `sigstore/community/.github/workflows/reusable-release.yml@main`
 
@@ -632,7 +630,7 @@ External workflows referenced: `sigstore/community/.github/workflows/reusable-re
 - `service_account`: `github-actions-cosign@projectsigstore.iam.gserviceaccount.com`
 - `repo`: `cosign`
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Dependency Review
 
@@ -647,8 +645,6 @@ External workflows referenced: `sigstore/community/.github/workflows/reusable-re
 No permissions granted (`permissions: {}` -- default-deny).
 
 ## Call graph (rooted at this workflow)
-
-`depsreview.yml` [pull_request]
 
 - `dependency-review` uses `sigstore/community/.github/workflows/reusable-dependency-review.yml@main`
 
@@ -669,7 +665,7 @@ External workflows referenced: `sigstore/community/.github/workflows/reusable-de
 
 - `contents`: `read`
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Do Not Submit
 
@@ -714,7 +710,7 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Docgen
 
@@ -766,7 +762,7 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # e2e-tests
 
@@ -948,7 +944,7 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # e2e-with-binary
 
@@ -1008,7 +1004,7 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # golangci-lint
 
@@ -1089,7 +1085,7 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Scorecards supply-chain security
 
@@ -1166,7 +1162,7 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Test attest / verify-attestation
 
@@ -1280,7 +1276,7 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Test GitHub OIDC
 
@@ -1352,7 +1348,7 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Whitespace
 
@@ -1399,5 +1395,5 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 

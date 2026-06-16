@@ -90,7 +90,7 @@ All scopes: `read-all`.
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # CodeQL
 
@@ -164,7 +164,7 @@ All scopes: `read-all`.
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Dependency Review
 
@@ -197,7 +197,7 @@ All scopes: `read-all`.
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # LFS Warning
 
@@ -247,7 +247,7 @@ All scopes: `read-all`.
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # PR Title
 
@@ -292,7 +292,7 @@ All scopes: `read-all`.
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Pre submits cli
 
@@ -348,7 +348,7 @@ All scopes: `read-all`.
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Pre submits e2e
 
@@ -412,7 +412,7 @@ All scopes: `read-all`.
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Pre submits Lint
 
@@ -491,7 +491,7 @@ All scopes: `read-all`.
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # References pre submits
 
@@ -534,7 +534,7 @@ All scopes: `read-all`.
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Schedule cli
 
@@ -594,7 +594,7 @@ All scopes: `read-all`.
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Scorecards supply-chain security
 
@@ -661,7 +661,7 @@ All scopes: `read-all`.
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Update actions dist post-commit
 
@@ -765,7 +765,7 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # verifier action
 
@@ -803,8 +803,6 @@ All scopes: `read-all`.
 | `MINIMUM_INSTALLER_VERSION` | `v2.0.1` |
 
 ## Call graph (rooted at this workflow)
-
-`e2e.schedule.installer.yml` [schedule, workflow_dispatch]
 
 - uses **`./actions/installer` (outside scan scope)** (x5)
 
@@ -924,8 +922,6 @@ All scopes: `read-all`.
    - ID: `empty-tag`
    - Uses: `./actions/installer`
    - Condition: `${{ inputs.version != '' || ! contains(matrix.version, '-rc' ) }}`
-   - Env:
-     - `SLSA_VERIFIER_CI_ACTION_REF`: -
 
 15. **[ "$SUCCESS" == "true" ]**
    - Env:
@@ -981,7 +977,7 @@ All scopes: `read-all`.
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Verifier releaser
 
@@ -1016,8 +1012,6 @@ All scopes: `read-all`.
 | `HEADER` | `release` |
 
 ## Call graph (rooted at this workflow)
-
-`release.yml` [workflow_dispatch, push, schedule]
 
 - `builder` uses `slsa-framework/slsa-github-generator/.github/workflows/builder_go_slsa3.yml@v2.0.0`
 
@@ -1150,5 +1144,5 @@ All scopes: `read-all`.
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 

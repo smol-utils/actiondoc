@@ -129,7 +129,7 @@
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Clear cache
 
@@ -159,7 +159,7 @@
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # CodeQL
 
@@ -185,8 +185,6 @@
 - `contents`: `read`
 
 ## Call graph (rooted at this workflow)
-
-`codeql.yml` [workflow_dispatch, push, pull_request]
 
 - `precheck` uses [step-precheck.yml](#x-precheck) (`@main`)
 
@@ -257,7 +255,7 @@ Secrets required (declared/forwarded names): `github-token`
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # EarlyAccess
 
@@ -281,8 +279,6 @@ Secrets required (declared/forwarded names): `github-token`
 - `contents`: `write`
 
 ## Call graph (rooted at this workflow)
-
-`early-access.yml` [push]
 
 - `precheck` uses [step-precheck.yml](#x-precheck) (`@main`)
 - `jlink` uses [step-jlink.yml](#x-jlink) (`@main`)
@@ -483,7 +479,7 @@ External workflows referenced: `slsa-framework/slsa-github-generator/.github/wor
 
 - `gh-access-token`: `${{ secrets.GIT_ACCESS_TOKEN }}`
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Lint
 
@@ -523,7 +519,7 @@ External workflows referenced: `slsa-framework/slsa-github-generator/.github/wor
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # OpenSSF Scorecard
 
@@ -549,8 +545,6 @@ External workflows referenced: `slsa-framework/slsa-github-generator/.github/wor
 All scopes: `read-all`.
 
 ## Call graph (rooted at this workflow)
-
-`openssf-scorecard.yml` [branch_protection_rule, schedule, push, workflow_dispatch]
 
 - `precheck` uses [step-precheck.yml](#x-precheck) (`@main`)
 
@@ -622,7 +616,7 @@ Secrets required (declared/forwarded names): `github-token`
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Release
 
@@ -642,8 +636,6 @@ Secrets required (declared/forwarded names): `github-token`
 - `contents`: `write`
 
 ## Call graph (rooted at this workflow)
-
-`release.yml` [workflow_dispatch]
 
 - `jlink` uses [step-jlink.yml](#x-jlink) (`@main`)
 - `jpackage` uses [step-jpackage.yml](#x-jpackage) (`@main`)
@@ -928,7 +920,7 @@ External workflows referenced: `slsa-framework/slsa-github-generator/.github/wor
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # SmokeTests
 
@@ -966,8 +958,6 @@ External workflows referenced: `slsa-framework/slsa-github-generator/.github/wor
 | `JRELEASER_OCI_COMPARTMENTID` | `${{ secrets.JRELEASER_OCI_COMPARTMENTID }}` |
 
 ## Call graph (rooted at this workflow)
-
-`smoke-tests.yml` [push]
 
 - `precheck` uses [step-precheck.yml](#x-precheck) (`@main`)
 
@@ -1636,7 +1626,7 @@ Secrets required (declared/forwarded names): `github-token`
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Trigger Early Access
 
@@ -1702,7 +1692,7 @@ Secrets required (declared/forwarded names): `github-token`
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # X-BachInfo
 
@@ -1777,7 +1767,7 @@ Secrets required (declared/forwarded names): `github-token`
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # X-Jlink
 
@@ -1807,8 +1797,6 @@ Secrets required (declared/forwarded names): `github-token`
 - `contents`: `read`
 
 ## Called by
-
-`step-jlink.yml`
 
 - [early-access.yml](#jlink-jlink) (job: `jlink`) - entry point
 - [release.yml](#jlink-jlink-1) (job: `jlink`) - entry point
@@ -1928,7 +1916,7 @@ Secrets required (declared/forwarded names): `github-token`
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # X-JPackage
 
@@ -1952,8 +1940,6 @@ Secrets required (declared/forwarded names): `github-token`
 - `contents`: `read`
 
 ## Called by
-
-`step-jpackage.yml`
 
 - [early-access.yml](#jpackage-jpackage) (job: `jpackage`) - entry point
 - [release.yml](#jpackage-jpackage-1) (job: `jpackage`) - entry point
@@ -2046,7 +2032,7 @@ Secrets required (declared/forwarded names): `github-token`
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # X-NativeImage
 
@@ -2075,8 +2061,6 @@ Secrets required (declared/forwarded names): `github-token`
 - `contents`: `read`
 
 ## Called by
-
-`step-native-image.yml`
 
 - [early-access.yml](#native-image-native-image) (job: `native-image`) - entry point
 - [release.yml](#native-image-native-image-1) (job: `native-image`) - entry point
@@ -2169,7 +2153,7 @@ Secrets required (declared/forwarded names): `github-token`
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # X-Precheck
 
@@ -2198,8 +2182,6 @@ Secrets required (declared/forwarded names): `github-token`
 - `contents`: `read`
 
 ## Called by
-
-`step-precheck.yml`
 
 - [codeql.yml](#precheck-precheck) (job: `precheck`) - entry point
 - [early-access.yml](#precheck-precheck-1) (job: `precheck`) - entry point
@@ -2241,7 +2223,7 @@ Secrets required (declared/forwarded names): `github-token`
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # X-UpdateWiki
 
@@ -2275,8 +2257,6 @@ Secrets required (declared/forwarded names): `github-token`
 - `contents`: `write`
 
 ## Called by
-
-`step-update-wiki.yml`
 
 - [early-access.yml](#update-wiki-update-wiki) (job: `update-wiki`) - entry point
 - [release.yml](#update-wiki-update-wiki-1) (job: `update-wiki`) - entry point
@@ -2336,5 +2316,5 @@ Secrets required (declared/forwarded names): `github-token`
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 

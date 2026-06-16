@@ -112,8 +112,6 @@
 
 ## Call graph (rooted at this workflow)
 
-`build-and-deploy-snapshot.yml` [workflow_dispatch, push]
-
 - `build-and-deploy-snapshot / Build and Publish` uses [./.github/actions/build](#build)
 - `build-and-deploy-snapshot / Send Notification` uses [./.github/actions/send-notification](#send-notification)
 - `verify` uses [verify.yml](#verify)
@@ -241,7 +239,7 @@ Secrets required (declared/forwarded names): `commercial-repository-password`, `
 - `opensource-repository-username`: `${{ secrets.ARTIFACTORY_USERNAME }}`
 - `token`: `${{ secrets.GH_ACTIONS_REPO_TOKEN }}`
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Build Pull Request
 
@@ -256,8 +254,6 @@ Secrets required (declared/forwarded names): `commercial-repository-password`, `
 - `contents`: `read`
 
 ## Call graph (rooted at this workflow)
-
-`build-pull-request.yml` [pull_request]
 
 - `build / Build` uses [./.github/actions/build](#build)
 - `build / Print JVM Thread Dumps When Cancelled` uses [./.github/actions/print-jvm-thread-dumps](#print-jvm-thread-dumps)
@@ -294,7 +290,7 @@ Secrets required (declared/forwarded names): `commercial-repository-password`, `
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # CI
 
@@ -314,8 +310,6 @@ Secrets required (declared/forwarded names): `commercial-repository-password`, `
 - `contents`: `read`
 
 ## Call graph (rooted at this workflow)
-
-`ci.yml` [push]
 
 - `ci / Build` uses [./.github/actions/build](#build)
 - `ci / Send Notification` uses [./.github/actions/send-notification](#send-notification)
@@ -383,7 +377,7 @@ Secrets required (declared/forwarded names): `commercial-repository-password`, `
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Distribute
 
@@ -444,7 +438,7 @@ Inputs for the `workflow_dispatch` event.
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Release
 
@@ -479,8 +473,6 @@ Inputs for the `workflow_dispatch` event.
 **Concurrency:** group `${{ github.workflow }}-${{ github.ref }}`
 
 ## Call graph (rooted at this workflow)
-
-`release.yml` [push]
 
 - `build-and-stage-release / Build and Publish` uses [./.github/actions/build](#build)
 - `build-and-stage-release / Send Notification` uses [./.github/actions/send-notification](#send-notification)
@@ -754,7 +746,7 @@ Secrets required (declared/forwarded names): `commercial-repository-password`, `
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Release Milestone
 
@@ -779,8 +771,6 @@ Secrets required (declared/forwarded names): `commercial-repository-password`, `
 **Concurrency:** group `${{ github.workflow }}-${{ github.ref }}`
 
 ## Call graph (rooted at this workflow)
-
-`release-milestone.yml` [push]
 
 - `build-and-stage-release / Build and Publish` uses [./.github/actions/build](#build)
 - `verify` uses [verify.yml](#verify)
@@ -986,7 +976,7 @@ Secrets required (declared/forwarded names): `commercial-repository-password`, `
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Run CodeQL Analysis
 
@@ -1001,8 +991,6 @@ Secrets required (declared/forwarded names): `commercial-repository-password`, `
 All scopes: `read-all`.
 
 ## Call graph (rooted at this workflow)
-
-`run-codeql-analysis.yml` [push, pull_request, workflow_dispatch]
 
 - `run-analysis` uses `spring-io/github-actions/.github/workflows/codeql-analysis.yml@7dc305df87410aa851b873d2f1fd33ccbb7d0aa8`
 
@@ -1024,7 +1012,7 @@ External workflows referenced: `spring-io/github-actions/.github/workflows/codeq
 - `contents`: `read`
 - `security-events`: `write`
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Run System Tests
 
@@ -1044,8 +1032,6 @@ External workflows referenced: `spring-io/github-actions/.github/workflows/codeq
 - `contents`: `read`
 
 ## Call graph (rooted at this workflow)
-
-`run-system-tests.yml` [push]
 
 - `run-system-tests / Prepare Gradle Build` uses [./.github/actions/prepare-gradle-build](#prepare-gradle-build)
 - `run-system-tests / Send Notification` uses [./.github/actions/send-notification](#send-notification)
@@ -1104,7 +1090,7 @@ External workflows referenced: `spring-io/github-actions/.github/workflows/codeq
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Trigger Docs Build
 
@@ -1169,7 +1155,7 @@ Inputs for the `workflow_dispatch` event.
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Verify
 
@@ -1204,8 +1190,6 @@ Inputs for the `workflow_dispatch` event.
 - `contents`: `read`
 
 ## Called by
-
-`verify.yml`
 
 - [build-and-deploy-snapshot.yml](#verify-verify) (job: `verify`) - entry point
 - [release-milestone.yml](#verify-verify-2) (job: `verify`) - entry point
@@ -1300,7 +1284,7 @@ Inputs for the `workflow_dispatch` event.
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Await HTTP Resource
 
@@ -1317,7 +1301,7 @@ Waits for an HTTP resource to be available (a HEAD request succeeds)
 |------|-------------|----------|--------|
 | `url` | URL of the resource to await | Yes | - |
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Build
 
@@ -1351,7 +1335,7 @@ Builds the project, optionally publishing it to a local deployment repository
 | `build-scan-url` | URL, if any, of the build scan produced by the build |
 | `version` | Version that was built |
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Create GitHub Release
 
@@ -1371,7 +1355,7 @@ Create the release on GitHub with a changelog
 | `pre-release` | Whether the release is a pre-release (a milestone or release candidate) | No | `false` |
 | `token` | Token to use for authentication with GitHub | Yes | - |
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Prepare Gradle Build
 
@@ -1393,7 +1377,7 @@ Prepares a Gradle build. Sets up Java and Gradle and configures Gradle propertie
 | `java-toolchain` | Whether a Java toolchain should be used | No | `false` |
 | `java-version` | Java version to use for the build | No | `25` |
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Print JVM thread dumps
 
@@ -1404,7 +1388,7 @@ Prints a thread dump for all running JVMs
 | File | `action.yml` |
 | Runs with | `composite` |
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Publish Gradle Plugin
 
@@ -1425,7 +1409,7 @@ Publishes Spring Boot's Gradle plugin to the Plugin Portal
 | `jfrog-cli-config-token` | Config token for the JFrog CLI | Yes | - |
 | `plugin-version` | Version of the plugin | Yes | - |
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Publish to SDKMAN!
 
@@ -1445,7 +1429,7 @@ Publishes the release as a new candidate version on SDKMAN!
 | `sdkman-consumer-token` | Token for publishing to SDKMAN! | Yes | - |
 | `spring-boot-version` | Version to publish | Yes | - |
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Send Notification
 
@@ -1465,7 +1449,7 @@ Sends a Google Chat message as a notification of the job's outcome
 | `status` | Status of the job | Yes | - |
 | `webhook-url` | Google Chat Webhook URL | Yes | - |
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Sync to Maven Central
 
@@ -1485,7 +1469,7 @@ Syncs a release to Maven Central and waits for it to be available for use
 | `jfrog-cli-config-token` | Config token for the JFrog CLI | Yes | - |
 | `spring-boot-version` | Version of Spring Boot that is being synced to Central | Yes | - |
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Update Homebrew Tap
 
@@ -1503,5 +1487,5 @@ Updates the Homebrew Tap for the Spring Boot CLI
 | `spring-boot-version` | The version to publish | Yes | - |
 | `token` | Token to use for GitHub authentication | Yes | - |
 
-[Back to top](#contents)
+[Back to contents](#contents)
 

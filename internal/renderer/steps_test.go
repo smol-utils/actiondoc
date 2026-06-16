@@ -226,6 +226,67 @@ func TestStepValueTruncation(t *testing.T) {
 	}
 }
 
+// TestRenderStepOmitsEmptyWithEnv verifies that a step's `with:`/`env:` entries with an
+// empty/unset value are omitted (rather than rendering as a bare dash), while entries with a
+// real value are kept.
+func TestRenderStepOmitsEmptyWithEnv(t *testing.T) {
+	step := model.Step{
+		Name: "Lock threads",
+		Uses: "dessant/lock-threads@v5",
+		With: []model.KV{
+			{Key: "issue-inactive-days", Value: "30"},
+			{Key: "add-issue-labels", Value: ""},
+			{Key: "exclude-issue-created-before", Value: "  "},
+		},
+		Env: []model.KV{
+			{Key: "REGION", Value: "us-east-1"},
+			{Key: "UNSET", Value: ""},
+		},
+	}
+
+	var b strings.Builder
+	renderStep(&b, &step, 1)
+	got := b.String()
+
+	for _, want := range []string{
+		"- `issue-inactive-days`: `30`",
+		"- `REGION`: `us-east-1`",
+	} {
+		if !strings.Contains(got, want) {
+			t.Errorf("output should keep real value %q\n\nFull output:\n%s", want, got)
+		}
+	}
+	for _, banned := range []string{
+		"add-issue-labels",             // empty value omitted entirely
+		"exclude-issue-created-before", // whitespace-only value omitted entirely
+		"UNSET",                        // empty env value omitted entirely
+		": -",                          // no bare-dash placeholder for empty values
+	} {
+		if strings.Contains(got, banned) {
+			t.Errorf("output should omit empty entry %q\n\nFull output:\n%s", banned, got)
+		}
+	}
+}
+
+// TestRenderStepDropsEmptyWithHeader verifies that when every `with:` value is empty, the
+// "With:" header itself is suppressed (no empty block).
+func TestRenderStepDropsEmptyWithHeader(t *testing.T) {
+	step := model.Step{
+		Name: "All empty",
+		Uses: "some/action@v1",
+		With: []model.KV{
+			{Key: "a", Value: ""},
+			{Key: "b", Value: ""},
+		},
+	}
+
+	var b strings.Builder
+	renderStep(&b, &step, 1)
+	if got := b.String(); strings.Contains(got, "With:") {
+		t.Errorf("an all-empty with: block should drop its header:\n%s", got)
+	}
+}
+
 // TestRenderTOC covers the grouped contents listing, the under-two-entries suppression,
 // group headings, and that only non-empty groups render.
 func TestRenderTOC(t *testing.T) {

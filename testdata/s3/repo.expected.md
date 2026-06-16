@@ -48,8 +48,6 @@
 
 ## Call graph (rooted at this workflow)
 
-`ci.yml` [push]
-
 - `build` uses [reusable.yml](#reusable-build)
 - `deploy / Deploy to staging` uses [./.github/actions/deploy](#deploy)
 
@@ -106,7 +104,7 @@ Secrets required (declared/forwarded names): `BUILD_TOKEN`
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Reusable Build
 
@@ -132,8 +130,6 @@ Secrets required (declared/forwarded names): `BUILD_TOKEN`
 
 ## Called by
 
-`reusable.yml`
-
 - [ci.yml](#build) (job: `build`) - entry point
 
 ## Jobs
@@ -151,7 +147,7 @@ Secrets required (declared/forwarded names): `BUILD_TOKEN`
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Deploy
 
@@ -169,5 +165,5 @@ Deploys the application to an environment.
 | `environment` | Target environment name | Yes | - |
 | `token` | Deployment token | No | - |
 
-[Back to top](#contents)
+[Back to contents](#contents)
 

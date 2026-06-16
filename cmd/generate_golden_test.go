@@ -48,7 +48,7 @@ func TestGenerateDirectoryGolden(t *testing.T) {
 		"## Workflows by trigger",             // by-trigger inverted index
 		"**Triggers:**",                       // promoted trigger line under a workflow heading
 		"**Jobs:**",                           // per-workflow job mini-TOC roster
-		"[Back to top](#contents)",            // per-section back-to-top link
+		"[Back to contents](#contents)",       // per-section back-to-contents link
 		"## Call graph",                       // downstream call-graph tree
 		"## Called by",                        // upstream caller chain on the reusable workflow
 		"## Referenced secrets and variables", // auto-collected references

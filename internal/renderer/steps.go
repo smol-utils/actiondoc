@@ -36,18 +36,8 @@ func renderStep(b *strings.Builder, step *model.Step, num int) {
 	if step.If != "" {
 		fmt.Fprintf(b, "   - Condition: %s\n", codeSpan(oneLine(step.If)))
 	}
-	if len(step.With) > 0 {
-		b.WriteString("   - With:\n")
-		for _, kv := range step.With {
-			fmt.Fprintf(b, "     - `%s`: %s%s\n", kv.Key, stepValue(kv.Value), withDoc(step, kv.Key))
-		}
-	}
-	if len(step.Env) > 0 {
-		b.WriteString("   - Env:\n")
-		for _, kv := range step.Env {
-			fmt.Fprintf(b, "     - `%s`: %s\n", kv.Key, stepValue(kv.Value))
-		}
-	}
+	writeStepPairs(b, "With", step.With, func(key string) string { return withDoc(step, key) })
+	writeStepPairs(b, "Env", step.Env, nil)
 
 	// Step-level tags
 	writeStepParams(b, "Input", step.Tags.Inputs)
@@ -56,6 +46,37 @@ func renderStep(b *strings.Builder, step *model.Step, num int) {
 	writeStepParams(b, "Env", step.Tags.Envs)
 
 	b.WriteString("\n")
+}
+
+// writeStepPairs writes a step's `with:`/`env:` key/value pairs as an indented bullet list
+// under a labelled header. Entries whose value is empty/unset are omitted (a bare key with no
+// value carries no information and otherwise renders as a column of dashes); the header is
+// written only when at least one entry has a real value. doc, when non-nil, supplies a
+// trailing documentation suffix for a key (e.g. a composite-action input's description).
+func writeStepPairs(b *strings.Builder, label string, pairs []model.KV, doc func(key string) string) {
+	type kept struct {
+		key, value, suffix string
+	}
+	var entries []kept
+	for _, kv := range pairs {
+		// Omit entries whose value is empty/unset (a bare key carries no information).
+		// The raw value is retained so stepValue can summarize long inline values.
+		if oneLine(kv.Value) == "" {
+			continue
+		}
+		suffix := ""
+		if doc != nil {
+			suffix = doc(kv.Key)
+		}
+		entries = append(entries, kept{key: kv.Key, value: kv.Value, suffix: suffix})
+	}
+	if len(entries) == 0 {
+		return
+	}
+	fmt.Fprintf(b, "   - %s:\n", label)
+	for _, e := range entries {
+		fmt.Fprintf(b, "     - `%s`: %s%s\n", e.key, stepValue(e.value), e.suffix)
+	}
 }
 
 // writeStepParams writes inline bullet points for step-level params.

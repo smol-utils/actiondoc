@@ -72,8 +72,6 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 ## Call graph (rooted at this workflow)
 
-`ci-build.yaml` [push, pull_request, workflow_dispatch]
-
 - `call-build` uses [_meta-build.yaml](#_meta-buildyaml)
 
 ## Transitive requirements (from full call graph)
@@ -112,7 +110,7 @@ Secrets required (declared/forwarded names): `registry-0-psw`, `registry-0-usr`
 - `registry-0-usr`: `${{ secrets.HUB_USERNAME }}`
 - `registry-0-psw`: `${{ secrets.HUB_ACCESSS_TOKEN }}`
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Dependency Review
 
@@ -147,7 +145,7 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Lock Threads
 
@@ -187,22 +185,14 @@ No permissions granted (`permissions: {}` -- default-deny).
    - With:
      - `github-token`: `${{ github.token }}`
      - `issue-inactive-days`: `30`
-     - `exclude-issue-created-before`: -
-     - `exclude-any-issue-labels`: -
-     - `add-issue-labels`: -
      - `issue-comment`: `This thread has been automatically locked since there has not been any recent activity after it was closed. Please open a new issue for related bugs.`
      - `issue-lock-reason`: `resolved`
      - `pr-inactive-days`: `30`
-     - `exclude-pr-created-before`: -
-     - `exclude-any-pr-labels`: -
-     - `add-pr-labels`: -
-     - `pr-comment`: -
      - `pr-lock-reason`: `resolved`
-     - `process-only`: -
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # PR Template Check
 
@@ -240,7 +230,7 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Publish CI
 
@@ -265,8 +255,6 @@ This workflow is responsible to build and publish a release build It triggers on
 No permissions granted (`permissions: {}` -- default-deny).
 
 ## Call graph (rooted at this workflow)
-
-`ci-publish.yaml` [push, workflow_dispatch]
 
 - `call-build` uses [_meta-build.yaml](#_meta-buildyaml)
 
@@ -363,7 +351,7 @@ Secrets required (declared/forwarded names): `registry-0-psw`, `registry-0-usr`
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Release CI
 
@@ -489,7 +477,7 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Report PR Test Coverage
 
@@ -544,7 +532,7 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Tests CI
 
@@ -622,7 +610,7 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # _meta-build.yaml
 
@@ -657,8 +645,6 @@ No permissions granted (`permissions: {}` -- default-deny).
 No permissions granted (`permissions: {}` -- default-deny).
 
 ## Called by
-
-`_meta-build.yaml`
 
 - [ci-build.yaml](#call-build) (job: `call-build`) - entry point
 - [ci-publish.yaml](#call-build-1) (job: `call-build`) - entry point
@@ -774,5 +760,5 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
