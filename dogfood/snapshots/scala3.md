@@ -30,6 +30,55 @@
 - [Test 'scala' Chocolatey Package](#test-scala-chocolatey-package)
 - [Test 'scala' MSI Package](#test-scala-msi-package)
 
+## Secrets and variables used across this repository
+
+**Secrets:**
+
+| Name | Used by |
+|------|---------|
+| `API-KEY` | [Publish Scala to Chocolatey](#publish-scala-to-chocolatey) |
+| `CHOCOLATEY_KEY` | [Official release of Scala](#official-release-of-scala) |
+| `CONSUMER-KEY` | [Publish Scala to SDKMAN!](#publish-scala-to-sdkman) |
+| `CONSUMER-TOKEN` | [Publish Scala to SDKMAN!](#publish-scala-to-sdkman) |
+| `DOCS_DEPLOY_KEY` | [Language reference documentation](#language-reference-documentation) |
+| `DOCS_KEY` | [Language reference documentation](#language-reference-documentation) |
+| `DOTTYBOT-TOKEN` | [Publish Scala to winget](#publish-scala-to-winget) |
+| `DOTTYBOT_WINGET_TOKEN` | [Official release of Scala](#official-release-of-scala) |
+| `MAVEN_REPOSITORY_TOKEN` | [Release Artifacts to Maven](#release-artifacts-to-maven) |
+| `MAVEN_REPOSITORY_USER` | [Release Artifacts to Maven](#release-artifacts-to-maven) |
+| `PGP_PW` | [Release Artifacts to Maven](#release-artifacts-to-maven), [Scala 3](#scala-3) |
+| `PGP_SECRET` | [Release Artifacts to Maven](#release-artifacts-to-maven), [Scala 3](#scala-3) |
+| `SCALA_APP_ID` | [Add to backporting project](#add-to-backporting-project), [Nightly Release of Scala 3](#nightly-release-of-scala-3) |
+| `SCALA_APP_PRIVATE_KEY` | [Add to backporting project](#add-to-backporting-project), [Nightly Release of Scala 3](#nightly-release-of-scala-3) |
+| `SCALA_PGP_KEY` | [Release Artifacts to Maven](#release-artifacts-to-maven) |
+| `SCALA_PGP_PASSPHRASE` | [Release Artifacts to Maven](#release-artifacts-to-maven) |
+| `SDKMAN_KEY` | [Official release of Scala](#official-release-of-scala) |
+| `SDKMAN_TOKEN` | [Official release of Scala](#official-release-of-scala) |
+| `SONATYPE_PW_ORGSCALALANG` | [Scala 3](#scala-3) |
+| `SONATYPE_USER_ORGSCALALANG` | [Scala 3](#scala-3) |
+| `SPEC_DEPLOY_HOST` | [Specification](#specification) |
+| `SPEC_DEPLOY_KEY` | [Specification](#specification) |
+| `SPEC_DEPLOY_PASS` | [Specification](#specification) |
+| `SPEC_DEPLOY_PATH` | [Specification](#specification) |
+| `SPEC_DEPLOY_USER` | [Specification](#specification) |
+
+**Variables:**
+
+| Name | Used by |
+|------|---------|
+| `MAVEN_REPOSITORY_HOST` | [Release Artifacts to Maven](#release-artifacts-to-maven) |
+| `MAVEN_REPOSITORY_REALM` | [Release Artifacts to Maven](#release-artifacts-to-maven) |
+| `MAVEN_REPOSITORY_URL` | [Release Artifacts to Maven](#release-artifacts-to-maven) |
+| `NEWNIGHTLY` | [Release Artifacts to Maven](#release-artifacts-to-maven) |
+| `NIGHTLYBUILD` | [Nightly Release of Scala 3](#nightly-release-of-scala-3), [Release Artifacts to Maven](#release-artifacts-to-maven) |
+| `SCALA_PGP_FINGERPRINT` | [Release Artifacts to Maven](#release-artifacts-to-maven) |
+
+## Permissions across this repository
+
+| Scope | Level |
+|-------|-------|
+| `contents` | `write` (also granted as `read` elsewhere) |
+
 # Add to backporting project
 
 **Triggers:** `push`
@@ -49,8 +98,8 @@
 
 | Name | Used by |
 |------|---------|
-| `SCALA_APP_ID` | job `add-to-backporting-project` step `Generate GitHub App Token` with `app-id` |
-| `SCALA_APP_PRIVATE_KEY` | job `add-to-backporting-project` step `Generate GitHub App Token` with `private-key` |
+| `SCALA_APP_ID` | `add-to-backporting-project`: Generate GitHub App Token (`app-id`) |
+| `SCALA_APP_PRIVATE_KEY` | `add-to-backporting-project`: Generate GitHub App Token (`private-key`) |
 
 ## Jobs
 
@@ -703,8 +752,8 @@
 
 | Name | Used by |
 |------|---------|
-| `DOCS_KEY` | job `build-and-push` step `Git Checkout` with `ssh-key` |
-| `DOCS_DEPLOY_KEY` | job `build-and-push` step `Push changes to scala3-reference-docs` with `ssh-key` |
+| `DOCS_KEY` | `build-and-push`: Git Checkout (`ssh-key`) |
+| `DOCS_DEPLOY_KEY` | `build-and-push`: Push changes to scala3-reference-docs (`ssh-key`) |
 
 ## Jobs
 
@@ -782,10 +831,6 @@
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `MAVEN_REPOSITORY_TOKEN`, `MAVEN_REPOSITORY_USER`, `PGP_PW`, `PGP_SECRET`, `SCALA_APP_ID`, `SCALA_APP_PRIVATE_KEY`, `SCALA_PGP_KEY`, `SCALA_PGP_PASSPHRASE`
-
-Variables referenced: `MAVEN_REPOSITORY_HOST`, `MAVEN_REPOSITORY_REALM`, `MAVEN_REPOSITORY_URL`, `NEWNIGHTLY`, `NIGHTLYBUILD`, `SCALA_PGP_FINGERPRINT`
-
 Permissions declared across the chain: `contents: read`
 
 ## Referenced secrets and variables
@@ -794,14 +839,14 @@ Permissions declared across the chain: `contents: read`
 
 | Name | Used by |
 |------|---------|
-| `SCALA_APP_ID` | job `release-documentation` step `Generate GitHub App Token` with `app-id` |
-| `SCALA_APP_PRIVATE_KEY` | job `release-documentation` step `Generate GitHub App Token` with `private-key` |
+| `SCALA_APP_ID` | `release-documentation`: Generate GitHub App Token (`app-id`) |
+| `SCALA_APP_PRIVATE_KEY` | `release-documentation`: Generate GitHub App Token (`private-key`) |
 
 **Variables:**
 
 | Name | Used by |
 |------|---------|
-| `NIGHTLYBUILD` | job `release-documentation` env `NIGHTLYBUILD` |
+| `NIGHTLYBUILD` | `release-documentation`: (`NIGHTLYBUILD`) |
 
 ## Jobs
 
@@ -913,7 +958,7 @@ Inputs for the `workflow_dispatch` event.
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `API-KEY`, `CHOCOLATEY_KEY`, `CONSUMER-KEY`, `CONSUMER-TOKEN`, `DOTTYBOT-TOKEN`, `DOTTYBOT_WINGET_TOKEN`, `GITHUB_TOKEN`, `SDKMAN_KEY`, `SDKMAN_TOKEN`
+Secrets required (declared/forwarded names): `API-KEY`, `CONSUMER-KEY`, `CONSUMER-TOKEN`, `DOTTYBOT-TOKEN`
 
 ## Referenced secrets and variables
 
@@ -921,10 +966,10 @@ Secrets referenced (literal names): `API-KEY`, `CHOCOLATEY_KEY`, `CONSUMER-KEY`,
 
 | Name | Used by |
 |------|---------|
-| `SDKMAN_KEY` | job `publish-sdkman` secrets `CONSUMER-KEY` |
-| `SDKMAN_TOKEN` | job `publish-sdkman` secrets `CONSUMER-TOKEN` |
-| `DOTTYBOT_WINGET_TOKEN` | job `publish-winget` secrets `DOTTYBOT-TOKEN` |
-| `CHOCOLATEY_KEY` | job `publish-chocolatey` secrets `API-KEY` |
+| `SDKMAN_KEY` | `publish-sdkman`: (`CONSUMER-KEY`) |
+| `SDKMAN_TOKEN` | `publish-sdkman`: (`CONSUMER-TOKEN`) |
+| `DOTTYBOT_WINGET_TOKEN` | `publish-winget`: (`DOTTYBOT-TOKEN`) |
+| `CHOCOLATEY_KEY` | `publish-chocolatey`: (`API-KEY`) |
 
 ## Jobs
 
@@ -1063,8 +1108,6 @@ Secrets referenced (literal names): `API-KEY`, `CHOCOLATEY_KEY`, `CONSUMER-KEY`,
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `GITHUB_TOKEN`, `PGP_PW`, `PGP_SECRET`, `SONATYPE_PW_ORGSCALALANG`, `SONATYPE_USER_ORGSCALALANG`
-
 Permissions declared across the chain: `contents: read`, `contents: write`
 
 ## Referenced secrets and variables
@@ -1073,11 +1116,11 @@ Permissions declared across the chain: `contents: read`, `contents: write`
 
 | Name | Used by |
 |------|---------|
-| `PGP_PW` | job `publish_release` env `PGP_PW` |
-| `PGP_SECRET` | job `publish_release` env `PGP_SECRET` |
-| `SONATYPE_PW_ORGSCALALANG` | job `publish_release` env `SONATYPE_PW` |
-| `SONATYPE_USER_ORGSCALALANG` | job `publish_release` env `SONATYPE_USER` |
-| `GITHUB_TOKEN` | job `publish_release` step `Create GitHub Release` env `GITHUB_TOKEN` |
+| `PGP_PW` | `publish_release`: (`PGP_PW`) |
+| `PGP_SECRET` | `publish_release`: (`PGP_SECRET`) |
+| `SONATYPE_PW_ORGSCALALANG` | `publish_release`: (`SONATYPE_PW`) |
+| `SONATYPE_USER_ORGSCALALANG` | `publish_release`: (`SONATYPE_USER`) |
+| `GITHUB_TOKEN` | `publish_release`: Create GitHub Release (`GITHUB_TOKEN`) |
 
 ## Jobs
 
@@ -1482,11 +1525,11 @@ Permissions declared across the chain: `contents: read`, `contents: write`
 
 | Name | Used by |
 |------|---------|
-| `SPEC_DEPLOY_PATH` | job `specification` step `Deployment` with `remote_path` |
-| `SPEC_DEPLOY_HOST` | job `specification` step `Deployment` with `remote_host` |
-| `SPEC_DEPLOY_USER` | job `specification` step `Deployment` with `remote_user`; job `specification` step `Deployment` env `USER_FOR_TEST` |
-| `SPEC_DEPLOY_KEY` | job `specification` step `Deployment` with `remote_key` |
-| `SPEC_DEPLOY_PASS` | job `specification` step `Deployment` with `remote_key_pass` |
+| `SPEC_DEPLOY_PATH` | `specification`: Deployment (`remote_path`) |
+| `SPEC_DEPLOY_HOST` | `specification`: Deployment (`remote_host`) |
+| `SPEC_DEPLOY_USER` | `specification`: Deployment (`remote_user`), Deployment (`USER_FOR_TEST`) |
+| `SPEC_DEPLOY_KEY` | `specification`: Deployment (`remote_key`) |
+| `SPEC_DEPLOY_PASS` | `specification`: Deployment (`remote_key_pass`) |
 
 ## Jobs
 
@@ -1828,7 +1871,7 @@ THIS IS A REUSABLE WORKFLOW TO BUILD THE SCALA LAUNCHERS HOW TO USE: - THSI WORK
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | job `build` step `Compute SHA256 of the uploaded artifact (win x86-64)` (run) |
+| `GITHUB_TOKEN` | `build`: Compute SHA256 of the uploaded artifact (win x86-64) (`run`) |
 
 ## Jobs
 
@@ -2012,7 +2055,7 @@ THIS IS A REUSABLE WORKFLOW TO PUBLISH SCALA TO CHOCOLATEY HOW TO USE: - THE REL
 
 | Name | Used by |
 |------|---------|
-| `API-KEY` | job `publish` step `Publish the package to Chocolatey` env `KEY` |
+| `API-KEY` | `publish`: Publish the package to Chocolatey (`KEY`) |
 
 ## Jobs
 
@@ -2085,8 +2128,8 @@ THIS IS A REUSABLE WORKFLOW TO PUBLISH SCALA TO SDKMAN! HOW TO USE: - THE RELEAS
 
 | Name | Used by |
 |------|---------|
-| `CONSUMER-KEY` | job `publish` step `sdkman/sdkman-release-action` with `CONSUMER-KEY`; job `default` step `sdkman/sdkman-default-action` with `CONSUMER-KEY` |
-| `CONSUMER-TOKEN` | job `publish` step `sdkman/sdkman-release-action` with `CONSUMER-TOKEN`; job `default` step `sdkman/sdkman-default-action` with `CONSUMER-TOKEN` |
+| `CONSUMER-KEY` | `publish`: sdkman/sdkman-release-action (`CONSUMER-KEY`)<br>`default`: sdkman/sdkman-default-action (`CONSUMER-KEY`) |
+| `CONSUMER-TOKEN` | `publish`: sdkman/sdkman-release-action (`CONSUMER-TOKEN`)<br>`default`: sdkman/sdkman-default-action (`CONSUMER-TOKEN`) |
 
 ## Jobs
 
@@ -2168,7 +2211,7 @@ THIS IS A REUSABLE WORKFLOW TO PUBLISH SCALA TO WINGET HOW TO USE: - THE RELEASE
 
 | Name | Used by |
 |------|---------|
-| `DOTTYBOT-TOKEN` | job `publish` step `vedantmgoyal9/winget-releaser` with `token` |
+| `DOTTYBOT-TOKEN` | `publish`: vedantmgoyal9/winget-releaser (`token`) |
 
 ## Jobs
 
@@ -2226,23 +2269,23 @@ THIS IS A REUSABLE WORKFLOW TO PUBLISH SCALA TO WINGET HOW TO USE: - THE RELEASE
 
 | Name | Used by |
 |------|---------|
-| `SCALA_PGP_KEY` | job `release-maven-artifacts` step `Import Scala PGP Key` with `gpg_private_key` |
-| `SCALA_PGP_PASSPHRASE` | job `release-maven-artifacts` step `Import Scala PGP Key` with `passphrase` |
-| `MAVEN_REPOSITORY_USER` | job `release-maven-artifacts` step `Publish Artifacts to the Maven Repository` env `MAVEN_REPOSITORY_USER`; job `release-maven-lts-artifacts` step `Publish Artifacts to the Maven Repository` env `SONATYPE_USER` |
-| `MAVEN_REPOSITORY_TOKEN` | job `release-maven-artifacts` step `Publish Artifacts to the Maven Repository` env `MAVEN_REPOSITORY_TOKEN`; job `release-maven-lts-artifacts` step `Publish Artifacts to the Maven Repository` env `SONATYPE_PW` |
-| `PGP_SECRET` | job `release-maven-lts-artifacts` step `Setup PGP Key` env `PGP_SECRET`; job `release-maven-lts-artifacts` step `Setup SBT PGP` env `PGP_SECRET`; job `release-maven-lts-artifacts` step `Publish Artifacts to the Maven Repository` env `PGP_SECRET` |
-| `PGP_PW` | job `release-maven-lts-artifacts` step `Publish Artifacts to the Maven Repository` env `PGP_PW` |
+| `SCALA_PGP_KEY` | `release-maven-artifacts`: Import Scala PGP Key (`gpg_private_key`) |
+| `SCALA_PGP_PASSPHRASE` | `release-maven-artifacts`: Import Scala PGP Key (`passphrase`) |
+| `MAVEN_REPOSITORY_USER` | `release-maven-artifacts`: Publish Artifacts to the Maven Repository (`MAVEN_REPOSITORY_USER`)<br>`release-maven-lts-artifacts`: Publish Artifacts to the Maven Repository (`SONATYPE_USER`) |
+| `MAVEN_REPOSITORY_TOKEN` | `release-maven-artifacts`: Publish Artifacts to the Maven Repository (`MAVEN_REPOSITORY_TOKEN`)<br>`release-maven-lts-artifacts`: Publish Artifacts to the Maven Repository (`SONATYPE_PW`) |
+| `PGP_SECRET` | `release-maven-lts-artifacts`: Setup PGP Key (`PGP_SECRET`), Setup SBT PGP (`PGP_SECRET`), Publish Artifacts to the Maven Repository (`PGP_SECRET`) |
+| `PGP_PW` | `release-maven-lts-artifacts`: Publish Artifacts to the Maven Repository (`PGP_PW`) |
 
 **Variables:**
 
 | Name | Used by |
 |------|---------|
-| `MAVEN_REPOSITORY_HOST` | job `release-maven-artifacts` env `MAVEN_REPOSITORY_HOST`; job `release-maven-lts-artifacts` env `MAVEN_REPOSITORY_HOST` |
-| `MAVEN_REPOSITORY_REALM` | job `release-maven-artifacts` env `MAVEN_REPOSITORY_REALM`; job `release-maven-lts-artifacts` env `MAVEN_REPOSITORY_REALM` |
-| `MAVEN_REPOSITORY_URL` | job `release-maven-artifacts` env `MAVEN_REPOSITORY_URL`; job `release-maven-lts-artifacts` env `MAVEN_REPOSITORY_URL` |
-| `NEWNIGHTLY` | job `release-maven-artifacts` env `NEWNIGHTLY`; job `release-maven-lts-artifacts` env `NEWNIGHTLY` |
-| `NIGHTLYBUILD` | job `release-maven-artifacts` env `NIGHTLYBUILD`; job `release-maven-lts-artifacts` env `NIGHTLYBUILD` |
-| `SCALA_PGP_FINGERPRINT` | job `release-maven-artifacts` step `Import Scala PGP Key` with `fingerprint` |
+| `MAVEN_REPOSITORY_HOST` | `release-maven-artifacts`: (`MAVEN_REPOSITORY_HOST`)<br>`release-maven-lts-artifacts`: (`MAVEN_REPOSITORY_HOST`) |
+| `MAVEN_REPOSITORY_REALM` | `release-maven-artifacts`: (`MAVEN_REPOSITORY_REALM`)<br>`release-maven-lts-artifacts`: (`MAVEN_REPOSITORY_REALM`) |
+| `MAVEN_REPOSITORY_URL` | `release-maven-artifacts`: (`MAVEN_REPOSITORY_URL`)<br>`release-maven-lts-artifacts`: (`MAVEN_REPOSITORY_URL`) |
+| `NEWNIGHTLY` | `release-maven-artifacts`: (`NEWNIGHTLY`)<br>`release-maven-lts-artifacts`: (`NEWNIGHTLY`) |
+| `NIGHTLYBUILD` | `release-maven-artifacts`: (`NIGHTLYBUILD`)<br>`release-maven-lts-artifacts`: (`NIGHTLYBUILD`) |
+| `SCALA_PGP_FINGERPRINT` | `release-maven-artifacts`: Import Scala PGP Key (`fingerprint`) |
 
 ## Jobs
 
@@ -2389,7 +2432,7 @@ THIS IS A REUSABLE WORKFLOW TO TEST SCALA WITH CHOCOLATEY HOW TO USE: NOTE:
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | workflow env `DOTTY_CI_INSTALLATION` |
+| `GITHUB_TOKEN` | workflow env: (`DOTTY_CI_INSTALLATION`) |
 
 ## Jobs
 
@@ -2431,7 +2474,14 @@ THIS IS A REUSABLE WORKFLOW TO TEST SCALA WITH CHOCOLATEY HOW TO USE: NOTE:
 
 **Triggers:** `workflow_call`
 
-THIS IS A REUSABLE WORKFLOW TO TEST SCALA WITH MSI RUNNER HOW TO USE: Provide optional `version` to test if installed binaries are installed with correct Scala version. NOTE: Requires `scala.msi` artifact uploaded within the same run
+THIS IS A REUSABLE WORKFLOW TO TEST SCALA WITH MSI RUNNER HOW TO USE: Provide optional `version` to test if installed binaries are installed with correct Scala version.
+
+<details>
+<summary>more</summary>
+
+NOTE: Requires `scala.msi` artifact uploaded within the same run
+
+</details>
 
 | Property | Value |
 |----------|-------|

@@ -64,6 +64,52 @@
 - [Self-hosted runner (past-ci)](#self-hosted-runner-past-ci)
 - [Self-hosted runner (scheduled-intel-gaudi)](#self-hosted-runner-scheduled-intel-gaudi)
 
+## Secrets and variables used across this repository
+
+**Secrets:**
+
+| Name | Used by |
+|------|---------|
+| `ACCESS_REPO_INFO_TOKEN` | [CI collated reports](#ci-collated-reports), [CI slack report](#ci-slack-report), [Doctests](#doctests), [Nvidia CI (job definitions)](#nvidia-ci-job-definitions), [Process failed tests](#process-failed-tests) |
+| `ANACONDA_API_TOKEN` | [Release - Conda](#release---conda) |
+| `CI_SLACK_BOT_TOKEN` | [CI slack report](#ci-slack-report), [Doctests](#doctests) |
+| `CI_SLACK_CHANNEL_DOCKER` | [Build docker images (scheduled)](#build-docker-images-scheduled) |
+| `CI_SLACK_CHANNEL_DUMMY_TESTS` | [CI slack report](#ci-slack-report) |
+| `CI_SLACK_CHANNEL_ID` | [CI slack report](#ci-slack-report) |
+| `CI_SLACK_CHANNEL_ID_DAILY` | [CI slack report](#ci-slack-report) |
+| `CI_SLACK_CHANNEL_ID_DAILY_DOCS` | [Doctests](#doctests) |
+| `COMMENT_BOT_TOKEN` | [Upload PR Documentation](#upload-pr-documentation) |
+| `DOCKERHUB_PASSWORD` | [Build docker images (Nightly CI)](#build-docker-images-nightly-ci), [Build docker images (Past CI)](#build-docker-images-past-ci), [Build docker images (scheduled)](#build-docker-images-scheduled), [Build pr ci-docker](#build-pr-ci-docker) |
+| `DOCKERHUB_USERNAME` | [Build docker images (Nightly CI)](#build-docker-images-nightly-ci), [Build docker images (Past CI)](#build-docker-images-past-ci), [Build docker images (scheduled)](#build-docker-images-scheduled), [Build pr ci-docker](#build-pr-ci-docker) |
+| `HF_CI_WRITE_TOKEN` | [CircleCI Failure Summary Comment](#circleci-failure-summary-comment) |
+| `HF_DOC_BUILD_PUSH` | [Build documentation](#build-documentation), [Upload PR Documentation](#upload-pr-documentation) |
+| `HF_HUB_READ_TOKEN` | [Benchmark v2 Framework](#benchmark-v2-framework), [Check Tiny Models](#check-tiny-models), [model jobs (model_jobs.yml)](#model-jobs), [model jobs (model_jobs_intel_gaudi.yml)](#model-jobs-1), [Nvidia CI (job definitions)](#nvidia-ci-job-definitions), [PR comment GitHub CI](#pr-comment-github-ci), [Process failed tests](#process-failed-tests), [Self-hosted runner (benchmark)](#self-hosted-runner-benchmark), [Self-hosted runner (scheduled-intel-gaudi)](#self-hosted-runner-scheduled-intel-gaudi), [SSH into our runners](#ssh-into-our-runners) |
+| `HF_STYLE_BOT_ACTION` | [PR Repo. Consistency Bot](#pr-repo-consistency-bot) |
+| `HUGGINGFACE_PUSH` | [Build documentation](#build-documentation) |
+| `LYSANDRE_HF_TOKEN` | [Update Transformers metadata](#update-transformers-metadata) |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | [PR CI](#pr-ci) |
+| `OTEL_TOKEN` | [PR CI](#pr-ci) |
+| `PUSH_TO_HUB_TOKEN` | [Self-hosted runner (benchmark)](#self-hosted-runner-benchmark) |
+| `SLACK_CIFEEDBACK_BOT_TOKEN` | [Build docker images (scheduled)](#build-docker-images-scheduled), [Build pr ci-docker](#build-pr-ci-docker), [Extras Smoke Test](#extras-smoke-test), [New model PR merged notification](#new-model-pr-merged-notification), [Process failed tests](#process-failed-tests), [SSH into our runners](#ssh-into-our-runners) |
+| `SLACK_CIFEEDBACK_CHANNEL` | [SSH into our runners](#ssh-into-our-runners) |
+| `TAILSCALE_SSH_AUTHKEY` | [SSH into our runners](#ssh-into-our-runners) |
+| `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN` | [Benchmark v2 Framework](#benchmark-v2-framework), [CI collated reports](#ci-collated-reports), [CI slack report](#ci-slack-report), [Process failed tests](#process-failed-tests) |
+| `TRANSFORMERS_HUB_BOT_HF_TOKEN` | [Check Tiny Models](#check-tiny-models) |
+| `TRL_CI_DISPATCH_TOKEN` | [TRL CI bot](#trl-ci-bot) |
+
+## Permissions across this repository
+
+| Scope | Level |
+|-------|-------|
+| `actions` | `read` |
+| `contents` | `write` (also granted as `read` elsewhere) |
+| `id-token` | `write` (OIDC) |
+| `issues` | `write` (also granted as `read` elsewhere) |
+| `packages` | `read` |
+| `pull-requests` | `write` (also granted as `read` elsewhere) |
+| `security-events` | `write` |
+| `statuses` | `write` |
+
 # Add model like runner
 
 **Triggers:** `push`
@@ -223,7 +269,7 @@
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | job `assign_reviewers` step `Run assignment script` env `GITHUB_TOKEN` |
+| `GITHUB_TOKEN` | `assign_reviewers`: Run assignment script (`GITHUB_TOKEN`) |
 
 ## Jobs
 
@@ -305,8 +351,8 @@ Inputs for the `workflow_dispatch` event.
 
 | Name | Used by |
 |------|---------|
-| `HF_HUB_READ_TOKEN` | workflow env `HF_TOKEN`; job `benchmark-v2` step `Run benchmark v2` env `HF_TOKEN` |
-| `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN` | job `benchmark-v2` step `Run benchmark v2` env `UPLOAD_TOKEN` |
+| `HF_HUB_READ_TOKEN` | workflow env: (`HF_TOKEN`)<br>`benchmark-v2`: Run benchmark v2 (`HF_TOKEN`) |
+| `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN` | `benchmark-v2`: Run benchmark v2 (`UPLOAD_TOKEN`) |
 
 ## Jobs
 
@@ -364,8 +410,6 @@ Inputs for the `workflow_dispatch` event.
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `HF_HUB_READ_TOKEN`, `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN`
-
 Permissions declared across the chain: `contents: read`
 
 ## Jobs
@@ -410,8 +454,6 @@ Permissions declared across the chain: `contents: read`
 - `benchmark-v2-default` uses [benchmark_v2.yml](#benchmark-v2-framework)
 
 ## Transitive requirements (from full call graph)
-
-Secrets referenced (literal names): `HF_HUB_READ_TOKEN`, `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN`
 
 Permissions declared across the chain: `contents: read`
 
@@ -479,8 +521,8 @@ Permissions declared across the chain: `contents: read`
 
 | Name | Used by |
 |------|---------|
-| `DOCKERHUB_USERNAME` | job `latest-with-torch-nightly-docker` step `Login to DockerHub` with `username`; job `nightly-torch-deepspeed-docker` step `Login to DockerHub` with `username` |
-| `DOCKERHUB_PASSWORD` | job `latest-with-torch-nightly-docker` step `Login to DockerHub` with `password`; job `nightly-torch-deepspeed-docker` step `Login to DockerHub` with `password` |
+| `DOCKERHUB_USERNAME` | `latest-with-torch-nightly-docker`: Login to DockerHub (`username`)<br>`nightly-torch-deepspeed-docker`: Login to DockerHub (`username`) |
+| `DOCKERHUB_PASSWORD` | `latest-with-torch-nightly-docker`: Login to DockerHub (`password`)<br>`nightly-torch-deepspeed-docker`: Login to DockerHub (`password`) |
 
 ## Jobs
 
@@ -582,8 +624,8 @@ Permissions declared across the chain: `contents: read`
 
 | Name | Used by |
 |------|---------|
-| `DOCKERHUB_USERNAME` | job `past-pytorch-docker` step `Login to DockerHub` with `username`; job `past-tensorflow-docker` step `Login to DockerHub` with `username` |
-| `DOCKERHUB_PASSWORD` | job `past-pytorch-docker` step `Login to DockerHub` with `password`; job `past-tensorflow-docker` step `Login to DockerHub` with `password` |
+| `DOCKERHUB_USERNAME` | `past-pytorch-docker`: Login to DockerHub (`username`)<br>`past-tensorflow-docker`: Login to DockerHub (`username`) |
+| `DOCKERHUB_PASSWORD` | `past-pytorch-docker`: Login to DockerHub (`password`)<br>`past-tensorflow-docker`: Login to DockerHub (`password`) |
 
 ## Jobs
 
@@ -709,10 +751,10 @@ Permissions declared across the chain: `contents: read`
 
 | Name | Used by |
 |------|---------|
-| `DOCKERHUB_USERNAME` | job `latest-docker` step `Login to DockerHub` with `username`; job `flash-attn-ci-image` step `Login to DockerHub` with `username`; job `latest-torch-deepspeed-docker` step `Login to DockerHub` with `username`; job `doc-builder` step `Login to DockerHub` with `username`; job `latest-pytorch-amd` step `Login to DockerHub` with `username`; job `cache-latest-pytorch-amd` step `Login to DockerHub` with `username`; job `latest-pytorch-deepspeed-amd` step `Login to DockerHub` with `username`; job `latest-quantization-torch-docker` step `Login to DockerHub` with `username` |
-| `DOCKERHUB_PASSWORD` | job `latest-docker` step `Login to DockerHub` with `password`; job `flash-attn-ci-image` step `Login to DockerHub` with `password`; job `latest-torch-deepspeed-docker` step `Login to DockerHub` with `password`; job `doc-builder` step `Login to DockerHub` with `password`; job `latest-pytorch-amd` step `Login to DockerHub` with `password`; job `cache-latest-pytorch-amd` step `Login to DockerHub` with `password`; job `latest-pytorch-deepspeed-amd` step `Login to DockerHub` with `password`; job `latest-quantization-torch-docker` step `Login to DockerHub` with `password` |
-| `CI_SLACK_CHANNEL_DOCKER` | job `latest-docker` step `Post to Slack` with `slack_channel`; job `flash-attn-ci-image` step `Post to Slack` with `slack_channel`; job `latest-torch-deepspeed-docker` step `Post to Slack` with `slack_channel`; job `doc-builder` step `Post to Slack` with `slack_channel`; job `latest-pytorch-amd` step `Post to Slack` with `slack_channel`; job `latest-pytorch-deepspeed-amd` step `Post to Slack` with `slack_channel`; job `latest-quantization-torch-docker` step `Post to Slack` with `slack_channel` |
-| `SLACK_CIFEEDBACK_BOT_TOKEN` | job `latest-docker` step `Post to Slack` with `slack_token`; job `flash-attn-ci-image` step `Post to Slack` with `slack_token`; job `latest-torch-deepspeed-docker` step `Post to Slack` with `slack_token`; job `doc-builder` step `Post to Slack` with `slack_token`; job `latest-pytorch-amd` step `Post to Slack` with `slack_token`; job `latest-pytorch-deepspeed-amd` step `Post to Slack` with `slack_token`; job `latest-quantization-torch-docker` step `Post to Slack` with `slack_token` |
+| `DOCKERHUB_USERNAME` | `latest-docker`: Login to DockerHub (`username`)<br>`flash-attn-ci-image`: Login to DockerHub (`username`)<br>`latest-torch-deepspeed-docker`: Login to DockerHub (`username`)<br>`doc-builder`: Login to DockerHub (`username`)<br>`latest-pytorch-amd`: Login to DockerHub (`username`)<br>`cache-latest-pytorch-amd`: Login to DockerHub (`username`)<br>`latest-pytorch-deepspeed-amd`: Login to DockerHub (`username`)<br>`latest-quantization-torch-docker`: Login to DockerHub (`username`) |
+| `DOCKERHUB_PASSWORD` | `latest-docker`: Login to DockerHub (`password`)<br>`flash-attn-ci-image`: Login to DockerHub (`password`)<br>`latest-torch-deepspeed-docker`: Login to DockerHub (`password`)<br>`doc-builder`: Login to DockerHub (`password`)<br>`latest-pytorch-amd`: Login to DockerHub (`password`)<br>`cache-latest-pytorch-amd`: Login to DockerHub (`password`)<br>`latest-pytorch-deepspeed-amd`: Login to DockerHub (`password`)<br>`latest-quantization-torch-docker`: Login to DockerHub (`password`) |
+| `CI_SLACK_CHANNEL_DOCKER` | `latest-docker`: Post to Slack (`slack_channel`)<br>`flash-attn-ci-image`: Post to Slack (`slack_channel`)<br>`latest-torch-deepspeed-docker`: Post to Slack (`slack_channel`)<br>`doc-builder`: Post to Slack (`slack_channel`)<br>`latest-pytorch-amd`: Post to Slack (`slack_channel`)<br>`latest-pytorch-deepspeed-amd`: Post to Slack (`slack_channel`)<br>`latest-quantization-torch-docker`: Post to Slack (`slack_channel`) |
+| `SLACK_CIFEEDBACK_BOT_TOKEN` | `latest-docker`: Post to Slack (`slack_token`)<br>`flash-attn-ci-image`: Post to Slack (`slack_token`)<br>`latest-torch-deepspeed-docker`: Post to Slack (`slack_token`)<br>`doc-builder`: Post to Slack (`slack_token`)<br>`latest-pytorch-amd`: Post to Slack (`slack_token`)<br>`latest-pytorch-deepspeed-amd`: Post to Slack (`slack_token`)<br>`latest-quantization-torch-docker`: Post to Slack (`slack_token`) |
 
 ## Jobs
 
@@ -1034,7 +1076,7 @@ Permissions declared across the chain: `contents: read`
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `HF_DOC_BUILD_PUSH`, `HUGGINGFACE_PUSH`, `hf_token`, `token`
+Secrets required (declared/forwarded names): `hf_token`, `token`
 
 Permissions declared across the chain: `contents: read`
 
@@ -1046,8 +1088,8 @@ External workflows referenced: `huggingface/doc-builder/.github/workflows/build_
 
 | Name | Used by |
 |------|---------|
-| `HUGGINGFACE_PUSH` | job `build` secrets `token`; job `build_other_lang` secrets `token` |
-| `HF_DOC_BUILD_PUSH` | job `build` secrets `hf_token`; job `build_other_lang` secrets `hf_token` |
+| `HUGGINGFACE_PUSH` | `build`: (`token`)<br>`build_other_lang`: (`token`) |
+| `HF_DOC_BUILD_PUSH` | `build`: (`hf_token`)<br>`build_other_lang`: (`hf_token`) |
 
 ## Jobs
 
@@ -1131,9 +1173,9 @@ External workflows referenced: `huggingface/doc-builder/.github/workflows/build_
 
 | Name | Used by |
 |------|---------|
-| `DOCKERHUB_USERNAME` | job `build` step `Login to DockerHub` with `username` |
-| `DOCKERHUB_PASSWORD` | job `build` step `Login to DockerHub` with `password` |
-| `SLACK_CIFEEDBACK_BOT_TOKEN` | job `notify` step `Post to Slack` with `slack_token` |
+| `DOCKERHUB_USERNAME` | `build`: Login to DockerHub (`username`) |
+| `DOCKERHUB_PASSWORD` | `build`: Login to DockerHub (`password`) |
+| `SLACK_CIFEEDBACK_BOT_TOKEN` | `notify`: Post to Slack (`slack_token`) |
 
 ## Jobs
 
@@ -1359,8 +1401,8 @@ External workflows referenced: `huggingface/security-workflows/.github/workflows
 
 | Name | Used by |
 |------|---------|
-| `TRANSFORMERS_HUB_BOT_HF_TOKEN` | workflow env `TOKEN` |
-| `HF_HUB_READ_TOKEN` | workflow env `HF_TOKEN` |
+| `TRANSFORMERS_HUB_BOT_HF_TOKEN` | workflow env: (`TOKEN`) |
+| `HF_HUB_READ_TOKEN` | workflow env: (`HF_TOKEN`) |
 
 ## Jobs
 
@@ -1427,8 +1469,8 @@ External workflows referenced: `huggingface/security-workflows/.github/workflows
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | job `comment` step `Wait for CircleCI check suite completion` env `GH_TOKEN`; job `comment` step `Get CircleCI run's artifacts and upload them to Hub` env `GITHUB_TOKEN`; job `comment` step `Post comment with helper link` env `GH_TOKEN` |
-| `HF_CI_WRITE_TOKEN` | job `comment` step `Upload summaries to Hub` env `HF_TOKEN` |
+| `GITHUB_TOKEN` | `comment`: Wait for CircleCI check suite completion (`GH_TOKEN`), Get CircleCI run's artifacts and upload them to Hub (`GITHUB_TOKEN`), Post comment with helper link (`GH_TOKEN`) |
+| `HF_CI_WRITE_TOKEN` | `comment`: Upload summaries to Hub (`HF_TOKEN`) |
 
 ## Jobs
 
@@ -1587,8 +1629,6 @@ External workflows referenced: `huggingface/security-workflows/.github/workflows
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `ACCESS_REPO_INFO_TOKEN`, `CI_SLACK_BOT_TOKEN`, `CI_SLACK_CHANNEL_ID_DAILY_DOCS`
-
 Permissions declared across the chain: `contents: read`
 
 ## Referenced secrets and variables
@@ -1597,9 +1637,9 @@ Permissions declared across the chain: `contents: read`
 
 | Name | Used by |
 |------|---------|
-| `CI_SLACK_BOT_TOKEN` | job `send_results` step `Send message to Slack` env `CI_SLACK_BOT_TOKEN` |
-| `ACCESS_REPO_INFO_TOKEN` | job `send_results` step `Send message to Slack` env `ACCESS_REPO_INFO_TOKEN` |
-| `CI_SLACK_CHANNEL_ID_DAILY_DOCS` | job `send_results` step `Send message to Slack` env `SLACK_REPORT_CHANNEL` |
+| `CI_SLACK_BOT_TOKEN` | `send_results`: Send message to Slack (`CI_SLACK_BOT_TOKEN`) |
+| `ACCESS_REPO_INFO_TOKEN` | `send_results`: Send message to Slack (`ACCESS_REPO_INFO_TOKEN`) |
+| `CI_SLACK_CHANNEL_ID_DAILY_DOCS` | `send_results`: Send message to Slack (`SLACK_REPORT_CHANNEL`) |
 
 ## Jobs
 
@@ -1685,7 +1725,7 @@ Permissions declared across the chain: `contents: read`
 | File | `extras-smoke-test.yml` |
 | Default runs-on | `ubuntu-latest` |
 
-**Jobs:** [Get supported Python versions](#get-supported-python-versions-get-python-versions), [Test extras on Python ${{ matrix.python-version }}](#test-extras-on-python--matrixpython-version--test-extras), [Check Slack token availability](#check-slack-token-availability-precheck-slack), [Notify failures to Slack](#notify-failures-to-slack-notify-failures)
+**Jobs:** [Get supported Python versions](#get-supported-python-versions-get-python-versions), [Test extras on Python (python-version)](#test-extras-on-python-python-version-test-extras), [Check Slack token availability](#check-slack-token-availability-precheck-slack), [Notify failures to Slack](#notify-failures-to-slack-notify-failures)
 
 ## Schedule
 
@@ -1707,7 +1747,7 @@ Permissions declared across the chain: `contents: read`
 
 | Name | Used by |
 |------|---------|
-| `SLACK_CIFEEDBACK_BOT_TOKEN` | job `precheck-slack` step `chk` env `SLACK_BOT_TOKEN`; job `notify-failures` step `Send Slack notification` env `SLACK_BOT_TOKEN` |
+| `SLACK_CIFEEDBACK_BOT_TOKEN` | `precheck-slack`: chk (`SLACK_BOT_TOKEN`)<br>`notify-failures`: Send Slack notification (`SLACK_BOT_TOKEN`) |
 
 ## Jobs
 
@@ -1728,7 +1768,7 @@ Permissions declared across the chain: `contents: read`
 
 </details>
 
-### Test extras on Python ${{ matrix.python-version }} (`test-extras`)
+### Test extras on Python (python-version) (`test-extras`)
 
 | Property | Value |
 |----------|-------|
@@ -1861,7 +1901,7 @@ Used to notify core maintainers about new model PR being merged
 
 | Name | Used by |
 |------|---------|
-| `SLACK_CIFEEDBACK_BOT_TOKEN` | job `notify_new_model` step `Notify` env `SLACK_BOT_TOKEN` |
+| `SLACK_CIFEEDBACK_BOT_TOKEN` | `notify_new_model`: Notify (`SLACK_BOT_TOKEN`) |
 
 ## Jobs
 
@@ -1950,8 +1990,6 @@ Inputs for the `workflow_dispatch` event.
   - `check_new_failures` uses [check_failed_tests.yml](#process-failed-tests)
 
 ## Transitive requirements (from full call graph)
-
-Secrets referenced (literal names): `ACCESS_REPO_INFO_TOKEN`, `CI_SLACK_BOT_TOKEN`, `CI_SLACK_CHANNEL_DUMMY_TESTS`, `CI_SLACK_CHANNEL_ID`, `CI_SLACK_CHANNEL_ID_DAILY`, `GITHUB_TOKEN`, `HF_HUB_READ_TOKEN`, `SLACK_CIFEEDBACK_BOT_TOKEN`, `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN`
 
 Permissions declared across the chain: `contents: read`
 
@@ -2168,8 +2206,6 @@ Inputs for the `workflow_dispatch` event.
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `ACCESS_REPO_INFO_TOKEN`, `CI_SLACK_BOT_TOKEN`, `CI_SLACK_CHANNEL_DUMMY_TESTS`, `CI_SLACK_CHANNEL_ID`, `CI_SLACK_CHANNEL_ID_DAILY`, `GITHUB_TOKEN`, `HF_HUB_READ_TOKEN`, `SLACK_CIFEEDBACK_BOT_TOKEN`, `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN`
-
 Permissions declared across the chain: `contents: read`
 
 ## Jobs
@@ -2261,8 +2297,6 @@ Permissions declared across the chain: `contents: read`
   - `check_new_failures` uses [check_failed_tests.yml](#process-failed-tests)
 
 ## Transitive requirements (from full call graph)
-
-Secrets referenced (literal names): `ACCESS_REPO_INFO_TOKEN`, `CI_SLACK_BOT_TOKEN`, `CI_SLACK_CHANNEL_DUMMY_TESTS`, `CI_SLACK_CHANNEL_ID`, `CI_SLACK_CHANNEL_ID_DAILY`, `DOCKERHUB_PASSWORD`, `DOCKERHUB_USERNAME`, `GITHUB_TOKEN`, `HF_HUB_READ_TOKEN`, `SLACK_CIFEEDBACK_BOT_TOKEN`, `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN`
 
 Permissions declared across the chain: `contents: read`
 
@@ -2360,8 +2394,6 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `GITHUB_TOKEN`
-
 Permissions declared across the chain: `contents: read`, `pull-requests: write`, `statuses: write`
 
 External workflows referenced: `huggingface/doc-builder/.github/workflows/build_pr_documentation.yml@093eb65f2e8745457987df060dc392e6bcf1347a`
@@ -2372,7 +2404,7 @@ External workflows referenced: `huggingface/doc-builder/.github/workflows/build_
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | job `create_run` step `Create Run` env `GH_TOKEN`; job `reply_to_comment` step `Reply to the comment` env `GH_TOKEN`; job `update_run_status` env `GH_TOKEN` |
+| `GITHUB_TOKEN` | `create_run`: Create Run (`GH_TOKEN`)<br>`reply_to_comment`: Reply to the comment (`GH_TOKEN`)<br>`update_run_status`: (`GH_TOKEN`) |
 
 ## Jobs
 
@@ -2531,7 +2563,7 @@ External workflows referenced: `huggingface/doc-builder/.github/workflows/build_
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `OTEL_EXPORTER_OTLP_ENDPOINT`, `OTEL_TOKEN`
+Secrets required (declared/forwarded names): `OTEL_EXPORTER_OTLP_ENDPOINT`, `OTEL_TOKEN`
 
 Permissions declared across the chain: `contents: read`
 
@@ -2543,8 +2575,8 @@ External workflows referenced: `huggingface/transformers-test-ci/.github/workflo
 
 | Name | Used by |
 |------|---------|
-| `OTEL_EXPORTER_OTLP_ENDPOINT` | job `pr-ci` secrets `OTEL_EXPORTER_OTLP_ENDPOINT` |
-| `OTEL_TOKEN` | job `pr-ci` secrets `OTEL_TOKEN` |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | `pr-ci`: (`OTEL_EXPORTER_OTLP_ENDPOINT`) |
+| `OTEL_TOKEN` | `pr-ci`: (`OTEL_TOKEN`) |
 
 ## Jobs
 
@@ -2623,8 +2655,6 @@ External workflows referenced: `huggingface/transformers-test-ci/.github/workflo
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `ACCESS_REPO_INFO_TOKEN`, `CI_SLACK_BOT_TOKEN`, `CI_SLACK_CHANNEL_DUMMY_TESTS`, `CI_SLACK_CHANNEL_ID`, `CI_SLACK_CHANNEL_ID_DAILY`, `GITHUB_TOKEN`, `HF_HUB_READ_TOKEN`, `SLACK_CIFEEDBACK_BOT_TOKEN`, `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN`
-
 Permissions declared across the chain: `contents: read`, `pull-requests: write`, `statuses: write`
 
 ## Referenced secrets and variables
@@ -2633,8 +2663,8 @@ Permissions declared across the chain: `contents: read`, `pull-requests: write`,
 
 | Name | Used by |
 |------|---------|
-| `HF_HUB_READ_TOKEN` | workflow env `HF_TOKEN` |
-| `GITHUB_TOKEN` | job `report_error_earlier` step `Reply to the comment` env `GH_TOKEN`; job `reply_to_comment` step `Reply to the comment` env `GH_TOKEN`; job `create_run` step `Create Run` env `GH_TOKEN`; job `report` step `Post results as PR comment` env `GH_TOKEN`; job `report` step `Update PR commit statuses` env `GH_TOKEN` |
+| `HF_HUB_READ_TOKEN` | workflow env: (`HF_TOKEN`) |
+| `GITHUB_TOKEN` | `report_error_earlier`: Reply to the comment (`GH_TOKEN`)<br>`reply_to_comment`: Reply to the comment (`GH_TOKEN`)<br>`create_run`: Create Run (`GH_TOKEN`)<br>`report`: Post results as PR comment (`GH_TOKEN`), Update PR commit statuses (`GH_TOKEN`) |
 
 ## Jobs
 
@@ -2904,8 +2934,6 @@ Permissions declared across the chain: `contents: read`, `pull-requests: write`,
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `HF_STYLE_BOT_ACTION`
-
 Permissions declared across the chain: `contents: read`, `contents: write`, `pull-requests: write`
 
 ## Referenced secrets and variables
@@ -2914,7 +2942,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pul
 
 | Name | Used by |
 |------|---------|
-| `HF_STYLE_BOT_ACTION` | job `commit-and-comment` step `Push changes to fork using git` env `GITHUB_TOKEN` |
+| `HF_STYLE_BOT_ACTION` | `commit-and-comment`: Push changes to fork using git (`GITHUB_TOKEN`) |
 
 ## Jobs
 
@@ -3329,7 +3357,7 @@ Permissions declared across the chain: `contents: read`, `pull-requests: write`
 
 | Name | Used by |
 |------|---------|
-| `ANACONDA_API_TOKEN` | workflow env `ANACONDA_API_TOKEN` |
+| `ANACONDA_API_TOKEN` | workflow env: (`ANACONDA_API_TOKEN`) |
 
 ## Jobs
 
@@ -3592,8 +3620,8 @@ External workflows referenced: `huggingface/hf-workflows/.github/workflows/trans
 
 | Name | Used by |
 |------|---------|
-| `HF_HUB_READ_TOKEN` | job `benchmark` step `Run benchmark` env `HF_TOKEN` |
-| `PUSH_TO_HUB_TOKEN` | job `benchmark` step `Run benchmark` env `PUSH_TO_HUB_TOKEN` |
+| `HF_HUB_READ_TOKEN` | `benchmark`: Run benchmark (`HF_TOKEN`) |
+| `PUSH_TO_HUB_TOKEN` | `benchmark`: Run benchmark (`PUSH_TO_HUB_TOKEN`) |
 
 ## Jobs
 
@@ -3655,8 +3683,6 @@ External workflows referenced: `huggingface/hf-workflows/.github/workflows/trans
   - `send_results` uses [slack-report.yml](#ci-slack-report)
 
 ## Transitive requirements (from full call graph)
-
-Secrets referenced (literal names): `ACCESS_REPO_INFO_TOKEN`, `CI_SLACK_BOT_TOKEN`, `CI_SLACK_CHANNEL_DUMMY_TESTS`, `CI_SLACK_CHANNEL_ID`, `CI_SLACK_CHANNEL_ID_DAILY`, `GITHUB_TOKEN`, `HF_HUB_READ_TOKEN`, `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN`
 
 Permissions declared across the chain: `contents: read`
 
@@ -3789,8 +3815,6 @@ Permissions declared across the chain: `contents: read`
     - `check_new_failures` uses [check_failed_tests.yml](#process-failed-tests)
 
 ## Transitive requirements (from full call graph)
-
-Secrets referenced (literal names): `ACCESS_REPO_INFO_TOKEN`, `CI_SLACK_BOT_TOKEN`, `CI_SLACK_CHANNEL_DUMMY_TESTS`, `CI_SLACK_CHANNEL_ID`, `CI_SLACK_CHANNEL_ID_DAILY`, `GITHUB_TOKEN`, `HF_HUB_READ_TOKEN`, `SLACK_CIFEEDBACK_BOT_TOKEN`, `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN`
 
 Permissions declared across the chain: `contents: read`
 
@@ -4203,8 +4227,6 @@ External workflows referenced: `huggingface/hf-workflows/.github/workflows/trans
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `ACCESS_REPO_INFO_TOKEN`, `CI_SLACK_BOT_TOKEN`, `CI_SLACK_CHANNEL_DUMMY_TESTS`, `CI_SLACK_CHANNEL_ID`, `CI_SLACK_CHANNEL_ID_DAILY`, `GITHUB_TOKEN`, `HF_HUB_READ_TOKEN`, `SLACK_CIFEEDBACK_BOT_TOKEN`, `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN`
-
 Permissions declared across the chain: `contents: read`
 
 ## Jobs
@@ -4304,10 +4326,10 @@ Inputs for the `workflow_dispatch` event.
 
 | Name | Used by |
 |------|---------|
-| `HF_HUB_READ_TOKEN` | workflow env `HF_TOKEN` |
-| `SLACK_CIFEEDBACK_CHANNEL` | job `ssh_runner` step `Store Slack infos` env `default_slack_channel` |
-| `TAILSCALE_SSH_AUTHKEY` | job `ssh_runner` step `Tailscale` with `authkey` |
-| `SLACK_CIFEEDBACK_BOT_TOKEN` | job `ssh_runner` step `Tailscale` with `slackToken` |
+| `HF_HUB_READ_TOKEN` | workflow env: (`HF_TOKEN`) |
+| `SLACK_CIFEEDBACK_CHANNEL` | `ssh_runner`: Store Slack infos (`default_slack_channel`) |
+| `TAILSCALE_SSH_AUTHKEY` | `ssh_runner`: Tailscale (`authkey`) |
+| `SLACK_CIFEEDBACK_BOT_TOKEN` | `ssh_runner`: Tailscale (`slackToken`) |
 
 ## Jobs
 
@@ -4406,7 +4428,7 @@ Inputs for the `workflow_dispatch` event.
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | job `close_stale_issues` env `GITHUB_TOKEN` |
+| `GITHUB_TOKEN` | `close_stale_issues`: (`GITHUB_TOKEN`) |
 
 ## Jobs
 
@@ -4451,7 +4473,14 @@ Inputs for the `workflow_dispatch` event.
 
 **Triggers:** `issue_comment`
 
-This workflow allows trusted contributors to trigger TRL CI runs against specific Transformers commits by commenting `/trl-ci` on a PR in the TRL repo. It is meant to be used during the ongoing Trainer refactor/unbloat in Transformers, to help evaluate the downstream impact on TRL.
+This workflow allows trusted contributors to trigger TRL CI runs against specific Transformers commits by commenting `/trl-ci` on a PR in the TRL repo.
+
+<details>
+<summary>more</summary>
+
+It is meant to be used during the ongoing Trainer refactor/unbloat in Transformers, to help evaluate the downstream impact on TRL.
+
+</details>
 
 | Property | Value |
 |----------|-------|
@@ -4474,7 +4503,7 @@ This workflow allows trusted contributors to trigger TRL CI runs against specifi
 
 | Name | Used by |
 |------|---------|
-| `TRL_CI_DISPATCH_TOKEN` | job `dispatch` step `Dispatch TRL workflow` env `GH_TOKEN`; job `dispatch` step `Find TRL workflow run URL` env `GH_TOKEN` |
+| `TRL_CI_DISPATCH_TOKEN` | `dispatch`: Dispatch TRL workflow (`GH_TOKEN`), Find TRL workflow run URL (`GH_TOKEN`) |
 
 ## Jobs
 
@@ -4548,7 +4577,7 @@ This workflow allows trusted contributors to trigger TRL CI runs against specifi
 
 | Name | Used by |
 |------|---------|
-| `LYSANDRE_HF_TOKEN` | job `build_and_package` step `Update metadata` env `HF_TOKEN` |
+| `LYSANDRE_HF_TOKEN` | `build_and_package`: Update metadata (`HF_TOKEN`) |
 
 ## Jobs
 
@@ -4603,7 +4632,7 @@ This workflow allows trusted contributors to trigger TRL CI runs against specifi
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `COMMENT_BOT_TOKEN`, `HF_DOC_BUILD_PUSH`, `comment_bot_token`, `hf_token`
+Secrets required (declared/forwarded names): `comment_bot_token`, `hf_token`
 
 Permissions declared across the chain: `contents: read`
 
@@ -4615,8 +4644,8 @@ External workflows referenced: `huggingface/doc-builder/.github/workflows/upload
 
 | Name | Used by |
 |------|---------|
-| `HF_DOC_BUILD_PUSH` | job `build` secrets `hf_token` |
-| `COMMENT_BOT_TOKEN` | job `build` secrets `comment_bot_token` |
+| `HF_DOC_BUILD_PUSH` | `build`: (`hf_token`) |
+| `COMMENT_BOT_TOKEN` | `build`: (`comment_bot_token`) |
 
 ## Jobs
 
@@ -4680,8 +4709,8 @@ External workflows referenced: `huggingface/doc-builder/.github/workflows/upload
 
 | Name | Used by |
 |------|---------|
-| `ACCESS_REPO_INFO_TOKEN` | job `collated_reports` step `Collated reports` env `ACCESS_REPO_INFO_TOKEN` |
-| `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN` | job `collated_reports` step `Collated reports` env `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN` |
+| `ACCESS_REPO_INFO_TOKEN` | `collated_reports`: Collated reports (`ACCESS_REPO_INFO_TOKEN`) |
+| `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN` | `collated_reports`: Collated reports (`TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN`) |
 
 ## Jobs
 
@@ -4775,13 +4804,13 @@ External workflows referenced: `huggingface/doc-builder/.github/workflows/upload
 
 | Name | Used by |
 |------|---------|
-| `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN` | workflow env `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN` |
-| `GITHUB_TOKEN` | job `send_results` step `actions/download-artifact@v8.0.1` with `github-token` |
-| `CI_SLACK_BOT_TOKEN` | job `send_results` step `Send message to Slack` env `CI_SLACK_BOT_TOKEN` |
-| `CI_SLACK_CHANNEL_ID` | job `send_results` step `Send message to Slack` env `CI_SLACK_CHANNEL_ID` |
-| `CI_SLACK_CHANNEL_ID_DAILY` | job `send_results` step `Send message to Slack` env `CI_SLACK_CHANNEL_ID_DAILY` |
-| `CI_SLACK_CHANNEL_DUMMY_TESTS` | job `send_results` step `Send message to Slack` env `CI_SLACK_CHANNEL_DUMMY_TESTS` |
-| `ACCESS_REPO_INFO_TOKEN` | job `send_results` step `Send message to Slack` env `ACCESS_REPO_INFO_TOKEN` |
+| `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN` | workflow env: (`TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN`) |
+| `GITHUB_TOKEN` | `send_results`: actions/download-artifact@v8.0.1 (`github-token`) |
+| `CI_SLACK_BOT_TOKEN` | `send_results`: Send message to Slack (`CI_SLACK_BOT_TOKEN`) |
+| `CI_SLACK_CHANNEL_ID` | `send_results`: Send message to Slack (`CI_SLACK_CHANNEL_ID`) |
+| `CI_SLACK_CHANNEL_ID_DAILY` | `send_results`: Send message to Slack (`CI_SLACK_CHANNEL_ID_DAILY`) |
+| `CI_SLACK_CHANNEL_DUMMY_TESTS` | `send_results`: Send message to Slack (`CI_SLACK_CHANNEL_DUMMY_TESTS`) |
+| `ACCESS_REPO_INFO_TOKEN` | `send_results`: Send message to Slack (`ACCESS_REPO_INFO_TOKEN`) |
 
 ## Jobs
 
@@ -5121,7 +5150,7 @@ External workflows referenced: `huggingface/doc-builder/.github/workflows/upload
 
 | Name | Used by |
 |------|---------|
-| `HF_HUB_READ_TOKEN` | workflow env `HF_TOKEN` |
+| `HF_HUB_READ_TOKEN` | workflow env: (`HF_TOKEN`) |
 
 ## Jobs
 
@@ -5271,7 +5300,7 @@ External workflows referenced: `huggingface/doc-builder/.github/workflows/upload
 
 | Name | Used by |
 |------|---------|
-| `HF_HUB_READ_TOKEN` | workflow env `HF_TOKEN` |
+| `HF_HUB_READ_TOKEN` | workflow env: (`HF_TOKEN`) |
 
 ## Jobs
 
@@ -5422,9 +5451,9 @@ External workflows referenced: `huggingface/doc-builder/.github/workflows/upload
 
 | Name | Used by |
 |------|---------|
-| `HF_HUB_READ_TOKEN` | workflow env `HF_TOKEN` |
-| `GITHUB_TOKEN` | job `run_extract_warnings` step `actions/download-artifact@v8.0.1` with `github-token` |
-| `ACCESS_REPO_INFO_TOKEN` | job `run_extract_warnings` step `Extract warnings in CI artifacts` env `access_token` |
+| `HF_HUB_READ_TOKEN` | workflow env: (`HF_TOKEN`) |
+| `GITHUB_TOKEN` | `run_extract_warnings`: actions/download-artifact@v8.0.1 (`github-token`) |
+| `ACCESS_REPO_INFO_TOKEN` | `run_extract_warnings`: Extract warnings in CI artifacts (`access_token`) |
 
 ## Jobs
 
@@ -5894,11 +5923,11 @@ External workflows referenced: `huggingface/doc-builder/.github/workflows/upload
 
 | Name | Used by |
 |------|---------|
-| `HF_HUB_READ_TOKEN` | workflow env `HF_TOKEN` |
-| `GITHUB_TOKEN` | job `check_new_failures` step `actions/download-artifact@v8.0.1` with `github-token`; job `process_new_failures_with_commit_info` step `actions/download-artifact@v8.0.1` with `github-token` |
-| `ACCESS_REPO_INFO_TOKEN` | job `check_new_failures` step `Get `END_SHA` from previous CI runs of the same workflow` env `ACCESS_TOKEN`; job `process_new_failures_with_commit_info` step `Process report` env `ACCESS_REPO_INFO_TOKEN` |
-| `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN` | job `process_new_failures_with_commit_info` step `Process report` env `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN` |
-| `SLACK_CIFEEDBACK_BOT_TOKEN` | job `process_new_failures_with_commit_info` step `Send processed report` env `SLACK_BOT_TOKEN` |
+| `HF_HUB_READ_TOKEN` | workflow env: (`HF_TOKEN`) |
+| `GITHUB_TOKEN` | `check_new_failures`: actions/download-artifact@v8.0.1 (`github-token`)<br>`process_new_failures_with_commit_info`: actions/download-artifact@v8.0.1 (`github-token`) |
+| `ACCESS_REPO_INFO_TOKEN` | `check_new_failures`: Get `END_SHA` from previous CI runs of the same workflow (`ACCESS_TOKEN`)<br>`process_new_failures_with_commit_info`: Process report (`ACCESS_REPO_INFO_TOKEN`) |
+| `TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN` | `process_new_failures_with_commit_info`: Process report (`TRANSFORMERS_CI_RESULTS_UPLOAD_TOKEN`) |
+| `SLACK_CIFEEDBACK_BOT_TOKEN` | `process_new_failures_with_commit_info`: Send processed report (`SLACK_BOT_TOKEN`) |
 
 ## Jobs
 
@@ -6199,7 +6228,7 @@ External workflows referenced: `huggingface/doc-builder/.github/workflows/upload
 
 | Name | Used by |
 |------|---------|
-| `HF_HUB_READ_TOKEN` | workflow env `HF_TOKEN` |
+| `HF_HUB_READ_TOKEN` | workflow env: (`HF_TOKEN`) |
 
 ## Jobs
 

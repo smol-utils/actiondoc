@@ -16,6 +16,22 @@
 
 - [Deploy](#deploy)
 
+## Secrets and variables used across this repository
+
+**Secrets:**
+
+| Name | Used by |
+|------|---------|
+| `CI_BUILD_TOKEN` | [CI](#ci) |
+| `DEPLOY_TOKEN` | [CI](#ci) |
+
+## Permissions across this repository
+
+| Scope | Level |
+|-------|-------|
+| `contents` | `read` |
+| `id-token` | `write` (OIDC) |
+
 # CI
 
 **Triggers:** `push`
@@ -35,7 +51,7 @@
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `BUILD_TOKEN`, `CI_BUILD_TOKEN`, `DEPLOY_TOKEN`
+Secrets required (declared/forwarded names): `BUILD_TOKEN`
 
 Permissions declared across the chain: `contents: read`, `id-token: write (OIDC)`
 
@@ -45,8 +61,8 @@ Permissions declared across the chain: `contents: read`, `id-token: write (OIDC)
 
 | Name | Used by |
 |------|---------|
-| `CI_BUILD_TOKEN` | job `build` secrets `BUILD_TOKEN` |
-| `DEPLOY_TOKEN` | job `deploy` step `Deploy to staging` with `token` |
+| `CI_BUILD_TOKEN` | `build`: (`BUILD_TOKEN`) |
+| `DEPLOY_TOKEN` | `deploy`: Deploy to staging (`token`) |
 
 ## Jobs
 

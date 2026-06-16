@@ -21,6 +21,18 @@
 - [verifier action - schedule, workflow_dispatch](#verifier-action)
 - [Verifier releaser - workflow_dispatch, push, schedule](#verifier-releaser)
 
+## Permissions across this repository
+
+| Scope | Level |
+|-------|-------|
+| `(all scopes)` | `read-all` |
+| `actions` | `read` |
+| `contents` | `write` (also granted as `read` elsewhere) |
+| `id-token` | `write` (OIDC) |
+| `issues` | `write` |
+| `pull-requests` | `read` |
+| `security-events` | `write` |
+
 # Actions pre submits
 
 **Triggers:** `pull_request`, `workflow_dispatch`
@@ -75,7 +87,14 @@ All scopes: `read-all`.
 
 **Triggers:** `push`, `pull_request`, `schedule`
 
-For most projects, this workflow file will not need changing; you simply need to commit it to your repository. You may wish to alter this file to override the set of languages analyzed, or to provide custom queries or build logic. ******** NOTE ******** We have attempted to detect the languages in your repository. Please check the `language` matrix defined below to confirm you have the correct set of supported CodeQL languages.
+For most projects, this workflow file will not need changing; you simply need to commit it to your repository.
+
+<details>
+<summary>more</summary>
+
+You may wish to alter this file to override the set of languages analyzed, or to provide custom queries or build logic. ******** NOTE ******** We have attempted to detect the languages in your repository. Please check the `language` matrix defined below to confirm you have the correct set of supported CodeQL languages.
+
+</details>
 
 | Property | Value |
 |----------|-------|
@@ -194,7 +213,7 @@ All scopes: `read-all`.
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | job `large-file-check` step `actionsdesk/lfs-warning@v3.3` with `token` |
+| `GITHUB_TOKEN` | `large-file-check`: actionsdesk/lfs-warning@v3.3 (`token`) |
 
 ## Jobs
 
@@ -244,7 +263,7 @@ All scopes: `read-all`.
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | job `validate` step `thehanimo/pr-title-checker@v1.4.3` with `GITHUB_TOKEN` |
+| `GITHUB_TOKEN` | `validate`: thehanimo/pr-title-checker@v1.4.3 (`GITHUB_TOKEN`) |
 
 ## Jobs
 
@@ -345,7 +364,7 @@ All scopes: `read-all`.
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | job `pre-submit` step `Run verification script with testdata and slsa-verifier HEAD` env `GH_TOKEN` |
+| `GITHUB_TOKEN` | `pre-submit`: Run verification script with testdata and slsa-verifier HEAD (`GH_TOKEN`) |
 
 ## Jobs
 
@@ -639,7 +658,14 @@ All scopes: `read-all`.
 
 **Triggers:** `workflow_dispatch`
 
-A workflow to run against renovate-bot's PRs, such as `make package` after it updates the package.json and package-lock.json files. The potentially untrusted code is first run inside a low-privilege Job, and the diff is uploaded as an artifact. Then a higher-privilege Job applies the diff and pushes the changes to the PR. It's important to only run this workflow against PRs from trusted sources, after also reviewing the changes! There have been vulnerabilities with using `git apply` https://github.blog/2023-04-25-git-security-vulnerabilities-announced-4/ At this point a compromised git binary cannot modify any of this repo's branches, only the PR fork's branch, due to our branch protection rules and CODEOWNERS. It aslso cannot submit a new release or modify exsiting releases due to tag protection rules.
+A workflow to run against renovate-bot's PRs, such as `make package` after it updates the package.json and package-lock.json files.
+
+<details>
+<summary>more</summary>
+
+The potentially untrusted code is first run inside a low-privilege Job, and the diff is uploaded as an artifact. Then a higher-privilege Job applies the diff and pushes the changes to the PR. It's important to only run this workflow against PRs from trusted sources, after also reviewing the changes! There have been vulnerabilities with using `git apply` https://github.blog/2023-04-25-git-security-vulnerabilities-announced-4/ At this point a compromised git binary cannot modify any of this repo's branches, only the PR fork's branch, due to our branch protection rules and CODEOWNERS. It aslso cannot submit a new release or modify exsiting releases due to tag protection rules.
+
+</details>
 
 | Property | Value |
 |----------|-------|
@@ -957,7 +983,7 @@ All scopes: `read-all`.
 | File | `release.yml` |
 | Default runs-on | `ubuntu-latest` |
 
-**Jobs:** [`args`](#args), [builder-${{matrix.os}}-${{matrix.arch}}](#builder-matrixos-matrixarch-builder), [`verification`](#verification), [`if-succeed`](#if-succeed-1), [`if-failed`](#if-failed-2)
+**Jobs:** [`args`](#args), [builder-(os)-(arch)](#builder-os-arch-builder), [`verification`](#verification), [`if-succeed`](#if-succeed-1), [`if-failed`](#if-failed-2)
 
 ## Schedule
 
@@ -988,8 +1014,6 @@ All scopes: `read-all`.
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `GITHUB_TOKEN`
-
 Permissions declared across the chain: `actions: read`, `contents: read`, `contents: write`, `id-token: write (OIDC)`, `issues: write`, `read-all`
 
 External workflows referenced: `slsa-framework/slsa-github-generator/.github/workflows/builder_go_slsa3.yml@v2.0.0`
@@ -1000,7 +1024,7 @@ External workflows referenced: `slsa-framework/slsa-github-generator/.github/wor
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | workflow env `GH_TOKEN`; job `verification` step `Download assets` env `GH_TOKEN` |
+| `GITHUB_TOKEN` | workflow env: (`GH_TOKEN`)<br>`verification`: Download assets (`GH_TOKEN`) |
 
 ## Jobs
 
@@ -1020,7 +1044,7 @@ External workflows referenced: `slsa-framework/slsa-github-generator/.github/wor
 
 </details>
 
-### builder-${{matrix.os}}-${{matrix.arch}} (`builder`)
+### builder-(os)-(arch) (`builder`)
 
 | Property | Value |
 |----------|-------|

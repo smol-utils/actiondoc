@@ -2,11 +2,22 @@ package model
 
 import "strings"
 
-// Reference is a referenced secret or variable together with the human-readable sites
-// where it is used.
+// Reference is a referenced secret or variable together with the sites where it is used.
 type Reference struct {
-	Name  string   `json:"name"`
-	Sites []string `json:"sites,omitempty"`
+	Name  string `json:"name"`
+	Sites []Site `json:"sites,omitempty"`
+}
+
+// Site is one place a secret or variable is referenced, broken into its parts so consumers
+// can group usage by job. Job is the job id, empty for a workflow-level env site. Step is the
+// step label, empty for a job-level site (job env/with/secrets/if) and for the workflow level.
+// Name is the local name the reference is bound to: a with:/env: key, a forwarded secrets:
+// key, or the verb "run"/"if" when the reference is the value itself (a run: script or an if:
+// condition has no separate input name).
+type Site struct {
+	Job  string `json:"job,omitempty"`
+	Step string `json:"step,omitempty"`
+	Name string `json:"name"`
 }
 
 // References holds the secrets and variables referenced by a workflow, deduplicated and
@@ -28,31 +39,30 @@ func (r References) Empty() bool {
 func ScanReferences(w *Workflow) References {
 	sc := newRefScan()
 	for _, kv := range w.Env {
-		sc.scan(kv.Value, "workflow env `"+kv.Key+"`")
+		sc.scan(kv.Value, Site{Name: kv.Key})
 	}
 	for ji := range w.Jobs {
 		job := &w.Jobs[ji]
-		jobLabel := "job `" + job.ID + "`"
-		sc.scanCondition(job.If, jobLabel+" (if)")
+		sc.scanCondition(job.If, Site{Job: job.ID, Name: "if"})
 		for _, kv := range job.Env {
-			sc.scan(kv.Value, jobLabel+" env `"+kv.Key+"`")
+			sc.scan(kv.Value, Site{Job: job.ID, Name: kv.Key})
 		}
 		for _, kv := range job.With {
-			sc.scan(kv.Value, jobLabel+" with `"+kv.Key+"`")
+			sc.scan(kv.Value, Site{Job: job.ID, Name: kv.Key})
 		}
 		for _, kv := range job.Secrets {
-			sc.scan(kv.Value, jobLabel+" secrets `"+kv.Key+"`")
+			sc.scan(kv.Value, Site{Job: job.ID, Name: kv.Key})
 		}
 		for si := range job.Steps {
 			step := &job.Steps[si]
-			stepLabel := jobLabel + " step `" + stepRefLabel(step, si+1) + "`"
-			sc.scanCondition(step.If, stepLabel+" (if)")
-			sc.scan(step.Run, stepLabel+" (run)")
+			stepLabel := stepRefLabel(step, si+1)
+			sc.scanCondition(step.If, Site{Job: job.ID, Step: stepLabel, Name: "if"})
+			sc.scan(step.Run, Site{Job: job.ID, Step: stepLabel, Name: "run"})
 			for _, kv := range step.With {
-				sc.scan(kv.Value, stepLabel+" with `"+kv.Key+"`")
+				sc.scan(kv.Value, Site{Job: job.ID, Step: stepLabel, Name: kv.Key})
 			}
 			for _, kv := range step.Env {
-				sc.scan(kv.Value, stepLabel+" env `"+kv.Key+"`")
+				sc.scan(kv.Value, Site{Job: job.ID, Step: stepLabel, Name: kv.Key})
 			}
 		}
 	}
@@ -77,7 +87,7 @@ func newRefScan() *refScan {
 
 // scan extracts secrets.X / vars.Y references from every ${{ ... }} block in s and records
 // them against the given site.
-func (sc *refScan) scan(s, site string) {
+func (sc *refScan) scan(s string, site Site) {
 	if s == "" || !strings.Contains(s, "${{") {
 		return
 	}
@@ -92,14 +102,14 @@ func (sc *refScan) scan(s, site string) {
 // expression body; any ${{ }} the author did include is a substring and is still matched.
 // This differs from scan(), used for run/with/env, where a bare secrets.X is plain text,
 // not an expression, and must not be collected.
-func (sc *refScan) scanCondition(s, site string) {
+func (sc *refScan) scanCondition(s string, site Site) {
 	if s == "" {
 		return
 	}
 	sc.collect(s, site)
 }
 
-func (sc *refScan) collect(body, site string) {
+func (sc *refScan) collect(body string, site Site) {
 	for _, name := range contextRefs(body, "secrets") {
 		sc.secrets.add(name, site)
 	}
@@ -111,19 +121,19 @@ func (sc *refScan) collect(body, site string) {
 // refAcc collects names in first-seen order, merging the (deduplicated) sites of each.
 type refAcc struct {
 	order []string
-	sites map[string][]string
-	seen  map[string]bool // name\x00site -> true, to avoid duplicate sites
+	sites map[string][]Site
+	seen  map[string]bool // name\x00job\x00step\x00name -> true, to avoid duplicate sites
 }
 
 func newRefAcc() *refAcc {
-	return &refAcc{sites: map[string][]string{}, seen: map[string]bool{}}
+	return &refAcc{sites: map[string][]Site{}, seen: map[string]bool{}}
 }
 
-func (a *refAcc) add(name, site string) {
+func (a *refAcc) add(name string, site Site) {
 	if _, ok := a.sites[name]; !ok {
 		a.order = append(a.order, name)
 	}
-	key := name + "\x00" + site
+	key := name + "\x00" + site.Job + "\x00" + site.Step + "\x00" + site.Name
 	if a.seen[key] {
 		return
 	}

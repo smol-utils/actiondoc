@@ -65,6 +65,32 @@
 - [Run migration tests](#run-migration-tests)
 - [Setup Breeze](#setup-breeze)
 
+## Secrets and variables used across this repository
+
+**Secrets:**
+
+| Name | Used by |
+|------|---------|
+| `CODECOV_TOKEN` | [Integration and system tests](#integration-and-system-tests), [Unit tests](#unit-tests) |
+| `CONSTRAINTS_GITHUB_REPOSITORY` | [Build CI images](#build-ci-images), [Build PROD images](#build-prod-images), [Push image cache](#push-image-cache) |
+| `DOCKERHUB_TOKEN` | [Release PROD images](#release-prod-images), [Release single PROD image](#release-single-prod-image) |
+| `DOCKERHUB_USER` | [Release PROD images](#release-prod-images), [Release single PROD image](#release-single-prod-image) |
+| `DOCS_AWS_ACCESS_KEY_ID` | [Build & Publish Registry](#build--publish-registry), [CI Image Checks](#ci-image-checks), [Publish Docs to S3](#publish-docs-to-s3), [Registry Backfill](#registry-backfill), [Tests (AMD)](#tests-amd), [Tests (ARM)](#tests-arm) |
+| `DOCS_AWS_SECRET_ACCESS_KEY` | [Build & Publish Registry](#build--publish-registry), [CI Image Checks](#ci-image-checks), [Publish Docs to S3](#publish-docs-to-s3), [Registry Backfill](#registry-backfill), [Tests (AMD)](#tests-amd), [Tests (ARM)](#tests-arm) |
+| `SLACK_BOT_TOKEN` | [CI Image Checks](#ci-image-checks), [CI Notification](#ci-notification), [E2E Flaky Tests Report](#e2e-flaky-tests-report), [\[main\] Scheduled CI upgrade check](#main-scheduled-ci-upgrade-check), [Scheduled verify release calendar](#scheduled-verify-release-calendar), [Tests (AMD)](#tests-amd), [Tests (ARM)](#tests-arm), [Update constraints on push for main (only when uv.lock changes)](#update-constraints-on-push-for-main-only-when-uvlock-changes), [Update constraints on push for stable branch (always)](#update-constraints-on-push-for-stable-branch-always), [Upgrade check](#upgrade-check), [\[v3-2-test\] Scheduled CI upgrade check](#v3-2-test-scheduled-ci-upgrade-check) |
+
+## Permissions across this repository
+
+| Scope | Level |
+|-------|-------|
+| `actions` | `read` |
+| `contents` | `write` (also granted as `read` elsewhere) |
+| `id-token` | `write` (OIDC) |
+| `issues` | `write` |
+| `packages` | `write` (also granted as `read` elsewhere) |
+| `pull-requests` | `write` (also granted as `read` elsewhere) |
+| `security-events` | `write` |
+
 # [main] Scheduled CI upgrade check
 
 **Triggers:** `schedule`, `workflow_dispatch`
@@ -92,7 +118,7 @@
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `GITHUB_TOKEN`, `SLACK_BOT_TOKEN`
+Secrets required (declared/forwarded names): `SLACK_BOT_TOKEN`
 
 Permissions declared across the chain: `contents: write`, `pull-requests: write`
 
@@ -102,7 +128,7 @@ Permissions declared across the chain: `contents: write`, `pull-requests: write`
 
 | Name | Used by |
 |------|---------|
-| `SLACK_BOT_TOKEN` | job `upgrade-main` secrets `SLACK_BOT_TOKEN` |
+| `SLACK_BOT_TOKEN` | `upgrade-main`: (`SLACK_BOT_TOKEN`) |
 
 ## Jobs
 
@@ -149,7 +175,7 @@ Permissions declared across the chain: `contents: write`, `pull-requests: write`
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `GITHUB_TOKEN`, `SLACK_BOT_TOKEN`
+Secrets required (declared/forwarded names): `SLACK_BOT_TOKEN`
 
 Permissions declared across the chain: `contents: write`, `pull-requests: write`
 
@@ -159,7 +185,7 @@ Permissions declared across the chain: `contents: write`, `pull-requests: write`
 
 | Name | Used by |
 |------|---------|
-| `SLACK_BOT_TOKEN` | job `upgrade-v3-2-test` secrets `SLACK_BOT_TOKEN` |
+| `SLACK_BOT_TOKEN` | `upgrade-v3-2-test`: (`SLACK_BOT_TOKEN`) |
 
 ## Jobs
 
@@ -227,8 +253,6 @@ Inputs for the `workflow_dispatch` event.
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `GITHUB_TOKEN`
-
 Permissions declared across the chain: `contents: read`
 
 ## Called by
@@ -245,11 +269,11 @@ Permissions declared across the chain: `contents: read`
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | job `test-e2e-integration-tests` env `GITHUB_TOKEN` |
+| `GITHUB_TOKEN` | `test-e2e-integration-tests`: (`GITHUB_TOKEN`) |
 
 ## Jobs
 
-### ${{ inputs.workflow-name }} (`test-e2e-integration-tests`)
+### `test-e2e-integration-tests`
 
 | Property | Value |
 |----------|-------|
@@ -376,8 +400,6 @@ Permissions declared across the chain: `contents: read`
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `GITHUB_TOKEN`
-
 Permissions declared across the chain: `contents: read`, `contents: write`, `pull-requests: write`
 
 ## Referenced secrets and variables
@@ -386,7 +408,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pul
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | job `get-pr-info` step `Find PR information` env `GITHUB_TOKEN` |
+| `GITHUB_TOKEN` | `get-pr-info`: Find PR information (`GITHUB_TOKEN`) |
 
 ## Jobs
 
@@ -478,7 +500,7 @@ Inputs for the `workflow_dispatch` event.
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | job `backport` step `Run backport script` env `GH_AUTH` |
+| `GITHUB_TOKEN` | `backport`: Run backport script (`GH_AUTH`) |
 
 ## Jobs
 
@@ -576,7 +598,7 @@ Inputs for the `workflow_dispatch` event.
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `CONSTRAINTS_GITHUB_REPOSITORY`, `DOCS_AWS_ACCESS_KEY_ID`, `DOCS_AWS_SECRET_ACCESS_KEY`, `GITHUB_TOKEN`
+Secrets required (declared/forwarded names): `DOCS_AWS_ACCESS_KEY_ID`, `DOCS_AWS_SECRET_ACCESS_KEY`
 
 Permissions declared across the chain: `contents: read`, `packages: read`, `packages: write`
 
@@ -592,8 +614,8 @@ Permissions declared across the chain: `contents: read`, `packages: read`, `pack
 
 | Name | Used by |
 |------|---------|
-| `DOCS_AWS_ACCESS_KEY_ID` | job `build-and-publish-registry` step `Configure AWS credentials` with `aws-access-key-id` |
-| `DOCS_AWS_SECRET_ACCESS_KEY` | job `build-and-publish-registry` step `Configure AWS credentials` with `aws-secret-access-key` |
+| `DOCS_AWS_ACCESS_KEY_ID` | `build-and-publish-registry`: Configure AWS credentials (`aws-access-key-id`) |
+| `DOCS_AWS_SECRET_ACCESS_KEY` | `build-and-publish-registry`: Configure AWS credentials (`aws-secret-access-key`) |
 
 ## Jobs
 
@@ -814,8 +836,8 @@ Permissions declared across the chain: `contents: read`, `packages: read`, `pack
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | workflow env `GITHUB_TOKEN`; job `workflow-status` step `Find workflow run status` env `GITHUB_TOKEN`; job `workflow-status` step `Determine notification action` env `GITHUB_TOKEN` |
-| `SLACK_BOT_TOKEN` | workflow env `SLACK_BOT_TOKEN` |
+| `GITHUB_TOKEN` | workflow env: (`GITHUB_TOKEN`)<br>`workflow-status`: Find workflow run status (`GITHUB_TOKEN`), Determine notification action (`GITHUB_TOKEN`) |
+| `SLACK_BOT_TOKEN` | workflow env: (`SLACK_BOT_TOKEN`) |
 
 ## Jobs
 
@@ -1050,8 +1072,8 @@ Permissions declared across the chain: `contents: read`, `packages: read`, `pack
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | workflow env `GITHUB_TOKEN`; job `analyze-flaky-tests` step `Analyze E2E test results` env `GITHUB_TOKEN` |
-| `SLACK_BOT_TOKEN` | workflow env `SLACK_BOT_TOKEN` |
+| `GITHUB_TOKEN` | workflow env: (`GITHUB_TOKEN`)<br>`analyze-flaky-tests`: Analyze E2E test results (`GITHUB_TOKEN`) |
+| `SLACK_BOT_TOKEN` | workflow env: (`SLACK_BOT_TOKEN`) |
 
 ## Jobs
 
@@ -1127,8 +1149,6 @@ Permissions declared across the chain: `contents: read`, `packages: read`, `pack
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `GITHUB_TOKEN`
-
 Permissions declared across the chain: `contents: write`, `pull-requests: write`
 
 ## Referenced secrets and variables
@@ -1137,7 +1157,7 @@ Permissions declared across the chain: `contents: write`, `pull-requests: write`
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | job `get-pr-info` step `Find PR information` env `GITHUB_TOKEN` |
+| `GITHUB_TOKEN` | `get-pr-info`: Find PR information (`GITHUB_TOKEN`) |
 
 ## Jobs
 
@@ -1217,7 +1237,7 @@ Permissions declared across the chain: `contents: write`, `pull-requests: write`
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | job `notify` step `Notify open PRs` env `GITHUB_TOKEN` |
+| `GITHUB_TOKEN` | `notify`: Notify open PRs (`GITHUB_TOKEN`) |
 
 ## Jobs
 
@@ -1291,7 +1311,7 @@ Inputs for the `workflow_dispatch` event.
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `CONSTRAINTS_GITHUB_REPOSITORY`, `DOCS_AWS_ACCESS_KEY_ID`, `DOCS_AWS_SECRET_ACCESS_KEY`, `GITHUB_TOKEN`
+Secrets required (declared/forwarded names): `DOCS_AWS_ACCESS_KEY_ID`, `DOCS_AWS_SECRET_ACCESS_KEY`
 
 Permissions declared across the chain: `contents: read`, `id-token: write (OIDC)`, `packages: read`, `packages: write`
 
@@ -1301,9 +1321,9 @@ Permissions declared across the chain: `contents: read`, `id-token: write (OIDC)
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | job `build-docs` env `GITHUB_TOKEN`; job `build-docs` step `Login to ghcr.io` env `GITHUB_TOKEN`; job `publish-docs-to-s3` env `GITHUB_TOKEN`; job `publish-docs-to-s3` step `Prepare SBOMs` env `GITHUB_TOKEN` |
-| `DOCS_AWS_ACCESS_KEY_ID` | job `publish-docs-to-s3` step `Configure AWS credentials` with `aws-access-key-id`; job `update-registry` secrets `DOCS_AWS_ACCESS_KEY_ID` |
-| `DOCS_AWS_SECRET_ACCESS_KEY` | job `publish-docs-to-s3` step `Configure AWS credentials` with `aws-secret-access-key`; job `update-registry` secrets `DOCS_AWS_SECRET_ACCESS_KEY` |
+| `GITHUB_TOKEN` | `build-docs`: (`GITHUB_TOKEN`), Login to ghcr.io (`GITHUB_TOKEN`)<br>`publish-docs-to-s3`: (`GITHUB_TOKEN`), Prepare SBOMs (`GITHUB_TOKEN`) |
+| `DOCS_AWS_ACCESS_KEY_ID` | `publish-docs-to-s3`: Configure AWS credentials (`aws-access-key-id`)<br>`update-registry`: (`DOCS_AWS_ACCESS_KEY_ID`) |
+| `DOCS_AWS_SECRET_ACCESS_KEY` | `publish-docs-to-s3`: Configure AWS credentials (`aws-secret-access-key`)<br>`update-registry`: (`DOCS_AWS_SECRET_ACCESS_KEY`) |
 
 ## Jobs
 
@@ -1631,7 +1651,7 @@ Permissions declared across the chain: `contents: read`, `id-token: write (OIDC)
 | File | `registry-backfill.yml` |
 | Default runs-on | `ubuntu-latest` |
 
-**Jobs:** [Build CI image](#build-ci-image-build-ci-image-1), [`prepare`](#prepare), [Backfill ${{ matrix.provider }} (${{ matrix.versions }})](#backfill--matrixprovider---matrixversions--backfill), [Publish versions.json](#publish-versionsjson-publish-versions)
+**Jobs:** [Build CI image](#build-ci-image-build-ci-image-1), [`prepare`](#prepare), [Backfill (provider) ((versions))](#backfill-provider-versions-backfill), [Publish versions.json](#publish-versionsjson-publish-versions)
 
 ## Manual trigger inputs
 
@@ -1658,8 +1678,6 @@ Inputs for the `workflow_dispatch` event.
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `CONSTRAINTS_GITHUB_REPOSITORY`, `DOCS_AWS_ACCESS_KEY_ID`, `DOCS_AWS_SECRET_ACCESS_KEY`, `GITHUB_TOKEN`
-
 Permissions declared across the chain: `contents: read`, `packages: read`, `packages: write`
 
 ## Referenced secrets and variables
@@ -1668,8 +1686,8 @@ Permissions declared across the chain: `contents: read`, `packages: read`, `pack
 
 | Name | Used by |
 |------|---------|
-| `DOCS_AWS_ACCESS_KEY_ID` | job `backfill` step `Configure AWS credentials` with `aws-access-key-id`; job `publish-versions` step `Configure AWS credentials` with `aws-access-key-id` |
-| `DOCS_AWS_SECRET_ACCESS_KEY` | job `backfill` step `Configure AWS credentials` with `aws-secret-access-key`; job `publish-versions` step `Configure AWS credentials` with `aws-secret-access-key` |
+| `DOCS_AWS_ACCESS_KEY_ID` | `backfill`: Configure AWS credentials (`aws-access-key-id`)<br>`publish-versions`: Configure AWS credentials (`aws-access-key-id`) |
+| `DOCS_AWS_SECRET_ACCESS_KEY` | `backfill`: Configure AWS credentials (`aws-secret-access-key`)<br>`publish-versions`: Configure AWS credentials (`aws-secret-access-key`) |
 
 ## Jobs
 
@@ -1717,7 +1735,7 @@ Permissions declared across the chain: `contents: read`, `packages: read`, `pack
 
 </details>
 
-### Backfill ${{ matrix.provider }} (${{ matrix.versions }}) (`backfill`)
+### Backfill (provider) ((versions)) (`backfill`)
 
 | Property | Value |
 |----------|-------|
@@ -1938,7 +1956,7 @@ Inputs for the `workflow_dispatch` event.
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `DOCKERHUB_TOKEN`, `DOCKERHUB_USER`, `GITHUB_TOKEN`
+Secrets required (declared/forwarded names): `DOCKERHUB_TOKEN`, `DOCKERHUB_USER`
 
 Permissions declared across the chain: `contents: read`, `packages: read`
 
@@ -1948,9 +1966,9 @@ Permissions declared across the chain: `contents: read`, `packages: read`
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | workflow env `GITHUB_TOKEN` |
-| `DOCKERHUB_USER` | job `release-images` secrets `DOCKERHUB_USER` |
-| `DOCKERHUB_TOKEN` | job `release-images` secrets `DOCKERHUB_TOKEN` |
+| `GITHUB_TOKEN` | workflow env: (`GITHUB_TOKEN`) |
+| `DOCKERHUB_USER` | `release-images`: (`DOCKERHUB_USER`) |
+| `DOCKERHUB_TOKEN` | `release-images`: (`DOCKERHUB_TOKEN`) |
 
 ## Jobs
 
@@ -2056,7 +2074,7 @@ Permissions declared across the chain: `contents: read`, `packages: read`
 
 | Name | Used by |
 |------|---------|
-| `SLACK_BOT_TOKEN` | job `verify-release-calendar` step `Notify Slack on failure` with `token` |
+| `SLACK_BOT_TOKEN` | `verify-release-calendar`: Notify Slack on failure (`token`) |
 
 ## Jobs
 
@@ -2231,7 +2249,7 @@ Permissions declared across the chain: `contents: read`, `packages: read`
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `CODECOV_TOKEN`, `CONSTRAINTS_GITHUB_REPOSITORY`, `DOCS_AWS_ACCESS_KEY_ID`, `DOCS_AWS_SECRET_ACCESS_KEY`, `GITHUB_TOKEN`, `SLACK_BOT_TOKEN`
+Secrets required (declared/forwarded names): `DOCS_AWS_ACCESS_KEY_ID`, `DOCS_AWS_SECRET_ACCESS_KEY`, `SLACK_BOT_TOKEN`
 
 Permissions declared across the chain: `contents: read`, `contents: write`, `id-token: write (OIDC)`, `packages: read`, `packages: write`
 
@@ -2241,10 +2259,10 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | workflow env `GITHUB_TOKEN`; job `mypy-providers` env `GITHUB_TOKEN`; job `migration-round-trip` env `GITHUB_TOKEN`; job `tests-go-sdk` env `GITHUB_TOKEN`; job `notify-slack` step `Get failing jobs` env `GITHUB_TOKEN`; job `notify-slack` step `Determine notification action` env `GITHUB_TOKEN` |
-| `SLACK_BOT_TOKEN` | workflow env `SLACK_BOT_TOKEN`; job `ci-image-checks` secrets `SLACK_BOT_TOKEN` |
-| `DOCS_AWS_ACCESS_KEY_ID` | job `ci-image-checks` secrets `DOCS_AWS_ACCESS_KEY_ID` |
-| `DOCS_AWS_SECRET_ACCESS_KEY` | job `ci-image-checks` secrets `DOCS_AWS_SECRET_ACCESS_KEY` |
+| `GITHUB_TOKEN` | workflow env: (`GITHUB_TOKEN`)<br>`mypy-providers`: (`GITHUB_TOKEN`)<br>`migration-round-trip`: (`GITHUB_TOKEN`)<br>`tests-go-sdk`: (`GITHUB_TOKEN`)<br>`notify-slack`: Get failing jobs (`GITHUB_TOKEN`), Determine notification action (`GITHUB_TOKEN`) |
+| `SLACK_BOT_TOKEN` | workflow env: (`SLACK_BOT_TOKEN`)<br>`ci-image-checks`: (`SLACK_BOT_TOKEN`) |
+| `DOCS_AWS_ACCESS_KEY_ID` | `ci-image-checks`: (`DOCS_AWS_ACCESS_KEY_ID`) |
+| `DOCS_AWS_SECRET_ACCESS_KEY` | `ci-image-checks`: (`DOCS_AWS_SECRET_ACCESS_KEY`) |
 
 ## Jobs
 
@@ -3463,7 +3481,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `CODECOV_TOKEN`, `CONSTRAINTS_GITHUB_REPOSITORY`, `DOCS_AWS_ACCESS_KEY_ID`, `DOCS_AWS_SECRET_ACCESS_KEY`, `GITHUB_TOKEN`, `SLACK_BOT_TOKEN`
+Secrets required (declared/forwarded names): `DOCS_AWS_ACCESS_KEY_ID`, `DOCS_AWS_SECRET_ACCESS_KEY`, `SLACK_BOT_TOKEN`
 
 Permissions declared across the chain: `contents: read`, `contents: write`, `id-token: write (OIDC)`, `packages: read`, `packages: write`
 
@@ -3473,10 +3491,10 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | workflow env `GITHUB_TOKEN`; job `mypy-providers` env `GITHUB_TOKEN`; job `migration-round-trip` env `GITHUB_TOKEN`; job `tests-go-sdk` env `GITHUB_TOKEN`; job `notify-slack` step `Get failing jobs` env `GITHUB_TOKEN`; job `notify-slack` step `Determine notification action` env `GITHUB_TOKEN` |
-| `SLACK_BOT_TOKEN` | workflow env `SLACK_BOT_TOKEN`; job `ci-image-checks` secrets `SLACK_BOT_TOKEN` |
-| `DOCS_AWS_ACCESS_KEY_ID` | job `ci-image-checks` secrets `DOCS_AWS_ACCESS_KEY_ID` |
-| `DOCS_AWS_SECRET_ACCESS_KEY` | job `ci-image-checks` secrets `DOCS_AWS_SECRET_ACCESS_KEY` |
+| `GITHUB_TOKEN` | workflow env: (`GITHUB_TOKEN`)<br>`mypy-providers`: (`GITHUB_TOKEN`)<br>`migration-round-trip`: (`GITHUB_TOKEN`)<br>`tests-go-sdk`: (`GITHUB_TOKEN`)<br>`notify-slack`: Get failing jobs (`GITHUB_TOKEN`), Determine notification action (`GITHUB_TOKEN`) |
+| `SLACK_BOT_TOKEN` | workflow env: (`SLACK_BOT_TOKEN`)<br>`ci-image-checks`: (`SLACK_BOT_TOKEN`) |
+| `DOCS_AWS_ACCESS_KEY_ID` | `ci-image-checks`: (`DOCS_AWS_ACCESS_KEY_ID`) |
+| `DOCS_AWS_SECRET_ACCESS_KEY` | `ci-image-checks`: (`DOCS_AWS_SECRET_ACCESS_KEY`) |
 
 ## Jobs
 
@@ -4606,8 +4624,6 @@ Inputs for the `workflow_dispatch` event.
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `GITHUB_TOKEN`
-
 Permissions declared across the chain: `contents: read`
 
 ## Called by
@@ -4624,11 +4640,11 @@ Permissions declared across the chain: `contents: read`
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | job `test-ui-e2e-tests` env `GITHUB_TOKEN` |
+| `GITHUB_TOKEN` | `test-ui-e2e-tests`: (`GITHUB_TOKEN`) |
 
 ## Jobs
 
-### ${{ inputs.workflow-name || 'UI E2E Tests' }} (`test-ui-e2e-tests`)
+### `test-ui-e2e-tests`
 
 | Property | Value |
 |----------|-------|
@@ -4769,8 +4785,6 @@ Permissions declared across the chain: `contents: read`
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `CONSTRAINTS_GITHUB_REPOSITORY`, `GITHUB_TOKEN`, `SLACK_BOT_TOKEN`
-
 Permissions declared across the chain: `contents: read`, `contents: write`, `packages: read`, `packages: write`
 
 ## Referenced secrets and variables
@@ -4779,8 +4793,8 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | workflow env `GITHUB_TOKEN` |
-| `SLACK_BOT_TOKEN` | job `notify-on-failure` env `SLACK_BOT_TOKEN` |
+| `GITHUB_TOKEN` | workflow env: (`GITHUB_TOKEN`) |
+| `SLACK_BOT_TOKEN` | `notify-on-failure`: (`SLACK_BOT_TOKEN`) |
 
 ## Jobs
 
@@ -4987,8 +5001,6 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `CONSTRAINTS_GITHUB_REPOSITORY`, `GITHUB_TOKEN`, `SLACK_BOT_TOKEN`
-
 Permissions declared across the chain: `contents: read`, `contents: write`, `packages: read`, `packages: write`
 
 ## Referenced secrets and variables
@@ -4997,8 +5009,8 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | workflow env `GITHUB_TOKEN` |
-| `SLACK_BOT_TOKEN` | job `notify-on-failure` env `SLACK_BOT_TOKEN` |
+| `GITHUB_TOKEN` | workflow env: (`GITHUB_TOKEN`) |
+| `SLACK_BOT_TOKEN` | `notify-on-failure`: (`SLACK_BOT_TOKEN`) |
 
 ## Jobs
 
@@ -5210,7 +5222,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | job `check-that-image-builds-quickly` env `GITHUB_TOKEN` |
+| `GITHUB_TOKEN` | `check-that-image-builds-quickly`: (`GITHUB_TOKEN`) |
 
 ## Jobs
 
@@ -5348,7 +5360,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | job `test-examples-of-prod-image-building` env `GITHUB_TOKEN`; job `test-docker-compose-quick-start` env `GITHUB_TOKEN`; job `task-sdk-integration-tests` env `GITHUB_TOKEN`; job `airflow-ctl-integration-tests` env `GITHUB_TOKEN` |
+| `GITHUB_TOKEN` | `test-examples-of-prod-image-building`: (`GITHUB_TOKEN`)<br>`test-docker-compose-quick-start`: (`GITHUB_TOKEN`)<br>`task-sdk-integration-tests`: (`GITHUB_TOKEN`)<br>`airflow-ctl-integration-tests`: (`GITHUB_TOKEN`) |
 
 ## Jobs
 
@@ -5704,7 +5716,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 - [Breeze unit tests](#breeze-unit-tests-run-breeze-tests)
 - [Breeze integration tests](#breeze-integration-tests-run-breeze-integration-tests)
-- [Shared ${{ matrix.shared-distribution }} tests](#shared--matrixshared-distribution--tests-tests-shared-distributions)
+- [Shared (shared-distribution) tests](#shared-shared-distribution-tests-tests-shared-distributions)
 - [Scripts tests](#scripts-tests-tests-scripts)
 - [React UI tests](#react-ui-tests-tests-ui)
 - [Check translation completeness](#check-translation-completeness-check-translation-completness)
@@ -5751,7 +5763,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | job `test-airflow-release-commands` env `GITHUB_TOKEN`; job `test-airflow-release-commands` step `Test providers metadata generation` env `GITHUB_TOKEN` |
+| `GITHUB_TOKEN` | `test-airflow-release-commands`: (`GITHUB_TOKEN`), Test providers metadata generation (`GITHUB_TOKEN`) |
 
 ## Jobs
 
@@ -5807,7 +5819,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 </details>
 
-### Shared ${{ matrix.shared-distribution }} tests (`tests-shared-distributions`)
+### Shared (shared-distribution) tests (`tests-shared-distributions`)
 
 | Property | Value |
 |----------|-------|
@@ -6136,12 +6148,12 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | job `build-ci-images` env `GITHUB_TOKEN`; job `build-ci-images` step `Login to ghcr.io` env `GITHUB_TOKEN`; job `build-ci-images` step `Build ${{ inputs.push-image == 'true' && ' & push ' \|\| '' }} ${{ inputs.platform }}:${{ env.PYTHON_MAJOR_MINOR_VERSION }} image` env `GITHUB_TOKEN` |
-| `CONSTRAINTS_GITHUB_REPOSITORY` | job `build-ci-images` step `Build ${{ inputs.push-image == 'true' && ' & push ' \|\| '' }} ${{ inputs.platform }}:${{ env.PYTHON_MAJOR_MINOR_VERSION }} image` env `CONSTRAINTS_GITHUB_REPOSITORY` |
+| `GITHUB_TOKEN` | `build-ci-images`: (`GITHUB_TOKEN`), Login to ghcr.io (`GITHUB_TOKEN`), Build ${{ inputs.push-image == 'true' && ' & push ' \|\| '' }} ${{ inputs.platform }}:${{ env.PYTHON_MAJOR_MINOR_VERSION }} image (`GITHUB_TOKEN`) |
+| `CONSTRAINTS_GITHUB_REPOSITORY` | `build-ci-images`: Build ${{ inputs.push-image == 'true' && ' & push ' \|\| '' }} ${{ inputs.platform }}:${{ env.PYTHON_MAJOR_MINOR_VERSION }} image (`CONSTRAINTS_GITHUB_REPOSITORY`) |
 
 ## Jobs
 
-### Build CI ${{ inputs.platform }} image ${{ matrix.python-version }} (`build-ci-images`)
+### Build CI (platform) image (python-version) (`build-ci-images`)
 
 | Property | Value |
 |----------|-------|
@@ -6259,7 +6271,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 | File | `prod-image-build.yml` |
 | Default runs-on | `${{ fromJSON(inputs.runners) }}` |
 
-**Jobs:** [Build Airflow and provider distributions](#build-airflow-and-provider-distributions-build-prod-packages), [Build PROD ${{ inputs.build-type }} image ${{ matrix.python-version }}](#build-prod--inputsbuild-type--image--matrixpython-version--build-prod-images)
+**Jobs:** [Build Airflow and provider distributions](#build-airflow-and-provider-distributions-build-prod-packages), [Build PROD (build-type) image (python-version)](#build-prod-build-type-image-python-version-build-prod-images)
 
 ## Workflow call API
 
@@ -6309,8 +6321,8 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 | Name | Used by |
 |------|---------|
-| `CONSTRAINTS_GITHUB_REPOSITORY` | job `build-prod-images` env `CONSTRAINTS_GITHUB_REPOSITORY` |
-| `GITHUB_TOKEN` | job `build-prod-images` env `GITHUB_TOKEN`; job `build-prod-images` step `Login to ghcr.io` env `GITHUB_TOKEN` |
+| `CONSTRAINTS_GITHUB_REPOSITORY` | `build-prod-images`: (`CONSTRAINTS_GITHUB_REPOSITORY`) |
+| `GITHUB_TOKEN` | `build-prod-images`: (`GITHUB_TOKEN`), Login to ghcr.io (`GITHUB_TOKEN`) |
 
 ## Jobs
 
@@ -6384,7 +6396,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 </details>
 
-### Build PROD ${{ inputs.build-type }} image ${{ matrix.python-version }} (`build-prod-images`)
+### Build PROD (build-type) image (python-version) (`build-prod-images`)
 
 | Property | Value |
 |----------|-------|
@@ -6540,10 +6552,10 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | job `static-checks` env `GITHUB_TOKEN`; job `build-docs` env `GITHUB_TOKEN`; job `build-docs` step `Get docs build job URL` env `GITHUB_TOKEN`; job `build-docs` step `Determine inventory notification action` env `GITHUB_TOKEN`; job `publish-docs` env `GITHUB_TOKEN`; job `publish-docs` step `Prepare SBOMs` env `GITHUB_TOKEN`; job `test-python-api-client` env `GITHUB_TOKEN` |
-| `SLACK_BOT_TOKEN` | job `build-docs` step `Notify Slack about missing inventories (new/changed)` env `SLACK_BOT_TOKEN`; job `build-docs` step `Notify Slack about missing inventories (still not fixed)` env `SLACK_BOT_TOKEN`; job `build-docs` step `Notify Slack about inventory recovery` env `SLACK_BOT_TOKEN` |
-| `DOCS_AWS_ACCESS_KEY_ID` | job `publish-docs` step `Configure AWS credentials` with `aws-access-key-id` |
-| `DOCS_AWS_SECRET_ACCESS_KEY` | job `publish-docs` step `Configure AWS credentials` with `aws-secret-access-key` |
+| `GITHUB_TOKEN` | `static-checks`: (`GITHUB_TOKEN`)<br>`build-docs`: (`GITHUB_TOKEN`), Get docs build job URL (`GITHUB_TOKEN`), Determine inventory notification action (`GITHUB_TOKEN`)<br>`publish-docs`: (`GITHUB_TOKEN`), Prepare SBOMs (`GITHUB_TOKEN`)<br>`test-python-api-client`: (`GITHUB_TOKEN`) |
+| `SLACK_BOT_TOKEN` | `build-docs`: Notify Slack about missing inventories (new/changed) (`SLACK_BOT_TOKEN`), Notify Slack about missing inventories (still not fixed) (`SLACK_BOT_TOKEN`), Notify Slack about inventory recovery (`SLACK_BOT_TOKEN`) |
+| `DOCS_AWS_ACCESS_KEY_ID` | `publish-docs`: Configure AWS credentials (`aws-access-key-id`) |
+| `DOCS_AWS_SECRET_ACCESS_KEY` | `publish-docs`: Configure AWS credentials (`aws-secret-access-key`) |
 
 ## Jobs
 
@@ -6900,7 +6912,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 | File | `finalize-tests.yml` |
 | Default runs-on | `${{ fromJSON(inputs.runners) }}` |
 
-**Jobs:** [Update constraints](#update-constraints-update-constraints), [Deps ${{ matrix.python-version }}:${{ matrix.constraints-mode }}](#deps--matrixpython-version--matrixconstraints-mode--dependency-upgrade-summary), [Push Regular Image Cache ${{ inputs.platform }}](#push-regular-image-cache--inputsplatform--push-buildx-cache-to-github-registry)
+**Jobs:** [Update constraints](#update-constraints-update-constraints), [Deps (python-version):(constraints-mode)](#deps-python-versionconstraints-mode-dependency-upgrade-summary), [Push Regular Image Cache (platform)](#push-regular-image-cache-platform-push-buildx-cache-to-github-registry)
 
 ## Workflow call API
 
@@ -6940,7 +6952,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | job `update-constraints` env `GITHUB_TOKEN`; job `dependency-upgrade-summary` env `GITHUB_TOKEN` |
+| `GITHUB_TOKEN` | `update-constraints`: (`GITHUB_TOKEN`)<br>`dependency-upgrade-summary`: (`GITHUB_TOKEN`) |
 
 ## Jobs
 
@@ -6997,7 +7009,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 </details>
 
-### Deps ${{ matrix.python-version }}:${{ matrix.constraints-mode }} (`dependency-upgrade-summary`)
+### Deps (python-version):(constraints-mode) (`dependency-upgrade-summary`)
 
 | Property | Value |
 |----------|-------|
@@ -7037,7 +7049,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 </details>
 
-### Push Regular Image Cache ${{ inputs.platform }} (`push-buildx-cache-to-github-registry`)
+### Push Regular Image Cache (platform) (`push-buildx-cache-to-github-registry`)
 
 | Property | Value |
 |----------|-------|
@@ -7105,11 +7117,11 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | job `generate-constraints-matrix` env `GITHUB_TOKEN` |
+| `GITHUB_TOKEN` | `generate-constraints-matrix`: (`GITHUB_TOKEN`) |
 
 ## Jobs
 
-### Generate constraints for ${{ matrix.python-version }} on ${{ inputs.platform }} (`generate-constraints-matrix`)
+### Generate constraints for (python-version) on (platform) (`generate-constraints-matrix`)
 
 | Property | Value |
 |----------|-------|
@@ -7200,7 +7212,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 | File | `helm-tests.yml` |
 | Default runs-on | `${{ fromJSON(inputs.runners) }}` |
 
-**Jobs:** [Unit tests Helm: ${{ matrix.helm-test-package }} (K8S ${{ matrix.kubernetes-version }})](#unit-tests-helm--matrixhelm-test-package--k8s--matrixkubernetes-version--tests-helm), [Release Helm](#release-helm-tests-helm-release)
+**Jobs:** [Unit tests Helm: (helm-test-package) (K8S (kubernetes-version))](#unit-tests-helm-helm-test-package-k8s-kubernetes-version-tests-helm), [Release Helm](#release-helm-tests-helm-release)
 
 ## Workflow call API
 
@@ -7232,11 +7244,11 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | job `tests-helm` env `GITHUB_TOKEN`; job `tests-helm-release` env `GITHUB_TOKEN` |
+| `GITHUB_TOKEN` | `tests-helm`: (`GITHUB_TOKEN`)<br>`tests-helm-release`: (`GITHUB_TOKEN`) |
 
 ## Jobs
 
-### Unit tests Helm: ${{ matrix.helm-test-package }} (K8S ${{ matrix.kubernetes-version }}) (`tests-helm`)
+### Unit tests Helm: (helm-test-package) (K8S (kubernetes-version)) (`tests-helm`)
 
 | Property | Value |
 |----------|-------|
@@ -7349,7 +7361,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 | File | `integration-system-tests.yml` |
 | Default runs-on | `${{ fromJSON(inputs.runners) }}` |
 
-**Jobs:** [Integration core ${{ matrix.integration }}](#integration-core--matrixintegration--tests-core-integration), [Integration: providers ${{ matrix.integration }}](#integration-providers--matrixintegration--tests-providers-integration), [System Tests](#system-tests-tests-system)
+**Jobs:** [Integration core (integration)](#integration-core-integration-tests-core-integration), [Integration: providers (integration)](#integration-providers-integration-tests-providers-integration), [System Tests](#system-tests-tests-system)
 
 ## Workflow call API
 
@@ -7387,12 +7399,12 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | job `tests-core-integration` env `GITHUB_TOKEN`; job `tests-providers-integration` env `GITHUB_TOKEN`; job `tests-system` env `GITHUB_TOKEN` |
-| `CODECOV_TOKEN` | job `tests-core-integration` step `Post Tests success` with `codecov-token`; job `tests-providers-integration` step `Post Tests success` with `codecov-token`; job `tests-system` step `Post Tests success` with `codecov-token` |
+| `GITHUB_TOKEN` | `tests-core-integration`: (`GITHUB_TOKEN`)<br>`tests-providers-integration`: (`GITHUB_TOKEN`)<br>`tests-system`: (`GITHUB_TOKEN`) |
+| `CODECOV_TOKEN` | `tests-core-integration`: Post Tests success (`codecov-token`)<br>`tests-providers-integration`: Post Tests success (`codecov-token`)<br>`tests-system`: Post Tests success (`codecov-token`) |
 
 ## Jobs
 
-### Integration core ${{ matrix.integration }} (`tests-core-integration`)
+### Integration core (integration) (`tests-core-integration`)
 
 | Property | Value |
 |----------|-------|
@@ -7449,7 +7461,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 </details>
 
-### Integration: providers ${{ matrix.integration }} (`tests-providers-integration`)
+### Integration: providers (integration) (`tests-providers-integration`)
 
 | Property | Value |
 |----------|-------|
@@ -7601,11 +7613,11 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | job `tests-kubernetes` env `GITHUB_TOKEN` |
+| `GITHUB_TOKEN` | `tests-kubernetes`: (`GITHUB_TOKEN`) |
 
 ## Jobs
 
-### K8S System:${{ matrix.executor }}-${{ matrix.kubernetes-combo }}-${{ matrix.use-standard-naming }} (`tests-kubernetes`)
+### K8S System:(executor)-(kubernetes-combo)-(use-standard-naming) (`tests-kubernetes`)
 
 | Property | Value |
 |----------|-------|
@@ -7715,11 +7727,11 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | job `distributions-tests` env `GITHUB_TOKEN` |
+| `GITHUB_TOKEN` | `distributions-tests`: (`GITHUB_TOKEN`) |
 
 ## Jobs
 
-### ${{ inputs.distribution-name }}:P${{ matrix.python-version }} tests (`distributions-tests`)
+### (distribution-name):P(python-version) tests (`distributions-tests`)
 
 | Property | Value |
 |----------|-------|
@@ -7855,7 +7867,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 | File | `test-providers.yml` |
 | Default runs-on | `${{ fromJSON(inputs.runners) }}` |
 
-**Jobs:** [Providers ${{ matrix.package-format }} tests](#providers--matrixpackage-format--tests-prepare-install-verify-provider-distributions), [Compat ${{ matrix.compat.airflow-version }}:P${{ matrix.compat.python-version }}:${{ matrix.compat.test-types.description }}](#compat--matrixcompatairflow-version-p-matrixcompatpython-version--matrixcompattest-typesdescription--providers-compatibility-tests-matrix)
+**Jobs:** [Providers (package-format) tests](#providers-package-format-tests-prepare-install-verify-provider-distributions), [Compat (airflow-version):P(python-version):(description)](#compat-airflow-versionppython-versiondescription-providers-compatibility-tests-matrix)
 
 ## Workflow call API
 
@@ -7892,11 +7904,11 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | job `prepare-install-verify-provider-distributions` env `GITHUB_TOKEN`; job `providers-compatibility-tests-matrix` env `GITHUB_TOKEN` |
+| `GITHUB_TOKEN` | `prepare-install-verify-provider-distributions`: (`GITHUB_TOKEN`)<br>`providers-compatibility-tests-matrix`: (`GITHUB_TOKEN`) |
 
 ## Jobs
 
-### Providers ${{ matrix.package-format }} tests (`prepare-install-verify-provider-distributions`)
+### Providers (package-format) tests (`prepare-install-verify-provider-distributions`)
 
 | Property | Value |
 |----------|-------|
@@ -7975,7 +7987,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 </details>
 
-### Compat ${{ matrix.compat.airflow-version }}:P${{ matrix.compat.python-version }}:${{ matrix.compat.test-types.description }} (`providers-compatibility-tests-matrix`)
+### Compat (airflow-version):P(python-version):(description) (`providers-compatibility-tests-matrix`)
 
 | Property | Value |
 |----------|-------|
@@ -8058,7 +8070,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 | File | `push-image-cache.yml` |
 | Default runs-on | `${{ fromJSON(inputs.runners) }}` |
 
-**Jobs:** [Push CI ${{ inputs.cache-type }}:${{ matrix.python }} image cache](#push-ci--inputscache-type--matrixpython--image-cache-push-ci-image-cache), [Push PROD ${{ inputs.cache-type }}:${{ matrix.python }} image cache](#push-prod--inputscache-type--matrixpython--image-cache-push-prod-image-cache)
+**Jobs:** [Push CI (cache-type):(python) image cache](#push-ci-cache-typepython-image-cache-push-ci-image-cache), [Push PROD (cache-type):(python) image cache](#push-prod-cache-typepython-image-cache-push-prod-image-cache)
 
 ## Workflow call API
 
@@ -8088,7 +8100,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 - [additional-ci-image-checks.yml](#push-early-image-cache-push-early-buildx-cache-to-github-registry) (job: `push-early-buildx-cache-to-github-registry`)
   - [ci-amd.yml](#additional-ci-image-checks-additional-ci-image-checks) (job: `additional-ci-image-checks`) - entry point
   - [ci-arm.yml](#additional-ci-image-checks-additional-ci-image-checks-1) (job: `additional-ci-image-checks`) - entry point
-- [finalize-tests.yml](#push-regular-image-cache--inputsplatform--push-buildx-cache-to-github-registry) (job: `push-buildx-cache-to-github-registry`)
+- [finalize-tests.yml](#push-regular-image-cache-platform-push-buildx-cache-to-github-registry) (job: `push-buildx-cache-to-github-registry`)
   - [ci-amd.yml](#finalize-tests-finalize-tests) (job: `finalize-tests`) - entry point
   - [ci-arm.yml](#finalize-tests-finalize-tests-1) (job: `finalize-tests`) - entry point
 
@@ -8098,12 +8110,12 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 | Name | Used by |
 |------|---------|
-| `CONSTRAINTS_GITHUB_REPOSITORY` | job `push-ci-image-cache` env `CONSTRAINTS_GITHUB_REPOSITORY`; job `push-prod-image-cache` env `CONSTRAINTS_GITHUB_REPOSITORY` |
-| `GITHUB_TOKEN` | job `push-ci-image-cache` env `GITHUB_TOKEN`; job `push-ci-image-cache` step `Login to ghcr.io` env `GITHUB_TOKEN`; job `push-prod-image-cache` env `GITHUB_TOKEN`; job `push-prod-image-cache` step `Login to ghcr.io` env `GITHUB_TOKEN` |
+| `CONSTRAINTS_GITHUB_REPOSITORY` | `push-ci-image-cache`: (`CONSTRAINTS_GITHUB_REPOSITORY`)<br>`push-prod-image-cache`: (`CONSTRAINTS_GITHUB_REPOSITORY`) |
+| `GITHUB_TOKEN` | `push-ci-image-cache`: (`GITHUB_TOKEN`), Login to ghcr.io (`GITHUB_TOKEN`)<br>`push-prod-image-cache`: (`GITHUB_TOKEN`), Login to ghcr.io (`GITHUB_TOKEN`) |
 
 ## Jobs
 
-### Push CI ${{ inputs.cache-type }}:${{ matrix.python }} image cache (`push-ci-image-cache`)
+### Push CI (cache-type):(python) image cache (`push-ci-image-cache`)
 
 | Property | Value |
 |----------|-------|
@@ -8165,7 +8177,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 </details>
 
-### Push PROD ${{ inputs.cache-type }}:${{ matrix.python }} image cache (`push-prod-image-cache`)
+### Push PROD (cache-type):(python) image cache (`push-prod-image-cache`)
 
 | Property | Value |
 |----------|-------|
@@ -8245,7 +8257,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 |----------|-------|
 | File | `release_single_dockerhub_image.yml` |
 
-**Jobs:** [Build: ${{ inputs.airflowVersion }}, ${{ inputs.pythonVersion }}, ${{ matrix.platform }}](#build--inputsairflowversion---inputspythonversion---matrixplatform--build-images), [Merge: ${{ inputs.airflowVersion }}, ${{ inputs.pythonVersion }}](#merge--inputsairflowversion---inputspythonversion--merge-images)
+**Jobs:** [Build: (airflowVersion), (pythonVersion), (platform)](#build-airflowversion-pythonversion-platform-build-images), [Merge: (airflowVersion), (pythonVersion)](#merge-airflowversion-pythonversion-merge-images)
 
 ## Workflow call API
 
@@ -8290,13 +8302,13 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | workflow env `GITHUB_TOKEN`; job `build-images` step `Login to ghcr.io` env `GITHUB_TOKEN`; job `merge-images` step `Login to ghcr.io` env `GITHUB_TOKEN` |
-| `DOCKERHUB_TOKEN` | job `build-images` step `Login to hub.docker.com` (run); job `merge-images` step `Login to hub.docker.com` (run) |
-| `DOCKERHUB_USER` | job `build-images` step `Login to hub.docker.com` (run); job `merge-images` step `Login to hub.docker.com` (run) |
+| `GITHUB_TOKEN` | workflow env: (`GITHUB_TOKEN`)<br>`build-images`: Login to ghcr.io (`GITHUB_TOKEN`)<br>`merge-images`: Login to ghcr.io (`GITHUB_TOKEN`) |
+| `DOCKERHUB_TOKEN` | `build-images`: Login to hub.docker.com (`run`)<br>`merge-images`: Login to hub.docker.com (`run`) |
+| `DOCKERHUB_USER` | `build-images`: Login to hub.docker.com (`run`)<br>`merge-images`: Login to hub.docker.com (`run`) |
 
 ## Jobs
 
-### Build: ${{ inputs.airflowVersion }}, ${{ inputs.pythonVersion }}, ${{ matrix.platform }} (`build-images`)
+### Build: (airflowVersion), (pythonVersion), (platform) (`build-images`)
 
 | Property | Value |
 |----------|-------|
@@ -8367,7 +8379,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 </details>
 
-### Merge: ${{ inputs.airflowVersion }}, ${{ inputs.pythonVersion }} (`merge-images`)
+### Merge: (airflowVersion), (pythonVersion) (`merge-images`)
 
 | Property | Value |
 |----------|-------|
@@ -8451,7 +8463,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 - [Pendulum2 test: providers](#pendulum2-test-providers-tests-pendulum-2-providers)
 - [Quarantined test: core](#quarantined-test-core-tests-quarantined-core)
 - [Quarantined test: providers](#quarantined-test-providers-tests-quarantined-providers)
-- [System test: ${{ matrix.test-group }}](#system-test--matrixtest-group--tests-system-core)
+- [System test: (test-group)](#system-test-test-group-tests-system-core)
 
 ## Workflow call API
 
@@ -8803,7 +8815,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 - `use-uv`: `${{ inputs.use-uv }}`
 - `default-branch`: `${{ inputs.default-branch }}`
 
-### System test: ${{ matrix.test-group }} (`tests-system-core`)
+### System test: (test-group) (`tests-system-core`)
 
 | Property | Value |
 |----------|-------|
@@ -8896,12 +8908,12 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | job `tests` env `GITHUB_TOKEN` |
-| `CODECOV_TOKEN` | job `tests` step `Post Tests success` with `codecov-token` |
+| `GITHUB_TOKEN` | `tests`: (`GITHUB_TOKEN`) |
+| `CODECOV_TOKEN` | `tests`: Post Tests success (`codecov-token`) |
 
 ## Jobs
 
-### ${{ inputs.test-scope == 'All' && '' || inputs.test-scope == 'Quarantined' && 'Qrnt' || inputs.test-scope }}${{ inputs.test-scope == 'All' && '' || '-' }}${{ inputs.test-group == 'providers' && 'prov' || inputs.test-group}}:${{ inputs.test-name }}${{ inputs.test-name-separator }}${{ matrix.backend-version }}:${{ matrix.python-version}}:${{ matrix.test-types.description }} (`tests`)
+### `tests`
 
 | Property | Value |
 |----------|-------|
@@ -9034,12 +9046,12 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | workflow env `GITHUB_TOKEN` |
-| `SLACK_BOT_TOKEN` | workflow env `SLACK_BOT_TOKEN` |
+| `GITHUB_TOKEN` | workflow env: (`GITHUB_TOKEN`) |
+| `SLACK_BOT_TOKEN` | workflow env: (`SLACK_BOT_TOKEN`) |
 
 ## Jobs
 
-### [${{ inputs.target-branch }}] Upgrade checks and PR (`createupgrade-check`)
+### [(target-branch)] Upgrade checks and PR (`createupgrade-check`)
 
 | Property | Value |
 |----------|-------|
@@ -9192,8 +9204,14 @@ Installs breeze and recreates current python image from artifact
 
 # Prepare single CI image
 
-Recreates current python image from artifacts (needed for the hard-coded actions calling all possible Python versions in "prepare_all_ci_images" action. Hopefully we can get rid of it when the https://github.com/apache/airflow/issues/45268 is resolved and we contribute capability of downloading multiple keys to the stash action.
+Recreates current python image from artifacts (needed for the hard-coded actions calling all possible Python versions in "prepare_all_ci_images" action.
 
+<details>
+<summary>more</summary>
+
+Hopefully we can get rid of it when the https://github.com/apache/airflow/issues/45268 is resolved and we contribute capability of downloading multiple keys to the stash action.
+
+</details>
 
 | Property | Value |
 |----------|-------|

@@ -37,10 +37,9 @@ func RenderMarkdownGraph(w *model.Workflow, g *callgraph.Graph, id string) strin
 		fmt.Fprintf(&b, "**Triggers:** %s\n\n", codelist(w.On))
 	}
 
-	// Description (rendered as written; never fabricated when absent)
-	if w.Description != "" {
-		fmt.Fprintf(&b, "%s\n\n", w.Description)
-	}
+	// Description (rendered as written; never fabricated when absent). A long
+	// description is folded so it does not bury the property table below.
+	renderDescription(&b, w.Description)
 
 	// Properties table (the Triggers row is promoted to the line above)
 	b.WriteString("| Property | Value |\n")
@@ -158,8 +157,8 @@ const jobMiniTOCInlineMax = 8
 // heading GitHub actually emits (backticks and parentheses drop out of the slug either way).
 // Exported so the assembler can feed the exact same text into its document-wide anchor pass.
 func JobHeadingText(job *model.Job) string {
-	if job.Name != job.ID {
-		return job.Name + " (" + job.ID + ")"
+	if name := jobDisplayName(job); name != job.ID {
+		return name + " (" + job.ID + ")"
 	}
 	return job.ID
 }
@@ -167,8 +166,8 @@ func JobHeadingText(job *model.Job) string {
 // jobMiniLabel is a job's visible label in the mini-TOC: its name when distinct from the id,
 // otherwise the id rendered as inline code (matching the job heading's own treatment).
 func jobMiniLabel(job *model.Job) string {
-	if job.Name != job.ID {
-		return job.Name
+	if name := jobDisplayName(job); name != job.ID {
+		return name
 	}
 	return "`" + job.ID + "`"
 }
@@ -203,11 +202,13 @@ func commonRunsOn(jobs []model.Job) string {
 }
 
 func renderJob(b *strings.Builder, job *model.Job, g *callgraph.Graph, fromID, defaultRunsOn string) {
-	// Job heading. The name renders as written -- placeholders like ${{ matrix.X }} are
-	// never expanded into joined value lists (GitHub creates one job per matrix
-	// combination; "Java 17, 21" is a job name that never exists). The Matrix property
-	// row below shows the axis values the placeholders take.
-	name := job.Name
+	// Job heading. A name embedding ${{ ... }} expressions is de-templated to a readable
+	// label at jobDisplayName (the single origin every consumer shares), so the raw
+	// expression never leaks into the heading -- and the same label flows into the anchor,
+	// mini-TOC, and call graph. Placeholders are still never expanded into joined value
+	// lists (GitHub creates one job per matrix combination; "Java 17, 21" is a job name
+	// that never exists); the Matrix property row below shows the axis values they take.
+	name := jobDisplayName(job)
 	if name != job.ID {
 		fmt.Fprintf(b, "### %s (`%s`)\n\n", escapeInline(name), job.ID)
 	} else {
@@ -220,9 +221,7 @@ func renderJob(b *strings.Builder, job *model.Job, g *callgraph.Graph, fromID, d
 	}
 
 	// Description
-	if job.Description != "" {
-		fmt.Fprintf(b, "%s\n\n", job.Description)
-	}
+	renderDescription(b, job.Description)
 
 	// A job that calls a reusable workflow uses `uses:` instead of `runs-on:`/`steps:`;
 	// render its caller surface (callee link + forwarded inputs/secrets) and stop.
@@ -363,6 +362,68 @@ func writeParamSections(b *strings.Builder, style sectionStyle, sections ...para
 	}
 }
 
+// descriptionInlineMax is the longest single-line description rendered verbatim. Past it
+// (or whenever the description spans multiple lines), only the lead sentence/line stays
+// inline and the remainder folds behind a <details>, so a long boilerplate comment block
+// does not push the property table far below the heading.
+const descriptionInlineMax = 200
+
+// renderDescription writes a heading's description paragraph (shared by the workflow, job,
+// and action renderers so all three fold consistently). A short authored description renders
+// verbatim. A long one -- multi-line, or longer than descriptionInlineMax characters -- keeps
+// only its first sentence (or first line) inline and tucks the remainder inside a
+// <details>/<summary>, so the scannable lead stays next to the heading while the bulk is one
+// click away. An empty/whitespace description renders nothing (descriptions are never
+// fabricated when absent).
+func renderDescription(b *strings.Builder, desc string) {
+	desc = strings.TrimSpace(desc)
+	if desc == "" {
+		return
+	}
+	lead, rest := splitDescriptionLead(desc)
+	if rest == "" {
+		fmt.Fprintf(b, "%s\n\n", desc)
+		return
+	}
+	fmt.Fprintf(b, "%s\n\n", lead)
+	// GitHub renders the Markdown inside <details> only when a blank line follows the
+	// summary, so that blank line is load-bearing.
+	fmt.Fprintf(b, "<details>\n<summary>more</summary>\n\n%s\n\n</details>\n\n", rest)
+}
+
+// splitDescriptionLead separates a description into an inline lead and a foldable remainder.
+// It returns rest == "" (signalling render-whole) when the description is short: a single
+// line within descriptionInlineMax characters, or a longer run with no usable split point.
+// Otherwise the lead is the first sentence (text up to the first ". " or ".\n"), or, when
+// there is no sentence boundary, the first line; rest is everything after it, trimmed.
+func splitDescriptionLead(desc string) (lead, rest string) {
+	if !strings.Contains(desc, "\n") && len(desc) <= descriptionInlineMax {
+		return desc, ""
+	}
+	// Prefer a sentence boundary: the first period followed by a space or newline.
+	if i := sentenceEnd(desc); i > 0 && i < len(desc) {
+		return strings.TrimSpace(desc[:i]), strings.TrimSpace(desc[i:])
+	}
+	// No sentence boundary: fall back to the first line when the text is multi-line.
+	if i := strings.IndexByte(desc, '\n'); i >= 0 {
+		return strings.TrimSpace(desc[:i]), strings.TrimSpace(desc[i+1:])
+	}
+	// A single long line with no sentence boundary: render whole rather than chop mid-word.
+	return desc, ""
+}
+
+// sentenceEnd returns the index just past the first sentence-ending period (a '.' followed
+// by a space or newline), or -1 when the text has no such boundary. The returned index
+// includes the period so the lead keeps its terminating punctuation.
+func sentenceEnd(s string) int {
+	for i := 0; i+1 < len(s); i++ {
+		if s[i] == '.' && (s[i+1] == ' ' || s[i+1] == '\n') {
+			return i + 1
+		}
+	}
+	return -1
+}
+
 // codelist formats a slice of strings as inline code items.
 func codelist(items []string) string {
 	parts := make([]string, len(items))
@@ -399,9 +460,7 @@ func RenderActionMarkdown(a *model.Action) string {
 		fmt.Fprintf(&b, "> **Deprecated**: %s\n\n", a.Tags.Deprecated)
 	}
 
-	if a.Description != "" {
-		fmt.Fprintf(&b, "%s\n\n", a.Description)
-	}
+	renderDescription(&b, a.Description)
 
 	// Properties table
 	b.WriteString("| Property | Value |\n")

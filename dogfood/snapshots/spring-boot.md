@@ -33,6 +33,56 @@
 - [Sync to Maven Central](#sync-to-maven-central)
 - [Update Homebrew Tap](#update-homebrew-tap)
 
+## Secrets and variables used across this repository
+
+**Secrets:**
+
+| Name | Used by |
+|------|---------|
+| `ARTIFACTORY_PASSWORD` | [Build and Deploy Snapshot](#build-and-deploy-snapshot), [Release](#release), [Release Milestone](#release-milestone) |
+| `ARTIFACTORY_USERNAME` | [Build and Deploy Snapshot](#build-and-deploy-snapshot), [Release](#release), [Release Milestone](#release-milestone) |
+| `CENTRAL_TOKEN_PASSWORD` | [Release](#release), [Release Milestone](#release-milestone) |
+| `CENTRAL_TOKEN_USERNAME` | [Release](#release), [Release Milestone](#release-milestone) |
+| `COMMERCIAL_ARTIFACTORY_PASSWORD` | [Build and Deploy Snapshot](#build-and-deploy-snapshot), [CI](#ci), [Distribute](#distribute), [Release](#release) |
+| `COMMERCIAL_ARTIFACTORY_RO_PASSWORD` | [Release Milestone](#release-milestone) |
+| `COMMERCIAL_ARTIFACTORY_RO_USERNAME` | [Release Milestone](#release-milestone) |
+| `COMMERCIAL_ARTIFACTORY_USERNAME` | [Build and Deploy Snapshot](#build-and-deploy-snapshot), [CI](#ci), [Distribute](#distribute), [Release](#release) |
+| `COMMERCIAL_JF_ARTIFACTORY_SPRING` | [Release](#release) |
+| `DEVELOCITY_ACCESS_KEY` | [Build and Deploy Snapshot](#build-and-deploy-snapshot), [CI](#ci), [Release](#release), [Release Milestone](#release-milestone), [Run System Tests](#run-system-tests) |
+| `GH_ACTIONS_REPO_TOKEN` | [Build and Deploy Snapshot](#build-and-deploy-snapshot), [Release](#release), [Release Milestone](#release-milestone) |
+| `GOOGLE_CHAT_WEBHOOK_URL` | [Build and Deploy Snapshot](#build-and-deploy-snapshot), [CI](#ci), [Release](#release), [Release Milestone](#release-milestone), [Run System Tests](#run-system-tests) |
+| `GPG_PASSPHRASE` | [Build and Deploy Snapshot](#build-and-deploy-snapshot), [Release](#release), [Release Milestone](#release-milestone) |
+| `GPG_PRIVATE_KEY` | [Build and Deploy Snapshot](#build-and-deploy-snapshot), [Release](#release), [Release Milestone](#release-milestone) |
+| `GRADLE_PLUGIN_PUBLISH_KEY` | [Release](#release), [Release Milestone](#release-milestone) |
+| `GRADLE_PLUGIN_PUBLISH_SECRET` | [Release](#release), [Release Milestone](#release-milestone) |
+| `JF_ARTIFACTORY_SPRING` | [Release](#release), [Release Milestone](#release-milestone) |
+| `SDKMAN_CONSUMER_KEY` | [Release](#release) |
+| `SDKMAN_CONSUMER_TOKEN` | [Release](#release) |
+| `commercial-repository-password` | [Verify](#verify) |
+| `commercial-repository-username` | [Verify](#verify) |
+| `google-chat-webhook-url` | [Verify](#verify) |
+| `opensource-repository-password` | [Verify](#verify) |
+| `opensource-repository-username` | [Verify](#verify) |
+| `token` | [Verify](#verify) |
+
+**Variables:**
+
+| Name | Used by |
+|------|---------|
+| `COMMERCIAL` | [Build and Deploy Snapshot](#build-and-deploy-snapshot), [Distribute](#distribute), [Release](#release), [Release Milestone](#release-milestone), [Verify](#verify) |
+| `COMMERCIAL_DEPLOY_REPO_URL` | [Build and Deploy Snapshot](#build-and-deploy-snapshot), [Release](#release) |
+| `COMMERCIAL_RELEASE_REPO_URL` | [Build and Deploy Snapshot](#build-and-deploy-snapshot), [CI](#ci), [Release](#release) |
+| `COMMERCIAL_SNAPSHOT_REPO_URL` | [Build and Deploy Snapshot](#build-and-deploy-snapshot), [CI](#ci), [Release](#release) |
+
+## Permissions across this repository
+
+| Scope | Level |
+|-------|-------|
+| `(all scopes)` | `read-all` |
+| `actions` | `write` (also granted as `read` elsewhere) |
+| `contents` | `read` |
+| `security-events` | `write` |
+
 # Build and Deploy Snapshot
 
 **Triggers:** `workflow_dispatch`, `push`
@@ -65,9 +115,7 @@
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `ARTIFACTORY_PASSWORD`, `ARTIFACTORY_USERNAME`, `COMMERCIAL_ARTIFACTORY_PASSWORD`, `COMMERCIAL_ARTIFACTORY_USERNAME`, `DEVELOCITY_ACCESS_KEY`, `GH_ACTIONS_REPO_TOKEN`, `GITHUB_TOKEN`, `GOOGLE_CHAT_WEBHOOK_URL`, `GPG_PASSPHRASE`, `GPG_PRIVATE_KEY`, `commercial-repository-password`, `commercial-repository-username`, `google-chat-webhook-url`, `opensource-repository-password`, `opensource-repository-username`, `token`
-
-Variables referenced: `COMMERCIAL`, `COMMERCIAL_DEPLOY_REPO_URL`, `COMMERCIAL_RELEASE_REPO_URL`, `COMMERCIAL_SNAPSHOT_REPO_URL`
+Secrets required (declared/forwarded names): `commercial-repository-password`, `commercial-repository-username`, `google-chat-webhook-url`, `opensource-repository-password`, `opensource-repository-username`, `token`
 
 Permissions declared across the chain: `actions: write`, `contents: read`
 
@@ -77,25 +125,25 @@ Permissions declared across the chain: `actions: write`, `contents: read`
 
 | Name | Used by |
 |------|---------|
-| `COMMERCIAL_ARTIFACTORY_PASSWORD` | job `build-and-deploy-snapshot` step `Build and Publish` with `commercial-repository-password`; job `build-and-deploy-snapshot` step `Deploy` with `password`; job `verify` secrets `commercial-repository-password` |
-| `COMMERCIAL_ARTIFACTORY_USERNAME` | job `build-and-deploy-snapshot` step `Build and Publish` with `commercial-repository-username`; job `build-and-deploy-snapshot` step `Deploy` with `username`; job `verify` secrets `commercial-repository-username` |
-| `DEVELOCITY_ACCESS_KEY` | job `build-and-deploy-snapshot` step `Build and Publish` with `develocity-access-key` |
-| `ARTIFACTORY_PASSWORD` | job `build-and-deploy-snapshot` step `Deploy` with `password`; job `verify` secrets `opensource-repository-password` |
-| `GPG_PRIVATE_KEY` | job `build-and-deploy-snapshot` step `Deploy` with `signing-key` |
-| `GPG_PASSPHRASE` | job `build-and-deploy-snapshot` step `Deploy` with `signing-passphrase` |
-| `ARTIFACTORY_USERNAME` | job `build-and-deploy-snapshot` step `Deploy` with `username`; job `verify` secrets `opensource-repository-username` |
-| `GOOGLE_CHAT_WEBHOOK_URL` | job `build-and-deploy-snapshot` step `Send Notification` with `webhook-url`; job `verify` secrets `google-chat-webhook-url` |
-| `GITHUB_TOKEN` | job `trigger-docs-build` step `Run Deploy Docs Workflow` env `GH_TOKEN` |
-| `GH_ACTIONS_REPO_TOKEN` | job `verify` secrets `token` |
+| `COMMERCIAL_ARTIFACTORY_PASSWORD` | `build-and-deploy-snapshot`: Build and Publish (`commercial-repository-password`), Deploy (`password`)<br>`verify`: (`commercial-repository-password`) |
+| `COMMERCIAL_ARTIFACTORY_USERNAME` | `build-and-deploy-snapshot`: Build and Publish (`commercial-repository-username`), Deploy (`username`)<br>`verify`: (`commercial-repository-username`) |
+| `DEVELOCITY_ACCESS_KEY` | `build-and-deploy-snapshot`: Build and Publish (`develocity-access-key`) |
+| `ARTIFACTORY_PASSWORD` | `build-and-deploy-snapshot`: Deploy (`password`)<br>`verify`: (`opensource-repository-password`) |
+| `GPG_PRIVATE_KEY` | `build-and-deploy-snapshot`: Deploy (`signing-key`) |
+| `GPG_PASSPHRASE` | `build-and-deploy-snapshot`: Deploy (`signing-passphrase`) |
+| `ARTIFACTORY_USERNAME` | `build-and-deploy-snapshot`: Deploy (`username`)<br>`verify`: (`opensource-repository-username`) |
+| `GOOGLE_CHAT_WEBHOOK_URL` | `build-and-deploy-snapshot`: Send Notification (`webhook-url`)<br>`verify`: (`google-chat-webhook-url`) |
+| `GITHUB_TOKEN` | `trigger-docs-build`: Run Deploy Docs Workflow (`GH_TOKEN`) |
+| `GH_ACTIONS_REPO_TOKEN` | `verify`: (`token`) |
 
 **Variables:**
 
 | Name | Used by |
 |------|---------|
-| `COMMERCIAL_RELEASE_REPO_URL` | job `build-and-deploy-snapshot` step `Build and Publish` with `commercial-release-repository-url` |
-| `COMMERCIAL_SNAPSHOT_REPO_URL` | job `build-and-deploy-snapshot` step `Build and Publish` with `commercial-snapshot-repository-url` |
-| `COMMERCIAL` | job `build-and-deploy-snapshot` step `Deploy` with `build-name`; job `build-and-deploy-snapshot` step `Deploy` with `password`; job `build-and-deploy-snapshot` step `Deploy` with `project`; job `build-and-deploy-snapshot` step `Deploy` with `repository`; job `build-and-deploy-snapshot` step `Deploy` with `username` |
-| `COMMERCIAL_DEPLOY_REPO_URL` | job `build-and-deploy-snapshot` step `Deploy` with `uri` |
+| `COMMERCIAL_RELEASE_REPO_URL` | `build-and-deploy-snapshot`: Build and Publish (`commercial-release-repository-url`) |
+| `COMMERCIAL_SNAPSHOT_REPO_URL` | `build-and-deploy-snapshot`: Build and Publish (`commercial-snapshot-repository-url`) |
+| `COMMERCIAL` | `build-and-deploy-snapshot`: Deploy (`build-name`), Deploy (`password`), Deploy (`project`), Deploy (`repository`), Deploy (`username`) |
+| `COMMERCIAL_DEPLOY_REPO_URL` | `build-and-deploy-snapshot`: Deploy (`uri`) |
 
 ## Jobs
 
@@ -274,10 +322,6 @@ Permissions declared across the chain: `contents: read`
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `COMMERCIAL_ARTIFACTORY_PASSWORD`, `COMMERCIAL_ARTIFACTORY_USERNAME`, `DEVELOCITY_ACCESS_KEY`, `GOOGLE_CHAT_WEBHOOK_URL`
-
-Variables referenced: `COMMERCIAL_RELEASE_REPO_URL`, `COMMERCIAL_SNAPSHOT_REPO_URL`
-
 Permissions declared across the chain: `contents: read`
 
 ## Referenced secrets and variables
@@ -286,21 +330,21 @@ Permissions declared across the chain: `contents: read`
 
 | Name | Used by |
 |------|---------|
-| `COMMERCIAL_ARTIFACTORY_PASSWORD` | job `ci` step `Build` with `commercial-repository-password` |
-| `COMMERCIAL_ARTIFACTORY_USERNAME` | job `ci` step `Build` with `commercial-repository-username` |
-| `DEVELOCITY_ACCESS_KEY` | job `ci` step `Build` with `develocity-access-key` |
-| `GOOGLE_CHAT_WEBHOOK_URL` | job `ci` step `Send Notification` with `webhook-url` |
+| `COMMERCIAL_ARTIFACTORY_PASSWORD` | `ci`: Build (`commercial-repository-password`) |
+| `COMMERCIAL_ARTIFACTORY_USERNAME` | `ci`: Build (`commercial-repository-username`) |
+| `DEVELOCITY_ACCESS_KEY` | `ci`: Build (`develocity-access-key`) |
+| `GOOGLE_CHAT_WEBHOOK_URL` | `ci`: Send Notification (`webhook-url`) |
 
 **Variables:**
 
 | Name | Used by |
 |------|---------|
-| `COMMERCIAL_RELEASE_REPO_URL` | job `ci` step `Build` with `commercial-release-repository-url` |
-| `COMMERCIAL_SNAPSHOT_REPO_URL` | job `ci` step `Build` with `commercial-snapshot-repository-url` |
+| `COMMERCIAL_RELEASE_REPO_URL` | `ci`: Build (`commercial-release-repository-url`) |
+| `COMMERCIAL_SNAPSHOT_REPO_URL` | `ci`: Build (`commercial-snapshot-repository-url`) |
 
 ## Jobs
 
-### ${{ matrix.os.name}} | Java ${{ matrix.java.version}} (`ci`)
+### (name) | Java (version) (`ci`)
 
 | Property | Value |
 |----------|-------|
@@ -373,14 +417,14 @@ Inputs for the `workflow_dispatch` event.
 
 | Name | Used by |
 |------|---------|
-| `COMMERCIAL_ARTIFACTORY_USERNAME` | job `distribute-spring-enterprise-release-bundle` step `Create Bundle` (run); job `distribute-spring-enterprise-release-bundle` step `Distribute Bundle` (run) |
-| `COMMERCIAL_ARTIFACTORY_PASSWORD` | job `distribute-spring-enterprise-release-bundle` step `Create Bundle` (run); job `distribute-spring-enterprise-release-bundle` step `Distribute Bundle` (run) |
+| `COMMERCIAL_ARTIFACTORY_USERNAME` | `distribute-spring-enterprise-release-bundle`: Create Bundle (`run`), Distribute Bundle (`run`) |
+| `COMMERCIAL_ARTIFACTORY_PASSWORD` | `distribute-spring-enterprise-release-bundle`: Create Bundle (`run`), Distribute Bundle (`run`) |
 
 **Variables:**
 
 | Name | Used by |
 |------|---------|
-| `COMMERCIAL` | job `distribute-spring-enterprise-release-bundle` step `Create Bundle` (if); job `distribute-spring-enterprise-release-bundle` step `Sleep` (if); job `distribute-spring-enterprise-release-bundle` step `Distribute Bundle` (if) |
+| `COMMERCIAL` | `distribute-spring-enterprise-release-bundle`: Create Bundle (`if`), Sleep (`if`), Distribute Bundle (`if`) |
 
 ## Jobs
 
@@ -454,9 +498,7 @@ Inputs for the `workflow_dispatch` event.
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `ARTIFACTORY_PASSWORD`, `ARTIFACTORY_USERNAME`, `CENTRAL_TOKEN_PASSWORD`, `CENTRAL_TOKEN_USERNAME`, `COMMERCIAL_ARTIFACTORY_PASSWORD`, `COMMERCIAL_ARTIFACTORY_USERNAME`, `COMMERCIAL_JF_ARTIFACTORY_SPRING`, `DEVELOCITY_ACCESS_KEY`, `GH_ACTIONS_REPO_TOKEN`, `GITHUB_TOKEN`, `GOOGLE_CHAT_WEBHOOK_URL`, `GPG_PASSPHRASE`, `GPG_PRIVATE_KEY`, `GRADLE_PLUGIN_PUBLISH_KEY`, `GRADLE_PLUGIN_PUBLISH_SECRET`, `JF_ARTIFACTORY_SPRING`, `SDKMAN_CONSUMER_KEY`, `SDKMAN_CONSUMER_TOKEN`, `commercial-repository-password`, `commercial-repository-username`, `google-chat-webhook-url`, `opensource-repository-password`, `opensource-repository-username`, `token`
-
-Variables referenced: `COMMERCIAL`, `COMMERCIAL_DEPLOY_REPO_URL`, `COMMERCIAL_RELEASE_REPO_URL`, `COMMERCIAL_SNAPSHOT_REPO_URL`
+Secrets required (declared/forwarded names): `commercial-repository-password`, `commercial-repository-username`, `google-chat-webhook-url`, `opensource-repository-password`, `opensource-repository-username`, `token`
 
 Permissions declared across the chain: `actions: write`, `contents: read`
 
@@ -466,33 +508,33 @@ Permissions declared across the chain: `actions: write`, `contents: read`
 
 | Name | Used by |
 |------|---------|
-| `COMMERCIAL_ARTIFACTORY_PASSWORD` | job `build-and-stage-release` step `Build and Publish` with `commercial-repository-password`; job `build-and-stage-release` step `Stage Release` with `password`; job `verify` secrets `commercial-repository-password` |
-| `COMMERCIAL_ARTIFACTORY_USERNAME` | job `build-and-stage-release` step `Build and Publish` with `commercial-repository-username`; job `build-and-stage-release` step `Stage Release` with `username`; job `verify` secrets `commercial-repository-username` |
-| `DEVELOCITY_ACCESS_KEY` | job `build-and-stage-release` step `Build and Publish` with `develocity-access-key` |
-| `ARTIFACTORY_PASSWORD` | job `build-and-stage-release` step `Stage Release` with `password`; job `verify` secrets `opensource-repository-password` |
-| `GPG_PRIVATE_KEY` | job `build-and-stage-release` step `Stage Release` with `signing-key` |
-| `GPG_PASSPHRASE` | job `build-and-stage-release` step `Stage Release` with `signing-passphrase` |
-| `ARTIFACTORY_USERNAME` | job `build-and-stage-release` step `Stage Release` with `username`; job `verify` secrets `opensource-repository-username` |
-| `GOOGLE_CHAT_WEBHOOK_URL` | job `build-and-stage-release` step `Send Notification` with `webhook-url`; job `verify` secrets `google-chat-webhook-url` |
-| `GH_ACTIONS_REPO_TOKEN` | job `verify` secrets `token`; job `update-homebrew-tap` step `Update Homebrew Tap` with `token`; job `create-github-release` step `Create GitHub Release` with `token` |
-| `CENTRAL_TOKEN_PASSWORD` | job `sync-to-maven-central` step `Sync to Maven Central` with `central-token-password` |
-| `CENTRAL_TOKEN_USERNAME` | job `sync-to-maven-central` step `Sync to Maven Central` with `central-token-username` |
-| `JF_ARTIFACTORY_SPRING` | job `sync-to-maven-central` step `Sync to Maven Central` with `jfrog-cli-config-token`; job `promote-release` step `Set up JFrog CLI` env `JF_ENV_SPRING`; job `publish-gradle-plugin` step `Publish` with `jfrog-cli-config-token` |
-| `COMMERCIAL_JF_ARTIFACTORY_SPRING` | job `promote-release` step `Set up JFrog CLI` env `JF_ENV_SPRING` |
-| `GRADLE_PLUGIN_PUBLISH_KEY` | job `publish-gradle-plugin` step `Publish` with `gradle-plugin-publish-key` |
-| `GRADLE_PLUGIN_PUBLISH_SECRET` | job `publish-gradle-plugin` step `Publish` with `gradle-plugin-publish-secret` |
-| `SDKMAN_CONSUMER_KEY` | job `publish-to-sdkman` step `Publish to SDKMAN!` with `sdkman-consumer-key` |
-| `SDKMAN_CONSUMER_TOKEN` | job `publish-to-sdkman` step `Publish to SDKMAN!` with `sdkman-consumer-token` |
-| `GITHUB_TOKEN` | job `trigger-docs-build` step `Run Deploy Docs Workflow` env `GH_TOKEN` |
+| `COMMERCIAL_ARTIFACTORY_PASSWORD` | `build-and-stage-release`: Build and Publish (`commercial-repository-password`), Stage Release (`password`)<br>`verify`: (`commercial-repository-password`) |
+| `COMMERCIAL_ARTIFACTORY_USERNAME` | `build-and-stage-release`: Build and Publish (`commercial-repository-username`), Stage Release (`username`)<br>`verify`: (`commercial-repository-username`) |
+| `DEVELOCITY_ACCESS_KEY` | `build-and-stage-release`: Build and Publish (`develocity-access-key`) |
+| `ARTIFACTORY_PASSWORD` | `build-and-stage-release`: Stage Release (`password`)<br>`verify`: (`opensource-repository-password`) |
+| `GPG_PRIVATE_KEY` | `build-and-stage-release`: Stage Release (`signing-key`) |
+| `GPG_PASSPHRASE` | `build-and-stage-release`: Stage Release (`signing-passphrase`) |
+| `ARTIFACTORY_USERNAME` | `build-and-stage-release`: Stage Release (`username`)<br>`verify`: (`opensource-repository-username`) |
+| `GOOGLE_CHAT_WEBHOOK_URL` | `build-and-stage-release`: Send Notification (`webhook-url`)<br>`verify`: (`google-chat-webhook-url`) |
+| `GH_ACTIONS_REPO_TOKEN` | `verify`: (`token`)<br>`update-homebrew-tap`: Update Homebrew Tap (`token`)<br>`create-github-release`: Create GitHub Release (`token`) |
+| `CENTRAL_TOKEN_PASSWORD` | `sync-to-maven-central`: Sync to Maven Central (`central-token-password`) |
+| `CENTRAL_TOKEN_USERNAME` | `sync-to-maven-central`: Sync to Maven Central (`central-token-username`) |
+| `JF_ARTIFACTORY_SPRING` | `sync-to-maven-central`: Sync to Maven Central (`jfrog-cli-config-token`)<br>`promote-release`: Set up JFrog CLI (`JF_ENV_SPRING`)<br>`publish-gradle-plugin`: Publish (`jfrog-cli-config-token`) |
+| `COMMERCIAL_JF_ARTIFACTORY_SPRING` | `promote-release`: Set up JFrog CLI (`JF_ENV_SPRING`) |
+| `GRADLE_PLUGIN_PUBLISH_KEY` | `publish-gradle-plugin`: Publish (`gradle-plugin-publish-key`) |
+| `GRADLE_PLUGIN_PUBLISH_SECRET` | `publish-gradle-plugin`: Publish (`gradle-plugin-publish-secret`) |
+| `SDKMAN_CONSUMER_KEY` | `publish-to-sdkman`: Publish to SDKMAN! (`sdkman-consumer-key`) |
+| `SDKMAN_CONSUMER_TOKEN` | `publish-to-sdkman`: Publish to SDKMAN! (`sdkman-consumer-token`) |
+| `GITHUB_TOKEN` | `trigger-docs-build`: Run Deploy Docs Workflow (`GH_TOKEN`) |
 
 **Variables:**
 
 | Name | Used by |
 |------|---------|
-| `COMMERCIAL_RELEASE_REPO_URL` | job `build-and-stage-release` step `Build and Publish` with `commercial-release-repository-url` |
-| `COMMERCIAL_SNAPSHOT_REPO_URL` | job `build-and-stage-release` step `Build and Publish` with `commercial-snapshot-repository-url` |
-| `COMMERCIAL` | job `build-and-stage-release` step `Stage Release` with `build-name`; job `build-and-stage-release` step `Stage Release` with `password`; job `build-and-stage-release` step `Stage Release` with `project`; job `build-and-stage-release` step `Stage Release` with `repository`; job `build-and-stage-release` step `Stage Release` with `username`; job `sync-to-maven-central` (if); job `promote-release` step `Set up JFrog CLI` env `JF_ENV_SPRING`; job `promote-release` step `Promote open source build` (if); job `promote-release` step `Promote commercial build` (if); job `publish-gradle-plugin` (if); job `publish-to-sdkman` (if); job `create-github-release` step `Create GitHub Release` with `commercial` |
-| `COMMERCIAL_DEPLOY_REPO_URL` | job `build-and-stage-release` step `Stage Release` with `uri` |
+| `COMMERCIAL_RELEASE_REPO_URL` | `build-and-stage-release`: Build and Publish (`commercial-release-repository-url`) |
+| `COMMERCIAL_SNAPSHOT_REPO_URL` | `build-and-stage-release`: Build and Publish (`commercial-snapshot-repository-url`) |
+| `COMMERCIAL` | `build-and-stage-release`: Stage Release (`build-name`), Stage Release (`password`), Stage Release (`project`), Stage Release (`repository`), Stage Release (`username`)<br>`sync-to-maven-central`: (`if`)<br>`promote-release`: Set up JFrog CLI (`JF_ENV_SPRING`), Promote open source build (`if`), Promote commercial build (`if`)<br>`publish-gradle-plugin`: (`if`)<br>`publish-to-sdkman`: (`if`)<br>`create-github-release`: Create GitHub Release (`commercial`) |
+| `COMMERCIAL_DEPLOY_REPO_URL` | `build-and-stage-release`: Stage Release (`uri`) |
 
 ## Jobs
 
@@ -755,9 +797,7 @@ Permissions declared across the chain: `actions: write`, `contents: read`
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `ARTIFACTORY_PASSWORD`, `ARTIFACTORY_USERNAME`, `CENTRAL_TOKEN_PASSWORD`, `CENTRAL_TOKEN_USERNAME`, `COMMERCIAL_ARTIFACTORY_RO_PASSWORD`, `COMMERCIAL_ARTIFACTORY_RO_USERNAME`, `DEVELOCITY_ACCESS_KEY`, `GH_ACTIONS_REPO_TOKEN`, `GITHUB_TOKEN`, `GOOGLE_CHAT_WEBHOOK_URL`, `GPG_PASSPHRASE`, `GPG_PRIVATE_KEY`, `GRADLE_PLUGIN_PUBLISH_KEY`, `GRADLE_PLUGIN_PUBLISH_SECRET`, `JF_ARTIFACTORY_SPRING`, `commercial-repository-password`, `commercial-repository-username`, `google-chat-webhook-url`, `opensource-repository-password`, `opensource-repository-username`, `token`
-
-Variables referenced: `COMMERCIAL`
+Secrets required (declared/forwarded names): `commercial-repository-password`, `commercial-repository-username`, `google-chat-webhook-url`, `opensource-repository-password`, `opensource-repository-username`, `token`
 
 Permissions declared across the chain: `actions: write`, `contents: read`
 
@@ -767,27 +807,27 @@ Permissions declared across the chain: `actions: write`, `contents: read`
 
 | Name | Used by |
 |------|---------|
-| `DEVELOCITY_ACCESS_KEY` | job `build-and-stage-release` step `Build and Publish` with `develocity-access-key` |
-| `ARTIFACTORY_PASSWORD` | job `build-and-stage-release` step `Stage Release` with `password`; job `verify` secrets `opensource-repository-password` |
-| `GPG_PRIVATE_KEY` | job `build-and-stage-release` step `Stage Release` with `signing-key` |
-| `GPG_PASSPHRASE` | job `build-and-stage-release` step `Stage Release` with `signing-passphrase` |
-| `ARTIFACTORY_USERNAME` | job `build-and-stage-release` step `Stage Release` with `username`; job `verify` secrets `opensource-repository-username` |
-| `COMMERCIAL_ARTIFACTORY_RO_PASSWORD` | job `verify` secrets `commercial-repository-password` |
-| `COMMERCIAL_ARTIFACTORY_RO_USERNAME` | job `verify` secrets `commercial-repository-username` |
-| `GOOGLE_CHAT_WEBHOOK_URL` | job `verify` secrets `google-chat-webhook-url` |
-| `GH_ACTIONS_REPO_TOKEN` | job `verify` secrets `token`; job `create-github-release` step `Create GitHub Release` with `token` |
-| `CENTRAL_TOKEN_PASSWORD` | job `sync-to-maven-central` step `Sync to Maven Central` with `central-token-password` |
-| `CENTRAL_TOKEN_USERNAME` | job `sync-to-maven-central` step `Sync to Maven Central` with `central-token-username` |
-| `JF_ARTIFACTORY_SPRING` | job `sync-to-maven-central` step `Sync to Maven Central` with `jfrog-cli-config-token`; job `promote-release` step `Set up JFrog CLI` env `JF_ENV_SPRING`; job `publish-gradle-plugin` step `Publish` with `jfrog-cli-config-token` |
-| `GRADLE_PLUGIN_PUBLISH_KEY` | job `publish-gradle-plugin` step `Publish` with `gradle-plugin-publish-key` |
-| `GRADLE_PLUGIN_PUBLISH_SECRET` | job `publish-gradle-plugin` step `Publish` with `gradle-plugin-publish-secret` |
-| `GITHUB_TOKEN` | job `trigger-docs-build` step `Run Deploy Docs Workflow` env `GH_TOKEN` |
+| `DEVELOCITY_ACCESS_KEY` | `build-and-stage-release`: Build and Publish (`develocity-access-key`) |
+| `ARTIFACTORY_PASSWORD` | `build-and-stage-release`: Stage Release (`password`)<br>`verify`: (`opensource-repository-password`) |
+| `GPG_PRIVATE_KEY` | `build-and-stage-release`: Stage Release (`signing-key`) |
+| `GPG_PASSPHRASE` | `build-and-stage-release`: Stage Release (`signing-passphrase`) |
+| `ARTIFACTORY_USERNAME` | `build-and-stage-release`: Stage Release (`username`)<br>`verify`: (`opensource-repository-username`) |
+| `COMMERCIAL_ARTIFACTORY_RO_PASSWORD` | `verify`: (`commercial-repository-password`) |
+| `COMMERCIAL_ARTIFACTORY_RO_USERNAME` | `verify`: (`commercial-repository-username`) |
+| `GOOGLE_CHAT_WEBHOOK_URL` | `verify`: (`google-chat-webhook-url`) |
+| `GH_ACTIONS_REPO_TOKEN` | `verify`: (`token`)<br>`create-github-release`: Create GitHub Release (`token`) |
+| `CENTRAL_TOKEN_PASSWORD` | `sync-to-maven-central`: Sync to Maven Central (`central-token-password`) |
+| `CENTRAL_TOKEN_USERNAME` | `sync-to-maven-central`: Sync to Maven Central (`central-token-username`) |
+| `JF_ARTIFACTORY_SPRING` | `sync-to-maven-central`: Sync to Maven Central (`jfrog-cli-config-token`)<br>`promote-release`: Set up JFrog CLI (`JF_ENV_SPRING`)<br>`publish-gradle-plugin`: Publish (`jfrog-cli-config-token`) |
+| `GRADLE_PLUGIN_PUBLISH_KEY` | `publish-gradle-plugin`: Publish (`gradle-plugin-publish-key`) |
+| `GRADLE_PLUGIN_PUBLISH_SECRET` | `publish-gradle-plugin`: Publish (`gradle-plugin-publish-secret`) |
+| `GITHUB_TOKEN` | `trigger-docs-build`: Run Deploy Docs Workflow (`GH_TOKEN`) |
 
 **Variables:**
 
 | Name | Used by |
 |------|---------|
-| `COMMERCIAL` | job `sync-to-maven-central` (if); job `publish-gradle-plugin` (if); job `create-github-release` step `Create GitHub Release` with `commercial` |
+| `COMMERCIAL` | `sync-to-maven-central`: (`if`)<br>`publish-gradle-plugin`: (`if`)<br>`create-github-release`: Create GitHub Release (`commercial`) |
 
 ## Jobs
 
@@ -1022,8 +1062,6 @@ External workflows referenced: `spring-io/github-actions/.github/workflows/codeq
 
 ## Transitive requirements (from full call graph)
 
-Secrets referenced (literal names): `DEVELOCITY_ACCESS_KEY`, `GOOGLE_CHAT_WEBHOOK_URL`
-
 Permissions declared across the chain: `contents: read`
 
 ## Referenced secrets and variables
@@ -1032,12 +1070,12 @@ Permissions declared across the chain: `contents: read`
 
 | Name | Used by |
 |------|---------|
-| `DEVELOCITY_ACCESS_KEY` | job `run-system-tests` step `Prepare Gradle Build` with `develocity-access-key` |
-| `GOOGLE_CHAT_WEBHOOK_URL` | job `run-system-tests` step `Send Notification` with `webhook-url` |
+| `DEVELOCITY_ACCESS_KEY` | `run-system-tests`: Prepare Gradle Build (`develocity-access-key`) |
+| `GOOGLE_CHAT_WEBHOOK_URL` | `run-system-tests`: Send Notification (`webhook-url`) |
 
 ## Jobs
 
-### Java ${{ matrix.java.version}} (`run-system-tests`)
+### Java (version) (`run-system-tests`)
 
 | Property | Value |
 |----------|-------|
@@ -1116,7 +1154,7 @@ Inputs for the `workflow_dispatch` event.
 
 | Name | Used by |
 |------|---------|
-| `GITHUB_TOKEN` | job `trigger-docs-build` step `Trigger Workflow` env `GH_TOKEN` |
+| `GITHUB_TOKEN` | `trigger-docs-build`: Trigger Workflow (`GH_TOKEN`) |
 
 ## Jobs
 
@@ -1193,18 +1231,18 @@ Inputs for the `workflow_dispatch` event.
 
 | Name | Used by |
 |------|---------|
-| `token` | job `verify` step `Check Out Release Verification Tests` with `token` |
-| `commercial-repository-password` | job `verify` step `Run Release Verification Tests` env `RVT_COMMERCIAL_REPOSITORY_PASSWORD` |
-| `commercial-repository-username` | job `verify` step `Run Release Verification Tests` env `RVT_COMMERCIAL_REPOSITORY_USERNAME` |
-| `opensource-repository-password` | job `verify` step `Run Release Verification Tests` env `RVT_OSS_REPOSITORY_PASSWORD` |
-| `opensource-repository-username` | job `verify` step `Run Release Verification Tests` env `RVT_OSS_REPOSITORY_USERNAME` |
-| `google-chat-webhook-url` | job `verify` step `Send Notification` with `webhook-url` |
+| `token` | `verify`: Check Out Release Verification Tests (`token`) |
+| `commercial-repository-password` | `verify`: Run Release Verification Tests (`RVT_COMMERCIAL_REPOSITORY_PASSWORD`) |
+| `commercial-repository-username` | `verify`: Run Release Verification Tests (`RVT_COMMERCIAL_REPOSITORY_USERNAME`) |
+| `opensource-repository-password` | `verify`: Run Release Verification Tests (`RVT_OSS_REPOSITORY_PASSWORD`) |
+| `opensource-repository-username` | `verify`: Run Release Verification Tests (`RVT_OSS_REPOSITORY_USERNAME`) |
+| `google-chat-webhook-url` | `verify`: Send Notification (`webhook-url`) |
 
 **Variables:**
 
 | Name | Used by |
 |------|---------|
-| `COMMERCIAL` | job `verify` step `Set Up Homebrew` (if); job `verify` step `Run Release Verification Tests` env `RVT_RELEASE_TYPE` |
+| `COMMERCIAL` | `verify`: Set Up Homebrew (`if`), Run Release Verification Tests (`RVT_RELEASE_TYPE`) |
 
 ## Jobs
 

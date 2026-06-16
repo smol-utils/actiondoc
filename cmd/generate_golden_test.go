@@ -51,10 +51,12 @@ func TestGenerateDirectoryGolden(t *testing.T) {
 		"## Call graph",                       // downstream call-graph tree
 		"## Called by",                        // upstream caller chain on the reusable workflow
 		"## Referenced secrets and variables", // auto-collected references
-		"Uses workflow",                       // reusable-workflow caller job row
-		"id-token",                            // caller job's own permissions must still render
-		"- With:",                             // step with: block
-		"`[continue-on-error]`",               // continue-on-error badge
+		"## Secrets and variables used across this repository", // document-level secrets/vars inventory
+		"## Permissions across this repository",                // document-level permissions union
+		"Uses workflow",                                        // reusable-workflow caller job row
+		"id-token",                                             // caller job's own permissions must still render
+		"- With:",                                              // step with: block
+		"`[continue-on-error]`",                                // continue-on-error badge
 	} {
 		if !strings.Contains(g, must) {
 			t.Errorf("Generate() output is missing %q -- a render entry point dropped a section family", must)

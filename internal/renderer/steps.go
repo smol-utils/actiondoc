@@ -177,9 +177,52 @@ func writeRefTable(b *strings.Builder, label string, refs []model.Reference) {
 	b.WriteString("| Name | Used by |\n")
 	b.WriteString("|------|---------|\n")
 	for _, r := range refs {
-		fmt.Fprintf(b, "| `%s` | %s |\n", escapeCell(r.Name), escapeCell(strings.Join(r.Sites, "; ")))
+		fmt.Fprintf(b, "| `%s` | %s |\n", escapeCell(r.Name), usedByCell(r.Sites))
 	}
 	b.WriteString("\n")
+}
+
+// usedByCell renders a reference's usage sites for the "Used by" column, grouped one line per
+// job so the cell reads as a short list instead of a semicolon-joined wall. Jobs appear in
+// first-seen (source) order; within a job, sites keep source order. Each job line reads
+// `<job-id>: <step> (<name>), ...`. A job-level site (no step: a job env/with/secrets/if)
+// renders as just `(<name>)`; workflow-level env sites group under a leading `workflow env`
+// line. Lines are joined with <br> so the GitHub table cell shows one job per visual line.
+func usedByCell(sites []model.Site) string {
+	if len(sites) == 0 {
+		return ""
+	}
+	var order []string // group keys (job ids; "" for the workflow level) in first-seen order
+	groups := map[string][]model.Site{}
+	for _, s := range sites {
+		if _, ok := groups[s.Job]; !ok {
+			order = append(order, s.Job)
+		}
+		groups[s.Job] = append(groups[s.Job], s)
+	}
+	lines := make([]string, 0, len(order))
+	for _, job := range order {
+		prefix := "workflow env: "
+		if job != "" {
+			prefix = codeSpan(escapeCell(job)) + ": "
+		}
+		entries := make([]string, 0, len(groups[job]))
+		for _, s := range groups[job] {
+			entries = append(entries, refSiteEntry(s))
+		}
+		lines = append(lines, prefix+strings.Join(entries, ", "))
+	}
+	return strings.Join(lines, "<br>")
+}
+
+// refSiteEntry renders one usage site within its job line: `<step> (<name>)`, or just
+// `(<name>)` when the site has no step (a job-level env/with/secrets/if, or workflow env).
+func refSiteEntry(s model.Site) string {
+	name := "(" + codeSpan(escapeCell(s.Name)) + ")"
+	if s.Step == "" {
+		return name
+	}
+	return escapeCell(s.Step) + " " + name
 }
 
 // TOCEntry is one link in the table of contents: a fully-formed visible label (already
