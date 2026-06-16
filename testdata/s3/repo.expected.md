@@ -53,8 +53,6 @@
 
 Secrets required (declared/forwarded names): `BUILD_TOKEN`
 
-Permissions declared across the chain: `contents: read`, `id-token: write (OIDC)`
-
 ## Referenced secrets and variables
 
 **Secrets:**

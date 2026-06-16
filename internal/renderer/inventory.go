@@ -208,8 +208,8 @@ func permRank(level string) int {
 }
 
 // aggregatePermissions unions the declared permission grants across every workflow source --
-// workflow-level and each job-level block -- into one scope -> set(levels) view, mirroring the
-// shape of collectPermissions in reusable.go. A scope seen at different levels (e.g. read in
+// workflow-level and each job-level block -- into one scope -> set(levels) view. A scope seen
+// at different levels (e.g. read in
 // one workflow, write in another) keeps its effective (maximum) level plus a conflict note.
 // The (OIDC) marker rides on id-token: write. Scalar read-all/write-all grants are surfaced as
 // their own rows; an explicit permissions: {} (default-deny) grants nothing and contributes

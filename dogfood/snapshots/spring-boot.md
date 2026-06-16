@@ -117,8 +117,6 @@
 
 Secrets required (declared/forwarded names): `commercial-repository-password`, `commercial-repository-username`, `google-chat-webhook-url`, `opensource-repository-password`, `opensource-repository-username`, `token`
 
-Permissions declared across the chain: `actions: write`, `contents: read`
-
 ## Referenced secrets and variables
 
 **Secrets:**
@@ -258,10 +256,6 @@ Permissions declared across the chain: `actions: write`, `contents: read`
 - `build / Build` uses [./.github/actions/build](#build)
 - `build / Print JVM Thread Dumps When Cancelled` uses [./.github/actions/print-jvm-thread-dumps](#print-jvm-thread-dumps)
 
-## Transitive requirements (from full call graph)
-
-Permissions declared across the chain: `contents: read`
-
 ## Jobs
 
 ### Build Pull Request (`build`)
@@ -319,10 +313,6 @@ Permissions declared across the chain: `contents: read`
 
 - `ci / Build` uses [./.github/actions/build](#build)
 - `ci / Send Notification` uses [./.github/actions/send-notification](#send-notification)
-
-## Transitive requirements (from full call graph)
-
-Permissions declared across the chain: `contents: read`
 
 ## Referenced secrets and variables
 
@@ -499,8 +489,6 @@ Inputs for the `workflow_dispatch` event.
 ## Transitive requirements (from full call graph)
 
 Secrets required (declared/forwarded names): `commercial-repository-password`, `commercial-repository-username`, `google-chat-webhook-url`, `opensource-repository-password`, `opensource-repository-username`, `token`
-
-Permissions declared across the chain: `actions: write`, `contents: read`
 
 ## Referenced secrets and variables
 
@@ -799,8 +787,6 @@ Permissions declared across the chain: `actions: write`, `contents: read`
 
 Secrets required (declared/forwarded names): `commercial-repository-password`, `commercial-repository-username`, `google-chat-webhook-url`, `opensource-repository-password`, `opensource-repository-username`, `token`
 
-Permissions declared across the chain: `actions: write`, `contents: read`
-
 ## Referenced secrets and variables
 
 **Secrets:**
@@ -1016,8 +1002,6 @@ All scopes: `read-all`.
 
 ## Transitive requirements (from full call graph)
 
-Permissions declared across the chain: `actions: read`, `contents: read`, `read-all`, `security-events: write`
-
 External workflows referenced: `spring-io/github-actions/.github/workflows/codeql-analysis.yml@7dc305df87410aa851b873d2f1fd33ccbb7d0aa8`
 
 ## Jobs
@@ -1059,10 +1043,6 @@ External workflows referenced: `spring-io/github-actions/.github/workflows/codeq
 
 - `run-system-tests / Prepare Gradle Build` uses [./.github/actions/prepare-gradle-build](#prepare-gradle-build)
 - `run-system-tests / Send Notification` uses [./.github/actions/send-notification](#send-notification)
-
-## Transitive requirements (from full call graph)
-
-Permissions declared across the chain: `contents: read`
 
 ## Referenced secrets and variables
 

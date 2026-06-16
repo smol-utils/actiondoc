@@ -39,13 +39,13 @@ func renderStep(b *strings.Builder, step *model.Step, num int) {
 	if len(step.With) > 0 {
 		b.WriteString("   - With:\n")
 		for _, kv := range step.With {
-			fmt.Fprintf(b, "     - `%s`: %s%s\n", kv.Key, codeSpan(oneLine(kv.Value)), withDoc(step, kv.Key))
+			fmt.Fprintf(b, "     - `%s`: %s%s\n", kv.Key, stepValue(kv.Value), withDoc(step, kv.Key))
 		}
 	}
 	if len(step.Env) > 0 {
 		b.WriteString("   - Env:\n")
 		for _, kv := range step.Env {
-			fmt.Fprintf(b, "     - `%s`: %s\n", kv.Key, codeSpan(oneLine(kv.Value)))
+			fmt.Fprintf(b, "     - `%s`: %s\n", kv.Key, stepValue(kv.Value))
 		}
 	}
 
@@ -157,6 +157,46 @@ func truncate(s string, max int) string {
 		return string(r[:max])
 	}
 	return string(r[:max-3]) + "..."
+}
+
+// stepValueCharThreshold bounds how wide a step value (a with:/env: value) may be before it
+// is summarized rather than dumped whole. A value longer than two lines, or wider than this
+// many characters, is reduced to its first line plus a "... (+N more lines)" marker.
+const stepValueCharThreshold = 200
+
+// stepValue renders a step's with:/env: value for the step summary. A short value renders
+// whole on a single line (newlines collapsed) as an inline code span. A long one -- more than
+// two lines, or longer than stepValueCharThreshold characters -- is reduced to its first
+// non-blank line (itself clamped to the width threshold) followed by a "... (+N more lines)"
+// marker, so a whole inline script (e.g. a github-script `script:` value) is summarized
+// instead of pasted into the doc. The full content lives in the source workflow.
+func stepValue(s string) string {
+	trimmed := strings.TrimRight(strings.ReplaceAll(s, "\r\n", "\n"), "\n")
+	lines := strings.Split(trimmed, "\n")
+	if len(lines) <= 2 && len(trimmed) <= stepValueCharThreshold {
+		return codeSpan(oneLine(s))
+	}
+	// Lead with the first line that carries content, so a block scalar whose first physical
+	// line is blank still shows a meaningful summary line.
+	first := ""
+	for _, ln := range lines {
+		if t := strings.TrimSpace(ln); t != "" {
+			first = t
+			break
+		}
+	}
+	if first == "" {
+		first = strings.TrimSpace(lines[0])
+	}
+	// Clamp the displayed line without truncate's "..." -- the trailing marker already signals
+	// that content was dropped.
+	if r := []rune(first); len(r) > stepValueCharThreshold {
+		first = string(r[:stepValueCharThreshold])
+	}
+	if more := len(lines) - 1; more > 0 {
+		return fmt.Sprintf("%s ... (+%d more lines)", codeSpan(first), more)
+	}
+	return codeSpan(first) + " ..."
 }
 
 // renderReferences writes the auto-collected "Referenced secrets and variables" section.

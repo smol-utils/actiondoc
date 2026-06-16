@@ -72,8 +72,6 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 Secrets required (declared/forwarded names): `registry-0-psw`, `registry-0-usr`
 
-Permissions declared across the chain: `security-events: write`
-
 ## Referenced secrets and variables
 
 **Secrets:**
@@ -267,8 +265,6 @@ No permissions granted (`permissions: {}` -- default-deny).
 ## Transitive requirements (from full call graph)
 
 Secrets required (declared/forwarded names): `registry-0-psw`, `registry-0-usr`
-
-Permissions declared across the chain: `contents: write`, `security-events: write`
 
 ## Referenced secrets and variables
 
@@ -614,7 +610,7 @@ No permissions granted (`permissions: {}` -- default-deny).
    - Condition: `${{ github.event_name == 'pull_request' }}`
    - With:
      - `name`: `pr-test-coverage-report`
-     - `path`: `pr-commit.txt pr-number.txt target/jacoco-ut/jacoco.xml`
+     - `path`: `pr-commit.txt` ... (+2 more lines)
 
 </details>
 
@@ -752,7 +748,7 @@ No permissions granted (`permissions: {}` -- default-deny).
    - Uses: `docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f`
    - With:
      - `tags`: `${{ steps.tags.outputs.tags }}`
-     - `build-args`: `APP_VERSION=${{ inputs.app-version }} COMMIT_SHA=${{ github.sha }} WAR_FILENAME=dependency-track-${{ matrix.distribution }}.jar`
+     - `build-args`: `APP_VERSION=${{ inputs.app-version }}` ... (+2 more lines)
      - `platforms`: `linux/amd64,linux/arm64`
      - `push`: `${{ inputs.publish-container }}`
      - `context`: `.`
@@ -762,7 +758,7 @@ No permissions granted (`permissions: {}` -- default-deny).
    - Uses: `docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f`
    - With:
      - `tags`: `${{ steps.tags.outputs.tags-alpine }}`
-     - `build-args`: `APP_VERSION=${{ inputs.app-version }} COMMIT_SHA=${{ github.sha }} WAR_FILENAME=dependency-track-${{ matrix.distribution }}.jar`
+     - `build-args`: `APP_VERSION=${{ inputs.app-version }}` ... (+2 more lines)
      - `platforms`: `linux/amd64,linux/arm64`
      - `push`: `${{ inputs.publish-container }}`
      - `context`: `.`

@@ -339,8 +339,12 @@ func calledByLabels(g *callgraph.Graph, e callgraph.Edge) (label, rep string) {
 // renderTransitiveRequirements aggregates, across the entry point and everything
 // reachable from it, what the whole pipeline needs by contract: the secret names each hop
 // declares or forwards (workflow_call.secrets, forwarded `secrets:` keys, and `@secret`
-// tags), the union of declared permission grants, and the external workflows it pulls in.
-// It answers "what does this whole chain need?" without walking every hop.
+// tags), and the external workflows it pulls in. It answers "what does this whole chain
+// need?" without walking every hop.
+//
+// Permission grants are deliberately NOT aggregated here: they are already shown per-workflow
+// (the `## Permissions` section), per-job (`**Permissions:**`), and repo-wide (the doc-level
+// "Permissions across this repository" summary), so a transitive roll-up only repeats them.
 //
 // Expression-referenced secret/variable NAMES are deliberately NOT aggregated here: the
 // document-level secrets/variables inventory already maps every referenced name to the
@@ -360,7 +364,6 @@ func renderTransitiveRequirements(b *strings.Builder, g *callgraph.Graph, id str
 	}
 
 	secrets := map[string]bool{}
-	perms := map[string]bool{}
 	externals := map[string]bool{}
 	for _, nid := range append([]string{id}, reach...) {
 		n := g.Nodes[nid]
@@ -368,7 +371,6 @@ func renderTransitiveRequirements(b *strings.Builder, g *callgraph.Graph, id str
 			continue
 		}
 		collectSecretNames(n, secrets)
-		collectPermissions(n, perms)
 		// External references are collected from this node's outgoing edges (not from the
 		// external nodes themselves) so the `@ref` pin each call site uses is preserved.
 		for _, e := range g.Calls(nid) {
@@ -377,7 +379,7 @@ func renderTransitiveRequirements(b *strings.Builder, g *callgraph.Graph, id str
 			}
 		}
 	}
-	if len(secrets) == 0 && len(perms) == 0 && len(externals) == 0 {
+	if len(secrets) == 0 && len(externals) == 0 {
 		return
 	}
 
@@ -385,40 +387,8 @@ func renderTransitiveRequirements(b *strings.Builder, g *callgraph.Graph, id str
 	if len(secrets) > 0 {
 		fmt.Fprintf(b, "Secrets required (declared/forwarded names): %s\n\n", codelist(sortedKeys(secrets)))
 	}
-	if len(perms) > 0 {
-		fmt.Fprintf(b, "Permissions declared across the chain: %s\n\n", codelist(sortedKeys(perms)))
-	}
 	if len(externals) > 0 {
 		fmt.Fprintf(b, "External workflows referenced: %s\n\n", codelist(sortedKeys(externals)))
-	}
-}
-
-// collectPermissions unions a workflow node's declared permission grants -- workflow-level
-// and job-level -- as "scope: level" strings, with the (OIDC) marker on id-token: write.
-// The scalar forms (read-all / write-all) are included as-is; an explicit default-deny
-// (permissions: {}) grants nothing and contributes nothing.
-func collectPermissions(n *callgraph.Node, set map[string]bool) {
-	if n.Workflow == nil {
-		return
-	}
-	add := func(p *model.Permissions) {
-		if p == nil {
-			return
-		}
-		if p.All != "" {
-			set[p.All] = true
-		}
-		for _, s := range p.Scopes {
-			grant := s.Scope + ": " + s.Level
-			if s.OIDC {
-				grant += " (OIDC)"
-			}
-			set[grant] = true
-		}
-	}
-	add(n.Workflow.Permissions)
-	for i := range n.Workflow.Jobs {
-		add(n.Workflow.Jobs[i].Permissions)
 	}
 }
 

@@ -146,7 +146,8 @@
 | File | `stdlib.yaml` |
 | Default runs-on | `ubuntu-latest` |
 
-**Jobs:**
+<details>
+<summary>Jobs (24)</summary>
 
 - [Non-Bootstrapped Library Unit Tests](#non-bootstrapped-library-unit-tests-test-scala-library-nonbootstrapped)
 - [Bootstrapped Library Unit Tests](#bootstrapped-library-unit-tests-test-scala-library-bootstrapped)
@@ -172,6 +173,8 @@
 - [`community_build_b`](#community_build_b)
 - [`community_build_c`](#community_build_c)
 - [`scala-library-docs`](#scala-library-docs)
+
+</details>
 
 ## Event filters
 
@@ -829,10 +832,6 @@
 - `stdlib-tests` uses [stdlib.yaml](#compile-full-standard-library)
 - `release-maven-artifacts` uses [release-maven-artifacts.yml](#release-artifacts-to-maven)
 
-## Transitive requirements (from full call graph)
-
-Permissions declared across the chain: `contents: read`
-
 ## Referenced secrets and variables
 
 **Secrets:**
@@ -1105,10 +1104,6 @@ Secrets required (declared/forwarded names): `API-KEY`, `CONSUMER-KEY`, `CONSUME
 - `build-sdk-package` uses [build-sdk.yml](#build-scala-launchers)
 - `build-chocolatey-package` uses [build-chocolatey.yml](#build-scala-chocolatey-package)
 - `test-chocolatey-package` uses [test-chocolatey.yml](#test-scala-chocolatey-package)
-
-## Transitive requirements (from full call graph)
-
-Permissions declared across the chain: `contents: read`, `contents: write`
 
 ## Referenced secrets and variables
 

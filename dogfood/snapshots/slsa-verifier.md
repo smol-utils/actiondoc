@@ -1014,8 +1014,6 @@ All scopes: `read-all`.
 
 ## Transitive requirements (from full call graph)
 
-Permissions declared across the chain: `actions: read`, `contents: read`, `contents: write`, `id-token: write (OIDC)`, `issues: write`, `read-all`
-
 External workflows referenced: `slsa-framework/slsa-github-generator/.github/workflows/builder_go_slsa3.yml@v2.0.0`
 
 ## Referenced secrets and variables

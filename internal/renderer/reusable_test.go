@@ -352,9 +352,11 @@ func TestTransitiveRequirements(t *testing.T) {
 			t.Errorf("transitive section must not contain expression-scanned %q:\n%s", gone, section)
 		}
 	}
-	// The leaf job's permission grants surface on the entry point, with the OIDC marker.
-	if !strings.Contains(section, "Permissions declared across the chain: `contents: read`, `id-token: write (OIDC)`") {
-		t.Errorf("permissions not aggregated across the chain:\n%s", section)
+	// Permission grants are no longer rolled up here: they are shown per-workflow, per-job, and
+	// repo-wide, so the transitive line would only repeat them. The declared-secrets line (and
+	// any external-workflows line) is what this section keeps.
+	if strings.Contains(section, "Permissions declared across the chain") {
+		t.Errorf("transitive section must not carry a permissions roll-up line:\n%s", section)
 	}
 }
 

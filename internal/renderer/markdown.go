@@ -138,6 +138,17 @@ func renderJobMiniTOC(b *strings.Builder, jobs []model.Job, anchors []string) {
 	// threshold it becomes an unscannable wall of links right above the headings it mirrors,
 	// so switch to a vertical bulleted list (one job per line). Same anchors, same labels.
 	if len(jobs) > jobMiniTOCInlineMax {
+		// On a giant workflow even the vertical list dominates the front matter, so past a
+		// second threshold collapse it behind a <details>. GitHub renders the Markdown list
+		// inside only when a blank line follows the summary.
+		if len(jobs) > jobMiniTOCDetailsMax {
+			fmt.Fprintf(b, "<details>\n<summary>Jobs (%d)</summary>\n\n", len(jobs))
+			for _, p := range parts {
+				fmt.Fprintf(b, "- %s\n", p)
+			}
+			b.WriteString("\n</details>\n\n")
+			return
+		}
 		b.WriteString("**Jobs:**\n\n")
 		for _, p := range parts {
 			fmt.Fprintf(b, "- %s\n", p)
@@ -151,6 +162,11 @@ func renderJobMiniTOC(b *strings.Builder, jobs []model.Job, anchors []string) {
 // jobMiniTOCInlineMax is the largest job count rendered as a single inline comma-joined
 // mini-TOC line; above it, the roster becomes a vertical bulleted list for scannability.
 const jobMiniTOCInlineMax = 8
+
+// jobMiniTOCDetailsMax is the largest job count whose vertical roster renders open inline;
+// above it, the bulleted list is collapsed behind a <details> so it does not dominate the
+// front matter of a giant workflow.
+const jobMiniTOCDetailsMax = 15
 
 // JobHeadingText returns the visible text of a job's heading: the basis for its GitHub anchor
 // slug. It mirrors renderJob's heading construction so a mini-TOC link resolves to the
