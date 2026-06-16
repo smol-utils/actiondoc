@@ -3,6 +3,38 @@
 All notable changes to actiondoc are documented here. This project adheres to
 [Semantic Versioning](https://semver.org).
 
+## [0.3.0] - 2026-06-16
+
+A documentation-usability release: the generated output is reorganized for fast scanning
+and navigation, especially on large repositories.
+
+### Added
+- Document header with the repository name and an inventory line (count of workflows,
+  reusable workflows, and composite actions).
+- Grouped, trigger-annotated table of contents (Workflows / Reusable workflows / Composite
+  actions), with body sections ordered to match.
+- Per-workflow job mini-TOC and per-section "Back to contents" links.
+- Document-level inventory of the secrets, variables, and permissions used across the
+  repository (the "what must I configure to run this repo's CI?" answer), with each entry
+  linked to the workflows that use it.
+- "Workflows by trigger" index: the inverse of the per-workflow trigger annotations, so
+  "what runs on a pull_request?" is answerable at a glance.
+
+### Changed
+- Call-graph trees render as clickable nested Markdown lists (links to the sections they
+  name) with repeated subtrees collapsed to `(xN)`, instead of fenced ASCII.
+- Triggers are promoted to a prominent line at the top of each workflow section.
+- Per-step detail is collapsed behind `<details>` by default; large job rosters (past 15
+  jobs) are collapsed too.
+- Job names that embed `${{ }}` expressions render as readable labels.
+- Noise reduction: action versions instead of 40-character SHAs where available, `runs-on`
+  stated once per workflow, empty `with:`/`env:` inputs omitted, long inline script values
+  truncated to a first line plus a count, and long boilerplate descriptions folded behind
+  `<details>`.
+- The per-workflow "Used by" reference cell is grouped by job.
+- Redundant secret/permission restatements are trimmed now that the document-level
+  inventory covers them.
+
 ## [0.2.2] - 2026-06-12
 
 ### Added
