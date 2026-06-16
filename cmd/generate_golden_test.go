@@ -45,6 +45,7 @@ func TestGenerateDirectoryGolden(t *testing.T) {
 	g := string(got)
 	for _, must := range []string{
 		"## Contents",                         // table of contents
+		"## Workflows by trigger",             // by-trigger inverted index
 		"**Triggers:**",                       // promoted trigger line under a workflow heading
 		"**Jobs:**",                           // per-workflow job mini-TOC roster
 		"[Back to contents](#contents)",       // per-section back-to-contents link

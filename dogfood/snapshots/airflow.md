@@ -65,6 +65,13 @@
 - [Run migration tests](#run-migration-tests)
 - [Setup Breeze](#setup-breeze)
 
+## Workflows by trigger
+
+- **workflow_dispatch**: [Airflow E2E Tests](#airflow-e2e-tests), [Backport Commit](#backport-commit), [Build & Publish Registry](#build--publish-registry), [CI Notification](#ci-notification), [E2E Flaky Tests Report](#e2e-flaky-tests-report), [\[main\] Scheduled CI upgrade check](#main-scheduled-ci-upgrade-check), [Publish Docs to S3](#publish-docs-to-s3), [Registry Backfill](#registry-backfill), [Release PROD images](#release-prod-images), [Scheduled verify release calendar](#scheduled-verify-release-calendar), [Tests (AMD)](#tests-amd), [Tests (ARM)](#tests-arm), [UI End-to-End Tests](#ui-end-to-end-tests), [\[v3-2-test\] Scheduled CI upgrade check](#v3-2-test-scheduled-ci-upgrade-check)
+- **push**: [ASF Allowlist Check](#asf-allowlist-check), [Automatic Backport](#automatic-backport), [CodeQL](#codeql), [Milestone Tag Assistant](#milestone-tag-assistant), [Notify uv.lock conflicts](#notify-uvlock-conflicts), [Registry Tests](#registry-tests), [Tests (AMD)](#tests-amd), [Tests (ARM)](#tests-arm), [Update constraints on push for main (only when uv.lock changes)](#update-constraints-on-push-for-main-only-when-uvlock-changes), [Update constraints on push for stable branch (always)](#update-constraints-on-push-for-stable-branch-always)
+- **schedule**: [CI Notification](#ci-notification), [Close stale PRs & Issues](#close-stale-prs--issues), [CodeQL](#codeql), [E2E Flaky Tests Report](#e2e-flaky-tests-report), [\[main\] Scheduled CI upgrade check](#main-scheduled-ci-upgrade-check), [Recheck old bug reports](#recheck-old-bug-reports), [Scheduled verify release calendar](#scheduled-verify-release-calendar), [Tests (AMD)](#tests-amd), [Tests (ARM)](#tests-arm), [\[v3-2-test\] Scheduled CI upgrade check](#v3-2-test-scheduled-ci-upgrade-check)
+- **pull_request**: [ASF Allowlist Check](#asf-allowlist-check), [Check newsfragment PR number](#check-newsfragment-pr-number), [CodeQL](#codeql), [Registry Tests](#registry-tests), [Tests (AMD)](#tests-amd)
+
 ## Secrets and variables used across this repository
 
 **Secrets:**
@@ -118,8 +125,6 @@
 
 Secrets required (declared/forwarded names): `SLACK_BOT_TOKEN`
 
-Permissions declared across the chain: `contents: write`, `pull-requests: write`
-
 ## Referenced secrets and variables
 
 **Secrets:**
@@ -172,8 +177,6 @@ Permissions declared across the chain: `contents: write`, `pull-requests: write`
 ## Transitive requirements (from full call graph)
 
 Secrets required (declared/forwarded names): `SLACK_BOT_TOKEN`
-
-Permissions declared across the chain: `contents: write`, `pull-requests: write`
 
 ## Referenced secrets and variables
 
@@ -244,10 +247,6 @@ Inputs for the `workflow_dispatch` event.
 ## Call graph (rooted at this workflow)
 
 - `test-e2e-integration-tests / Prepare breeze & PROD image: ${{ env.PYTHON_MAJOR_MINOR_VERSION }}` uses [./.github/actions/prepare_breeze_and_image](#prepare-breeze--current-image-ci-or-prod)
-
-## Transitive requirements (from full call graph)
-
-Permissions declared across the chain: `contents: read`
 
 ## Called by
 
@@ -388,10 +387,6 @@ Permissions declared across the chain: `contents: read`
 
 - `trigger-backport` uses [backport-cli.yml](#backport-commit)
 
-## Transitive requirements (from full call graph)
-
-Permissions declared across the chain: `contents: read`, `contents: write`, `pull-requests: write`
-
 ## Referenced secrets and variables
 
 **Secrets:**
@@ -420,7 +415,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pul
    - ID: `pr-info`
    - Uses: `actions/github-script@v9.0.0`
    - With:
-     - `script`: `` const { data: pullRequest } = await github.rest.repos.listPullRequestsAssociatedWithCommit({     owner: context.repo.owner,     repo: context.repo.repo,     commit_sha: process.env.GITHUB_SHA }); if (pullRequest.length > 0) {     const pr = pullRequest[0];     const backportBranches = pr.labels           .filter(label => label.name.startsWith('backport-to-'))           .map(label => label.name.replace('backport-to-', ''));      console.log(`Commit ${process.env.GITHUB_SHA} is associated with PR ${pr.number}`);     console.log(`Backport branches: ${backportBranches}`);     core.setOutput('branches', JSON.stringify(backportBranches)); } else {     console.log('⚠️ No pull request found for this commit.');     core.setOutput('branches', '[]'); } ``
+     - `script`: `const { data: pullRequest } = await github.rest.repos.listPullRequestsAssociatedWithCommit({` ... (+17 more lines)
    - Env:
      - `GITHUB_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
 
@@ -585,8 +580,6 @@ Inputs for the `workflow_dispatch` event.
 ## Transitive requirements (from full call graph)
 
 Secrets required (declared/forwarded names): `DOCS_AWS_ACCESS_KEY_ID`, `DOCS_AWS_SECRET_ACCESS_KEY`
-
-Permissions declared across the chain: `contents: read`, `packages: read`, `packages: write`
 
 ## Called by
 
@@ -868,7 +861,7 @@ Permissions declared across the chain: `contents: read`, `packages: read`, `pack
    - With:
      - `method`: `chat.postMessage`
      - `token`: `${{ env.SLACK_BOT_TOKEN }}`
-     - `payload`: `channel: "internal-airflow-ci-cd" text: "🚨 Failure Alert: ${{ env.workflow_id }} on branch *${{ env.branch }}*\n\nFailing jobs:\n${{ steps.find-workflow-run-status.outputs.failed-jobs }}\n\n*Details:* <${{ env.run_url }}|View the failure log>" blocks:   - type: "section"     text:       type: "mrkdwn"       text: "🚨 Failure Alert: ${{ env.workflow_id }} on *${{ env.branch }}*\n\nFailing jobs:\n${{ steps.find-workflow-run-status.outputs.failed-jobs }}\n\n*Details:* <${{ env.run_url }}|View the failure log>"`
+     - `payload`: `channel: "internal-airflow-ci-cd"` ... (+6 more lines)
    - Env:
      - `run_url`: `${{ steps.find-workflow-run-status.outputs.run-url }}`
      - `branch`: `${{ matrix.branch }}`
@@ -880,7 +873,7 @@ Permissions declared across the chain: `contents: read`, `packages: read`, `pack
    - With:
      - `method`: `chat.postMessage`
      - `token`: `${{ env.SLACK_BOT_TOKEN }}`
-     - `payload`: `channel: "internal-airflow-ci-cd" text: "🚨🔁 Still not fixed: ${{ env.workflow_id }} on branch *${{ env.branch }}*\n\nFailing jobs:\n${{ steps.find-workflow-run-status.outputs.failed-jobs }}\n\n*Details:* <${{ env.run_url }}|View the failure log>" blocks:   - type: "section"     text:       type: "mrkdwn"       text: "🚨🔁 Still not fixed: ${{ env.workflow_id }} on *${{ env.branch }}*\n\nFailing jobs:\n${{ steps.find-workflow-run-status.outputs.failed-jobs }}\n\n*Details:* <${{ env.run_url }}|View the failure log>"`
+     - `payload`: `channel: "internal-airflow-ci-cd"` ... (+6 more lines)
    - Env:
      - `run_url`: `${{ steps.find-workflow-run-status.outputs.run-url }}`
      - `branch`: `${{ matrix.branch }}`
@@ -892,7 +885,7 @@ Permissions declared across the chain: `contents: read`, `packages: read`, `pack
    - With:
      - `method`: `chat.postMessage`
      - `token`: `${{ env.SLACK_BOT_TOKEN }}`
-     - `payload`: `channel: "internal-airflow-ci-cd" text: "✅ All passing: ${{ env.workflow_id }} on branch *${{ env.branch }}*\n\n*Details:* <${{ env.run_url }}|View the run log>" blocks:   - type: "section"     text:       type: "mrkdwn"       text: "✅ All passing: ${{ env.workflow_id }} on *${{ env.branch }}*\n\n*Details:* <${{ env.run_url }}|View the run log>"`
+     - `payload`: `channel: "internal-airflow-ci-cd"` ... (+6 more lines)
    - Env:
      - `run_url`: `${{ steps.find-workflow-run-status.outputs.run-url }}`
      - `branch`: `${{ matrix.branch }}`
@@ -940,7 +933,7 @@ Permissions declared across the chain: `contents: read`, `packages: read`, `pack
      - `remove-stale-when-updated`: `true`
      - `days-before-issue-stale`: `14`
      - `days-before-issue-close`: `7`
-     - `stale-issue-message`: `This issue has been automatically marked as stale because it has been open for 14 days with no response from the author. It will be closed in next 7 days if no further activity occurs from the issue author.`
+     - `stale-issue-message`: `This issue has been automatically marked as stale because it has been open for 14 days with no response from the author. It will be closed in next 7 days if no further activity occurs from the issue a` ...
      - `close-issue-message`: `This issue has been closed because it has not received response from the issue author.`
 
 2. **actions/stale@v10.2.0**
@@ -948,7 +941,7 @@ Permissions declared across the chain: `contents: read`, `packages: read`, `pack
      - `only-pr-labels`: `pending-response`
      - `days-before-pr-stale`: `7`
      - `days-before-pr-close`: `7`
-     - `stale-pr-message`: `This pull request has been automatically marked as stale because the author has not responded to a request for more information. It will be closed in 7 days if no further activity occurs. Thank you for your contributions.`
+     - `stale-pr-message`: `This pull request has been automatically marked as stale because the author has not responded to a request for more information. It will be closed in 7 days if no further activity occurs. Thank you fo` ...
      - `close-pr-message`: `This pull request has been closed because the author has not responded to a request for more information.`
      - `labels-to-remove-when-unstale`: `pending-response,stale`
      - `remove-stale-when-updated`: `true`
@@ -1129,10 +1122,6 @@ Permissions declared across the chain: `contents: read`, `packages: read`, `pack
 
 - `set-milestone / Install Breeze` uses [./.github/actions/breeze](#setup-breeze)
 
-## Transitive requirements (from full call graph)
-
-Permissions declared across the chain: `contents: write`, `pull-requests: write`
-
 ## Referenced secrets and variables
 
 **Secrets:**
@@ -1154,7 +1143,7 @@ Permissions declared across the chain: `contents: write`, `pull-requests: write`
    - ID: `pr-info`
    - Uses: `actions/github-script@v9.0.0`
    - With:
-     - `script`: `` const { data: pullRequests } = await github.rest.repos.listPullRequestsAssociatedWithCommit({     owner: context.repo.owner,     repo: context.repo.repo,     commit_sha: process.env.GITHUB_SHA });  if (pullRequests.length === 0) {     console.log('⚠️ No pull request found for this commit.');     core.setOutput('should-run', 'false');     return; }  const pr = pullRequests[0];  // Skip if PR already has a milestone if (pr.milestone !== null) {     console.log(`PR #${pr.number} already has milestone: ${pr.milestone.title}`);     core.setOutput('should-run', 'false');     return; }  const labels = pr.labels.map(label => label.name);  console.log(`Commit ${process.env.GITHUB_SHA} is associated with PR #${pr.number}`); console.log(`Title: ${pr.title}`); console.log(`Labels: ${JSON.stringify(labels)}`); console.log(`Base branch: ${pr.base.ref}`); console.log(`Merged by: ${pr.merged_by?.login || 'unknown'}`);  core.setOutput('should-run', 'true'); core.setOutput('pr-number', pr.number.toString()); core.setOutput('pr-title', pr.title); core.setOutput('pr-labels', JSON.stringify(labels)); core.setOutput('base-branch', pr.base.ref); core.setOutput('merged-by', pr.merged_by?.login || 'unknown'); ``
+     - `script`: `const { data: pullRequests } = await github.rest.repos.listPullRequestsAssociatedWithCommit({` ... (+34 more lines)
    - Env:
      - `GITHUB_TOKEN`: `${{ secrets.GITHUB_TOKEN }}`
 
@@ -1292,8 +1281,6 @@ Inputs for the `workflow_dispatch` event.
 ## Transitive requirements (from full call graph)
 
 Secrets required (declared/forwarded names): `DOCS_AWS_ACCESS_KEY_ID`, `DOCS_AWS_SECRET_ACCESS_KEY`
-
-Permissions declared across the chain: `contents: read`, `id-token: write (OIDC)`, `packages: read`, `packages: write`
 
 ## Referenced secrets and variables
 
@@ -1615,7 +1602,7 @@ Permissions declared across the chain: `contents: read`, `id-token: write (OIDC)
      - `remove-issue-stale-when-updated`: `true`
      - `labels-to-add-when-unstale`: `needs-triage`
      - `labels-to-remove-when-unstale`: `Stale Bug Report`
-     - `stale-issue-message`: `This issue has been automatically marked as stale because it has been open for 365 days without any activity. There has been several Airflow releases since last activity on this issue. Kindly asking to recheck the report against latest Airflow version and let us know if the issue is reproducible. The issue will be closed in next 30 days if no further activity occurs from the issue author.`
+     - `stale-issue-message`: `This issue has been automatically marked as stale because it has been open for 365 days without any activity. There has been several Airflow releases since last activity on this issue. Kindly asking t` ...
      - `close-issue-message`: `This issue has been closed because it has not received response from the issue author.`
 
 </details>
@@ -1653,10 +1640,6 @@ Inputs for the `workflow_dispatch` event.
   - `build-ci-images / Install Breeze` uses [./.github/actions/breeze](#setup-breeze)
 - `backfill / Prepare breeze & CI image` uses [./.github/actions/prepare_breeze_and_image](#prepare-breeze--current-image-ci-or-prod)
 - `publish-versions / Install Breeze` uses [./.github/actions/breeze](#setup-breeze)
-
-## Transitive requirements (from full call graph)
-
-Permissions declared across the chain: `contents: read`, `packages: read`, `packages: write`
 
 ## Referenced secrets and variables
 
@@ -1934,8 +1917,6 @@ Inputs for the `workflow_dispatch` event.
 
 Secrets required (declared/forwarded names): `DOCKERHUB_TOKEN`, `DOCKERHUB_USER`
 
-Permissions declared across the chain: `contents: read`, `packages: read`
-
 ## Referenced secrets and variables
 
 **Secrets:**
@@ -2078,7 +2059,7 @@ Permissions declared across the chain: `contents: read`, `packages: read`
    - With:
      - `method`: `chat.postMessage`
      - `token`: `${{ secrets.SLACK_BOT_TOKEN }}`
-     - `payload`: `` channel: "release-management" text: >-   :warning: Release calendar verification failed.   See:   ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} blocks:   - type: section     text:       type: mrkdwn       text: >-         :warning: *Release calendar verification failed*          The scheduled `verify_release_calendar.py` check         failed. Please review and fix the mismatch between         the Confluence release wiki and the Google         Calendar entries.          • <https://cwiki.apache.org/confluence/display/AIRFLOW/Release+Plan|Release Plan wiki>          • <https://calendar.google.com/calendar/u/0?cid=Y19kZTIxNGU5MmRmM2I3NTk3NzljYjY1ZjNlNDllNTYyNzk2YzYxMjZlNzUwMGNmYTdlNTI0YmY3ODE4NmQ4YjVlQGdyb3VwLmNhbGVuZGFyLmdvb2dsZS5jb20|Release Calendar>          • <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View failed run> ``
+     - `payload`: `channel: "release-management"` ... (+21 more lines)
 
 </details>
 
@@ -2093,7 +2074,8 @@ Permissions declared across the chain: `contents: read`, `packages: read`
 | File | `ci-amd.yml` |
 | Default runs-on | `${{ fromJSON(needs.build-info.outputs.runner-type) }}` |
 
-**Jobs:**
+<details>
+<summary>Jobs (32)</summary>
 
 - [Build info](#build-info-build-info-2)
 - [Platform: AMD](#platform-amd-print-platform)
@@ -2127,6 +2109,8 @@ Permissions declared across the chain: `contents: read`, `packages: read`
 - [Finalize tests](#finalize-tests-finalize-tests)
 - [Notify Slack](#notify-slack-notify-slack)
 - [Summarize warnings](#summarize-warnings-summarize-warnings)
+
+</details>
 
 ## Schedule
 
@@ -2224,8 +2208,6 @@ Permissions declared across the chain: `contents: read`, `packages: read`
 ## Transitive requirements (from full call graph)
 
 Secrets required (declared/forwarded names): `DOCS_AWS_ACCESS_KEY_ID`, `DOCS_AWS_SECRET_ACCESS_KEY`, `SLACK_BOT_TOKEN`
-
-Permissions declared across the chain: `contents: read`, `contents: write`, `id-token: write (OIDC)`, `packages: read`, `packages: write`
 
 ## Referenced secrets and variables
 
@@ -3245,7 +3227,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
    - With:
      - `method`: `chat.postMessage`
      - `token`: `${{ env.SLACK_BOT_TOKEN }}`
-     - `payload`: `channel: "internal-airflow-ci-cd" text: "🚨 Failure Alert: Scheduled CI (${{ needs.build-info.outputs.platform }}) on branch *${{ github.ref_name }}*\n\nFailing jobs:\n${{ steps.get-failures.outputs.failed-jobs }}\n\n*Details:* <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|View the failure log>" blocks:   - type: "section"     text:       type: "mrkdwn"       text: "🚨 Failure Alert: Scheduled CI (${{ needs.build-info.outputs.platform }}) on *${{ github.ref_name }}*\n\nFailing jobs:\n${{ steps.get-failures.outputs.failed-jobs }}\n\n*Details:* <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|View the failure log>"`
+     - `payload`: `channel: "internal-airflow-ci-cd"` ... (+6 more lines)
 
 6. **Notify Slack (still not fixed)**
    - Uses: `slackapi/slack-github-action@v3.0.3`
@@ -3253,7 +3235,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
    - With:
      - `method`: `chat.postMessage`
      - `token`: `${{ env.SLACK_BOT_TOKEN }}`
-     - `payload`: `channel: "internal-airflow-ci-cd" text: "🚨🔁 Still not fixed: Scheduled CI (${{ needs.build-info.outputs.platform }}) on branch *${{ github.ref_name }}*\n\nFailing jobs:\n${{ steps.get-failures.outputs.failed-jobs }}\n\n*Details:* <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|View the failure log>" blocks:   - type: "section"     text:       type: "mrkdwn"       text: "🚨🔁 Still not fixed: Scheduled CI (${{ needs.build-info.outputs.platform }}) on *${{ github.ref_name }}*\n\nFailing jobs:\n${{ steps.get-failures.outputs.failed-jobs }}\n\n*Details:* <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|View the failure log>"`
+     - `payload`: `channel: "internal-airflow-ci-cd"` ... (+6 more lines)
 
 7. **Notify Slack (all tests passing)**
    - Uses: `slackapi/slack-github-action@v3.0.3`
@@ -3261,7 +3243,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
    - With:
      - `method`: `chat.postMessage`
      - `token`: `${{ env.SLACK_BOT_TOKEN }}`
-     - `payload`: `channel: "internal-airflow-ci-cd" text: "✅ All tests passing: Scheduled CI (${{ needs.build-info.outputs.platform }}) on branch *${{ github.ref_name }}*\n\n*Details:* <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|View the run log>" blocks:   - type: "section"     text:       type: "mrkdwn"       text: "✅ All tests passing: Scheduled CI (${{ needs.build-info.outputs.platform }}) on *${{ github.ref_name }}*\n\n*Details:* <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|View the run log>"`
+     - `payload`: `channel: "internal-airflow-ci-cd"` ... (+6 more lines)
 
 </details>
 
@@ -3319,7 +3301,8 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
 | File | `ci-arm.yml` |
 | Default runs-on | `${{ fromJSON(needs.build-info.outputs.runner-type) }}` |
 
-**Jobs:**
+<details>
+<summary>Jobs (32)</summary>
 
 - [Build info](#build-info-build-info-3)
 - [Platform: ARM](#platform-arm-print-platform)
@@ -3353,6 +3336,8 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
 - [Finalize tests](#finalize-tests-finalize-tests-1)
 - [Notify Slack](#notify-slack-notify-slack-1)
 - [Summarize warnings](#summarize-warnings-summarize-warnings-1)
+
+</details>
 
 ## Schedule
 
@@ -3447,8 +3432,6 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
 ## Transitive requirements (from full call graph)
 
 Secrets required (declared/forwarded names): `DOCS_AWS_ACCESS_KEY_ID`, `DOCS_AWS_SECRET_ACCESS_KEY`, `SLACK_BOT_TOKEN`
-
-Permissions declared across the chain: `contents: read`, `contents: write`, `id-token: write (OIDC)`, `packages: read`, `packages: write`
 
 ## Referenced secrets and variables
 
@@ -4468,7 +4451,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
    - With:
      - `method`: `chat.postMessage`
      - `token`: `${{ env.SLACK_BOT_TOKEN }}`
-     - `payload`: `channel: "internal-airflow-ci-cd" text: "🚨 Failure Alert: Scheduled CI (${{ needs.build-info.outputs.platform }}) on branch *${{ github.ref_name }}*\n\nFailing jobs:\n${{ steps.get-failures.outputs.failed-jobs }}\n\n*Details:* <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|View the failure log>" blocks:   - type: "section"     text:       type: "mrkdwn"       text: "🚨 Failure Alert: Scheduled CI (${{ needs.build-info.outputs.platform }}) on *${{ github.ref_name }}*\n\nFailing jobs:\n${{ steps.get-failures.outputs.failed-jobs }}\n\n*Details:* <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|View the failure log>"`
+     - `payload`: `channel: "internal-airflow-ci-cd"` ... (+6 more lines)
 
 6. **Notify Slack (still not fixed)**
    - Uses: `slackapi/slack-github-action@v3.0.3`
@@ -4476,7 +4459,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
    - With:
      - `method`: `chat.postMessage`
      - `token`: `${{ env.SLACK_BOT_TOKEN }}`
-     - `payload`: `channel: "internal-airflow-ci-cd" text: "🚨🔁 Still not fixed: Scheduled CI (${{ needs.build-info.outputs.platform }}) on branch *${{ github.ref_name }}*\n\nFailing jobs:\n${{ steps.get-failures.outputs.failed-jobs }}\n\n*Details:* <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|View the failure log>" blocks:   - type: "section"     text:       type: "mrkdwn"       text: "🚨🔁 Still not fixed: Scheduled CI (${{ needs.build-info.outputs.platform }}) on *${{ github.ref_name }}*\n\nFailing jobs:\n${{ steps.get-failures.outputs.failed-jobs }}\n\n*Details:* <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|View the failure log>"`
+     - `payload`: `channel: "internal-airflow-ci-cd"` ... (+6 more lines)
 
 7. **Notify Slack (all tests passing)**
    - Uses: `slackapi/slack-github-action@v3.0.3`
@@ -4484,7 +4467,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `id-
    - With:
      - `method`: `chat.postMessage`
      - `token`: `${{ env.SLACK_BOT_TOKEN }}`
-     - `payload`: `channel: "internal-airflow-ci-cd" text: "✅ All tests passing: Scheduled CI (${{ needs.build-info.outputs.platform }}) on branch *${{ github.ref_name }}*\n\n*Details:* <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|View the run log>" blocks:   - type: "section"     text:       type: "mrkdwn"       text: "✅ All tests passing: Scheduled CI (${{ needs.build-info.outputs.platform }}) on *${{ github.ref_name }}*\n\n*Details:* <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|View the run log>"`
+     - `payload`: `channel: "internal-airflow-ci-cd"` ... (+6 more lines)
 
 </details>
 
@@ -4577,10 +4560,6 @@ Inputs for the `workflow_dispatch` event.
 
 - `test-ui-e2e-tests / Prepare breeze & PROD image: ${{ env.PYTHON_MAJOR_MINOR_VERSION }}` uses [./.github/actions/prepare_breeze_and_image](#prepare-breeze--current-image-ci-or-prod)
 - `test-ui-e2e-tests / Install Breeze (manual trigger)` uses [./.github/actions/breeze](#setup-breeze)
-
-## Transitive requirements (from full call graph)
-
-Permissions declared across the chain: `contents: read`
 
 ## Called by
 
@@ -4735,10 +4714,6 @@ Permissions declared across the chain: `contents: read`
   - `generate-constraints-matrix / Install prek` uses [./.github/actions/install-prek](#install-prek)
   - `generate-constraints-matrix / Prepare breeze & CI image: ${{ matrix.python-version }}` uses [./.github/actions/prepare_breeze_and_image](#prepare-breeze--current-image-ci-or-prod)
 
-## Transitive requirements (from full call graph)
-
-Permissions declared across the chain: `contents: read`, `contents: write`, `packages: read`, `packages: write`
-
 ## Referenced secrets and variables
 
 **Secrets:**
@@ -4903,7 +4878,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
    - With:
      - `method`: `chat.postMessage`
      - `token`: `${{ env.SLACK_BOT_TOKEN }}`
-     - `payload`: `channel: "internal-airflow-ci-cd" text: "🚨 Update constraints workflow failed on branch *${{ github.ref_name }}*\n\n*Details:* <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View the failure log>" blocks:   - type: "section"     text:       type: "mrkdwn"       text: "🚨 Update constraints workflow failed on *${{ github.ref_name }}*\n\n*Details:* <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View the failure log>"`
+     - `payload`: `channel: "internal-airflow-ci-cd"` ... (+6 more lines)
 
 </details>
 
@@ -4949,10 +4924,6 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
   - `generate-constraints-matrix / Install prek` uses [./.github/actions/install-prek](#install-prek)
   - `generate-constraints-matrix / Prepare breeze & CI image: ${{ matrix.python-version }}` uses [./.github/actions/prepare_breeze_and_image](#prepare-breeze--current-image-ci-or-prod)
 
-## Transitive requirements (from full call graph)
-
-Permissions declared across the chain: `contents: read`, `contents: write`, `packages: read`, `packages: write`
-
 ## Referenced secrets and variables
 
 **Secrets:**
@@ -5117,7 +5088,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
    - With:
      - `method`: `chat.postMessage`
      - `token`: `${{ env.SLACK_BOT_TOKEN }}`
-     - `payload`: `channel: "internal-airflow-ci-cd" text: "🚨 Update constraints workflow failed on branch *${{ github.ref_name }}*\n\n*Details:* <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View the failure log>" blocks:   - type: "section"     text:       type: "mrkdwn"       text: "🚨 Update constraints workflow failed on *${{ github.ref_name }}*\n\n*Details:* <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View the failure log>"`
+     - `payload`: `channel: "internal-airflow-ci-cd"` ... (+6 more lines)
 
 </details>
 
@@ -6633,7 +6604,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
    - With:
      - `method`: `chat.postMessage`
      - `token`: `${{ env.SLACK_BOT_TOKEN }}`
-     - `payload`: `channel: "internal-airflow-ci-cd" text: "⚠️ Missing 3rd-party doc inventories in canary build on *${{ github.ref_name }}*: ${{ steps.check-missing-inventories.outputs.packages }}\n\n<${{ steps.get-job-url.outputs.url }}|View job log>"`
+     - `payload`: `channel: "internal-airflow-ci-cd"` ... (+1 more line)
    - Env:
      - `SLACK_BOT_TOKEN`: `${{ secrets.SLACK_BOT_TOKEN }}`
 
@@ -6643,7 +6614,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
    - With:
      - `method`: `chat.postMessage`
      - `token`: `${{ env.SLACK_BOT_TOKEN }}`
-     - `payload`: `channel: "internal-airflow-ci-cd" text: "⚠️🔁 Still not fixed: Missing 3rd-party doc inventories in canary build on *${{ github.ref_name }}*: ${{ steps.check-missing-inventories.outputs.packages }}\n\n<${{ steps.get-job-url.outputs.url }}|View job log>"`
+     - `payload`: `channel: "internal-airflow-ci-cd"` ... (+1 more line)
    - Env:
      - `SLACK_BOT_TOKEN`: `${{ secrets.SLACK_BOT_TOKEN }}`
 
@@ -9006,7 +8977,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
    - With:
      - `method`: `chat.postMessage`
      - `token`: `${{ env.SLACK_BOT_TOKEN }}`
-     - `payload`: `` channel: "internal-airflow-ci-cd" text: >-   🔧 [${{ inputs.target-branch }}] Scheduled CI upgrade PR   ready: ${{ steps.find-pr.outputs.pr-url }} blocks:   - type: section     text:       type: mrkdwn       text: >-         🔧 *[${{ inputs.target-branch }}] Scheduled CI upgrade         PR ready*          A new CI upgrade PR has been created as a draft on the         `${{ inputs.target-branch }}` branch. Please:            1. *Undraft* the PR to trigger CI           2. *Review* the changes           3. *Merge* it once CI passes          <${{ steps.find-pr.outputs.pr-url }}|View PR> ``
+     - `payload`: `channel: "internal-airflow-ci-cd"` ... (+19 more lines)
 
 9. **[${{ inputs.target-branch }}] Notify Slack on failure**
    - Uses: `slackapi/slack-github-action@45a88b9581bfab2566dc881e2cd66d334e621e2c`
@@ -9014,7 +8985,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pac
    - With:
      - `method`: `chat.postMessage`
      - `token`: `${{ env.SLACK_BOT_TOKEN }}`
-     - `payload`: `` channel: "internal-airflow-ci-cd" text: >-   ⚠️ [${{ inputs.target-branch }}] Scheduled CI upgrade FAILED.   See: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} blocks:   - type: section     text:       type: mrkdwn       text: >-         ⚠️ *[${{ inputs.target-branch }}] Scheduled CI upgrade         FAILED*          The `breeze ci upgrade` job on the         `${{ inputs.target-branch }}` branch did not complete         successfully. Please investigate the failed run and         re-run the workflow if needed.          <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View failed run> ``
+     - `payload`: `channel: "internal-airflow-ci-cd"` ... (+17 more lines)
 
 </details>
 

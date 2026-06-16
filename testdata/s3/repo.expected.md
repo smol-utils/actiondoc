@@ -16,6 +16,10 @@
 
 - [Deploy](#deploy)
 
+## Workflows by trigger
+
+- **push**: [CI](#ci)
+
 ## Secrets and variables used across this repository
 
 **Secrets:**
@@ -50,8 +54,6 @@
 ## Transitive requirements (from full call graph)
 
 Secrets required (declared/forwarded names): `BUILD_TOKEN`
-
-Permissions declared across the chain: `contents: read`, `id-token: write (OIDC)`
 
 ## Referenced secrets and variables
 

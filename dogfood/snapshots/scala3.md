@@ -30,6 +30,14 @@
 - [Test 'scala' Chocolatey Package](#test-scala-chocolatey-package)
 - [Test 'scala' MSI Package](#test-scala-msi-package)
 
+## Workflows by trigger
+
+- **pull_request**: [Compile Full Standard Library](#compile-full-standard-library), [Language reference documentation](#language-reference-documentation), [Scala 3](#scala-3), [Scala CLA](#scala-cla), [scaladoc](#scaladoc), [Specification](#specification), [Test CLI Launchers on all the platforms](#test-cli-launchers-on-all-the-platforms)
+- **push**: [Add to backporting project](#add-to-backporting-project), [Compile Full Standard Library](#compile-full-standard-library), [Language reference documentation](#language-reference-documentation), [Scala 3](#scala-3), [scaladoc](#scaladoc), [Specification](#specification), [Update Dependency Graph](#update-dependency-graph)
+- **workflow_dispatch**: [Language reference documentation](#language-reference-documentation), [Nightly Release of Scala 3](#nightly-release-of-scala-3), [Official release of Scala](#official-release-of-scala), [Scala 3](#scala-3), [Specification](#specification), [Test CLI Launchers on all the platforms](#test-cli-launchers-on-all-the-platforms)
+- **merge_group**: [Scala 3](#scala-3), [scaladoc](#scaladoc), [Specification](#specification)
+- **schedule**: [Nightly Release of Scala 3](#nightly-release-of-scala-3)
+
 ## Secrets and variables used across this repository
 
 **Secrets:**
@@ -146,7 +154,8 @@
 | File | `stdlib.yaml` |
 | Default runs-on | `ubuntu-latest` |
 
-**Jobs:**
+<details>
+<summary>Jobs (24)</summary>
 
 - [Non-Bootstrapped Library Unit Tests](#non-bootstrapped-library-unit-tests-test-scala-library-nonbootstrapped)
 - [Bootstrapped Library Unit Tests](#bootstrapped-library-unit-tests-test-scala-library-bootstrapped)
@@ -172,6 +181,8 @@
 - [`community_build_b`](#community_build_b)
 - [`community_build_c`](#community_build_c)
 - [`scala-library-docs`](#scala-library-docs)
+
+</details>
 
 ## Event filters
 
@@ -825,10 +836,6 @@
 - `stdlib-tests` uses [stdlib.yaml](#compile-full-standard-library)
 - `release-maven-artifacts` uses [release-maven-artifacts.yml](#release-artifacts-to-maven)
 
-## Transitive requirements (from full call graph)
-
-Permissions declared across the chain: `contents: read`
-
 ## Referenced secrets and variables
 
 **Secrets:**
@@ -1097,10 +1104,6 @@ Secrets required (declared/forwarded names): `API-KEY`, `CONSUMER-KEY`, `CONSUME
 - `build-sdk-package` uses [build-sdk.yml](#build-scala-launchers)
 - `build-chocolatey-package` uses [build-chocolatey.yml](#build-scala-chocolatey-package)
 - `test-chocolatey-package` uses [test-chocolatey.yml](#test-scala-chocolatey-package)
-
-## Transitive requirements (from full call graph)
-
-Permissions declared across the chain: `contents: read`, `contents: write`
 
 ## Referenced secrets and variables
 

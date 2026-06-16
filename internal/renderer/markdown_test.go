@@ -308,6 +308,38 @@ func TestJobMiniTOCLayout(t *testing.T) {
 			t.Errorf("vertical layout dropped anchor %s:\n%s", want, gotVert)
 		}
 	}
+
+	// At the second threshold (15) the vertical list still renders open, with no <details>.
+	jobs, anchors = makeJobs(jobMiniTOCDetailsMax)
+	var open strings.Builder
+	renderJobMiniTOC(&open, jobs, anchors)
+	gotOpen := open.String()
+	if strings.Contains(gotOpen, "<details>") {
+		t.Errorf("at %d jobs want an open vertical list, got <details>:\n%s", jobMiniTOCDetailsMax, gotOpen)
+	}
+	if !strings.HasPrefix(gotOpen, "**Jobs:**\n\n- ") {
+		t.Errorf("at %d jobs want an open **Jobs:** list, got:\n%s", jobMiniTOCDetailsMax, gotOpen)
+	}
+
+	// One past it (16) the roster collapses behind a <details> whose summary states the count.
+	jobs, anchors = makeJobs(jobMiniTOCDetailsMax + 1)
+	var coll strings.Builder
+	renderJobMiniTOC(&coll, jobs, anchors)
+	gotColl := coll.String()
+	wantSummary := fmt.Sprintf("<details>\n<summary>Jobs (%d)</summary>\n\n- ", jobMiniTOCDetailsMax+1)
+	if !strings.HasPrefix(gotColl, wantSummary) {
+		t.Errorf("at %d jobs want collapsed <details> roster, got:\n%s", jobMiniTOCDetailsMax+1, gotColl)
+	}
+	if !strings.HasSuffix(gotColl, "\n</details>\n\n") {
+		t.Errorf("collapsed roster must close the <details>:\n%s", gotColl)
+	}
+	// Anchors survive the collapse too.
+	for i := 0; i < jobMiniTOCDetailsMax+1; i++ {
+		want := fmt.Sprintf("(#job%d)", i)
+		if !strings.Contains(gotColl, want) {
+			t.Errorf("collapsed layout dropped anchor %s:\n%s", want, gotColl)
+		}
+	}
 }
 
 // TestRenderWorkflowExample checks that a workflow-level @example renders: the spec

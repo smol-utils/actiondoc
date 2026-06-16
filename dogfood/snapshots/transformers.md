@@ -64,6 +64,18 @@
 - [Self-hosted runner (past-ci)](#self-hosted-runner-past-ci)
 - [Self-hosted runner (scheduled-intel-gaudi)](#self-hosted-runner-scheduled-intel-gaudi)
 
+## Workflows by trigger
+
+- **push**: [Add model like runner](#add-model-like-runner), [Build docker images (Nightly CI)](#build-docker-images-nightly-ci), [Build docker images (Past CI)](#build-docker-images-past-ci), [Build docker images (scheduled)](#build-docker-images-scheduled), [Build documentation](#build-documentation), [Build pr ci-docker](#build-pr-ci-docker), [Check Tiny Models](#check-tiny-models), [CodeQL Security Analysis](#codeql-security-analysis), [Doctests](#doctests), [New model PR merged notification](#new-model-pr-merged-notification), [Nvidia CI](#nvidia-ci), [Nvidia CI - Flash Attn](#nvidia-ci---flash-attn), [Nvidia CI with nightly torch](#nvidia-ci-with-nightly-torch), [Release](#release), [Release - Conda](#release---conda), [Secret Leaks](#secret-leaks), [Self-hosted runner (AMD mi250 scheduled CI caller)](#self-hosted-runner-amd-mi250-scheduled-ci-caller), [Self-hosted runner (benchmark)](#self-hosted-runner-benchmark), [Self-hosted runner (nightly-past-ci-caller)](#self-hosted-runner-nightly-past-ci-caller), [Self-hosted runner scale set (AMD mi325 scheduled CI caller)](#self-hosted-runner-scale-set-amd-mi325-scheduled-ci-caller), [Self-hosted runner scale set (AMD mi355 scheduled CI caller)](#self-hosted-runner-scale-set-amd-mi355-scheduled-ci-caller), [Slow tests on important models (on Push - A10)](#slow-tests-on-important-models-on-push---a10), [Update Transformers metadata](#update-transformers-metadata)
+- **schedule**: [Build docker images (scheduled)](#build-docker-images-scheduled), [Build pr ci-docker](#build-pr-ci-docker), [Check Tiny Models](#check-tiny-models), [Doctests](#doctests), [Extras Smoke Test](#extras-smoke-test), [Nvidia CI](#nvidia-ci), [Nvidia CI - Flash Attn](#nvidia-ci---flash-attn), [Self-hosted runner (AMD scheduled CI caller)](#self-hosted-runner-amd-scheduled-ci-caller), [Self-hosted runner (Intel Gaudi3 scheduled CI caller)](#self-hosted-runner-intel-gaudi3-scheduled-ci-caller), [Self-hosted runner (nightly-past-ci-caller)](#self-hosted-runner-nightly-past-ci-caller), [Stale Bot](#stale-bot)
+- **workflow_dispatch**: [Benchmark v2 Framework](#benchmark-v2-framework), [Benchmark v2 Scheduled Runner - A10 Single-GPU](#benchmark-v2-scheduled-runner---a10-single-gpu), [Benchmark v2 Scheduled Runner - MI325 Single-GPU](#benchmark-v2-scheduled-runner---mi325-single-gpu), [Build docker images (scheduled)](#build-docker-images-scheduled), [Build documentation](#build-documentation), [Check Permissions Advisor](#check-permissions-advisor), [CodeQL Security Analysis](#codeql-security-analysis), [Nvidia CI](#nvidia-ci), [Nvidia CI - Flash Attn](#nvidia-ci---flash-attn), [Self-hosted runner (Intel Gaudi3 scheduled CI caller)](#self-hosted-runner-intel-gaudi3-scheduled-ci-caller), [SSH into our runners](#ssh-into-our-runners)
+- **repository_dispatch**: [Build docker images (scheduled)](#build-docker-images-scheduled), [Build pr ci-docker](#build-pr-ci-docker), [Check Tiny Models](#check-tiny-models), [Doctests](#doctests), [Nvidia CI](#nvidia-ci), [Nvidia CI - Flash Attn](#nvidia-ci---flash-attn), [Nvidia CI with nightly torch](#nvidia-ci-with-nightly-torch), [Self-hosted runner (Intel Gaudi3 scheduled CI caller)](#self-hosted-runner-intel-gaudi3-scheduled-ci-caller)
+- **workflow_run**: [Nvidia CI with nightly torch](#nvidia-ci-with-nightly-torch), [Self-hosted runner (AMD mi250 scheduled CI caller)](#self-hosted-runner-amd-mi250-scheduled-ci-caller), [Self-hosted runner scale set (AMD mi325 scheduled CI caller)](#self-hosted-runner-scale-set-amd-mi325-scheduled-ci-caller), [Self-hosted runner scale set (AMD mi355 scheduled CI caller)](#self-hosted-runner-scale-set-amd-mi355-scheduled-ci-caller), [Upload PR Documentation](#upload-pr-documentation)
+- **issue_comment**: [PR - build doc via comment](#pr---build-doc-via-comment), [PR comment GitHub CI](#pr-comment-github-ci), [PR Repo. Consistency Bot](#pr-repo-consistency-bot), [TRL CI bot](#trl-ci-bot)
+- **pull_request_target**: [Anti-Slop](#anti-slop), [Assign PR Reviewers](#assign-pr-reviewers), [CircleCI Failure Summary Comment](#circleci-failure-summary-comment), [PR slow CI - Suggestion](#pr-slow-ci---suggestion)
+- **pull_request**: [Build PR Documentation](#build-pr-documentation), [PR CI](#pr-ci), [Self-hosted runner (benchmark)](#self-hosted-runner-benchmark)
+- **merge_group**: [Build PR Documentation](#build-pr-documentation)
+
 ## Secrets and variables used across this repository
 
 **Secrets:**
@@ -212,7 +224,7 @@
      - `close-pr`: `false`
      - `lock-pr`: `false`
      - `failure-add-pr-labels`: `Code agent slop`
-     - `failure-pr-message`: `This PR was flagged by our automated quality checks. If you're a genuine contributor, please reply here and a maintainer will review your PR.  Common reasons for flagging: - New GitHub account - Unusually high number of repository forks in a 24-hour window  We appreciate your contribution and apologize if this is a false positive!`
+     - `failure-pr-message`: `This PR was flagged by our automated quality checks. If you're a genuine` ... (+7 more lines)
      - `min-account-age`: `30`
      - `max-daily-forks`: `7`
      - `detect-spam-usernames`: `false`
@@ -400,10 +412,6 @@ Inputs for the `workflow_dispatch` event.
 
 - `benchmark-v2-default` uses [benchmark_v2.yml](#benchmark-v2-framework)
 
-## Transitive requirements (from full call graph)
-
-Permissions declared across the chain: `contents: read`
-
 ## Jobs
 
 ### Benchmark v2 - Default Models (`benchmark-v2-default`)
@@ -442,10 +450,6 @@ Permissions declared across the chain: `contents: read`
 ## Call graph (rooted at this workflow)
 
 - `benchmark-v2-default` uses [benchmark_v2.yml](#benchmark-v2-framework)
-
-## Transitive requirements (from full call graph)
-
-Permissions declared across the chain: `contents: read`
 
 ## Jobs
 
@@ -651,7 +655,7 @@ Permissions declared across the chain: `contents: read`
    - Uses: `docker/build-push-action@v3.3.1`
    - With:
      - `context`: `./docker/transformers-past-gpu`
-     - `build-args`: `REF=main BASE_DOCKER_IMAGE=${{ steps.get-base-image.outputs.base_image }} FRAMEWORK=pytorch VERSION=${{ matrix.version }}`
+     - `build-args`: `REF=main` ... (+3 more lines)
      - `push`: `true`
      - `tags`: `huggingface/transformers-pytorch-past-${{ matrix.version }}-gpu`
 
@@ -691,7 +695,7 @@ Permissions declared across the chain: `contents: read`
    - Uses: `docker/build-push-action@v3.3.1`
    - With:
      - `context`: `./docker/transformers-past-gpu`
-     - `build-args`: `REF=main BASE_DOCKER_IMAGE=${{ steps.get-base-image.outputs.base_image }} FRAMEWORK=tensorflow VERSION=${{ matrix.version }}`
+     - `build-args`: `REF=main` ... (+3 more lines)
      - `push`: `true`
      - `tags`: `huggingface/transformers-tensorflow-past-${{ matrix.version }}-gpu`
 
@@ -807,7 +811,7 @@ Permissions declared across the chain: `contents: read`
    - Uses: `docker/build-push-action@v5.4.0`
    - With:
      - `context`: `./docker/transformers-all-latest-gpu`
-     - `build-args`: `REF=main PYTORCH=2.8.0 TORCHCODEC=0.7.0 FLASH_ATTN=yes`
+     - `build-args`: `REF=main` ... (+3 more lines)
      - `push`: `true`
      - `tags`: `huggingface/transformers-all-latest-gpu${{ inputs.image_postfix }}:flash-attn`
 
@@ -1064,8 +1068,6 @@ Permissions declared across the chain: `contents: read`
 
 Secrets required (declared/forwarded names): `hf_token`, `token`
 
-Permissions declared across the chain: `contents: read`
-
 External workflows referenced: `huggingface/doc-builder/.github/workflows/build_main_documentation.yml@2430c1ec91d04667414e2fa31ecfc36c153ea391`
 
 ## Referenced secrets and variables
@@ -1249,8 +1251,6 @@ External workflows referenced: `huggingface/doc-builder/.github/workflows/build_
 
 ## Transitive requirements (from full call graph)
 
-Permissions declared across the chain: `contents: read`
-
 External workflows referenced: `huggingface/doc-builder/.github/workflows/build_pr_documentation.yml@90b4ee2c10b81b5c1a6367c4e6fc9e2fb510a7e3`
 
 ## Jobs
@@ -1324,8 +1324,6 @@ Inputs for the `workflow_dispatch` event.
 - `advisor` uses `huggingface/security-workflows/.github/workflows/permissions-advisor-reusable.yml@1b6a139c28db347498b30338da6a602e0a06f56c`
 
 ## Transitive requirements (from full call graph)
-
-Permissions declared across the chain: `actions: read`, `contents: read`
 
 External workflows referenced: `huggingface/security-workflows/.github/workflows/permissions-advisor-reusable.yml@1b6a139c28db347498b30338da6a602e0a06f56c`
 
@@ -1506,7 +1504,7 @@ External workflows referenced: `huggingface/security-workflows/.github/workflows
    - Uses: `actions/github-script@v7.1.0`
    - Condition: `steps.circleci.outputs.artifact_found == 'true'`
    - With:
-     - `script`: `` const PR_NUMBER = parseInt(process.env.PR_NUMBER, 10);  // Get all comments on the PR const { data: comments } = await github.rest.issues.listComments({   owner: context.repo.owner,   repo: context.repo.repo,   issue_number: PR_NUMBER });  // Find existing bot comments that start with "View the CircleCI Test Summary for this PR:" const existingComments = comments.filter(comment =>    comment.user.login === 'github-actions[bot]' &&    comment.body.startsWith('View the CircleCI Test Summary for this PR:') );  // Delete all matching comments for (const comment of existingComments) {   console.log(`Deleting comment #${comment.id}`);   await github.rest.issues.deleteComment({     owner: context.repo.owner,     repo: context.repo.repo,     comment_id: comment.id   }); }  console.log(`Deleted ${existingComments.length} old CircleCI summary comment(s)`); ``
+     - `script`: `const PR_NUMBER = parseInt(process.env.PR_NUMBER, 10);` ... (+25 more lines)
    - Env:
      - `PR_NUMBER`: `${{ github.event.pull_request.number }}`
 
@@ -1544,8 +1542,6 @@ External workflows referenced: `huggingface/security-workflows/.github/workflows
 - `codeql` uses `huggingface/security-workflows/.github/workflows/codeql-reusable.yml@1b6a139c28db347498b30338da6a602e0a06f56c`
 
 ## Transitive requirements (from full call graph)
-
-Permissions declared across the chain: `actions: read`, `contents: read`, `packages: read`, `security-events: write`
 
 External workflows referenced: `huggingface/security-workflows/.github/workflows/codeql-reusable.yml@1b6a139c28db347498b30338da6a602e0a06f56c`
 
@@ -1604,10 +1600,6 @@ External workflows referenced: `huggingface/security-workflows/.github/workflows
 ## Call graph (rooted at this workflow)
 
 - `call_doctest_job` uses [doctest_job.yml](#doctest-job)
-
-## Transitive requirements (from full call graph)
-
-Permissions declared across the chain: `contents: read`
 
 ## Referenced secrets and variables
 
@@ -1845,7 +1837,7 @@ Permissions declared across the chain: `contents: read`
    - Condition: `env.SLACK_MESSAGE != ''`
    - With:
      - `channel-id`: `${{ env.SLACK_CHANNEL_ID }}`
-     - `payload`: `{   "blocks": [     {       "type": "header",       "text": {         "type": "plain_text",         "text": "${{ env.SLACK_TITLE }}"       }     },     {       "type": "section",       "text": {         "type": "mrkdwn",         "text": "${{ env.SLACK_MESSAGE }}"       }     },     {       "type": "divider"     },     {       "type": "section",       "text": {         "type": "mrkdwn",         "text": "<${{ env.SLACK_WORKFLOW_URL }}|View workflow run>"       }     }   ] }`
+     - `payload`: `{` ... (+27 more lines)
    - Env:
      - `SLACK_BOT_TOKEN`: `${{ secrets.SLACK_CIFEEDBACK_BOT_TOKEN }}`
 
@@ -1910,7 +1902,7 @@ Used to notify core maintainers about new model PR being merged
    - Condition: `${{ env.NEW_MODEL != ''}}`
    - With:
      - `channel-id`: `transformers-new-model-notification`
-     - `payload`: `{   "blocks": [     {       "type": "header",       "text": {         "type": "plain_text",         "text": "New model!",         "emoji": true       }     },     {       "type": "section",       "text": {         "type": "mrkdwn",         "text": "<https://github.com/huggingface/transformers/commit/${{ env.COMMIT_SHA }}|New model: ${{ env.NEW_MODEL }}> GH_ArthurZucker, GH_lysandrejik, GH_ydshieh\ncommit SHA: ${{ env.COMMIT_SHA }}"       }     }   ] }`
+     - `payload`: `{` ... (+18 more lines)
    - Env:
      - `SLACK_BOT_TOKEN`: `${{ secrets.SLACK_CIFEEDBACK_BOT_TOKEN }}`
 
@@ -1964,10 +1956,6 @@ Inputs for the `workflow_dispatch` event.
     - `collated_reports` uses [collated-reports.yml](#ci-collated-reports) (`@6abd9725ee7d809dc974991f8ff6c958afb63a3a`)
   - `send_results` uses [slack-report.yml](#ci-slack-report)
   - `check_new_failures` uses [check_failed_tests.yml](#process-failed-tests)
-
-## Transitive requirements (from full call graph)
-
-Permissions declared across the chain: `contents: read`
 
 ## Jobs
 
@@ -2178,10 +2166,6 @@ Inputs for the `workflow_dispatch` event.
   - `send_results` uses [slack-report.yml](#ci-slack-report)
   - `check_new_failures` uses [check_failed_tests.yml](#process-failed-tests)
 
-## Transitive requirements (from full call graph)
-
-Permissions declared across the chain: `contents: read`
-
 ## Jobs
 
 ### Setup (`setup`)
@@ -2267,10 +2251,6 @@ Permissions declared across the chain: `contents: read`
     - `collated_reports` uses [collated-reports.yml](#ci-collated-reports) (`@6abd9725ee7d809dc974991f8ff6c958afb63a3a`)
   - `send_results` uses [slack-report.yml](#ci-slack-report)
   - `check_new_failures` uses [check_failed_tests.yml](#process-failed-tests)
-
-## Transitive requirements (from full call graph)
-
-Permissions declared across the chain: `contents: read`
 
 ## Jobs
 
@@ -2363,8 +2343,6 @@ No permissions granted (`permissions: {}` -- default-deny).
 - `build-doc` uses `huggingface/doc-builder/.github/workflows/build_pr_documentation.yml@093eb65f2e8745457987df060dc392e6bcf1347a`
 
 ## Transitive requirements (from full call graph)
-
-Permissions declared across the chain: `contents: read`, `pull-requests: write`, `statuses: write`
 
 External workflows referenced: `huggingface/doc-builder/.github/workflows/build_pr_documentation.yml@093eb65f2e8745457987df060dc392e6bcf1347a`
 
@@ -2533,8 +2511,6 @@ External workflows referenced: `huggingface/doc-builder/.github/workflows/build_
 
 Secrets required (declared/forwarded names): `OTEL_EXPORTER_OTLP_ENDPOINT`, `OTEL_TOKEN`
 
-Permissions declared across the chain: `contents: read`
-
 External workflows referenced: `huggingface/transformers-test-ci/.github/workflows/pr-ci_dynamic_caller_example.yml@91d590c4f744e4564a8ae0d3810068c8a35b939e`
 
 ## Referenced secrets and variables
@@ -2618,10 +2594,6 @@ External workflows referenced: `huggingface/transformers-test-ci/.github/workflo
     - `collated_reports` uses [collated-reports.yml](#ci-collated-reports) (`@6abd9725ee7d809dc974991f8ff6c958afb63a3a`)
   - `send_results` uses [slack-report.yml](#ci-slack-report)
   - `check_new_failures` uses [check_failed_tests.yml](#process-failed-tests)
-
-## Transitive requirements (from full call graph)
-
-Permissions declared across the chain: `contents: read`, `pull-requests: write`, `statuses: write`
 
 ## Referenced secrets and variables
 
@@ -2896,10 +2868,6 @@ Permissions declared across the chain: `contents: read`, `pull-requests: write`,
 - `get-pr-number` uses [get-pr-number.yml](#get-pr-number)
 - `get-pr-info` uses [get-pr-info.yml](#get-pr-commit-sha)
 
-## Transitive requirements (from full call graph)
-
-Permissions declared across the chain: `contents: read`, `contents: write`, `pull-requests: write`
-
 ## Referenced secrets and variables
 
 **Secrets:**
@@ -2961,7 +2929,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pul
 1. **Delete existing bot comment if it exists**
    - Uses: `actions/github-script@v6.4.1`
    - With:
-     - `script`: `` const PR_NUMBER = parseInt(process.env.PR_NUMBER, 10);  // Get all comments on the PR const { data: comments } = await github.rest.issues.listComments({   owner: context.repo.owner,   repo: context.repo.repo,   issue_number: PR_NUMBER });  // Find existing bot comments that start with "Repo. Consistency" or "Style fix" const existingComments = comments.filter(comment =>    comment.user.login === 'github-actions[bot]' &&    (comment.body.startsWith('Repo. Consistency') || comment.body.startsWith('Style fix')) );  if (existingComments.length > 0) {   // Get the most recent comment   const mostRecentComment = existingComments     .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0];      console.log(`Deleting most recent comment #${mostRecentComment.id}`);   await github.rest.issues.deleteComment({     owner: context.repo.owner,     repo: context.repo.repo,     comment_id: mostRecentComment.id   }); } ``
+     - `script`: `const PR_NUMBER = parseInt(process.env.PR_NUMBER, 10);` ... (+26 more lines)
    - Env:
      - `PR_NUMBER`: `${{ needs.get-pr-number.outputs.PR_NUMBER }}`
 
@@ -2969,7 +2937,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pul
    - ID: `init_comment`
    - Uses: `actions/github-script@v6.4.1`
    - With:
-     - `script`: `` const PR_NUMBER = parseInt(process.env.PR_NUMBER, 10); const COMMENT_BODY = process.env.COMMENT_BODY; const runUrl = `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`  // Determine which command was used const isStyleFix = COMMENT_BODY.startsWith('@bot /style'); const messagePrefix = isStyleFix ? 'Style fix' : 'Repo. Consistency fix';  const { data: botComment } = await github.rest.issues.createComment({   owner: context.repo.owner,   repo: context.repo.repo,   issue_number: PR_NUMBER,   body: `${messagePrefix} is beginning .... [View the workflow run here](${runUrl}).` }); core.setOutput('comment_id', botComment.id); ``
+     - `script`: `const PR_NUMBER = parseInt(process.env.PR_NUMBER, 10);` ... (+14 more lines)
    - Env:
      - `PR_NUMBER`: `${{ needs.get-pr-number.outputs.PR_NUMBER }}`
      - `COMMENT_BODY`: `${{ github.event.comment.body }}`
@@ -3068,7 +3036,7 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pul
    - Uses: `actions/github-script@v6.4.1`
    - Condition: `needs.init_comment_with_url.result == 'success'`
    - With:
-     - `script`: `const pr_number = parseInt(process.env.PR_NUMBER, 10); const comment_id = parseInt(process.env.COMMENT_ID, 10); const body = process.env.FINAL_COMMENT; await github.rest.issues.updateComment({   owner: context.repo.owner,   repo: context.repo.repo,   comment_id,   body, });`
+     - `script`: `const pr_number = parseInt(process.env.PR_NUMBER, 10);` ... (+8 more lines)
    - Env:
      - `PR_NUMBER`: `${{ needs.get-pr-number.outputs.PR_NUMBER }}`
      - `COMMENT_ID`: `${{ needs.init_comment_with_url.outputs.comment_id }}`
@@ -3102,10 +3070,6 @@ Permissions declared across the chain: `contents: read`, `contents: write`, `pul
 
 - `get-pr-number` uses [get-pr-number.yml](#get-pr-number)
 - `get-pr-info` uses [get-pr-info.yml](#get-pr-commit-sha)
-
-## Transitive requirements (from full call graph)
-
-Permissions declared across the chain: `contents: read`, `pull-requests: write`
 
 ## Jobs
 
@@ -3144,7 +3108,7 @@ Permissions declared across the chain: `contents: read`, `pull-requests: write`
 2. **Write pr\_files file**
    - Uses: `actions/github-script@v6.4.1`
    - With:
-     - `script`: `const fs = require('node:fs'); const files = await github.paginate(github.rest.pulls.listFiles, {   owner: context.repo.owner,   repo: context.repo.repo,   pull_number: parseInt(process.env.PR_NUMBER, 10), }); fs.writeFileSync('pr_files.txt', JSON.stringify(files));`
+     - `script`: `const fs = require('node:fs');` ... (+6 more lines)
    - Env:
      - `PR_NUMBER`: `${{ needs.get-pr-number.outputs.PR_NUMBER }}`
 
@@ -3152,7 +3116,7 @@ Permissions declared across the chain: `contents: read`, `pull-requests: write`
    - ID: `repo_content`
    - Uses: `actions/github-script@v6.4.1`
    - With:
-     - `script`: `const fs = require('node:fs'); const { PR_HEAD_REPO_OWNER, PR_HEAD_REPO_NAME, PR_HEAD_SHA } = process.env;  const { data: tests_dir } = await github.rest.repos.getContent({   owner: PR_HEAD_REPO_OWNER,   repo: PR_HEAD_REPO_NAME,   path: 'tests',   ref: PR_HEAD_SHA, });  const { data: tests_models_dir } = await github.rest.repos.getContent({   owner: PR_HEAD_REPO_OWNER,   repo: PR_HEAD_REPO_NAME,   path: 'tests/models',   ref: PR_HEAD_SHA, });  const { data: tests_quantization_dir } = await github.rest.repos.getContent({   owner: PR_HEAD_REPO_OWNER,   repo: PR_HEAD_REPO_NAME,   path: 'tests/quantization',   ref: PR_HEAD_SHA, });  // Write to files instead of outputs fs.writeFileSync('tests_dir.txt', JSON.stringify(tests_dir, null, 2)); fs.writeFileSync('tests_models_dir.txt', JSON.stringify(tests_models_dir, null, 2)); fs.writeFileSync('tests_quantization_dir.txt', JSON.stringify(tests_quantization_dir, null, 2));`
+     - `script`: `const fs = require('node:fs');` ... (+27 more lines)
    - Env:
      - `PR_HEAD_REPO_OWNER`: `${{ needs.get-pr-info.outputs.PR_HEAD_REPO_OWNER }}`
      - `PR_HEAD_REPO_NAME`: `${{ needs.get-pr-info.outputs.PR_HEAD_REPO_NAME }}`
@@ -3180,9 +3144,9 @@ Permissions declared across the chain: `contents: read`, `pull-requests: write`
 1. **Check and update comment if needed**
    - Uses: `actions/github-script@v7.1.0`
    - With:
-     - `script`: `` const prNumber = parseInt(process.env.PR_NUMBER, 10); const commentPrefix = "**[For maintainers]** Suggested jobs to run (before merge)"; const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000); // 30 minutes ago const newBody = `${commentPrefix}${process.env.BODY}`;  // Get all comments on the PR const { data: comments } = await github.rest.issues.listComments({   owner: context.repo.owner,   repo: context.repo.repo,   issue_number: prNumber });  // Find existing comments that start with our prefix const existingComments = comments.filter(comment =>   comment.user.login === 'github-actions[bot]' &&   comment.body.startsWith(commentPrefix) );  let shouldCreateNewComment = true; let commentsToDelete = [];  if (existingComments.length > 0) {   // Get the most recent comment   const mostRecentComment = existingComments     .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0];    const commentDate = new Date(mostRecentComment.created_at);   const isOld = commentDate < thirtyMinutesAgo;   const isDifferentContent = mostRecentComment.body !== newBody;    console.log(`Most recent comment created: ${mostRecentComment.created_at}`);   console.log(`Is older than 30 minutes: ${isOld}`);   console.log(`Has different content: ${isDifferentContent}`);    if (isOld || isDifferentContent) {     // Delete all existing comments and create new one     commentsToDelete = existingComments;     console.log(`Will delete ${commentsToDelete.length} existing comment(s) and create new one`);   } else {     // Content is same and comment is recent, skip     shouldCreateNewComment = false;     console.log('Comment is recent and content unchanged, skipping update');   } } else {   console.log('No existing comments found, will create new one'); }  // Delete old comments if needed for (const comment of commentsToDelete) {   console.log(`Deleting comment #${comment.id} (created: ${comment.created_at})`);   await github.rest.issues.deleteComment({     owner: context.repo.owner,     repo: context.repo.repo,     comment_id: comment.id   }); }  // Create new comment if needed if (shouldCreateNewComment) {   await github.rest.issues.createComment({     owner: context.repo.owner,     repo: context.repo.repo,     issue_number: prNumber,     body: newBody   });   console.log('✅ New comment created'); } else {   console.log('ℹ️ No comment update needed'); } ``
+     - `script`: `const prNumber = parseInt(process.env.PR_NUMBER, 10);` ... (+68 more lines)
    - Env:
-     - `BODY`: `run-slow: ${{ needs.get-jobs.outputs.jobs }}`
+     - `BODY`: `run-slow: ${{ needs.get-jobs.outputs.jobs }}` ... (+2 more lines)
      - `PR_NUMBER`: `${{ needs.get-pr-number.outputs.PR_NUMBER }}`
 
 </details>
@@ -3427,8 +3391,6 @@ Permissions declared across the chain: `contents: read`, `pull-requests: write`
 
 ## Transitive requirements (from full call graph)
 
-Permissions declared across the chain: `contents: read`
-
 External workflows referenced: `huggingface/hf-workflows/.github/workflows/transformers_amd_ci_scheduled.yaml@63657f571a92cc9759159442936061c51d6d9ae4`
 
 ## Jobs
@@ -3640,10 +3602,6 @@ External workflows referenced: `huggingface/hf-workflows/.github/workflows/trans
   - uses **[model_jobs_intel_gaudi.yml](#model-jobs-1)** (x2)
   - `send_results` uses [slack-report.yml](#ci-slack-report)
 
-## Transitive requirements (from full call graph)
-
-Permissions declared across the chain: `contents: read`
-
 ## Jobs
 
 ### Model CI (`model-ci`)
@@ -3769,10 +3727,6 @@ Permissions declared across the chain: `contents: read`
       - `collated_reports` uses [collated-reports.yml](#ci-collated-reports) (`@6abd9725ee7d809dc974991f8ff6c958afb63a3a`)
     - `send_results` uses [slack-report.yml](#ci-slack-report)
     - `check_new_failures` uses [check_failed_tests.yml](#process-failed-tests)
-
-## Transitive requirements (from full call graph)
-
-Permissions declared across the chain: `contents: read`
 
 ## Jobs
 
@@ -3947,8 +3901,6 @@ Permissions declared across the chain: `contents: read`
 
 ## Transitive requirements (from full call graph)
 
-Permissions declared across the chain: `contents: read`
-
 External workflows referenced: `huggingface/hf-workflows/.github/workflows/transformers_amd_ci_scheduled_arc_scale_set.yaml@63657f571a92cc9759159442936061c51d6d9ae4`
 
 ## Jobs
@@ -4064,8 +4016,6 @@ External workflows referenced: `huggingface/hf-workflows/.github/workflows/trans
 
 ## Transitive requirements (from full call graph)
 
-Permissions declared across the chain: `contents: read`
-
 External workflows referenced: `huggingface/hf-workflows/.github/workflows/transformers_amd_ci_scheduled_arc_scale_set.yaml@63657f571a92cc9759159442936061c51d6d9ae4`
 
 ## Jobs
@@ -4175,10 +4125,6 @@ External workflows referenced: `huggingface/hf-workflows/.github/workflows/trans
   - `send_results` uses [slack-report.yml](#ci-slack-report)
   - `check_new_failures` uses [check_failed_tests.yml](#process-failed-tests)
 
-## Transitive requirements (from full call graph)
-
-Permissions declared across the chain: `contents: read`
-
 ## Jobs
 
 ### Get all modified files (`get_modified_models`)
@@ -4199,7 +4145,7 @@ Permissions declared across the chain: `contents: read`
    - ID: `get-changed-files`
    - Uses: `actions/github-script@v7.1.0`
    - With:
-     - `script`: `` let files = [];  // Only handle push events if (context.eventName === 'push') {   const afterSha = context.payload.after;   const branchName = context.payload.ref.replace('refs/heads/', '');      let baseSha;      if (branchName === 'main') {     console.log('Push to main branch, comparing to parent commit');     // Get the parent commit of the pushed commit     const { data: commit } = await github.rest.repos.getCommit({       owner: context.repo.owner,       repo: context.repo.repo,       ref: afterSha     });     baseSha = commit.parents[0]?.sha;     if (!baseSha) {       throw new Error('No parent commit found for the pushed commit');     }   } else {     console.log(`Push to branch ${branchName}, comparing to main`);     baseSha = 'main';   }      const { data: comparison } = await github.rest.repos.compareCommits({     owner: context.repo.owner,     repo: context.repo.repo,     base: baseSha,     head: afterSha   });      // Include added, modified, and renamed files   files = comparison.files     .filter(file => file.status === 'added' || file.status === 'modified' || file.status === 'renamed')     .map(file => file.filename); }  // Include all files under src/transformers/ (not just models subdirectory) const filteredFiles = files.filter(file =>    file.startsWith('src/transformers/') );  core.setOutput('changed_files', filteredFiles.join(' ')); core.setOutput('any_changed', filteredFiles.length > 0 ? 'true' : 'false'); ``
+     - `script`: `let files = [];` ... (+45 more lines)
 
 3. **Parse changed files with Python**
    - ID: `set-matrix`
@@ -4582,8 +4528,6 @@ It is meant to be used during the ongoing Trainer refactor/unbloat in Transforme
 
 Secrets required (declared/forwarded names): `comment_bot_token`, `hf_token`
 
-Permissions declared across the chain: `contents: read`
-
 External workflows referenced: `huggingface/doc-builder/.github/workflows/upload_pr_documentation.yml@9ad2de8582b56c017cb530c1165116d40433f1c6`
 
 ## Referenced secrets and variables
@@ -4957,7 +4901,7 @@ External workflows referenced: `huggingface/doc-builder/.github/workflows/upload
    - ID: `pr_info`
    - Uses: `actions/github-script@v6.4.1`
    - With:
-     - `script`: `const pull_number = parseInt(process.env.PR_NUMBER, 10);  const { data: pr } = await github.rest.pulls.get({   owner: context.repo.owner,   repo: context.repo.repo,   pull_number, });  const { data: head_commit } = await github.rest.repos.getCommit({   owner: pr.head.repo.owner.login,   repo: pr.head.repo.name,   ref: pr.head.ref });  const { data: merge_commit } = await github.rest.repos.getCommit({   owner: pr.base.repo.owner.login,   repo: pr.base.repo.name,   ref: pr.merge_commit_sha, });  const { data: files } = await github.rest.pulls.listFiles({   owner: context.repo.owner,   repo: context.repo.repo,   pull_number, });  core.setOutput('head_repo_full_name', pr.head.repo.full_name); core.setOutput('base_repo_full_name', pr.base.repo.full_name); core.setOutput('head_repo_owner', pr.head.repo.owner.login); core.setOutput('base_repo_owner', pr.base.repo.owner.login); core.setOutput('head_repo_name', pr.head.repo.name); core.setOutput('base_repo_name', pr.base.repo.name); core.setOutput('head_ref', pr.head.ref); core.setOutput('base_ref', pr.base.ref); core.setOutput('head_sha', pr.head.sha); core.setOutput('base_sha', pr.base.sha); core.setOutput('merge_commit_base_sha', merge_commit.parents[0].sha); core.setOutput('merge_commit_sha', pr.merge_commit_sha); core.setOutput('pr', pr);  core.setOutput('head_commit_date', head_commit.commit.committer.date); core.setOutput('merge_commit_date', merge_commit.commit.committer.date);  core.setOutput('files', files);              console.log('PR head commit:', {   head_commit: head_commit,   commit: head_commit.commit,   date: head_commit.commit.committer.date });  console.log('PR merge commit:', {   merge_commit: merge_commit,   commit: merge_commit.commit,   date: merge_commit.commit.committer.date });  console.log('PR Info:', {   pr_info: pr });`
+     - `script`: `const pull_number = parseInt(process.env.PR_NUMBER, 10);` ... (+59 more lines)
    - Env:
      - `PR_NUMBER`: `${{ inputs.pr_number }}`
 
@@ -5923,7 +5867,7 @@ External workflows referenced: `huggingface/doc-builder/.github/workflows/upload
    - Uses: `actions/github-script@v6.4.1`
    - Condition: `${{ inputs.pr_number != '' }}`
    - With:
-     - `script`: `const pull_number = parseInt(process.env.PR_NUMBER, 10); const commit_sha = process.env.COMMIT_SHA;  const { data: pr } = await github.rest.pulls.get({   owner: context.repo.owner,   repo: context.repo.repo,   pull_number, });  const { data: merge_commit } = await github.rest.repos.getCommit({   owner: pr.base.repo.owner.login,   repo: pr.base.repo.name,   ref: commit_sha, });  core.setOutput('merge_commit_base_sha', merge_commit.parents[0].sha);`
+     - `script`: `const pull_number = parseInt(process.env.PR_NUMBER, 10);` ... (+15 more lines)
    - Env:
      - `PR_NUMBER`: `${{ inputs.pr_number }}`
      - `COMMIT_SHA`: `${{ inputs.commit_sha }}`
@@ -6029,7 +5973,7 @@ External workflows referenced: `huggingface/doc-builder/.github/workflows/upload
    - Condition: `${{ !endsWith(env.REPORT_TEXT, '{}') }}`
    - With:
      - `channel-id`: `#${{ inputs.slack_report_channel }}`
-     - `payload`: `{   "blocks": [     {       "type": "header",       "text": {         "type": "plain_text",         "text": "${{ env.title }}"       }     },     {       "type": "section",       "text": {         "type": "mrkdwn",         "text": "${{ env.REPORT_TEXT }}"       }     }   ] }`
+     - `payload`: `{` ... (+17 more lines)
    - Env:
      - `SLACK_BOT_TOKEN`: `${{ secrets.SLACK_CIFEEDBACK_BOT_TOKEN }}`
 

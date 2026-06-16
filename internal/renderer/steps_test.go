@@ -181,6 +181,51 @@ func TestRenderStepDetails(t *testing.T) {
 	}
 }
 
+// TestStepValueTruncation covers C2: a long inline script value (a github-script `script:`
+// block) is summarized to its first line plus a "(+N more lines)" marker, while short values
+// render whole.
+func TestStepValueTruncation(t *testing.T) {
+	script := "const x = 1;\nconst y = 2;\nconsole.log(x + y);\nreturn x + y;"
+	step := model.Step{
+		Name: "github-script",
+		With: []model.KV{
+			{Key: "script", Value: script},
+			{Key: "short", Value: "hello"},
+		},
+		Env: []model.KV{
+			{Key: "BLOB", Value: strings.Repeat("a", stepValueCharThreshold+50)},
+		},
+	}
+	var b strings.Builder
+	renderStep(&b, &step, 1)
+	got := b.String()
+
+	// The 4-line script truncates: first line shown, remaining lines counted in the marker.
+	if !strings.Contains(got, "- `script`: `const x = 1;` ... (+3 more lines)") {
+		t.Errorf("long multi-line value not summarized:\n%s", got)
+	}
+	// The full body must NOT be dumped.
+	if strings.Contains(got, "console.log(x + y);") {
+		t.Errorf("long value body leaked into output:\n%s", got)
+	}
+	// A short value renders whole.
+	if !strings.Contains(got, "- `short`: `hello`") {
+		t.Errorf("short value should render whole:\n%s", got)
+	}
+	// A single over-wide line (no newlines) is clamped with a trailing marker.
+	if !strings.Contains(got, "more lines") && !strings.Contains(got, "`a") {
+		t.Errorf("over-wide single line not clamped:\n%s", got)
+	}
+	if strings.Contains(got, strings.Repeat("a", stepValueCharThreshold+50)) {
+		t.Errorf("over-wide single line dumped whole:\n%s", got)
+	}
+
+	// Direct stepValue checks: a two-line value within the width budget stays whole.
+	if got := stepValue("line one\nline two"); got != "`line one line two`" {
+		t.Errorf("two short lines should render whole, got %q", got)
+	}
+}
+
 // TestRenderStepOmitsEmptyWithEnv verifies that a step's `with:`/`env:` entries with an
 // empty/unset value are omitted (rather than rendering as a bare dash), while entries with a
 // real value are kept.

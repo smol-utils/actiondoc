@@ -21,6 +21,15 @@
 - [verifier action - schedule, workflow_dispatch](#verifier-action)
 - [Verifier releaser - workflow_dispatch, push, schedule](#verifier-releaser)
 
+## Workflows by trigger
+
+- **pull_request**: [Actions pre submits](#actions-pre-submits), [CodeQL](#codeql), [Dependency Review](#dependency-review), [LFS Warning](#lfs-warning), [PR Title](#pr-title), [Pre submits cli](#pre-submits-cli), [Pre submits e2e](#pre-submits-e2e), [Pre submits Lint](#pre-submits-lint), [References pre submits](#references-pre-submits)
+- **workflow_dispatch**: [Actions pre submits](#actions-pre-submits), [Pre submits cli](#pre-submits-cli), [Pre submits e2e](#pre-submits-e2e), [Update actions dist post-commit](#update-actions-dist-post-commit), [verifier action](#verifier-action), [Verifier releaser](#verifier-releaser)
+- **schedule**: [CodeQL](#codeql), [Pre submits cli](#pre-submits-cli), [Scorecards supply-chain security](#scorecards-supply-chain-security), [verifier action](#verifier-action), [Verifier releaser](#verifier-releaser)
+- **push**: [CodeQL](#codeql), [Scorecards supply-chain security](#scorecards-supply-chain-security), [Verifier releaser](#verifier-releaser)
+- **branch_protection_rule**: [Scorecards supply-chain security](#scorecards-supply-chain-security)
+- **workflow_run**: [Schedule cli](#schedule-cli)
+
 ## Permissions across this repository
 
 | Scope | Level |
@@ -1007,8 +1016,6 @@ All scopes: `read-all`.
 - `builder` uses `slsa-framework/slsa-github-generator/.github/workflows/builder_go_slsa3.yml@v2.0.0`
 
 ## Transitive requirements (from full call graph)
-
-Permissions declared across the chain: `actions: read`, `contents: read`, `contents: write`, `id-token: write (OIDC)`, `issues: write`, `read-all`
 
 External workflows referenced: `slsa-framework/slsa-github-generator/.github/workflows/builder_go_slsa3.yml@v2.0.0`
 

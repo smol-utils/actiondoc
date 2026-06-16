@@ -15,6 +15,13 @@
 
 - [Bootstrap](#bootstrap)
 
+## Workflows by trigger
+
+- **pull_request**: [CodeQL](#codeql), [Validate GitHub Actions](#validate-github-actions), [Validations](#validations)
+- **push**: [CodeQL](#codeql), [Validate GitHub Actions](#validate-github-actions), [Validations](#validations)
+- **workflow_dispatch**: [Release](#release), [Validate GitHub Actions](#validate-github-actions), [Validations](#validations)
+- **schedule**: [CodeQL](#codeql)
+
 ## Secrets and variables used across this repository
 
 **Secrets:**
@@ -76,8 +83,6 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 ## Transitive requirements (from full call graph)
 
-Permissions declared across the chain: `actions: read`, `contents: read`, `packages: read`, `security-events: write`
-
 External workflows referenced: `anchore/workflows/.github/workflows/codeql.yaml@15122524ced7906bfa9685eeae12e22647773ea6`
 
 ## Jobs
@@ -132,8 +137,6 @@ No permissions granted (`permissions: {}` -- default-deny).
 ## Transitive requirements (from full call graph)
 
 Secrets required (declared/forwarded names): `R2_ENDPOINT`, `R2_INSTALL_ACCESS_KEY_ID`, `R2_INSTALL_SECRET_ACCESS_KEY`, `S3_INSTALL_AWS_ACCESS_KEY_ID`, `S3_INSTALL_AWS_SECRET_ACCESS_KEY`
-
-Permissions declared across the chain: `checks: read`, `contents: read`, `contents: write`, `id-token: write (OIDC)`, `packages: write`
 
 External workflows referenced: `anchore/workflows/.github/workflows/check-gate.yaml@15122524ced7906bfa9685eeae12e22647773ea6`, `anchore/workflows/.github/workflows/check-version-available.yaml@15122524ced7906bfa9685eeae12e22647773ea6`, `anchore/workflows/.github/workflows/release-install-script.yaml@15122524ced7906bfa9685eeae12e22647773ea6`
 
@@ -349,10 +352,6 @@ No permissions granted (`permissions: {}` -- default-deny).
 ## Call graph (rooted at this workflow)
 
 - uses **[./.github/actions/bootstrap](#bootstrap)** (x7)
-
-## Transitive requirements (from full call graph)
-
-Permissions declared across the chain: `contents: read`
 
 ## Jobs
 

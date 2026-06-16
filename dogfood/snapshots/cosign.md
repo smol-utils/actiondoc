@@ -24,6 +24,14 @@
 - [Test GitHub OIDC - push, schedule, workflow_dispatch](#test-github-oidc)
 - [Whitespace - pull_request](#whitespace)
 
+## Workflows by trigger
+
+- **pull_request**: [CI-Tests](#ci-tests), [CI-Validate-Release-Job](#ci-validate-release-job), [Conformance Tests](#conformance-tests), [Dependency Review](#dependency-review), [Do Not Submit](#do-not-submit), [Docgen](#docgen), [e2e-tests](#e2e-tests), [golangci-lint](#golangci-lint), [Test attest / verify-attestation](#test-attest--verify-attestation), [Whitespace](#whitespace)
+- **push**: [CI-Container-Build](#ci-container-build), [CI-Tests](#ci-tests), [CodeQL](#codeql), [Conformance Tests](#conformance-tests), [Docgen](#docgen), [e2e-tests](#e2e-tests), [e2e-with-binary](#e2e-with-binary), [golangci-lint](#golangci-lint), [Scorecards supply-chain security](#scorecards-supply-chain-security), [Test GitHub OIDC](#test-github-oidc)
+- **workflow_dispatch**: [CI-Tests](#ci-tests), [Conformance Tests Nightly](#conformance-tests-nightly), [Cut Release](#cut-release), [Docgen](#docgen), [e2e-tests](#e2e-tests), [e2e-with-binary](#e2e-with-binary), [Test attest / verify-attestation](#test-attest--verify-attestation), [Test GitHub OIDC](#test-github-oidc)
+- **schedule**: [Conformance Tests Nightly](#conformance-tests-nightly), [Scorecards supply-chain security](#scorecards-supply-chain-security), [Test GitHub OIDC](#test-github-oidc)
+- **branch_protection_rule**: [Scorecards supply-chain security](#scorecards-supply-chain-security)
+
 ## Secrets and variables used across this repository
 
 **Secrets:**
@@ -174,7 +182,7 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 2. **actions/cache@v5.0.5**
    - With:
-     - `path`: `~/go/pkg/mod ~/.cache/go-build ~/Library/Caches/go-build %LocalAppData%\go-build`
+     - `path`: `~/go/pkg/mod` ... (+3 more lines)
      - `key`: `${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}`
      - `restore-keys`: `${{ runner.os }}-go-`
 
@@ -217,7 +225,7 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 4. **actions/cache@v5.0.5**
    - With:
-     - `path`: `~/go/pkg/mod ~/.cache/go-build ~/Library/Caches/go-build %LocalAppData%\go-build`
+     - `path`: `~/go/pkg/mod` ... (+3 more lines)
      - `key`: `${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}`
      - `restore-keys`: `${{ runner.os }}-go-`
 
@@ -566,7 +574,7 @@ No permissions granted (`permissions: {}` -- default-deny).
    - Condition: `failure()`
    - With:
      - `github-token`: `${{ secrets.GITHUB_TOKEN }}`
-     - `script`: `` const { owner, repo } = context.repo; const runId = context.runId; const issueTitle = 'Conformance Tests Failed'; const issueBody = `The nightly conformance tests have failed. Please check the logs for more details.\n\nWorkflow run: https://github.com/${owner}/${repo}/actions/runs/${runId}\n\ncc @sigstore/security-response-team @sigstore/cosign-codeowners`; const issueLabel = 'bug';  const existingIssues = await github.rest.issues.listForRepo({   owner,   repo,   state: 'open',   labels: issueLabel, });  const issueExists = existingIssues.data.some(issue => issue.title === issueTitle);  if (!issueExists) {   await github.rest.issues.create({     owner,     repo,     title: issueTitle,     body: issueBody,     labels: [issueLabel],   }); } ``
+     - `script`: `const { owner, repo } = context.repo;` ... (+23 more lines)
 
 </details>
 
@@ -597,8 +605,6 @@ Inputs for the `workflow_dispatch` event.
 - `cut-release` uses `sigstore/community/.github/workflows/reusable-release.yml@main`
 
 ## Transitive requirements (from full call graph)
-
-Permissions declared across the chain: `contents: read`, `id-token: write (OIDC)`
 
 External workflows referenced: `sigstore/community/.github/workflows/reusable-release.yml@main`
 
@@ -643,8 +649,6 @@ No permissions granted (`permissions: {}` -- default-deny).
 - `dependency-review` uses `sigstore/community/.github/workflows/reusable-dependency-review.yml@main`
 
 ## Transitive requirements (from full call graph)
-
-Permissions declared across the chain: `contents: read`
 
 External workflows referenced: `sigstore/community/.github/workflows/reusable-dependency-review.yml@main`
 

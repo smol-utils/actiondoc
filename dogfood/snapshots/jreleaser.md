@@ -25,6 +25,14 @@
 - [X-Precheck](#x-precheck)
 - [X-UpdateWiki](#x-updatewiki)
 
+## Workflows by trigger
+
+- **push**: [CodeQL](#codeql), [EarlyAccess](#earlyaccess), [Lint](#lint), [OpenSSF Scorecard](#openssf-scorecard), [SmokeTests](#smoketests)
+- **workflow_dispatch**: [Clear cache](#clear-cache), [CodeQL](#codeql), [OpenSSF Scorecard](#openssf-scorecard), [Release](#release), [Trigger Early Access](#trigger-early-access)
+- **pull_request**: [Build](#build), [CodeQL](#codeql)
+- **schedule**: [Clear cache](#clear-cache), [OpenSSF Scorecard](#openssf-scorecard)
+- **branch_protection_rule**: [OpenSSF Scorecard](#openssf-scorecard)
+
 ## Secrets and variables used across this repository
 
 **Secrets:**
@@ -184,8 +192,6 @@
 
 Secrets required (declared/forwarded names): `github-token`
 
-Permissions declared across the chain: `actions: read`, `contents: read`, `security-events: write`
-
 ## Referenced secrets and variables
 
 **Secrets:**
@@ -284,8 +290,6 @@ Permissions declared across the chain: `actions: read`, `contents: read`, `secur
 ## Transitive requirements (from full call graph)
 
 Secrets required (declared/forwarded names): `gh-access-token`, `github-token`, `gpg-passphrase`, `oci-compartment-id`
-
-Permissions declared across the chain: `actions: read`, `actions: write`, `attestations: write`, `contents: read`, `contents: write`, `id-token: write (OIDC)`
 
 External workflows referenced: `slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v2.1.0`
 
@@ -548,8 +552,6 @@ All scopes: `read-all`.
 
 Secrets required (declared/forwarded names): `github-token`
 
-Permissions declared across the chain: `actions: read`, `contents: read`, `id-token: write (OIDC)`, `read-all`, `security-events: write`
-
 ## Referenced secrets and variables
 
 **Secrets:**
@@ -644,8 +646,6 @@ Permissions declared across the chain: `actions: read`, `contents: read`, `id-to
 ## Transitive requirements (from full call graph)
 
 Secrets required (declared/forwarded names): `gh-access-token`, `gpg-passphrase`, `oci-compartment-id`
-
-Permissions declared across the chain: `actions: read`, `actions: write`, `contents: read`, `contents: write`, `id-token: write (OIDC)`
 
 External workflows referenced: `slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v2.1.0`
 
@@ -965,8 +965,6 @@ External workflows referenced: `slsa-framework/slsa-github-generator/.github/wor
 
 Secrets required (declared/forwarded names): `github-token`
 
-Permissions declared across the chain: `contents: read`
-
 ## Referenced secrets and variables
 
 **Secrets:**
@@ -1074,7 +1072,7 @@ Permissions declared across the chain: `contents: read`
    - With:
      - `retention-days`: `7`
      - `name`: `jreleaser-cli-${{ runner.os }}`
-     - `path`: `smoketests-jreleaser/out/jreleaser/trace.log smoketests-jreleaser/out/jreleaser/output.properties smoketests-jreleaser/out/jreleaser/release/CHANGELOG.md smoketests-jreleaser/out/jreleaser/prepare`
+     - `path`: `smoketests-jreleaser/out/jreleaser/trace.log` ... (+3 more lines)
 
 11. **JaCoCo upload**
    - Uses: `actions/upload-artifact@v7.0.0`
@@ -1159,7 +1157,7 @@ Permissions declared across the chain: `contents: read`
    - With:
      - `retention-days`: `7`
      - `name`: `jreleaser-tool-${{ runner.os }}`
-     - `path`: `smoketests-jreleaser/out/jreleaser/trace.log smoketests-jreleaser/out/jreleaser/output.properties smoketests-jreleaser/out/jreleaser/release/CHANGELOG.md smoketests-jreleaser/out/jreleaser/prepare`
+     - `path`: `smoketests-jreleaser/out/jreleaser/trace.log` ... (+3 more lines)
 
 11. **JaCoCo upload**
    - Uses: `actions/upload-artifact@v7.0.0`
@@ -1244,7 +1242,7 @@ Permissions declared across the chain: `contents: read`
    - With:
      - `retention-days`: `7`
      - `name`: `jreleaser-ant-${{ runner.os }}`
-     - `path`: `smoketests-jreleaser/build/jreleaser/trace.log smoketests-jreleaser/build/jreleaser/output.properties smoketests-jreleaser/build/jreleaser/release/CHANGELOG.md smoketests-jreleaser/build/jreleaser/prepare`
+     - `path`: `smoketests-jreleaser/build/jreleaser/trace.log` ... (+3 more lines)
 
 11. **JaCoCo upload**
    - Uses: `actions/upload-artifact@v7.0.0`
@@ -1329,7 +1327,7 @@ Permissions declared across the chain: `contents: read`
    - With:
      - `retention-days`: `7`
      - `name`: `jreleaser-gradle-${{ runner.os }}`
-     - `path`: `smoketests-jreleaser/build/jreleaser/trace.log smoketests-jreleaser/build/jreleaser/output.properties smoketests-jreleaser/build/jreleaser/release/CHANGELOG.md smoketests-jreleaser/build/jreleaser/prepare`
+     - `path`: `smoketests-jreleaser/build/jreleaser/trace.log` ... (+3 more lines)
 
 11. **JaCoCo upload**
    - Uses: `actions/upload-artifact@v7.0.0`
@@ -1423,7 +1421,7 @@ Permissions declared across the chain: `contents: read`
    - With:
      - `retention-days`: `7`
      - `name`: `jreleaser-maven-${{ runner.os }}`
-     - `path`: `smoketests-jreleaser/target/jreleaser/trace.log smoketests-jreleaser/target/jreleaser/output.properties smoketests-jreleaser/target/jreleaser/release/CHANGELOG.md smoketests-jreleaser/target/jreleaser/prepare`
+     - `path`: `smoketests-jreleaser/target/jreleaser/trace.log` ... (+3 more lines)
 
 11. **JaCoCo upload**
    - Uses: `actions/upload-artifact@v7.0.0`
@@ -1896,7 +1894,7 @@ Permissions declared across the chain: `contents: read`
    - With:
      - `retention-days`: `1`
      - `name`: `artifacts`
-     - `path`: `plugins/jreleaser/build/libs/ plugins/jreleaser/build/dependencies/ plugins/jreleaser/build/distributions/ plugins/jreleaser-tool-provider/build/libs/*.jar plugins/jreleaser-ant-tasks/build/distributions/*.zip`
+     - `path`: `plugins/jreleaser/build/libs/` ... (+4 more lines)
 
 12. **Upload java-archive**
    - Uses: `actions/upload-artifact@v7.0.0`
@@ -2028,7 +2026,7 @@ Permissions declared across the chain: `contents: read`
    - With:
      - `retention-days`: `1`
      - `name`: `jpackage-${{ runner.os }}-${{ runner.arch }}`
-     - `path`: `out/jreleaser/assemble/jreleaser-installer/jpackage/*.pkg out/jreleaser/assemble/jreleaser-installer/jpackage/*.msi out/jreleaser/assemble/jreleaser-installer/jpackage/*.exe out/jreleaser/assemble/jreleaser-installer/jpackage/*.deb out/jreleaser/assemble/jreleaser-installer/jpackage/*.rpm`
+     - `path`: `out/jreleaser/assemble/jreleaser-installer/jpackage/*.pkg` ... (+4 more lines)
 
 12. **Stop Gradle daemon**
 
