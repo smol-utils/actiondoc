@@ -194,7 +194,11 @@ func stepValue(s string) string {
 		first = string(r[:stepValueCharThreshold])
 	}
 	if more := len(lines) - 1; more > 0 {
-		return fmt.Sprintf("%s ... (+%d more lines)", codeSpan(first), more)
+		noun := "lines"
+		if more == 1 {
+			noun = "line"
+		}
+		return fmt.Sprintf("%s ... (+%d more %s)", codeSpan(first), more, noun)
 	}
 	return codeSpan(first) + " ..."
 }

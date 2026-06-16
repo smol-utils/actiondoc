@@ -6666,7 +6666,7 @@ Inputs for the `workflow_dispatch` event.
    - With:
      - `method`: `chat.postMessage`
      - `token`: `${{ env.SLACK_BOT_TOKEN }}`
-     - `payload`: `channel: "internal-airflow-ci-cd"` ... (+1 more lines)
+     - `payload`: `channel: "internal-airflow-ci-cd"` ... (+1 more line)
    - Env:
      - `SLACK_BOT_TOKEN`: `${{ secrets.SLACK_BOT_TOKEN }}`
 
@@ -6676,7 +6676,7 @@ Inputs for the `workflow_dispatch` event.
    - With:
      - `method`: `chat.postMessage`
      - `token`: `${{ env.SLACK_BOT_TOKEN }}`
-     - `payload`: `channel: "internal-airflow-ci-cd"` ... (+1 more lines)
+     - `payload`: `channel: "internal-airflow-ci-cd"` ... (+1 more line)
    - Env:
      - `SLACK_BOT_TOKEN`: `${{ secrets.SLACK_BOT_TOKEN }}`
 
