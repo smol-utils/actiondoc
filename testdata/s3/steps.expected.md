@@ -95,7 +95,6 @@ Exercises step rendering, matrix job names, runs-on normalization, and secret ag
    - Uses: `actions/github-script@v7`
    - With:
      - `script`: `` const env = `${{ matrix.target.env }}`; github.rest.issues.createComment({ body: `Deployed to ${env}` }); ``
-     - `result-encoding`: -
 
 </details>
 

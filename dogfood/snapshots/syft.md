@@ -72,8 +72,6 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 ## Call graph (rooted at this workflow)
 
-`codeql.yaml` [push, pull_request, schedule]
-
 - `analyze` uses `anchore/workflows/.github/workflows/codeql.yaml@15122524ced7906bfa9685eeae12e22647773ea6`
 
 ## Transitive requirements (from full call graph)
@@ -97,7 +95,7 @@ External workflows referenced: `anchore/workflows/.github/workflows/codeql.yaml@
 - `actions`: `read`
 - `contents`: `read`
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Release
 
@@ -125,8 +123,6 @@ No permissions granted (`permissions: {}` -- default-deny).
 **Concurrency:** group `release`, cancel-in-progress: `false`
 
 ## Call graph (rooted at this workflow)
-
-`release.yaml` [workflow_dispatch]
 
 - `version-available` uses `anchore/workflows/.github/workflows/check-version-available.yaml@15122524ced7906bfa9685eeae12e22647773ea6`
 - `check-gate` uses `anchore/workflows/.github/workflows/check-gate.yaml@15122524ced7906bfa9685eeae12e22647773ea6`
@@ -278,7 +274,7 @@ External workflows referenced: `anchore/workflows/.github/workflows/check-gate.y
 - `S3_INSTALL_AWS_ACCESS_KEY_ID`: `${{ secrets.TOOLBOX_AWS_ACCESS_KEY_ID }}`
 - `S3_INSTALL_AWS_SECRET_ACCESS_KEY`: `${{ secrets.TOOLBOX_AWS_SECRET_ACCESS_KEY }}`
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Validate GitHub Actions
 
@@ -326,7 +322,7 @@ No permissions granted (`permissions: {}` -- default-deny).
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Validations
 
@@ -351,8 +347,6 @@ No permissions granted (`permissions: {}` -- default-deny).
 **Concurrency:** group `${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}`, cancel-in-progress: `true`
 
 ## Call graph (rooted at this workflow)
-
-`validations.yaml` [workflow_dispatch, pull_request, push]
 
 - uses **[./.github/actions/bootstrap](#bootstrap)** (x7)
 
@@ -451,8 +445,6 @@ Permissions declared across the chain: `contents: read`
 
 2. **Bootstrap environment**
    - Uses: `./.github/actions/bootstrap`
-   - With:
-     - `bootstrap-apt-packages`: - - Space delimited list of tools to install via apt
 
 3. **Build snapshot artifacts**
 
@@ -533,7 +525,6 @@ Permissions declared across the chain: `contents: read`
 3. **Bootstrap environment**
    - Uses: `./.github/actions/bootstrap`
    - With:
-     - `bootstrap-apt-packages`: - - Space delimited list of tools to install via apt
      - `go-dependencies`: `false`
      - `download-test-fixture-cache`: `true` - Download test fixture cache from OCI and github actions (required)
 
@@ -585,7 +576,7 @@ Permissions declared across the chain: `contents: read`
 
 </details>
 
-[Back to top](#contents)
+[Back to contents](#contents)
 
 # Bootstrap
 
@@ -606,5 +597,5 @@ Bootstrap all syft tools and dependencies on top of go-make's setup action
 | `download-test-fixture-cache` | Download test fixture cache from OCI and github actions | Yes | `false` |
 | `bootstrap-apt-packages` | Space delimited list of tools to install via apt | No | `libxml2-utils` |
 
-[Back to top](#contents)
+[Back to contents](#contents)
 

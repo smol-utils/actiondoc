@@ -47,10 +47,22 @@ func renderCallerJob(b *strings.Builder, job *model.Job, g *callgraph.Graph, fro
 	// dropped, since caller jobs skip the normal job body).
 	renderJobSurface(b, job)
 
-	if len(job.With) > 0 {
+	// Forwarded inputs whose value is empty/unset carry no information and would otherwise
+	// render as a column of bare dashes; omit them (mirrors the step `with:`/`env:` path) and
+	// drop the header entirely when nothing meaningful remains.
+	type forwarded struct{ key, value string }
+	var inputs []forwarded
+	for _, kv := range job.With {
+		value := oneLine(kv.Value)
+		if value == "" {
+			continue
+		}
+		inputs = append(inputs, forwarded{key: kv.Key, value: value})
+	}
+	if len(inputs) > 0 {
 		b.WriteString("#### Inputs forwarded\n\n")
-		for _, kv := range job.With {
-			fmt.Fprintf(b, "- `%s`: %s\n", kv.Key, codeSpan(oneLine(kv.Value)))
+		for _, in := range inputs {
+			fmt.Fprintf(b, "- `%s`: %s\n", in.key, codeSpan(in.value))
 		}
 		b.WriteString("\n")
 	}
@@ -138,15 +150,18 @@ func renderCallGraph(b *strings.Builder, g *callgraph.Graph, id string) {
 	if len(edges) == 0 {
 		return
 	}
-	root := treeNode{label: entryRootLabel(g, id)}
+	root := treeNode{}
 	path := []string{id}
 	for _, e := range edges {
 		root.children = append(root.children, callEdgeNode(g, e, path))
 	}
 	root.children = collapseSiblings(root.children)
 
+	// The section heading already names the workflow, and its file/triggers are shown in
+	// the property table directly above, so the tree renders straight from its children
+	// rather than restating the root.
 	b.WriteString("## Call graph (rooted at this workflow)\n\n")
-	renderTreeList(b, root)
+	renderTreeListChildren(b, root.children, 0)
 	b.WriteString("\n")
 }
 
@@ -244,20 +259,6 @@ func calleeDisplay(g *callgraph.Graph, e callgraph.Edge) string {
 	return filepath.Base(n.Path)
 }
 
-// entryRootLabel is the lead line of the downstream call-graph list: the entry-point file
-// name (as inline code) annotated with its triggers, e.g. "`release.yml` [workflow_dispatch]".
-func entryRootLabel(g *callgraph.Graph, id string) string {
-	n := g.Nodes[id]
-	base := id
-	if n != nil && n.Path != "" {
-		base = filepath.Base(n.Path)
-	}
-	if n != nil && n.Workflow != nil && len(n.Workflow.On) > 0 {
-		return codeSpan(base) + " [" + strings.Join(n.Workflow.On, ", ") + "]"
-	}
-	return codeSpan(base)
-}
-
 // renderCalledBy renders the upstream caller chain on a workflow that is invoked by others:
 // immediate callers at the top, each expanded to its own callers up to the entry points,
 // which are marked. It reuses the same nested-list renderer as the downstream call graph;
@@ -271,20 +272,18 @@ func renderCalledBy(b *strings.Builder, g *callgraph.Graph, id string) {
 	if len(callers) == 0 {
 		return
 	}
-	n := g.Nodes[id]
-	base := id
-	if n != nil && n.Path != "" {
-		base = filepath.Base(n.Path)
-	}
-	root := treeNode{label: codeSpan(base)}
+	root := treeNode{}
 	path := []string{id}
 	for _, e := range callers {
 		root.children = append(root.children, calledByNode(g, e, path))
 	}
 	root.children = collapseSiblings(root.children)
 
+	// The root would be just this workflow's file basename, already named by the section
+	// heading, so the tree renders straight from its children for consistency with the
+	// downstream call graph.
 	b.WriteString("## Called by\n\n")
-	renderTreeList(b, root)
+	renderTreeListChildren(b, root.children, 0)
 	b.WriteString("\n")
 }
 
