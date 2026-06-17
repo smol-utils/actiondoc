@@ -3,6 +3,7 @@ package renderer
 import (
 	"fmt"
 	"strings"
+	"unicode"
 )
 
 // mdLinkLabel escapes the bracket characters that would otherwise terminate or corrupt a
@@ -139,15 +140,19 @@ func atxHeading(s string) (level int, text string, ok bool) {
 	return i, text, true
 }
 
-// anchor converts a heading string into a GitHub-style Markdown anchor slug: lowercase,
-// spaces to hyphens, drop everything that isn't a letter, digit, hyphen, or underscore.
-// Used for the table of contents and caller/callee cross-links.
+// anchor converts a heading string into a GitHub-style Markdown anchor slug, matching
+// GitHub's slugger: lowercase (Unicode-aware), spaces to hyphens, keep any Unicode letter
+// or digit plus hyphen and underscore, drop everything else. Non-ASCII letters survive --
+// "Café Déploy" slugs to "café-déploy", not "caf-dploy" -- because GitHub treats Unicode
+// word characters (not just [a-z0-9]) as slug content; punctuation and emoji are dropped
+// ("build 🚀 now" -> "build--now"). Used for the table of contents and caller/callee
+// cross-links.
 func anchor(s string) string {
 	s = strings.ToLower(s)
 	var b strings.Builder
 	for _, r := range s {
 		switch {
-		case r >= 'a' && r <= 'z', r >= '0' && r <= '9', r == '-', r == '_':
+		case unicode.IsLetter(r), unicode.IsDigit(r), r == '-', r == '_':
 			b.WriteRune(r)
 		case r == ' ':
 			b.WriteByte('-')

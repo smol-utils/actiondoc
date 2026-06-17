@@ -11,11 +11,17 @@ import "strings"
 // headings (workflow/action titles) render raw, because their anchors must match what
 // GitHub's slugger derives from the unescaped text.
 
-// escapeCell escapes characters that break Markdown table cells. Newlines become
+// escapeCell escapes characters that break Markdown table cells. Backslashes are escaped
+// FIRST, before pipes: a value that already contains a backslash before a pipe (a regex
+// alternation `a\|b`, an authored `\|`) would otherwise become `\\|`, which cmark-gfm reads
+// as an escaped backslash followed by an unescaped column delimiter -- splitting the cell
+// and shifting later values into the wrong columns. Escaping `\` to `\\` first keeps the
+// pipe's escaping backslash intact (`\\\|`), so the pipe stays literal. Newlines become
 // <br> (not a space) so multi-line values like multi-line `if:` conditions keep their
 // visual line breaks instead of collapsing or, worse, being parsed as a new table row.
 func escapeCell(s string) string {
 	s = strings.ReplaceAll(s, "\r\n", "\n")
+	s = strings.ReplaceAll(s, "\\", "\\\\")
 	s = strings.ReplaceAll(s, "|", "\\|")
 	s = strings.ReplaceAll(s, "\n", "<br>")
 	return s
@@ -77,13 +83,16 @@ func oneLine(s string) string {
 // escapeInline escapes the characters that would start or end Markdown inline markup
 // (emphasis, code spans) inside running text, so an arbitrary value rendered inside
 // **bold** -- a step title built from a name or a run: command line -- shows its
-// backticks, asterisks, and underscores literally instead of changing the markup.
+// backticks, asterisks, and underscores literally instead of changing the markup. The
+// backslash is escaped too, and listed first by intent: without it, an authored `\*`
+// would render as `\` followed by an active emphasis marker, the same class of corruption
+// escapeCell guards against in table cells.
 func escapeInline(s string) string {
 	var b strings.Builder
 	b.Grow(len(s))
 	for i := 0; i < len(s); i++ {
 		switch s[i] {
-		case '*', '_', '`':
+		case '\\', '*', '_', '`':
 			b.WriteByte('\\')
 		}
 		b.WriteByte(s[i])
