@@ -3,6 +3,19 @@
 All notable changes to actiondoc are documented here. This project adheres to
 [Semantic Versioning](https://semver.org).
 
+## [0.4.1] - 2026-06-17
+
+A bug-fix release: edge-case hardening across the renderer, call-graph identity, and parser.
+
+### Fixed
+- In-page links no longer break when a job or action description contains a Markdown heading line.
+- Repository identity read from a git remote is now validated as `github.com` exactly: SSH URLs with a port are handled, and look-alike hosts (such as `github.company.com`, or a `github.com` path segment on another host) are rejected.
+- Anchors preserve non-ASCII letters (accents, CJK) so they match GitHub's heading slugger and links to those headings resolve.
+- Table cells containing backslashes or `\|` sequences no longer corrupt the table columns; cells rendered as code spans keep backslashes literal.
+- Action input `required:` honors capitalized YAML booleans (`True`/`TRUE`).
+- ActionDoc `@tags` separated from their value by a tab are now parsed.
+- `generate --help` exits with status 0 and shows a correct `-repo owner/repo` placeholder.
+
 ## [0.4.0] - 2026-06-17
 
 A correctness release: more accurate cross-repository call graphs and in-page links, and removal of the redacted-output mode.
