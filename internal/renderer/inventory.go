@@ -177,7 +177,7 @@ func writeInventoryRefTable(b *strings.Builder, label string, refs []inventoryRe
 		for i, wf := range r.usedBy {
 			links[i] = fmt.Sprintf("[%s](#%s)", mdLinkLabel(wf.name), wf.anchor)
 		}
-		fmt.Fprintf(b, "| `%s` | %s |\n", escapeCell(r.name), strings.Join(links, ", "))
+		fmt.Fprintf(b, "| `%s` | %s |\n", escapeCellCode(r.name), strings.Join(links, ", "))
 	}
 	b.WriteString("\n")
 }
@@ -296,7 +296,7 @@ func writeInventoryPermissionsTable(b *strings.Builder, perms []inventoryPerm) {
 		if len(p.conflicts) > 0 {
 			level += fmt.Sprintf(" (also granted as %s elsewhere)", codelist(p.conflicts))
 		}
-		fmt.Fprintf(b, "| `%s` | %s |\n", escapeCell(p.scope), level)
+		fmt.Fprintf(b, "| `%s` | %s |\n", escapeCellCode(p.scope), level)
 	}
 	b.WriteString("\n")
 }

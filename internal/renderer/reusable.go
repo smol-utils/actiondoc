@@ -38,7 +38,7 @@ func renderCallerJob(b *strings.Builder, job *model.Job, g *callgraph.Graph, fro
 	if job.If != "" {
 		// Trim first: literal-block conditions carry a trailing newline that would
 		// otherwise render as a dangling <br> (matches the normal job renderer).
-		fmt.Fprintf(b, "| Condition | `%s` |\n", escapeCell(strings.TrimSpace(job.If)))
+		fmt.Fprintf(b, "| Condition | `%s` |\n", escapeCellCode(strings.TrimSpace(job.If)))
 	}
 	b.WriteString("\n")
 
@@ -95,7 +95,7 @@ func callerUsesCell(g *callgraph.Graph, fromID, jobID, rawUses string) string {
 			}
 		}
 	}
-	return "`" + escapeCell(rawUses) + "`"
+	return "`" + escapeCellCode(rawUses) + "`"
 }
 
 // calleeLink renders a reference to a reusable-workflow callee: an in-scope callee
@@ -108,21 +108,21 @@ func calleeLink(g *callgraph.Graph, e callgraph.Edge) string {
 		// but was not discovered, or one that only exists at runtime (e.g. a checkout
 		// into a subdirectory). Either way the tool did not see it -- which is different
 		// from the ref being broken.
-		return "`" + escapeCell(e.Ref) + "` (outside scan scope)"
+		return "`" + escapeCellCode(e.Ref) + "` (outside scan scope)"
 	}
 	if n.External {
 		ref := n.Name
 		if e.Pin != "" {
 			ref += "@" + e.Pin
 		}
-		return "`" + escapeCell(ref) + "` (external)"
+		return "`" + escapeCellCode(ref) + "` (external)"
 	}
 	// An in-scope edge carrying a pin is a cross-repo self-reference (the repo calling
 	// its own workflow at a branch/tag); keep the pin visible next to the link so the
 	// reader knows the pinned version is what actually runs.
 	link := fmt.Sprintf("[%s](#%s)", mdLinkLabel(n.Name), nodeAnchor(n))
 	if e.Pin != "" {
-		link += " (`@" + escapeCell(e.Pin) + "`)"
+		link += " (`@" + escapeCellCode(e.Pin) + "`)"
 	}
 	return link
 }

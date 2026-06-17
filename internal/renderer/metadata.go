@@ -39,7 +39,7 @@ func renderEnv(b *strings.Builder, env []model.KV, heading string) {
 	b.WriteString("| Variable | Value |\n")
 	b.WriteString("|----------|-------|\n")
 	for _, kv := range env {
-		fmt.Fprintf(b, "| `%s` | %s |\n", escapeCell(kv.Key), codeCellOrDash(kv.Value))
+		fmt.Fprintf(b, "| `%s` | %s |\n", escapeCellCode(kv.Key), codeCellOrDash(kv.Value))
 	}
 	b.WriteString("\n")
 }

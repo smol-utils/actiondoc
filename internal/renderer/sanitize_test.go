@@ -56,6 +56,63 @@ func unescapedPipes(s string) int {
 	return n
 }
 
+// TestEscapeCellCode covers the pipe-only escape for code-span table cells: a backslash is
+// literal inside a code span, so it must NOT be doubled (a raw-cell escapeCell would turn
+// `C:\temp` into two visible backslashes), but a pipe still has to be escaped because GFM
+// splits table cells before parsing the code span. The want values below are what cmark-gfm
+// renders back as the verbatim original inside `...` (verified against cmark-gfm).
+func TestEscapeCellCode(t *testing.T) {
+	cases := []struct{ in, want string }{
+		{"plain", "plain"},
+		// Backslash stays single: inside a code span it is a literal character, so
+		// `C:\temp` must render with one backslash, not two.
+		{"C:\\temp", "C:\\temp"},
+		{"path\\to", "path\\to"},
+		// Pipe is escaped so the cell does not split into extra columns; cmark-gfm
+		// strips the escaping backslash, rendering a single `|` inside the span.
+		{"a | b", "a \\| b"},
+		// A backslash already before the pipe is left untouched: `\|` becomes `\\|`,
+		// which cmark-gfm renders as the literal `\|` (the pipe-escaping backslash is
+		// consumed, the content backslash kept) -- no extra column, no doubled slash.
+		{"x\\|y", "x\\\\|y"},
+		{"line1\nline2", "line1<br>line2"},
+		{"crlf\r\nline", "crlf<br>line"},
+	}
+	for _, c := range cases {
+		if got := escapeCellCode(c.in); got != c.want {
+			t.Errorf("escapeCellCode(%q) = %q, want %q", c.in, got, c.want)
+		}
+	}
+}
+
+// TestEscapeCellCodeColumnCount confirms a code-span cell value keeps the table's column
+// count intact: every pipe in the escaped output is immediately preceded by a backslash,
+// which is exactly the rule cmark-gfm's table tokenizer uses to decide a pipe is escaped
+// rather than a column delimiter (it checks the single preceding character; it does not
+// pair backslashes -- verified against cmark-gfm, where `x\\|y` stays one cell).
+func TestEscapeCellCodeColumnCount(t *testing.T) {
+	values := []string{"a | b", "C:\\temp|next", "x\\|y", "a||b"}
+	for _, v := range values {
+		cell := escapeCellCode(v)
+		if delimiters := codeSpanDelimiterPipes(cell); delimiters != 0 {
+			t.Errorf("escapeCellCode(%q) = %q leaves %d unescaped pipe delimiter(s); the code-span cell would split into extra columns", v, cell, delimiters)
+		}
+	}
+}
+
+// codeSpanDelimiterPipes counts pipes cmark-gfm's table tokenizer would treat as column
+// delimiters: a pipe is escaped iff the single character immediately before it is a
+// backslash (no backslash pairing).
+func codeSpanDelimiterPipes(s string) int {
+	n := 0
+	for i := 0; i < len(s); i++ {
+		if s[i] == '|' && (i == 0 || s[i-1] != '\\') {
+			n++
+		}
+	}
+	return n
+}
+
 func TestCodeSpan(t *testing.T) {
 	cases := []struct{ in, want string }{
 		{"plain", "`plain`"},
@@ -79,6 +136,9 @@ func TestCodeCellOrDash(t *testing.T) {
 		{"value", "`value`"},
 		{"with `tick`", "`` with `tick` ``"},
 		{"a|b", "`a\\|b`"},
+		// A backslash is literal inside the code span, so it is NOT doubled: `C:\temp`
+		// renders with a single backslash, not two.
+		{"C:\\temp", "`C:\\temp`"},
 	}
 	for _, c := range cases {
 		if got := codeCellOrDash(c.in); got != c.want {

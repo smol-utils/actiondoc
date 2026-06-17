@@ -38,7 +38,7 @@ func renderTriggers(b *strings.Builder, t *model.Triggers) {
 			b.WriteString("|------|-------------|-------|\n")
 			for _, o := range t.Call.Outputs {
 				fmt.Fprintf(b, "| `%s` | %s | %s |\n",
-					escapeCell(o.Name), cellOrDash(o.Description), codeCellOrDash(o.Value))
+					escapeCellCode(o.Name), cellOrDash(o.Description), codeCellOrDash(o.Value))
 			}
 			b.WriteString("\n")
 		}
@@ -48,7 +48,7 @@ func renderTriggers(b *strings.Builder, t *model.Triggers) {
 			b.WriteString("|------|----------|-------------|\n")
 			for _, s := range t.Call.Secrets {
 				fmt.Fprintf(b, "| `%s` | %s | %s |\n",
-					escapeCell(s.Name), yesNo(s.Required), cellOrDash(s.Description))
+					escapeCellCode(s.Name), yesNo(s.Required), cellOrDash(s.Description))
 			}
 			b.WriteString("\n")
 		}
@@ -94,7 +94,7 @@ func writeInputTable(b *strings.Builder, inputs []model.WorkflowInput) {
 			}
 		}
 		fmt.Fprintf(b, "| `%s` | %s | %s | %s | %s |\n",
-			escapeCell(in.Name), cellOrDash(in.Type), yesNo(in.Required),
+			escapeCellCode(in.Name), cellOrDash(in.Type), yesNo(in.Required),
 			codeCellOrDash(in.Default), cellOrDash(desc))
 	}
 	b.WriteString("\n")
