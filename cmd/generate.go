@@ -180,64 +180,92 @@ func renderJSONOutput(sources []callgraph.Source) (string, error) {
 }
 
 // renderMarkdownOutput renders each document as a section, prefaced by a document header
-// (repo title + inventory) and a grouped table of contents. Anchors are assigned before
-// any section renders: cross-links built during rendering must use the same duplicate-name
-// disambiguation the TOC will use, so the assignment is computed once here and stored on
-// the graph nodes. inputPath is the path the scan was launched from; it supplies the repo
-// title. The header and TOC are emitted only for multi-document output.
+// (repo title + inventory) and a grouped table of contents. inputPath is the path the scan
+// was launched from; it supplies the repo title. The header and TOC are emitted only for
+// multi-document output.
+//
+// Cross-links (TOC, job mini-TOC, "Called by", callee references) embed the anchor slug of
+// the heading they target, so every link must agree with the slug GitHub will derive from
+// that heading. GitHub numbers all same-slug headings of every level together in document
+// order, including structural sections like "## Permissions" that are not themselves link
+// targets, so the assignment can only be computed from the fully assembled body. This is done
+// in two phases: assemble the body once with anchors unset (heading text never depends on the
+// anchors, only links do), scan that body for every heading's resolved slug in document order,
+// store each link target's slug on its graph node, then assemble again with the links correct.
 func renderMarkdownOutput(sources []callgraph.Source, graph *callgraph.Graph, inputPath string) string {
 	// Order the sources to match the table of contents: entry-point workflows, then reusable
 	// workflows, then composite actions, sorted within each group. Every downstream pass --
-	// the section-anchor pass, the document-wide job-anchor pass, the rendered body sections,
-	// and the TOC -- iterates this one ordered slice, so the body and the TOC are guaranteed to
-	// agree and the order-dependent anchor "-N" numbering is computed over the final order.
+	// the anchor scan, the rendered body sections, and the TOC -- iterates this one ordered
+	// slice, so the body and the TOC agree and the document-order "-N" numbering is computed
+	// over the final order.
 	sources = orderSourcesForRender(sources, graph)
 
-	var titles []string
-	for _, s := range sources {
-		if s.Workflow != nil {
-			titles = append(titles, s.Workflow.Name)
-		} else {
-			titles = append(titles, s.Action.Name)
+	// Phase 1: assemble with anchors unset to discover the slug GitHub assigns each heading.
+	dummy := make([]string, len(sources))
+	phase1 := assembleDocument(sources, graph, dummy, inputPath)
+	slugs := assignAnchorsFromScan(sources, graph, phase1)
+
+	// Phase 2: assemble again, now that every link target's anchor is known.
+	return assembleDocument(sources, graph, slugs, inputPath)
+}
+
+// assignAnchorsFromScan scans an assembled document for every heading's GitHub anchor slug
+// (document-order, single duplicate counter) and stores each link target's slug on its graph
+// node: a workflow/action section's anchor (Node.Anchor) and, for workflows, every job
+// heading's anchor (Node.JobAnchors). It returns the section anchors in source order for the
+// table of contents.
+//
+// The mapping rests on a level invariant of the renderers: the only level-1 headings are the
+// document title (multi-document only) followed by one section title per source, and the only
+// level-3 headings are job headings, in source-then-job order. Structural headings (## / ####)
+// are still counted by the scan -- GitHub counts them -- but are not themselves link targets.
+func assignAnchorsFromScan(sources []callgraph.Source, graph *callgraph.Graph, doc string) []string {
+	var sectionSlugs, jobSlugs []string
+	for _, h := range renderer.DocumentHeadings(doc) {
+		switch h.Level {
+		case 1:
+			sectionSlugs = append(sectionSlugs, h.Slug)
+		case 3:
+			jobSlugs = append(jobSlugs, h.Slug)
 		}
 	}
-	slugs := renderer.AssignAnchors(titles)
-	for i, slug := range slugs {
-		if n := graph.Nodes[sources[i].Path]; n != nil {
-			n.Anchor = slug
+	// The document title (emitted only for multi-document output) is the first level-1
+	// heading; the rest map one-to-one to the ordered sources.
+	if len(sources) >= 2 && len(sectionSlugs) > 0 {
+		sectionSlugs = sectionSlugs[1:]
+	}
+
+	slugs := make([]string, len(sources))
+	for i, s := range sources {
+		if i < len(sectionSlugs) {
+			slugs[i] = sectionSlugs[i]
+		}
+		if n := graph.Nodes[s.Path]; n != nil {
+			n.Anchor = slugs[i]
 		}
 	}
 
-	// Job heading anchors are assigned the same way section anchors are: document-wide.
-	// GitHub disambiguates repeated heading slugs across the whole rendered document, so a
-	// job heading text that recurs in a later workflow must carry the running "-N" suffix.
-	// Collect every job heading in document order (source order, then job order within each
-	// workflow) -- using the renderer's own JobHeadingText so the slug input matches the
-	// rendered "### ..." heading exactly -- run one AssignAnchors pass, then store each
-	// workflow's slice on its graph node for renderJobMiniTOC to use.
-	var jobTexts []string
-	type jobSpan struct {
-		path  string
-		start int
-		count int
-	}
-	var spans []jobSpan
+	// Job heading anchors, in source-then-job order, slice back onto each workflow node.
+	jobIdx := 0
 	for _, s := range sources {
 		if s.Workflow == nil {
 			continue
 		}
-		spans = append(spans, jobSpan{path: s.Path, start: len(jobTexts), count: len(s.Workflow.Jobs)})
-		for i := range s.Workflow.Jobs {
-			jobTexts = append(jobTexts, renderer.JobHeadingText(&s.Workflow.Jobs[i]))
+		count := len(s.Workflow.Jobs)
+		if n := graph.Nodes[s.Path]; n != nil && jobIdx+count <= len(jobSlugs) {
+			n.JobAnchors = jobSlugs[jobIdx : jobIdx+count]
 		}
+		jobIdx += count
 	}
-	jobSlugs := renderer.AssignAnchors(jobTexts)
-	for _, sp := range spans {
-		if n := graph.Nodes[sp.path]; n != nil {
-			n.JobAnchors = jobSlugs[sp.start : sp.start+sp.count]
-		}
-	}
+	return slugs
+}
 
+// assembleDocument renders the full Markdown document: a document header and grouped table of
+// contents, then the document-level inventory, then each source as a section. slugs carries
+// the section anchors in source order for the table of contents. The header, TOC, inventory,
+// and per-section back-to-contents links are emitted only for multi-document output; a single
+// document is self-describing (its own H1 + properties).
+func assembleDocument(sources []callgraph.Source, graph *callgraph.Graph, slugs []string, inputPath string) string {
 	// Workflows render with graph context so cross-links and call-graph sections
 	// appear; actions render standalone.
 	var sections []string
@@ -248,9 +276,6 @@ func renderMarkdownOutput(sources []callgraph.Source, graph *callgraph.Graph, in
 			sections = append(sections, renderer.RenderActionMarkdown(s.Action))
 		}
 	}
-	// A single document is self-describing (its own H1 + properties); the orientation
-	// header, contents list, and per-section back-to-contents links only earn their space
-	// once there are several sections to navigate between.
 	if len(sources) < 2 {
 		return strings.Join(sections, "")
 	}
@@ -262,10 +287,9 @@ func renderMarkdownOutput(sources []callgraph.Source, graph *callgraph.Graph, in
 	}
 
 	// The document-level inventory (repo-wide secrets/variables + permissions) sits between
-	// the table of contents and the per-section bodies, after anchors are assigned so its
-	// "used by" cross-links resolve to the same section anchors the TOC uses. It is
-	// multi-document only -- the same condition that gates the header and TOC above -- and
-	// returns "" when there is nothing to inventory.
+	// the table of contents and the per-section bodies. It is multi-document only -- the same
+	// condition that gates the header and TOC above -- and returns "" when there is nothing to
+	// inventory.
 	header, toc := renderDocumentNav(sources, graph, slugs, inputPath)
 	triggerIndex := renderer.RenderTriggerIndex(sources, graph)
 	inventory := renderer.RenderDocumentInventory(sources, graph)
