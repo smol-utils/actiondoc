@@ -3,7 +3,9 @@
 All notable changes to actiondoc are documented here. This project adheres to
 [Semantic Versioning](https://semver.org).
 
-## [Unreleased]
+## [0.4.0] - 2026-06-17
+
+A correctness release: more accurate cross-repository call graphs and in-page links, and removal of the redacted-output mode.
 
 ### Added
 - `--repo owner/repo` flag to set the scanned repository's identity, controlling which
