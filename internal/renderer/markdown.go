@@ -50,7 +50,7 @@ func RenderMarkdownGraph(w *model.Workflow, g *callgraph.Graph, id string) strin
 	// runner string on every job.
 	defaultRunsOn := commonRunsOn(w.Jobs)
 	if defaultRunsOn != "" {
-		fmt.Fprintf(&b, "| Default runs-on | `%s` |\n", escapeCell(defaultRunsOn))
+		fmt.Fprintf(&b, "| Default runs-on | `%s` |\n", escapeCellCode(defaultRunsOn))
 	}
 	if w.Tags.Since != "" {
 		fmt.Fprintf(&b, "| Since | %s |\n", w.Tags.Since)
@@ -252,7 +252,7 @@ func renderJob(b *strings.Builder, job *model.Job, g *callgraph.Graph, fromID, d
 		b.WriteString("| Property | Value |\n")
 		b.WriteString("|----------|-------|\n")
 		if showRunsOn {
-			fmt.Fprintf(b, "| Runs on | `%s` |\n", escapeCell(job.RunsOn))
+			fmt.Fprintf(b, "| Runs on | `%s` |\n", escapeCellCode(job.RunsOn))
 		}
 		if len(job.Matrix) > 0 {
 			fmt.Fprintf(b, "| Matrix | %s |\n", matrixCell(job.Matrix, job.MatrixAdjusted))
@@ -263,7 +263,7 @@ func renderJob(b *strings.Builder, job *model.Job, g *callgraph.Graph, fromID, d
 		if job.If != "" {
 			// Trim first: literal-block conditions carry a trailing newline that would
 			// otherwise render as a dangling <br>.
-			fmt.Fprintf(b, "| Condition | `%s` |\n", escapeCell(strings.TrimSpace(job.If)))
+			fmt.Fprintf(b, "| Condition | `%s` |\n", escapeCellCode(strings.TrimSpace(job.If)))
 		}
 		b.WriteString("\n")
 	}
@@ -314,7 +314,7 @@ func writeParamTable(b *strings.Builder, params []model.Param) {
 		if desc == "" {
 			desc = "-"
 		}
-		fmt.Fprintf(b, "| `%s` | %s | %s |\n", escapeCell(p.Name), escapeCell(typ), escapeCell(desc))
+		fmt.Fprintf(b, "| `%s` | %s | %s |\n", escapeCellCode(p.Name), escapeCell(typ), escapeCell(desc))
 	}
 	b.WriteString("\n")
 }
@@ -454,7 +454,7 @@ func codelist(items []string) string {
 func matrixCell(axes []model.MatrixAxis, adjusted bool) string {
 	parts := make([]string, len(axes))
 	for i, a := range axes {
-		parts[i] = codeSpan(escapeCell(a.Name)) + ": " + escapeCell(strings.Join(a.Values, ", "))
+		parts[i] = codeSpan(escapeCellCode(a.Name)) + ": " + escapeCell(strings.Join(a.Values, ", "))
 	}
 	s := strings.Join(parts, "; ")
 	if adjusted {
@@ -501,10 +501,10 @@ func RenderActionMarkdown(a *model.Action) string {
 			}
 			def := "-"
 			if in.Default != "" {
-				def = "`" + escapeCell(in.Default) + "`"
+				def = "`" + escapeCellCode(in.Default) + "`"
 			}
 			fmt.Fprintf(&b, "| `%s` | %s | %s | %s |\n",
-				escapeCell(in.Name), escapeCell(in.Description), req, def)
+				escapeCellCode(in.Name), escapeCell(in.Description), req, def)
 		}
 		b.WriteString("\n")
 	}
@@ -519,7 +519,7 @@ func RenderActionMarkdown(a *model.Action) string {
 			if desc == "" {
 				desc = "-"
 			}
-			fmt.Fprintf(&b, "| `%s` | %s |\n", escapeCell(out.Name), escapeCell(desc))
+			fmt.Fprintf(&b, "| `%s` | %s |\n", escapeCellCode(out.Name), escapeCell(desc))
 		}
 		b.WriteString("\n")
 	}

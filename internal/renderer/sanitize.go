@@ -11,10 +11,30 @@ import "strings"
 // headings (workflow/action titles) render raw, because their anchors must match what
 // GitHub's slugger derives from the unescaped text.
 
-// escapeCell escapes characters that break Markdown table cells. Newlines become
+// escapeCell escapes characters that break Markdown table cells. Backslashes are escaped
+// FIRST, before pipes: a value that already contains a backslash before a pipe (a regex
+// alternation `a\|b`, an authored `\|`) would otherwise become `\\|`, which cmark-gfm reads
+// as an escaped backslash followed by an unescaped column delimiter -- splitting the cell
+// and shifting later values into the wrong columns. Escaping `\` to `\\` first keeps the
+// pipe's escaping backslash intact (`\\\|`), so the pipe stays literal. Newlines become
 // <br> (not a space) so multi-line values like multi-line `if:` conditions keep their
 // visual line breaks instead of collapsing or, worse, being parsed as a new table row.
 func escapeCell(s string) string {
+	s = strings.ReplaceAll(s, "\r\n", "\n")
+	s = strings.ReplaceAll(s, "\\", "\\\\")
+	s = strings.ReplaceAll(s, "|", "\\|")
+	s = strings.ReplaceAll(s, "\n", "<br>")
+	return s
+}
+
+// escapeCellCode escapes a value destined for a table cell that is then wrapped in an inline
+// code span. Only the pipe needs escaping here: GFM splits table rows into cells at the block
+// level, BEFORE inline/code-span parsing, so a bare `|` would still break the column even
+// inside backticks. A backslash, by contrast, is LITERAL inside a code span -- doubling it
+// (as escapeCell does for raw cells) would render `C:\temp` as `C:\\temp`, two visible
+// backslashes. So leave backslashes alone and escape only the pipe. Newlines become <br> for
+// the same reason as escapeCell. Use this for code-span cells; use escapeCell for raw cells.
+func escapeCellCode(s string) string {
 	s = strings.ReplaceAll(s, "\r\n", "\n")
 	s = strings.ReplaceAll(s, "|", "\\|")
 	s = strings.ReplaceAll(s, "\n", "<br>")
@@ -30,12 +50,13 @@ func cellOrDash(s string) string {
 }
 
 // codeCellOrDash escapes a value and wraps it in code formatting for a table cell,
-// substituting "-" when empty. The code span is backtick-safe (see codeSpan).
+// substituting "-" when empty. The code span is backtick-safe (see codeSpan), and the
+// pipe-only escape (escapeCellCode) keeps backslashes literal inside the span.
 func codeCellOrDash(s string) string {
 	if s == "" {
 		return "-"
 	}
-	return codeSpan(escapeCell(s))
+	return codeSpan(escapeCellCode(s))
 }
 
 // codeSpan wraps s in an inline Markdown code span. A plain single-backtick span breaks
@@ -77,13 +98,16 @@ func oneLine(s string) string {
 // escapeInline escapes the characters that would start or end Markdown inline markup
 // (emphasis, code spans) inside running text, so an arbitrary value rendered inside
 // **bold** -- a step title built from a name or a run: command line -- shows its
-// backticks, asterisks, and underscores literally instead of changing the markup.
+// backticks, asterisks, and underscores literally instead of changing the markup. The
+// backslash is escaped too, and listed first by intent: without it, an authored `\*`
+// would render as `\` followed by an active emphasis marker, the same class of corruption
+// escapeCell guards against in table cells.
 func escapeInline(s string) string {
 	var b strings.Builder
 	b.Grow(len(s))
 	for i := 0; i < len(s); i++ {
 		switch s[i] {
-		case '*', '_', '`':
+		case '\\', '*', '_', '`':
 			b.WriteByte('\\')
 		}
 		b.WriteByte(s[i])

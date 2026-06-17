@@ -242,7 +242,7 @@ func writeRefTable(b *strings.Builder, label string, refs []model.Reference) {
 	b.WriteString("| Name | Used by |\n")
 	b.WriteString("|------|---------|\n")
 	for _, r := range refs {
-		fmt.Fprintf(b, "| `%s` | %s |\n", escapeCell(r.Name), usedByCell(r.Sites))
+		fmt.Fprintf(b, "| `%s` | %s |\n", escapeCellCode(r.Name), usedByCell(r.Sites))
 	}
 	b.WriteString("\n")
 }
@@ -269,7 +269,7 @@ func usedByCell(sites []model.Site) string {
 	for _, job := range order {
 		prefix := "workflow env: "
 		if job != "" {
-			prefix = codeSpan(escapeCell(job)) + ": "
+			prefix = codeSpan(escapeCellCode(job)) + ": "
 		}
 		entries := make([]string, 0, len(groups[job]))
 		for _, s := range groups[job] {
@@ -283,7 +283,7 @@ func usedByCell(sites []model.Site) string {
 // refSiteEntry renders one usage site within its job line: `<step> (<name>)`, or just
 // `(<name>)` when the site has no step (a job-level env/with/secrets/if, or workflow env).
 func refSiteEntry(s model.Site) string {
-	name := "(" + codeSpan(escapeCell(s.Name)) + ")"
+	name := "(" + codeSpan(escapeCellCode(s.Name)) + ")"
 	if s.Step == "" {
 		return name
 	}

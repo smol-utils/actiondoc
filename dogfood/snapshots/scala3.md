@@ -810,7 +810,7 @@
      - `ssh-key`: `${{ secrets.DOCS_DEPLOY_KEY }}`
      - `path`: `scala3-reference-docs`
 
-7. **\cp -a dotty/scaladoc/output/reference/. scala3-reference...**
+7. **\\cp -a dotty/scaladoc/output/reference/. scala3-reference...**
    - Condition: `github.event_name == 'push'`
 
 </details>
