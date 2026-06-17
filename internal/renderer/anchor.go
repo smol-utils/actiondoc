@@ -69,11 +69,18 @@ func DocumentHeadings(doc string) []DocHeading {
 		if c, n := fenceMarker(body); c != 0 {
 			switch {
 			case !inFence:
+				// An opening fence may carry an info string (```yaml); the run length
+				// becomes the bar the eventual close must clear.
 				inFence, fenceChar, fenceLen = true, c, n
-			case c == fenceChar && n >= fenceLen:
+				continue
+			case c == fenceChar && n >= fenceLen && strings.TrimSpace(body[n:]) == "":
+				// A closing fence is bare: same char, at least as long, nothing but
+				// whitespace after the run. A "```yaml" line carries an info string and so
+				// does NOT close -- it is code content. Treating it as a close would drop
+				// the fence early and start counting code lines as headings.
 				inFence, fenceChar, fenceLen = false, 0, 0
+				continue
 			}
-			continue
 		}
 		if inFence {
 			continue

@@ -78,3 +78,34 @@ func TestDocumentHeadingsNotHeadings(t *testing.T) {
 		t.Fatalf("DocumentHeadings = %+v, want exactly [{1 real}]", got)
 	}
 }
+
+// TestDocumentHeadingsFenceCloseInfoString guards the close-fence rule: a fence line that
+// carries an info string ("```yaml") is content, not a close, so the fence stays open and a
+// later "#" line inside it is not slugged. Treating the info-string line as a close would
+// drop the fence early -- counting the code line as a heading and dropping the real heading
+// that followed the true close, shifting every downstream anchor suffix.
+func TestDocumentHeadingsFenceCloseInfoString(t *testing.T) {
+	doc := "# Title\n\n" +
+		"## Example\n\n" +
+		"```\n" +
+		"on: push\n" +
+		"```yaml\n" + // info string -> content, not a close; fence stays open
+		"# not a heading: still inside the fence\n" +
+		"```\n\n" + // bare fence -> the real close
+		"## After\n"
+
+	got := DocumentHeadings(doc)
+	want := []DocHeading{
+		{1, "title"},
+		{2, "example"},
+		{2, "after"},
+	}
+	if len(got) != len(want) {
+		t.Fatalf("DocumentHeadings returned %d headings, want %d: %+v", len(got), len(want), got)
+	}
+	for i := range want {
+		if got[i] != want[i] {
+			t.Errorf("heading %d = %+v, want %+v", i, got[i], want[i])
+		}
+	}
+}
