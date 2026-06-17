@@ -171,7 +171,7 @@ actiondoc version
 |------|---------|-------------|
 | `-o` | stdout | Write output to a file |
 | `--json` | false | Output JSON instead of Markdown |
-| `--repo` | auto-detected | Scanned repository identity as `owner/name` (see [Repository identity](#repository-identity)) |
+| `--repo` | auto-detected | Scanned repository identity as `owner/repo` (see [Repository identity](#repository-identity)) |
 | path (positional) | `.github/workflows` | File or directory to process |
 
 ### Repository identity
@@ -181,7 +181,7 @@ A repository often calls its own reusable workflows in the cross-repo form
 those self-calls apart from genuinely external workflows, actiondoc needs to know the
 scanned repository's identity. It is resolved in this order:
 
-1. The `--repo owner/name` flag.
+1. The `--repo owner/repo` flag.
 2. The `GITHUB_REPOSITORY` environment variable (set automatically inside GitHub Actions).
 3. The `origin` git remote of the scanned path, if it is a GitHub URL.
 

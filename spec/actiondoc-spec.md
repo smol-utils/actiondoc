@@ -167,7 +167,7 @@ pin selects a branch or tag rather than the calling commit. To tell such self-ca
 from genuinely external workflows, ActionDoc resolves the scanned repository's identity
 (`owner/repo`) in this order:
 
-1. The `--repo owner/name` flag.
+1. The `--repo owner/repo` flag.
 2. The `GITHUB_REPOSITORY` environment variable (set automatically inside GitHub Actions).
 3. The `origin` git remote of the scanned path, when it is a GitHub URL (SSH or HTTPS,
    with or without a trailing `.git`).

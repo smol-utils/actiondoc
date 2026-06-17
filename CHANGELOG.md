@@ -6,7 +6,7 @@ All notable changes to actiondoc are documented here. This project adheres to
 ## [Unreleased]
 
 ### Added
-- `--repo owner/name` flag to set the scanned repository's identity, controlling which
+- `--repo owner/repo` flag to set the scanned repository's identity, controlling which
   cross-repo `uses:` references are treated as the repository calling itself. When the flag
   is absent, the identity is read from `GITHUB_REPOSITORY` or the `origin` git remote.
 

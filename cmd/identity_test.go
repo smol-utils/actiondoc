@@ -20,6 +20,8 @@ func TestParseGitHubRemote(t *testing.T) {
 		{"  https://github.com/owner/repo.git\n", "owner/repo"}, // trailing newline from git
 		{"https://gitlab.com/owner/repo.git", ""},               // not GitHub
 		{"git@example.com:owner/repo.git", ""},                  // not GitHub
+		{"https://notgithub.com/owner/repo.git", ""},            // host merely ends in github.com
+		{"git@notgithub.com:owner/repo.git", ""},                // SSH host merely ends in github.com
 		{"", ""},
 		{"https://github.com/owner", ""}, // missing repo segment
 	}

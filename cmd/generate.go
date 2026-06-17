@@ -22,7 +22,7 @@ func Generate(args []string) error {
 	fs := flag.NewFlagSet("generate", flag.ContinueOnError)
 	outFlag := fs.String("o", "", "output file (default: stdout)")
 	jsonFlag := fs.Bool("json", false, "output JSON instead of Markdown")
-	repoFlag := fs.String("repo", "", "scanned repository identity as owner/name; controls which cross-repo `uses:` refs are treated as self-calls (default: $GITHUB_REPOSITORY, else the git remote)")
+	repoFlag := fs.String("repo", "", "scanned repository identity as owner/repo; controls which cross-repo `uses:` refs are treated as self-calls (default: $GITHUB_REPOSITORY, else the git remote)")
 	fs.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage: actiondoc generate [flags] [path]\n\n")
 		fmt.Fprintf(os.Stderr, "Generates documentation for GitHub Actions workflow and action files.\n\n")
@@ -136,6 +136,14 @@ func parseGitHubRemote(rawURL string) string {
 	i := strings.Index(s, "github.com")
 	if i < 0 {
 		return ""
+	}
+	// The host must be exactly "github.com", not merely a suffix of some other host
+	// (e.g. "notgithub.com"). The char preceding it must be a host boundary: the start
+	// of the URL, an '@' (git@github.com), or a '/' (https://github.com, ssh://...).
+	if i > 0 {
+		if prev := s[i-1]; prev != '@' && prev != '/' {
+			return ""
+		}
 	}
 	// After "github.com" the owner/repo is separated by ':' (SSH) or '/' (HTTPS/ssh://).
 	rest := strings.TrimLeft(s[i+len("github.com"):], ":/")
