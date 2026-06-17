@@ -11,6 +11,12 @@ All notable changes to actiondoc are documented here. This project adheres to
   is absent, the identity is read from `GITHUB_REPOSITORY` or the `origin` git remote.
 
 ### Fixed
+- In-page links no longer collide when a workflow title, a job name, and a structural section
+  (Permissions, Inputs, Outputs, Secrets, Jobs, ...) share the same slug. Anchors were
+  previously numbered in two independent passes that ignored the structural headings GitHub
+  still counts, so a link could jump to the wrong heading (for example, a job named `build`
+  linking to a workflow titled `Build`). Anchors are now numbered in a single document-order
+  pass that matches GitHub's heading slugger, so every link resolves to its intended heading.
 - Cross-repository `uses:` references are no longer misclassified as local calls (which
   produced wrong required-secret lists and fabricated call edges in the generated docs). The
   scanned repository's identity is now resolved from `--repo`, `GITHUB_REPOSITORY`, or the

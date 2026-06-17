@@ -110,7 +110,7 @@ External workflows referenced: `anchore/workflows/.github/workflows/codeql.yaml@
 |----------|-------|
 | File | `release.yaml` |
 
-**Jobs:** [`version-available`](#version-available), [`check-gate`](#check-gate), [`release`](#release), [`release-install-script`](#release-install-script)
+**Jobs:** [`version-available`](#version-available), [`check-gate`](#check-gate), [`release`](#release-1), [`release-install-script`](#release-install-script)
 
 ## Manual trigger inputs
 

@@ -14,7 +14,7 @@
 
 **Composite actions**
 
-- [Deploy](#deploy)
+- [Deploy](#deploy-1)
 
 ## Workflows by trigger
 
@@ -49,7 +49,7 @@
 ## Call graph (rooted at this workflow)
 
 - `build` uses [reusable.yml](#reusable-build)
-- `deploy / Deploy to staging` uses [./.github/actions/deploy](#deploy)
+- `deploy / Deploy to staging` uses [./.github/actions/deploy](#deploy-1)
 
 ## Transitive requirements (from full call graph)
 

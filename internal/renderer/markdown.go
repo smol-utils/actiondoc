@@ -107,17 +107,14 @@ func RenderMarkdownGraph(w *model.Workflow, g *callgraph.Graph, id string) strin
 // job needs no roster, so the line is emitted only for two or more jobs.
 //
 // anchors carries the job heading slugs assigned DOCUMENT-WIDE by the assembler (one per
-// job, in job order): GitHub disambiguates repeated heading slugs across the whole rendered
-// document, so a job heading text that recurs in a later workflow must keep the running "-N"
-// suffix. Assigning per-workflow would restart the count and point a later workflow's link at
-// the first occurrence in another workflow. When anchors is nil (single-file rendering, no
-// assembly) the whole document is this one workflow, so per-workflow disambiguation equals
-// document-wide and we slug the local jobs directly.
-//
-// Residual edge: GitHub numbers ALL same-slug headings together regardless of kind (job,
-// section, H1, "#### Steps"). This unifies job-vs-job collisions only; a job slug that also
-// collides with a non-job heading slug is not reconciled. That cross-kind case is rare and
-// covering it would require threading every heading through one global pass.
+// job, in job order). GitHub numbers ALL same-slug headings together across the whole
+// rendered document regardless of kind (workflow title, job heading, structural section), so
+// the assembler computes every heading's slug in one document-order pass and hands the job
+// slugs in here; a link built from any other count would point at the wrong heading. The CLI
+// always supplies these. When anchors is nil (the standalone RenderMarkdown library helper,
+// which renders one workflow with no assembler around it) we fall back to numbering the local
+// job headings only -- it disambiguates job-vs-job repeats but, lacking the surrounding
+// document, cannot account for a structural section that shares a job's slug.
 func renderJobMiniTOC(b *strings.Builder, jobs []model.Job, anchors []string) {
 	if len(jobs) < 2 {
 		return
