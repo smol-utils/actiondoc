@@ -92,6 +92,26 @@ func TestAnchorScanPhantomLevel1HeadingMultiDoc(t *testing.T) {
 	assertLinksResolve(t, doc)
 }
 
+// TestHeadingSlugBaseNormalizesLikeScan guards that headingSlugBase slugs a title the same way
+// the document scan does. The renderer emits a title as a literal "# <title>" line, and GitHub
+// (like the scan) strips an ATX closing "#" sequence and trailing whitespace before slugging.
+// A title ending in "#" or a space must therefore yield the scanned slug ("deploy"), not the
+// raw-slugger result ("deploy-"); otherwise match() never lines the section up with its heading
+// and the section anchor is left unset, breaking the table of contents and cross-links.
+func TestHeadingSlugBaseNormalizesLikeScan(t *testing.T) {
+	cases := map[string]string{
+		"Deploy #":   "deploy",     // trailing ATX closing sequence dropped
+		"Release ##": "release",    // multi-character closing sequence dropped
+		"Trailing ":  "trailing",   // trailing whitespace dropped
+		"Plain Name": "plain-name", // ordinary title is unaffected
+	}
+	for title, want := range cases {
+		if got := headingSlugBase(title); got != want {
+			t.Errorf("headingSlugBase(%q) = %q, want %q", title, got, want)
+		}
+	}
+}
+
 // assertLinksResolve checks every in-page "#anchor" link in the document points at a heading
 // anchor GitHub actually derives from the rendered body, using the independent reimplementation
 // of GitHub's slugger in githubAnchors.

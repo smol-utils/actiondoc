@@ -303,9 +303,19 @@ func assignAnchorsFromScan(sources []callgraph.Source, graph *callgraph.Graph, d
 
 // headingSlugBase returns the GitHub anchor slug of a heading's text before any duplicate
 // "-N" suffix is applied -- the base used to line a link-target heading up with the node that
-// produced it. It reuses the renderer's slugger (single element, so no suffix is appended).
+// produced it. It slugs the text the way the scan does, by routing it through DocumentHeadings
+// on the same "# text" line the renderer emits: that path applies ATX heading normalization
+// (a trailing "#" closing sequence and trailing spaces are dropped) before slugging, which the
+// renderer's plain slugger does not. Slugging the raw text instead would diverge for any title
+// ending in "#" or whitespace -- "Deploy #" slugs to "deploy-" raw but "deploy" once scanned --
+// so match() would never line the node up with its heading and the anchor would be left unset.
+// A single synthetic heading carries no duplicate suffix, so the result is always the base.
 func headingSlugBase(text string) string {
-	return renderer.AssignAnchors([]string{text})[0]
+	headings := renderer.DocumentHeadings("# " + text)
+	if len(headings) == 0 {
+		return ""
+	}
+	return headings[0].Slug
 }
 
 // slugHasBase reports whether an anchor slug was generated from a heading whose base slug is
