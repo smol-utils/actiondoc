@@ -73,8 +73,12 @@ type Graph struct {
 	Edges []Edge
 }
 
-// Build constructs the call graph from the parsed sources.
-func Build(sources []Source) *Graph {
+// Build constructs the call graph from the parsed sources. identity is the scanned
+// repository's "owner/repo" name (resolved by the caller from --repo, GITHUB_REPOSITORY,
+// or the git remote); it determines which cross-repo `uses:` prefixes count as the repo
+// calling itself. When identity is "" (unknown), no cross-repo prefix is treated as self,
+// so every owner/repo reference is recorded as an external node.
+func Build(sources []Source, identity string) *Graph {
 	g := &Graph{Nodes: map[string]*Node{}}
 
 	// Register in-scope nodes and build resolution indexes. Workflows are indexed by base
@@ -102,9 +106,8 @@ func Build(sources []Source) *Graph {
 	}
 
 	// Cross-repo refs that point back into the scan set (a repo calling its own reusable
-	// workflows with a branch/tag pin) resolve to in-scope nodes; see inferSelfPrefixes
-	// for how "self" is decided.
-	selfPrefixes := inferSelfPrefixes(sources, workflowsByBase)
+	// workflows with a branch/tag pin) resolve to in-scope nodes only when the owner/repo
+	// prefix matches the scanned repository's identity (see the resolve closure below).
 
 	resolve := func(raw string) (toID string, kind EdgeKind, pin string) {
 		ref, pin := splitPin(raw)
@@ -132,11 +135,13 @@ func Build(sources []Source) *Graph {
 			return "", KindComposite, pin
 		}
 		// cross-repo reference. When the owner/repo prefix is the scanned repository
-		// itself, resolve to the in-scope node -- keeping the pin on the edge -- so the
-		// callee gets its Called-by chain and the caller cross-links to the rendered
-		// section instead of an external ref.
+		// itself (identity known and matching, case-insensitively -- GitHub logins and
+		// repo names are case-insensitive), resolve to the in-scope node -- keeping the
+		// pin on the edge -- so the callee gets its Called-by chain and the caller
+		// cross-links to the rendered section instead of an external ref. When identity is
+		// unknown (""), no prefix is self, so the reference stays external by default.
 		isWorkflow := strings.Contains(ref, "/.github/workflows/")
-		if isWorkflow && selfPrefixes[crossRepoPrefix(ref)] {
+		if isWorkflow && identity != "" && strings.EqualFold(crossRepoPrefix(ref), identity) {
 			if id := resolveWorkflow(workflowsByBase, ref); id != "" {
 				return id, KindReusable, pin
 			}
@@ -182,46 +187,6 @@ func crossRepoPrefix(ref string) string {
 		return ""
 	}
 	return ref[:i]
-}
-
-// inferSelfPrefixes identifies owner/repo prefixes that refer to the scanned repository
-// itself. Repositories commonly call their own reusable workflows in the cross-repo form
-// (owner/repo/.github/workflows/x.yml@ref) so the @ref pin selects a branch or tag
-// instead of the calling commit. The scanned repository's identity is not knowable from
-// the YAML alone, so it is inferred conservatively: a prefix counts as "self" only when
-// every workflow it references has an in-scope basename match. A prefix that references
-// even one workflow outside the scan set is treated as a genuinely different repository,
-// so a same-named workflow in another repo is never silently linked to the local one.
-func inferSelfPrefixes(sources []Source, workflowsByBase map[string][]string) map[string]bool {
-	allInScope := map[string]bool{}
-	for _, s := range sources {
-		if s.Workflow == nil {
-			continue
-		}
-		for _, job := range s.Workflow.Jobs {
-			if job.Uses == "" || isLocal(job.Uses) {
-				continue
-			}
-			ref, _ := splitPin(job.Uses)
-			prefix := crossRepoPrefix(ref)
-			if prefix == "" {
-				continue
-			}
-			inScope := resolveWorkflow(workflowsByBase, ref) != ""
-			if current, seen := allInScope[prefix]; seen {
-				allInScope[prefix] = current && inScope
-			} else {
-				allInScope[prefix] = inScope
-			}
-		}
-	}
-	self := map[string]bool{}
-	for prefix, ok := range allInScope {
-		if ok {
-			self[prefix] = true
-		}
-	}
-	return self
 }
 
 // Calls returns the edges originating at node id.

@@ -44,7 +44,7 @@ func inventoryGraph() ([]callgraph.Source, *callgraph.Graph) {
 		{Path: ".github/workflows/alpha.yml", Workflow: alpha},
 		{Path: ".github/workflows/beta.yml", Workflow: beta},
 	}
-	return sources, callgraph.Build(sources)
+	return sources, callgraph.Build(sources, "")
 }
 
 func TestRenderDocumentInventory(t *testing.T) {
@@ -98,7 +98,7 @@ func TestRenderDocumentInventoryDuplicateNames(t *testing.T) {
 		{Path: ".github/workflows/a.yml", Workflow: mk("a.yml")},
 		{Path: ".github/workflows/b.yml", Workflow: mk("b.yml")},
 	}
-	out := RenderDocumentInventory(sources, callgraph.Build(sources))
+	out := RenderDocumentInventory(sources, callgraph.Build(sources, ""))
 
 	for _, want := range []string{"[Release (a.yml)]", "[Release (b.yml)]"} {
 		if !strings.Contains(out, want) {
@@ -116,7 +116,7 @@ func TestRenderDocumentInventoryEmpty(t *testing.T) {
 			Steps: []model.Step{{Name: "Echo", Run: "echo hi"}}}},
 	}
 	sources := []callgraph.Source{{Path: ".github/workflows/plain.yml", Workflow: w}}
-	g := callgraph.Build(sources)
+	g := callgraph.Build(sources, "")
 
 	if out := RenderDocumentInventory(sources, g); out != "" {
 		t.Errorf("expected empty inventory, got:\n%s", out)
@@ -135,7 +135,7 @@ func TestRenderDocumentInventorySubTableSuppression(t *testing.T) {
 			Steps: []model.Step{{Name: "Echo", Run: "echo hi"}}}},
 	}
 	sources := []callgraph.Source{{Path: ".github/workflows/perm.yml", Workflow: w}}
-	out := RenderDocumentInventory(sources, callgraph.Build(sources))
+	out := RenderDocumentInventory(sources, callgraph.Build(sources, ""))
 
 	if strings.Contains(out, inventorySecretsVarsHeading) {
 		t.Errorf("secrets/vars section should be suppressed when empty\n\n%s", out)

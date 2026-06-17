@@ -146,7 +146,7 @@ func renderCase(t *testing.T, tc goldenCase) string {
 		}
 		sources = append(sources, callgraph.Source{Path: testdataPath(p), Action: a})
 	}
-	g := callgraph.Build(sources)
+	g := callgraph.Build(sources, "")
 
 	var out strings.Builder
 	for _, s := range sources {

@@ -57,7 +57,7 @@ func chainGraph() (*callgraph.Graph, map[string]*model.Workflow) {
 	for path, w := range workflows {
 		sources = append(sources, callgraph.Source{Path: path, Workflow: w})
 	}
-	return callgraph.Build(sources), workflows
+	return callgraph.Build(sources, ""), workflows
 }
 
 // TestRenderCallerJobMatrixRow verifies a caller job's matrix axes render as a Matrix
@@ -120,7 +120,7 @@ func TestRenderCallerJobMultilineValue(t *testing.T) {
 	g := callgraph.Build([]callgraph.Source{
 		{Path: ".github/workflows/release.yml", Workflow: caller},
 		{Path: ".github/workflows/build.yml", Workflow: build},
-	})
+	}, "")
 
 	md := RenderMarkdownGraph(caller, g, ".github/workflows/release.yml")
 	if strings.Contains(md, "line1\nline2") {
@@ -151,7 +151,7 @@ func TestRenderCallerJobOmitsEmptyForwardedInput(t *testing.T) {
 	g := callgraph.Build([]callgraph.Source{
 		{Path: ".github/workflows/release.yml", Workflow: caller},
 		{Path: ".github/workflows/build.yml", Workflow: build},
-	})
+	}, "")
 
 	md := RenderMarkdownGraph(caller, g, ".github/workflows/release.yml")
 
@@ -177,7 +177,7 @@ func TestRenderCallerJobOmitsEmptyForwardedInput(t *testing.T) {
 	g2 := callgraph.Build([]callgraph.Source{
 		{Path: ".github/workflows/release.yml", Workflow: allEmpty},
 		{Path: ".github/workflows/build.yml", Workflow: build},
-	})
+	}, "")
 	md2 := RenderMarkdownGraph(allEmpty, g2, ".github/workflows/release.yml")
 	if strings.Contains(md2, "#### Inputs forwarded") {
 		t.Errorf("Inputs forwarded header rendered with no meaningful inputs:\n%s", md2)
@@ -205,7 +205,7 @@ func TestRenderCallerJobTags(t *testing.T) {
 	g := callgraph.Build([]callgraph.Source{
 		{Path: ".github/workflows/release.yml", Workflow: caller},
 		{Path: ".github/workflows/build.yml", Workflow: build},
-	})
+	}, "")
 
 	md := RenderMarkdownGraph(caller, g, ".github/workflows/release.yml")
 	for _, want := range []string{
@@ -235,7 +235,7 @@ func TestRenderCallerJobSecretsInherit(t *testing.T) {
 	g := callgraph.Build([]callgraph.Source{
 		{Path: ".github/workflows/caller.yml", Workflow: w},
 		{Path: ".github/workflows/deploy.yml", Workflow: callee},
-	})
+	}, "")
 
 	md := RenderMarkdownGraph(w, g, ".github/workflows/caller.yml")
 
@@ -254,7 +254,7 @@ func TestRenderCallerJobExternalCallee(t *testing.T) {
 	}
 	g := callgraph.Build([]callgraph.Source{
 		{Path: ".github/workflows/caller.yml", Workflow: w},
-	})
+	}, "")
 
 	md := RenderMarkdownGraph(w, g, ".github/workflows/caller.yml")
 
@@ -345,7 +345,7 @@ func TestCallGraphSuppressedOnFlatWorkflow(t *testing.T) {
 	}
 	g := callgraph.Build([]callgraph.Source{
 		{Path: ".github/workflows/ci.yml", Workflow: w},
-	})
+	}, "")
 
 	md := RenderMarkdownGraph(w, g, ".github/workflows/ci.yml")
 
@@ -434,7 +434,7 @@ func TestCallGraphCycleTerminates(t *testing.T) {
 	g := callgraph.Build([]callgraph.Source{
 		{Path: ".github/workflows/a.yml", Workflow: a},
 		{Path: ".github/workflows/b.yml", Workflow: bw},
-	})
+	}, "")
 
 	// Both directions must terminate despite the a -> b -> a cycle.
 	mdA := RenderMarkdownGraph(a, g, ".github/workflows/a.yml")
@@ -488,7 +488,7 @@ func TestCallGraphExternalCalleeNoLink(t *testing.T) {
 	}
 	g := callgraph.Build([]callgraph.Source{
 		{Path: ".github/workflows/ci.yml", Workflow: w},
-	})
+	}, "")
 
 	md := RenderMarkdownGraph(w, g, ".github/workflows/ci.yml")
 
@@ -512,7 +512,7 @@ func TestCallGraphOutsideScopeNoLink(t *testing.T) {
 	}
 	g := callgraph.Build([]callgraph.Source{
 		{Path: ".github/workflows/ci.yml", Workflow: w},
-	})
+	}, "")
 
 	md := RenderMarkdownGraph(w, g, ".github/workflows/ci.yml")
 
@@ -555,7 +555,7 @@ func TestCallGraphSiblingCollapse(t *testing.T) {
 	g := callgraph.Build([]callgraph.Source{
 		{Path: ".github/workflows/ci.yml", Workflow: caller},
 		{Path: ".github/workflows/shared.yml", Workflow: shared},
-	})
+	}, "")
 
 	md := RenderMarkdownGraph(caller, g, ".github/workflows/ci.yml")
 

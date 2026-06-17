@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/fs"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -21,6 +22,7 @@ func Generate(args []string) error {
 	fs := flag.NewFlagSet("generate", flag.ContinueOnError)
 	outFlag := fs.String("o", "", "output file (default: stdout)")
 	jsonFlag := fs.Bool("json", false, "output JSON instead of Markdown")
+	repoFlag := fs.String("repo", "", "scanned repository identity as owner/repo; controls which cross-repo `uses:` refs are treated as self-calls (default: $GITHUB_REPOSITORY, else the git remote)")
 	fs.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage: actiondoc generate [flags] [path]\n\n")
 		fmt.Fprintf(os.Stderr, "Generates documentation for GitHub Actions workflow and action files.\n\n")
@@ -52,7 +54,7 @@ func Generate(args []string) error {
 	// actions into the steps that reference them so the renderer can pair `with:` keys
 	// with declared inputs. A source's path is its call-graph node id.
 	sources, parseFailures := parseSources(files)
-	graph := callgraph.Build(sources)
+	graph := callgraph.Build(sources, resolveRepoIdentity(*repoFlag, path))
 	linkCompositeActions(sources, graph)
 
 	var output string
@@ -80,6 +82,82 @@ func Generate(args []string) error {
 		return fmt.Errorf("%d file(s) failed to parse", parseFailures)
 	}
 	return nil
+}
+
+// resolveRepoIdentity determines the scanned repository's "owner/repo" identity, used by
+// the call graph to decide which cross-repo `uses:` prefixes are the repo calling itself.
+// Precedence: the --repo flag, then $GITHUB_REPOSITORY (set automatically inside GitHub
+// Actions), then the `origin` git remote of the scanned path. Returns "" when none
+// resolve, in which case every owner/repo reference is treated as external.
+func resolveRepoIdentity(repoFlag, scanPath string) string {
+	if id := normalizeIdentity(repoFlag); id != "" {
+		return id
+	}
+	if id := normalizeIdentity(os.Getenv("GITHUB_REPOSITORY")); id != "" {
+		return id
+	}
+	return gitRemoteIdentity(scanPath)
+}
+
+// normalizeIdentity trims surrounding whitespace and a trailing ".git", returning the
+// value only if it is in "owner/repo" form (exactly two non-empty segments); otherwise "".
+func normalizeIdentity(s string) string {
+	s = strings.TrimSpace(s)
+	s = strings.TrimSuffix(s, ".git")
+	parts := strings.Split(s, "/")
+	if len(parts) != 2 || parts[0] == "" || parts[1] == "" {
+		return ""
+	}
+	return parts[0] + "/" + parts[1]
+}
+
+// gitRemoteIdentity runs `git remote get-url origin` in the directory of scanPath and
+// parses an "owner/repo" identity from a GitHub remote URL. Returns "" when git fails (no
+// repo, no origin) or the URL is not a parseable GitHub URL.
+func gitRemoteIdentity(scanPath string) string {
+	dir := scanPath
+	if info, err := os.Stat(scanPath); err == nil && !info.IsDir() {
+		dir = filepath.Dir(scanPath)
+	}
+	cmd := exec.Command("git", "-C", dir, "remote", "get-url", "origin")
+	out, err := cmd.Output()
+	if err != nil {
+		return ""
+	}
+	return parseGitHubRemote(string(out))
+}
+
+// parseGitHubRemote extracts an "owner/repo" identity from a GitHub remote URL in either
+// the SSH form (git@github.com:owner/repo.git) or the HTTPS form
+// (https://github.com/owner/repo.git). A trailing ".git" is stripped. Returns "" for any
+// URL that does not name github.com or does not carry an owner/repo pair.
+func parseGitHubRemote(rawURL string) string {
+	s := strings.TrimSpace(rawURL)
+	i := strings.Index(s, "github.com")
+	if i < 0 {
+		return ""
+	}
+	// The host must be exactly "github.com", not merely a suffix of some other host
+	// (e.g. "notgithub.com"). The char preceding it must be a host boundary: the start
+	// of the URL, an '@' (git@github.com), or a '/' (https://github.com, ssh://...).
+	if i > 0 {
+		if prev := s[i-1]; prev != '@' && prev != '/' {
+			return ""
+		}
+	}
+	// After "github.com" the owner/repo is separated by ':' (SSH) or '/' (HTTPS/ssh://).
+	rest := strings.TrimLeft(s[i+len("github.com"):], ":/")
+	return normalizeIdentity(firstTwoSegments(rest))
+}
+
+// firstTwoSegments returns the first two slash-separated segments of s joined with "/",
+// dropping any deeper path (a remote URL should be just owner/repo, but be defensive).
+func firstTwoSegments(s string) string {
+	parts := strings.Split(s, "/")
+	if len(parts) < 2 {
+		return s
+	}
+	return parts[0] + "/" + parts[1]
 }
 
 // renderJSONOutput marshals the parsed models as a JSON array -- the machine-readable

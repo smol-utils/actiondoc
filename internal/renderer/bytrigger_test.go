@@ -30,7 +30,7 @@ func triggerIndexGraph() ([]callgraph.Source, *callgraph.Graph) {
 		{Path: ".github/workflows/beta.yml", Workflow: beta},
 		{Path: ".github/workflows/gamma.yml", Workflow: gamma},
 	}
-	return sources, callgraph.Build(sources)
+	return sources, callgraph.Build(sources, "")
 }
 
 func TestRenderTriggerIndex(t *testing.T) {
@@ -71,7 +71,7 @@ func TestRenderTriggerIndexOrdering(t *testing.T) {
 			Steps: []model.Step{{Name: "Run", Run: "echo hi"}}}},
 	}
 	sources = append(sources, callgraph.Source{Path: ".github/workflows/delta.yml", Workflow: sched})
-	g = callgraph.Build(sources)
+	g = callgraph.Build(sources, "")
 	out := RenderTriggerIndex(sources, g)
 
 	posPR := strings.Index(out, "- **pull_request**")
@@ -105,7 +105,7 @@ func TestRenderTriggerIndexDuplicateNames(t *testing.T) {
 		{Path: ".github/workflows/a.yml", Workflow: mk("a.yml")},
 		{Path: ".github/workflows/b.yml", Workflow: mk("b.yml")},
 	}
-	out := RenderTriggerIndex(sources, callgraph.Build(sources))
+	out := RenderTriggerIndex(sources, callgraph.Build(sources, ""))
 
 	for _, want := range []string{"[Release (a.yml)]", "[Release (b.yml)]"} {
 		if !strings.Contains(out, want) {
@@ -123,7 +123,7 @@ func TestRenderTriggerIndexWorkflowCallOnly(t *testing.T) {
 			Steps: []model.Step{{Name: "Run", Run: "echo hi"}}}},
 	}
 	sources := []callgraph.Source{{Path: ".github/workflows/reusable.yml", Workflow: w}}
-	if out := RenderTriggerIndex(sources, callgraph.Build(sources)); out != "" {
+	if out := RenderTriggerIndex(sources, callgraph.Build(sources, "")); out != "" {
 		t.Errorf("expected empty index when only workflow_call is present, got:\n%s", out)
 	}
 }
@@ -137,7 +137,7 @@ func TestRenderTriggerIndexEmpty(t *testing.T) {
 			Steps: []model.Step{{Name: "Run", Run: "echo hi"}}}},
 	}
 	sources := []callgraph.Source{{Path: ".github/workflows/plain.yml", Workflow: w}}
-	if out := RenderTriggerIndex(sources, callgraph.Build(sources)); out != "" {
+	if out := RenderTriggerIndex(sources, callgraph.Build(sources, "")); out != "" {
 		t.Errorf("expected empty index with no trigger events, got:\n%s", out)
 	}
 }

@@ -22,7 +22,7 @@ func TestBuildBasic(t *testing.T) {
 	g := Build([]Source{
 		{Path: "/repo/.github/workflows/release.yml", Workflow: entry},
 		{Path: "/repo/.github/workflows/build.yml", Workflow: reusable},
-	})
+	}, "")
 
 	relID := "/repo/.github/workflows/release.yml"
 	buildID := "/repo/.github/workflows/build.yml"
@@ -72,7 +72,7 @@ func TestBuildCompositeResolution(t *testing.T) {
 		{Path: "/repo/.github/workflows/ci.yml", Workflow: caller},
 		{Path: "/repo/.github/actions/my-build/action.yml", Action: &model.Action{Name: "My Build"}},
 		{Path: "/repo/.github/actions/build/action.yml", Action: &model.Action{Name: "Build"}},
-	})
+	}, "")
 
 	want := "/repo/.github/actions/build/action.yml"
 	var got string
@@ -107,7 +107,7 @@ func TestResolveUnresolvedLocalKind(t *testing.T) {
 			{ID: "b", Uses: "./.github/workflows/missing.yml"},
 		},
 	}
-	g := Build([]Source{{Path: "/r/.github/workflows/ci.yml", Workflow: caller}})
+	g := Build([]Source{{Path: "/r/.github/workflows/ci.yml", Workflow: caller}}, "")
 
 	var compKind, reusableKind EdgeKind
 	for _, e := range g.Calls("/r/.github/workflows/ci.yml") {
@@ -144,7 +144,7 @@ func TestResolveWorkflowBasenameCollision(t *testing.T) {
 		{Path: "repo/.github/workflows/ci.yml", Workflow: caller},
 		{Path: "repo/.github/workflows/sub/build.yml", Workflow: subBuild},
 		{Path: "repo/.github/workflows/build.yml", Workflow: topBuild},
-	})
+	}, "")
 
 	got := map[string]string{} // jobID -> resolved ToID
 	for _, e := range g.Calls("repo/.github/workflows/ci.yml") {
@@ -182,7 +182,7 @@ func TestResolveWorkflowOSNativePaths(t *testing.T) {
 		{Path: ciPath, Workflow: caller},
 		{Path: subPath, Workflow: subBuild},
 		{Path: topPath, Workflow: topBuild},
-	})
+	}, "")
 
 	got := map[string]string{}
 	for _, e := range g.Calls(ciPath) {
@@ -217,7 +217,7 @@ func TestResolveCompositeRefMoreQualified(t *testing.T) {
 	g := Build([]Source{
 		{Path: "ci.yml", Workflow: caller},
 		{Path: "actions/build/action.yml", Action: action},
-	})
+	}, "")
 
 	var got string
 	var kind EdgeKind
@@ -231,22 +231,20 @@ func TestResolveCompositeRefMoreQualified(t *testing.T) {
 	}
 }
 
-// TestCrossRepoSelfRefsResolve covers the inference that a cross-repo ref whose
-// owner/repo prefix consistently points back into the scan set is the scanned repository
-// calling itself (with a branch/tag pin), and must resolve to the in-scope node so the
-// callee gets its Called-by chain. Prefixes that reference anything outside the scan set
-// stay external, so a same-named workflow in a different repo is never mis-linked.
+// TestCrossRepoSelfRefsResolve covers self-reference resolution by repository identity: a
+// repo commonly calls its own reusable workflows in the cross-repo form
+// (owner/repo/.github/workflows/x.yml@ref) so the @ref pin selects a branch or tag. When
+// the owner/repo prefix equals the scanned repo's identity, the ref resolves to the
+// in-scope node so the callee gets its Called-by chain. Prefixes that name any OTHER repo
+// stay external, even when a same-named workflow exists in scope.
 func TestCrossRepoSelfRefsResolve(t *testing.T) {
 	release := &model.Workflow{
 		File: "release.yml", Name: "Release", On: []string{"push"},
 		Jobs: []model.Job{
 			// Self-reference in cross-repo form, pinned to a branch.
 			{ID: "precheck", Uses: "jreleaser/jreleaser/.github/workflows/step-precheck.yml@main"},
-			// Genuinely external: basename matches an in-scope workflow, but the prefix
-			// also references a workflow that is NOT in scope, so the whole prefix is
-			// treated as a different repository.
+			// Another repo, despite an in-scope basename match: must stay external.
 			{ID: "shared-pre", Uses: "other-org/shared/.github/workflows/step-precheck.yml@v1"},
-			{ID: "shared-scan", Uses: "other-org/shared/.github/workflows/security-scan.yml@v1"},
 			// Genuinely external with no in-scope match at all.
 			{ID: "slsa", Uses: "slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v2.1.0"},
 		},
@@ -256,10 +254,12 @@ func TestCrossRepoSelfRefsResolve(t *testing.T) {
 		Jobs: []model.Job{{ID: "check", RunsOn: "ubuntu-latest"}},
 	}
 
+	// Identity matches the jreleaser/jreleaser prefix (and the comparison is
+	// case-insensitive, matching GitHub's case-insensitive logins/repo names).
 	g := Build([]Source{
 		{Path: ".github/workflows/release.yml", Workflow: release},
 		{Path: ".github/workflows/step-precheck.yml", Workflow: precheck},
-	})
+	}, "JReleaser/JReleaser")
 
 	edges := g.Calls(".github/workflows/release.yml")
 	byJob := map[string]Edge{}
@@ -281,17 +281,75 @@ func TestCrossRepoSelfRefsResolve(t *testing.T) {
 		t.Errorf("CalledBy = %+v, want one edge from release.yml", calledBy)
 	}
 
-	// The mixed prefix (one in-scope basename, one not) stays fully external.
+	// A different repo's prefix with an in-scope basename match stays fully external.
 	if to := byJob["shared-pre"].ToID; to != "other-org/shared/.github/workflows/step-precheck.yml" {
-		t.Errorf("mixed-prefix ref ToID = %q, want external node", to)
+		t.Errorf("other-repo ref ToID = %q, want external node", to)
 	}
 	if n := g.Nodes[byJob["shared-pre"].ToID]; n == nil || !n.External {
-		t.Error("mixed-prefix ref must remain an external node")
+		t.Error("other-repo ref must remain an external node")
 	}
 
 	// The no-match prefix stays external.
 	if n := g.Nodes[byJob["slsa"].ToID]; n == nil || !n.External {
 		t.Error("unrelated cross-repo ref must remain an external node")
+	}
+}
+
+// TestCrossRepoExternalByDefault is the regression guard for the misclassification bug: a
+// cross-repo `uses:` ref that happens to share a basename with an in-scope workflow must
+// NOT be pulled in as a local call. It must stay external when the scanned repo's identity
+// is unknown, and when identity names a DIFFERENT repository; it resolves locally only when
+// identity matches the ref's owner/repo prefix.
+func TestCrossRepoExternalByDefault(t *testing.T) {
+	// A local build.yml plus a workflow that calls acme/shared-ci's same-named build.yml.
+	ci := &model.Workflow{
+		File: "ci.yml", Name: "CI", On: []string{"push"},
+		Jobs: []model.Job{{ID: "call-external", Uses: "acme/shared-ci/.github/workflows/build.yml@v1"}},
+	}
+	localBuild := &model.Workflow{
+		File: "build.yml", Name: "Build", On: []string{"workflow_call"},
+	}
+	sources := []Source{
+		{Path: ".github/workflows/ci.yml", Workflow: ci},
+		{Path: ".github/workflows/build.yml", Workflow: localBuild},
+	}
+
+	external := func(g *Graph) {
+		t.Helper()
+		var e Edge
+		for _, c := range g.Calls(".github/workflows/ci.yml") {
+			if c.JobID == "call-external" {
+				e = c
+			}
+		}
+		if e.ToID != "acme/shared-ci/.github/workflows/build.yml" {
+			t.Errorf("cross-repo ref ToID = %q, want the external acme/shared-ci node", e.ToID)
+		}
+		if n := g.Nodes[e.ToID]; n == nil || !n.External {
+			t.Error("cross-repo ref must be an external node, not the local build.yml")
+		}
+		// The local build.yml must not gain a fabricated caller.
+		if cb := g.CalledBy(".github/workflows/build.yml"); len(cb) != 0 {
+			t.Errorf("local build.yml CalledBy = %+v, want none (external call must not link here)", cb)
+		}
+	}
+
+	external(Build(sources, ""))             // identity unknown -> external
+	external(Build(sources, "myorg/myrepo")) // different identity -> external
+
+	// When identity matches the ref's prefix, it IS the repo calling itself.
+	g := Build(sources, "acme/shared-ci")
+	var e Edge
+	for _, c := range g.Calls(".github/workflows/ci.yml") {
+		if c.JobID == "call-external" {
+			e = c
+		}
+	}
+	if e.ToID != ".github/workflows/build.yml" {
+		t.Errorf("self ref (identity matches) ToID = %q, want in-scope build.yml", e.ToID)
+	}
+	if e.Pin != "v1" {
+		t.Errorf("self ref Pin = %q, want v1", e.Pin)
 	}
 }
 
@@ -312,7 +370,7 @@ func TestReachableDiamond(t *testing.T) {
 		{Path: dir + "a.yml", Workflow: wf("a.yml", "A", "workflow_call", "./.github/workflows/c.yml")},
 		{Path: dir + "b.yml", Workflow: wf("b.yml", "B", "workflow_call", "./.github/workflows/c.yml")},
 		{Path: dir + "c.yml", Workflow: wf("c.yml", "C", "workflow_call")},
-	})
+	}, "")
 
 	r := g.Reachable(dir + "entry.yml")
 	if len(r) != 3 {

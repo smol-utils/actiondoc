@@ -1953,9 +1953,13 @@ Inputs for the `workflow_dispatch` event.
 
 - uses **[self-scheduled.yml](#nvidia-ci-job-definitions)** (x7)
   - uses **[model_jobs.yml](#model-jobs)** (x2)
-    - `collated_reports` uses [collated-reports.yml](#ci-collated-reports) (`@6abd9725ee7d809dc974991f8ff6c958afb63a3a`)
+    - `collated_reports` uses `huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a`
   - `send_results` uses [slack-report.yml](#ci-slack-report)
   - `check_new_failures` uses [check_failed_tests.yml](#process-failed-tests)
+
+## Transitive requirements (from full call graph)
+
+External workflows referenced: `huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a`
 
 ## Jobs
 
@@ -2162,9 +2166,13 @@ Inputs for the `workflow_dispatch` event.
 
 - `model-ci` uses [self-scheduled.yml](#nvidia-ci-job-definitions)
   - uses **[model_jobs.yml](#model-jobs)** (x2)
-    - `collated_reports` uses [collated-reports.yml](#ci-collated-reports) (`@6abd9725ee7d809dc974991f8ff6c958afb63a3a`)
+    - `collated_reports` uses `huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a`
   - `send_results` uses [slack-report.yml](#ci-slack-report)
   - `check_new_failures` uses [check_failed_tests.yml](#process-failed-tests)
+
+## Transitive requirements (from full call graph)
+
+External workflows referenced: `huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a`
 
 ## Jobs
 
@@ -2248,9 +2256,13 @@ Inputs for the `workflow_dispatch` event.
 - `build_nightly_torch_ci_images` uses [build-nightly-ci-docker-images.yml](#build-docker-images-nightly-ci)
 - `model-ci` uses [self-scheduled.yml](#nvidia-ci-job-definitions)
   - uses **[model_jobs.yml](#model-jobs)** (x2)
-    - `collated_reports` uses [collated-reports.yml](#ci-collated-reports) (`@6abd9725ee7d809dc974991f8ff6c958afb63a3a`)
+    - `collated_reports` uses `huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a`
   - `send_results` uses [slack-report.yml](#ci-slack-report)
   - `check_new_failures` uses [check_failed_tests.yml](#process-failed-tests)
+
+## Transitive requirements (from full call graph)
+
+External workflows referenced: `huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a`
 
 ## Jobs
 
@@ -2591,9 +2603,13 @@ External workflows referenced: `huggingface/transformers-test-ci/.github/workflo
 - `get-pr-info` uses [get-pr-info.yml](#get-pr-commit-sha)
 - uses **[self-scheduled.yml](#nvidia-ci-job-definitions)** (x2)
   - uses **[model_jobs.yml](#model-jobs)** (x2)
-    - `collated_reports` uses [collated-reports.yml](#ci-collated-reports) (`@6abd9725ee7d809dc974991f8ff6c958afb63a3a`)
+    - `collated_reports` uses `huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a`
   - `send_results` uses [slack-report.yml](#ci-slack-report)
   - `check_new_failures` uses [check_failed_tests.yml](#process-failed-tests)
+
+## Transitive requirements (from full call graph)
+
+External workflows referenced: `huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a`
 
 ## Referenced secrets and variables
 
@@ -3724,9 +3740,13 @@ External workflows referenced: `huggingface/hf-workflows/.github/workflows/trans
 - uses **[self-past-caller.yml](#self-hosted-runner-past-ci)** (x7)
   - uses **[self-scheduled.yml](#nvidia-ci-job-definitions)** (x2)
     - uses **[model_jobs.yml](#model-jobs)** (x2)
-      - `collated_reports` uses [collated-reports.yml](#ci-collated-reports) (`@6abd9725ee7d809dc974991f8ff6c958afb63a3a`)
+      - `collated_reports` uses `huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a`
     - `send_results` uses [slack-report.yml](#ci-slack-report)
     - `check_new_failures` uses [check_failed_tests.yml](#process-failed-tests)
+
+## Transitive requirements (from full call graph)
+
+External workflows referenced: `huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a`
 
 ## Jobs
 
@@ -4121,9 +4141,13 @@ External workflows referenced: `huggingface/hf-workflows/.github/workflows/trans
 
 - `model-ci` uses [self-scheduled.yml](#nvidia-ci-job-definitions)
   - uses **[model_jobs.yml](#model-jobs)** (x2)
-    - `collated_reports` uses [collated-reports.yml](#ci-collated-reports) (`@6abd9725ee7d809dc974991f8ff6c958afb63a3a`)
+    - `collated_reports` uses `huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a`
   - `send_results` uses [slack-report.yml](#ci-slack-report)
   - `check_new_failures` uses [check_failed_tests.yml](#process-failed-tests)
+
+## Transitive requirements (from full call graph)
+
+External workflows referenced: `huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a`
 
 ## Jobs
 
@@ -4580,18 +4604,6 @@ External workflows referenced: `huggingface/doc-builder/.github/workflows/upload
 ## Permissions
 
 - `contents`: `read`
-
-## Called by
-
-- [model_jobs.yml](#collated-reports-collated_reports-1) (job: `collated_reports`)
-  - **[self-scheduled.yml](#nvidia-ci-job-definitions)** (x2)
-    - [push-important-models.yml](#model-ci-model-ci-8) (job: `model-ci`) - entry point
-    - **[self-comment-ci.yml](#pr-comment-github-ci)** - entry point (x2)
-    - [self-nightly-caller.yml](#model-ci-model-ci-2) (job: `model-ci`) - entry point
-    - **[self-past-caller.yml](#self-hosted-runner-past-ci)** (x2)
-      - **[self-nightly-past-ci-caller.yml](#self-hosted-runner-nightly-past-ci-caller)** - entry point (x7)
-    - **[self-scheduled-caller.yml](#nvidia-ci)** - entry point (x7)
-    - [self-scheduled-flash-attn-caller.yml](#model-ci-model-ci-1) (job: `model-ci`) - entry point
 
 ## Referenced secrets and variables
 
@@ -5115,7 +5127,7 @@ External workflows referenced: `huggingface/doc-builder/.github/workflows/upload
 
 | Property | Value |
 |----------|-------|
-| Uses workflow | [CI collated reports](#ci-collated-reports) (`@6abd9725ee7d809dc974991f8ff6c958afb63a3a`) |
+| Uses workflow | `huggingface/transformers/.github/workflows/collated-reports.yml@6abd9725ee7d809dc974991f8ff6c958afb63a3a` (external) |
 | Depends on | `run_models_gpu` |
 | Condition | `${{ always() && inputs.runner_type != '' }}` |
 
