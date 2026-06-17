@@ -89,6 +89,11 @@ dogfood: build
 # (cosign, dependency-track, jreleaser, scala3, spring-boot), multi-line names and large
 # call-graph trees (airflow, transformers), YAML anchors (syft), matrix job names
 # (slsa-verifier, spring-boot), and link/anchor escaping (airflow, transformers).
+#
+# Each snapshot is generated with the repo's real "owner/repo" identity (resolved from the
+# manifest URL by scripts/repo_identity.sh and passed as --repo), so a repo's references to
+# its own reusable workflows resolve as self-calls -- the same view a real user gets from
+# their git remote or $GITHUB_REPOSITORY -- instead of rendering as external.
 SNAPSHOT_REPOS := airflow cosign dependency-track jreleaser scala3 slsa-verifier spring-boot syft transformers
 SNAPSHOT_DIR := dogfood/snapshots
 
@@ -98,7 +103,8 @@ dogfood-output: build
 	for name in $(SNAPSHOT_REPOS); do \
 		dir="$(DOGFOOD_DIR)/$$name/.github/workflows"; \
 		if [ ! -d "$$dir" ]; then echo "missing corpus repo: $$name (run 'make dogfood-fetch')"; missing=1; continue; fi; \
-		if ! ./actiondoc generate "$$dir" > "$(SNAPSHOT_DIR)/$$name.md.tmp" 2>/dev/null; then \
+		repoflag="$$(./scripts/repo_identity.sh "$$name")"; \
+		if ! ./actiondoc generate $$repoflag "$$dir" > "$(SNAPSHOT_DIR)/$$name.md.tmp" 2>/dev/null; then \
 			echo "generate failed: $$name"; fail=1; rm -f "$(SNAPSHOT_DIR)/$$name.md.tmp"; continue; \
 		fi; \
 		if diff -u "$(SNAPSHOT_DIR)/$$name.md" "$(SNAPSHOT_DIR)/$$name.md.tmp"; then \
@@ -121,6 +127,7 @@ dogfood-output-update: build
 	@for name in $(SNAPSHOT_REPOS); do \
 		dir="$(DOGFOOD_DIR)/$$name/.github/workflows"; \
 		[ -d "$$dir" ] || { echo "missing corpus repo: $$name (run 'make dogfood-fetch')"; exit 1; }; \
-		./actiondoc generate "$$dir" > "$(SNAPSHOT_DIR)/$$name.md" || { echo "generate failed: $$name"; exit 1; }; \
+		repoflag="$$(./scripts/repo_identity.sh "$$name")"; \
+		./actiondoc generate $$repoflag "$$dir" > "$(SNAPSHOT_DIR)/$$name.md" || { echo "generate failed: $$name"; exit 1; }; \
 		echo "snapshot updated: $$name"; \
 	done

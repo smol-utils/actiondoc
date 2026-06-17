@@ -7,6 +7,8 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/smol-utils/actiondoc/internal/renderer"
 )
 
 // TestAnchorCollisionsAcrossNamespaces is the end-to-end guard that in-page links resolve to
@@ -73,6 +75,42 @@ func TestAnchorCollisionsAcrossNamespaces(t *testing.T) {
 	}
 }
 
+// TestGithubAnchorsMirrorsAtxNormalization proves the test's slugger model (githubAnchors)
+// agrees with production's ATX normalization (renderer.DocumentHeadings) on the closing-"#"
+// and trailing-whitespace edges: "## Foo ##" and "## Bar  " must both slug bare ("foo" and
+// "bar"), the same as GitHub, so in-page links to those anchors resolve. Before githubAnchors
+// stripped the optional closing "#" run, "## Foo ##" slugged to "foo-" and the link below was
+// wrongly reported as dangling.
+func TestGithubAnchorsMirrorsAtxNormalization(t *testing.T) {
+	doc := strings.Join([]string{
+		"# Title",
+		"",
+		"## Foo ##", // optional ATX closing sequence
+		"",
+		"## Bar  ", // trailing whitespace
+		"",
+		"See [Foo](#foo) and [Bar](#bar).",
+		"",
+	}, "\n")
+
+	// Production is the oracle: every anchor it derives from the body must also be produced by
+	// the test helper.
+	got := githubAnchors(doc)
+	for _, h := range renderer.DocumentHeadings(doc) {
+		if !got[h.Slug] {
+			t.Errorf("githubAnchors missing %q that production renderer.DocumentHeadings derives; got=%v", h.Slug, got)
+		}
+	}
+	// The ATX-edge headings specifically must slug bare.
+	for _, want := range []string{"foo", "bar"} {
+		if !got[want] {
+			t.Errorf("expected anchor %q from ATX normalization; got=%v", want, got)
+		}
+	}
+	// The in-page links to those anchors must resolve through the helper.
+	assertLinksResolve(t, doc)
+}
+
 // githubAnchors slugs every ATX heading of a rendered Markdown document the way GitHub does --
 // one document-order counter across all heading levels, with "-N" suffixes for repeats -- and
 // returns the resulting anchor set. It is an independent reimplementation of the production
@@ -93,6 +131,10 @@ func githubAnchors(doc string) map[string]bool {
 		}
 		text := strings.TrimLeft(line, "#")
 		text = strings.TrimSpace(text)
+		// Mirror production atxHeading (internal/renderer/anchor.go): an ATX heading may end
+		// with an optional closing "#" run, which GitHub strips along with the whitespace
+		// before it, so "## Foo ##" slugs to "foo", not "foo-".
+		text = strings.TrimRight(strings.TrimRight(text, "#"), " ")
 		base := strings.ReplaceAll(nonSlug.ReplaceAllString(strings.ToLower(text), ""), " ", "-")
 		slug := base
 		if n := seen[base]; n > 0 {
