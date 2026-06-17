@@ -22,7 +22,7 @@ func Generate(args []string) error {
 	fs := flag.NewFlagSet("generate", flag.ContinueOnError)
 	outFlag := fs.String("o", "", "output file (default: stdout)")
 	jsonFlag := fs.Bool("json", false, "output JSON instead of Markdown")
-	repoFlag := fs.String("repo", "", "scanned repository identity as owner/repo; controls which cross-repo `uses:` refs are treated as self-calls (default: $GITHUB_REPOSITORY, else the git remote)")
+	repoFlag := fs.String("repo", "", "scanned repository identity as `owner/repo`; controls which cross-repo uses: refs are treated as self-calls (default: $GITHUB_REPOSITORY, else the git remote)")
 	fs.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage: actiondoc generate [flags] [path]\n\n")
 		fmt.Fprintf(os.Stderr, "Generates documentation for GitHub Actions workflow and action files.\n\n")
@@ -127,27 +127,53 @@ func gitRemoteIdentity(scanPath string) string {
 	return parseGitHubRemote(string(out))
 }
 
-// parseGitHubRemote extracts an "owner/repo" identity from a GitHub remote URL in either
-// the SSH form (git@github.com:owner/repo.git) or the HTTPS form
-// (https://github.com/owner/repo.git). A trailing ".git" is stripped. Returns "" for any
-// URL that does not name github.com or does not carry an owner/repo pair.
+// parseGitHubRemote extracts an "owner/repo" identity from a GitHub remote URL in either the
+// scp-like SSH form (git@github.com:owner/repo.git) or the URL form, with or without a scheme
+// and an optional port (https://github.com/owner/repo.git, ssh://git@github.com:22/o/r.git).
+// It isolates the URL's host and requires it to be exactly "github.com" -- not a host that
+// merely ends in it ("notgithub.com"), embeds it as a path segment
+// ("gitlab.com/github.com/o/r"), or extends it ("github.com.evil.com", "github.com.au") -- then
+// takes the first two path segments as owner/repo, stripping any trailing ".git". Returns ""
+// for any remote whose host is not github.com or that carries no owner/repo pair.
 func parseGitHubRemote(rawURL string) string {
-	s := strings.TrimSpace(rawURL)
-	i := strings.Index(s, "github.com")
-	if i < 0 {
+	host, path := splitRemoteHostPath(strings.TrimSpace(rawURL))
+	// A host may carry a port (host:port in URL form); strip it before the exact-match check.
+	if c := strings.LastIndex(host, ":"); c >= 0 {
+		host = host[:c]
+	}
+	if host != "github.com" {
 		return ""
 	}
-	// The host must be exactly "github.com", not merely a suffix of some other host
-	// (e.g. "notgithub.com"). The char preceding it must be a host boundary: the start
-	// of the URL, an '@' (git@github.com), or a '/' (https://github.com, ssh://...).
-	if i > 0 {
-		if prev := s[i-1]; prev != '@' && prev != '/' {
-			return ""
+	return normalizeIdentity(firstTwoSegments(strings.TrimPrefix(path, "/")))
+}
+
+// splitRemoteHostPath separates a git remote into its host and path components, handling the
+// URL form (scheme://[user@]host[:port]/path) and the scp-like SSH form ([user@]host:path).
+// It returns ("", "") when the remote matches neither shape.
+func splitRemoteHostPath(s string) (host, path string) {
+	if i := strings.Index(s, "://"); i >= 0 {
+		// URL form: drop the scheme, then any "user@" credential prefix; the host runs up to
+		// the first '/', and everything after it is the path.
+		rest := s[i+len("://"):]
+		if at := strings.Index(rest, "@"); at >= 0 {
+			rest = rest[at+1:]
 		}
+		slash := strings.Index(rest, "/")
+		if slash < 0 {
+			return "", ""
+		}
+		return rest[:slash], rest[slash+1:]
 	}
-	// After "github.com" the owner/repo is separated by ':' (SSH) or '/' (HTTPS/ssh://).
-	rest := strings.TrimLeft(s[i+len("github.com"):], ":/")
-	return normalizeIdentity(firstTwoSegments(rest))
+	// scp-like form: [user@]host:path. Strip any "user@" credential, then split on the first
+	// ':' separating host from path.
+	if at := strings.Index(s, "@"); at >= 0 {
+		s = s[at+1:]
+	}
+	colon := strings.Index(s, ":")
+	if colon < 0 {
+		return "", ""
+	}
+	return s[:colon], s[colon+1:]
 }
 
 // firstTwoSegments returns the first two slash-separated segments of s joined with "/",
@@ -215,49 +241,105 @@ func renderMarkdownOutput(sources []callgraph.Source, graph *callgraph.Graph, in
 // heading's anchor (Node.JobAnchors). It returns the section anchors in source order for the
 // table of contents.
 //
-// The mapping rests on a level invariant of the renderers: the only level-1 headings are the
-// document title (multi-document only) followed by one section title per source, and the only
-// level-3 headings are job headings, in source-then-job order. Structural headings (## / ####)
-// are still counted by the scan -- GitHub counts them -- but are not themselves link targets.
+// Each link-target heading is matched to the node that produced it by the heading text GitHub
+// slugged, walking the document-order heading stream left to right: a section title is the
+// next level-1 heading whose base slug equals the source title's, and a job heading is the
+// next level-3 heading whose base slug equals that job's. Matching by emitted text -- rather
+// than slicing the Nth heading of a given level -- keeps the assignment correct when a raw
+// description body emits its own ATX heading (e.g. a "### Foo" line in an @desc, which GitHub
+// counts as a real heading but which targets no node); such a heading is simply skipped over
+// because its slug matches no expected link target.
 func assignAnchorsFromScan(sources []callgraph.Source, graph *callgraph.Graph, doc string) []string {
-	var sectionSlugs, jobSlugs []string
-	for _, h := range renderer.DocumentHeadings(doc) {
-		switch h.Level {
-		case 1:
-			sectionSlugs = append(sectionSlugs, h.Slug)
-		case 3:
-			jobSlugs = append(jobSlugs, h.Slug)
+	headings := renderer.DocumentHeadings(doc)
+	pos := 0
+
+	// Multi-document output opens with the document title (an H1) before any section. It is
+	// not a link target, so consume it up front; otherwise a source whose title happens to
+	// share the document title's slug could match it. Single-document output has no such title.
+	if len(sources) >= 2 {
+		for pos < len(headings) && headings[pos].Level != 1 {
+			pos++
+		}
+		if pos < len(headings) {
+			pos++
 		}
 	}
-	// The document title (emitted only for multi-document output) is the first level-1
-	// heading; the rest map one-to-one to the ordered sources.
-	if len(sources) >= 2 && len(sectionSlugs) > 0 {
-		sectionSlugs = sectionSlugs[1:]
+
+	// match advances pos to the next heading of the given level whose base slug equals the
+	// expected text's, returns its full slug (including any "-N" duplicate suffix), and
+	// consumes it. Returns "" if no such heading remains, leaving the node's anchor unset.
+	match := func(level int, text string) string {
+		want := headingSlugBase(text)
+		for ; pos < len(headings); pos++ {
+			h := headings[pos]
+			if h.Level == level && slugHasBase(h.Slug, want) {
+				pos++
+				return h.Slug
+			}
+		}
+		return ""
 	}
 
 	slugs := make([]string, len(sources))
 	for i, s := range sources {
-		if i < len(sectionSlugs) {
-			slugs[i] = sectionSlugs[i]
-		}
-		if n := graph.Nodes[s.Path]; n != nil {
+		slugs[i] = match(1, titleOf(s))
+		n := graph.Nodes[s.Path]
+		if n != nil {
 			n.Anchor = slugs[i]
 		}
-	}
-
-	// Job heading anchors, in source-then-job order, slice back onto each workflow node.
-	jobIdx := 0
-	for _, s := range sources {
 		if s.Workflow == nil {
 			continue
 		}
-		count := len(s.Workflow.Jobs)
-		if n := graph.Nodes[s.Path]; n != nil && jobIdx+count <= len(jobSlugs) {
-			n.JobAnchors = jobSlugs[jobIdx : jobIdx+count]
+		anchors := make([]string, len(s.Workflow.Jobs))
+		for j := range s.Workflow.Jobs {
+			anchors[j] = match(3, renderer.JobHeadingText(&s.Workflow.Jobs[j]))
 		}
-		jobIdx += count
+		if n != nil {
+			n.JobAnchors = anchors
+		}
 	}
 	return slugs
+}
+
+// headingSlugBase returns the GitHub anchor slug of a heading's text before any duplicate
+// "-N" suffix is applied -- the base used to line a link-target heading up with the node that
+// produced it. It slugs the text the way the scan does, by routing it through DocumentHeadings
+// on the same "# text" line the renderer emits: that path applies ATX heading normalization
+// (a trailing "#" closing sequence and trailing spaces are dropped) before slugging, which the
+// renderer's plain slugger does not. Slugging the raw text instead would diverge for any title
+// ending in "#" or whitespace -- "Deploy #" slugs to "deploy-" raw but "deploy" once scanned --
+// so match() would never line the node up with its heading and the anchor would be left unset.
+// A single synthetic heading carries no duplicate suffix, so the result is always the base.
+func headingSlugBase(text string) string {
+	headings := renderer.DocumentHeadings("# " + text)
+	if len(headings) == 0 {
+		return ""
+	}
+	return headings[0].Slug
+}
+
+// slugHasBase reports whether an anchor slug was generated from a heading whose base slug is
+// want -- that is, slug is exactly want, or want followed by GitHub's "-N" duplicate suffix.
+// It tests the prefix rather than stripping a trailing "-N" from slug, because a base slug may
+// itself legitimately end in "-<digits>" (e.g. a "TensorFlow 2.11" job slugs to
+// "...tensorflow_2-11"); stripping would corrupt such a slug and miss the match.
+func slugHasBase(slug, want string) bool {
+	if slug == want {
+		return true
+	}
+	if !strings.HasPrefix(slug, want+"-") {
+		return false
+	}
+	suffix := slug[len(want)+1:]
+	if suffix == "" {
+		return false
+	}
+	for _, r := range suffix {
+		if r < '0' || r > '9' {
+			return false
+		}
+	}
+	return true
 }
 
 // assembleDocument renders the full Markdown document: a document header and grouped table of
