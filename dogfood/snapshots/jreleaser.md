@@ -186,11 +186,13 @@
 
 ## Call graph (rooted at this workflow)
 
-- `precheck` uses [step-precheck.yml](#x-precheck) (`@main`)
+- `precheck` uses `jreleaser/jreleaser/.github/workflows/step-precheck.yml@main`
 
 ## Transitive requirements (from full call graph)
 
 Secrets required (declared/forwarded names): `github-token`
+
+External workflows referenced: `jreleaser/jreleaser/.github/workflows/step-precheck.yml@main`
 
 ## Referenced secrets and variables
 
@@ -206,7 +208,7 @@ Secrets required (declared/forwarded names): `github-token`
 
 | Property | Value |
 |----------|-------|
-| Uses workflow | [X-Precheck](#x-precheck) (`@main`) |
+| Uses workflow | `jreleaser/jreleaser/.github/workflows/step-precheck.yml@main` (external) |
 
 #### Secrets forwarded
 
@@ -280,18 +282,18 @@ Secrets required (declared/forwarded names): `github-token`
 
 ## Call graph (rooted at this workflow)
 
-- `precheck` uses [step-precheck.yml](#x-precheck) (`@main`)
-- `jlink` uses [step-jlink.yml](#x-jlink) (`@main`)
-- `jpackage` uses [step-jpackage.yml](#x-jpackage) (`@main`)
-- `native-image` uses [step-native-image.yml](#x-nativeimage) (`@main`)
+- `precheck` uses `jreleaser/jreleaser/.github/workflows/step-precheck.yml@main`
+- `jlink` uses `jreleaser/jreleaser/.github/workflows/step-jlink.yml@main`
+- `jpackage` uses `jreleaser/jreleaser/.github/workflows/step-jpackage.yml@main`
+- `native-image` uses `jreleaser/jreleaser/.github/workflows/step-native-image.yml@main`
 - `provenance` uses `slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v2.1.0`
-- `update-wiki` uses [step-update-wiki.yml](#x-updatewiki) (`@main`)
+- `update-wiki` uses `jreleaser/jreleaser/.github/workflows/step-update-wiki.yml@main`
 
 ## Transitive requirements (from full call graph)
 
 Secrets required (declared/forwarded names): `gh-access-token`, `github-token`, `gpg-passphrase`, `oci-compartment-id`
 
-External workflows referenced: `slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v2.1.0`
+External workflows referenced: `jreleaser/jreleaser/.github/workflows/step-jlink.yml@main`, `jreleaser/jreleaser/.github/workflows/step-jpackage.yml@main`, `jreleaser/jreleaser/.github/workflows/step-native-image.yml@main`, `jreleaser/jreleaser/.github/workflows/step-precheck.yml@main`, `jreleaser/jreleaser/.github/workflows/step-update-wiki.yml@main`, `slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v2.1.0`
 
 ## Referenced secrets and variables
 
@@ -319,7 +321,7 @@ External workflows referenced: `slsa-framework/slsa-github-generator/.github/wor
 
 | Property | Value |
 |----------|-------|
-| Uses workflow | [X-Precheck](#x-precheck) (`@main`) |
+| Uses workflow | `jreleaser/jreleaser/.github/workflows/step-precheck.yml@main` (external) |
 
 #### Secrets forwarded
 
@@ -329,7 +331,7 @@ External workflows referenced: `slsa-framework/slsa-github-generator/.github/wor
 
 | Property | Value |
 |----------|-------|
-| Uses workflow | [X-Jlink](#x-jlink) (`@main`) |
+| Uses workflow | `jreleaser/jreleaser/.github/workflows/step-jlink.yml@main` (external) |
 | Depends on | `precheck` |
 | Condition | `${{ endsWith(needs.precheck.outputs.version, '-SNAPSHOT') }}` |
 
@@ -346,7 +348,7 @@ External workflows referenced: `slsa-framework/slsa-github-generator/.github/wor
 
 | Property | Value |
 |----------|-------|
-| Uses workflow | [X-JPackage](#x-jpackage) (`@main`) |
+| Uses workflow | `jreleaser/jreleaser/.github/workflows/step-jpackage.yml@main` (external) |
 | Depends on | `precheck`, `jlink` |
 
 #### Inputs forwarded
@@ -358,7 +360,7 @@ External workflows referenced: `slsa-framework/slsa-github-generator/.github/wor
 
 | Property | Value |
 |----------|-------|
-| Uses workflow | [X-NativeImage](#x-nativeimage) (`@main`) |
+| Uses workflow | `jreleaser/jreleaser/.github/workflows/step-native-image.yml@main` (external) |
 | Depends on | `precheck`, `jlink` |
 
 #### Inputs forwarded
@@ -466,7 +468,7 @@ External workflows referenced: `slsa-framework/slsa-github-generator/.github/wor
 
 | Property | Value |
 |----------|-------|
-| Uses workflow | [X-UpdateWiki](#x-updatewiki) (`@main`) |
+| Uses workflow | `jreleaser/jreleaser/.github/workflows/step-update-wiki.yml@main` (external) |
 | Depends on | `precheck`, `release` |
 
 #### Inputs forwarded
@@ -546,11 +548,13 @@ All scopes: `read-all`.
 
 ## Call graph (rooted at this workflow)
 
-- `precheck` uses [step-precheck.yml](#x-precheck) (`@main`)
+- `precheck` uses `jreleaser/jreleaser/.github/workflows/step-precheck.yml@main`
 
 ## Transitive requirements (from full call graph)
 
 Secrets required (declared/forwarded names): `github-token`
+
+External workflows referenced: `jreleaser/jreleaser/.github/workflows/step-precheck.yml@main`
 
 ## Referenced secrets and variables
 
@@ -566,7 +570,7 @@ Secrets required (declared/forwarded names): `github-token`
 
 | Property | Value |
 |----------|-------|
-| Uses workflow | [X-Precheck](#x-precheck) (`@main`) |
+| Uses workflow | `jreleaser/jreleaser/.github/workflows/step-precheck.yml@main` (external) |
 
 #### Secrets forwarded
 
@@ -637,17 +641,17 @@ Secrets required (declared/forwarded names): `github-token`
 
 ## Call graph (rooted at this workflow)
 
-- `jlink` uses [step-jlink.yml](#x-jlink) (`@main`)
-- `jpackage` uses [step-jpackage.yml](#x-jpackage) (`@main`)
-- `native-image` uses [step-native-image.yml](#x-nativeimage) (`@main`)
+- `jlink` uses `jreleaser/jreleaser/.github/workflows/step-jlink.yml@main`
+- `jpackage` uses `jreleaser/jreleaser/.github/workflows/step-jpackage.yml@main`
+- `native-image` uses `jreleaser/jreleaser/.github/workflows/step-native-image.yml@main`
 - `provenance` uses `slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v2.1.0`
-- `update-wiki` uses [step-update-wiki.yml](#x-updatewiki) (`@main`)
+- `update-wiki` uses `jreleaser/jreleaser/.github/workflows/step-update-wiki.yml@main`
 
 ## Transitive requirements (from full call graph)
 
 Secrets required (declared/forwarded names): `gh-access-token`, `gpg-passphrase`, `oci-compartment-id`
 
-External workflows referenced: `slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v2.1.0`
+External workflows referenced: `jreleaser/jreleaser/.github/workflows/step-jlink.yml@main`, `jreleaser/jreleaser/.github/workflows/step-jpackage.yml@main`, `jreleaser/jreleaser/.github/workflows/step-native-image.yml@main`, `jreleaser/jreleaser/.github/workflows/step-update-wiki.yml@main`, `slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v2.1.0`
 
 ## Referenced secrets and variables
 
@@ -707,7 +711,7 @@ External workflows referenced: `slsa-framework/slsa-github-generator/.github/wor
 
 | Property | Value |
 |----------|-------|
-| Uses workflow | [X-Jlink](#x-jlink) (`@main`) |
+| Uses workflow | `jreleaser/jreleaser/.github/workflows/step-jlink.yml@main` (external) |
 | Depends on | `precheck` |
 
 #### Inputs forwarded
@@ -723,7 +727,7 @@ External workflows referenced: `slsa-framework/slsa-github-generator/.github/wor
 
 | Property | Value |
 |----------|-------|
-| Uses workflow | [X-JPackage](#x-jpackage) (`@main`) |
+| Uses workflow | `jreleaser/jreleaser/.github/workflows/step-jpackage.yml@main` (external) |
 | Depends on | `precheck`, `jlink` |
 
 #### Inputs forwarded
@@ -735,7 +739,7 @@ External workflows referenced: `slsa-framework/slsa-github-generator/.github/wor
 
 | Property | Value |
 |----------|-------|
-| Uses workflow | [X-NativeImage](#x-nativeimage) (`@main`) |
+| Uses workflow | `jreleaser/jreleaser/.github/workflows/step-native-image.yml@main` (external) |
 | Depends on | `precheck`, `jlink` |
 
 #### Inputs forwarded
@@ -868,7 +872,7 @@ External workflows referenced: `slsa-framework/slsa-github-generator/.github/wor
 
 | Property | Value |
 |----------|-------|
-| Uses workflow | [X-UpdateWiki](#x-updatewiki) (`@main`) |
+| Uses workflow | `jreleaser/jreleaser/.github/workflows/step-update-wiki.yml@main` (external) |
 | Depends on | `precheck`, `release` |
 
 #### Inputs forwarded
@@ -959,11 +963,13 @@ External workflows referenced: `slsa-framework/slsa-github-generator/.github/wor
 
 ## Call graph (rooted at this workflow)
 
-- `precheck` uses [step-precheck.yml](#x-precheck) (`@main`)
+- `precheck` uses `jreleaser/jreleaser/.github/workflows/step-precheck.yml@main`
 
 ## Transitive requirements (from full call graph)
 
 Secrets required (declared/forwarded names): `github-token`
+
+External workflows referenced: `jreleaser/jreleaser/.github/workflows/step-precheck.yml@main`
 
 ## Referenced secrets and variables
 
@@ -996,7 +1002,7 @@ Secrets required (declared/forwarded names): `github-token`
 
 | Property | Value |
 |----------|-------|
-| Uses workflow | [X-Precheck](#x-precheck) (`@main`) |
+| Uses workflow | `jreleaser/jreleaser/.github/workflows/step-precheck.yml@main` (external) |
 
 #### Secrets forwarded
 
@@ -1796,11 +1802,6 @@ Secrets required (declared/forwarded names): `github-token`
 
 - `contents`: `read`
 
-## Called by
-
-- [early-access.yml](#jlink-jlink) (job: `jlink`) - entry point
-- [release.yml](#jlink-jlink-1) (job: `jlink`) - entry point
-
 ## Referenced secrets and variables
 
 **Secrets:**
@@ -1939,11 +1940,6 @@ Secrets required (declared/forwarded names): `github-token`
 
 - `contents`: `read`
 
-## Called by
-
-- [early-access.yml](#jpackage-jpackage) (job: `jpackage`) - entry point
-- [release.yml](#jpackage-jpackage-1) (job: `jpackage`) - entry point
-
 ## Referenced secrets and variables
 
 **Variables:**
@@ -2059,11 +2055,6 @@ Secrets required (declared/forwarded names): `github-token`
 ## Permissions
 
 - `contents`: `read`
-
-## Called by
-
-- [early-access.yml](#native-image-native-image) (job: `native-image`) - entry point
-- [release.yml](#native-image-native-image-1) (job: `native-image`) - entry point
 
 ## Referenced secrets and variables
 
@@ -2181,13 +2172,6 @@ Secrets required (declared/forwarded names): `github-token`
 
 - `contents`: `read`
 
-## Called by
-
-- [codeql.yml](#precheck-precheck) (job: `precheck`) - entry point
-- [early-access.yml](#precheck-precheck-1) (job: `precheck`) - entry point
-- [openssf-scorecard.yml](#precheck-precheck-2) (job: `precheck`) - entry point
-- [smoke-tests.yml](#precheck-precheck-4) (job: `precheck`) - entry point
-
 ## Referenced secrets and variables
 
 **Secrets:**
@@ -2255,11 +2239,6 @@ Secrets required (declared/forwarded names): `github-token`
 - `actions`: `read`
 - `id-token`: `write` (OIDC)
 - `contents`: `write`
-
-## Called by
-
-- [early-access.yml](#update-wiki-update-wiki) (job: `update-wiki`) - entry point
-- [release.yml](#update-wiki-update-wiki-1) (job: `update-wiki`) - entry point
 
 ## Referenced secrets and variables
 

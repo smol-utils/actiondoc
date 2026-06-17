@@ -5,6 +5,19 @@ All notable changes to actiondoc are documented here. This project adheres to
 
 ## [Unreleased]
 
+### Added
+- `--repo owner/name` flag to set the scanned repository's identity, controlling which
+  cross-repo `uses:` references are treated as the repository calling itself. When the flag
+  is absent, the identity is read from `GITHUB_REPOSITORY` or the `origin` git remote.
+
+### Fixed
+- Cross-repository `uses:` references are no longer misclassified as local calls (which
+  produced wrong required-secret lists and fabricated call edges in the generated docs). The
+  scanned repository's identity is now resolved from `--repo`, `GITHUB_REPOSITORY`, or the
+  git remote; a cross-repo reference is linked to a local workflow only when its `owner/repo`
+  prefix matches that identity, and when the identity is unknown every `owner/repo` reference
+  is treated as external.
+
 ### Removed
 - **Breaking:** the redacted output mode (`--redact`, `--redact-aggressive`, `--redact-map`).
   Redacted output was not safe to share externally: the identifiers actiondoc depends on -

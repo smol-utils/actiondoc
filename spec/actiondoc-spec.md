@@ -155,6 +155,29 @@ them with information the YAML can't express: `@secret`, `@env`, `@deprecated`, 
 - `runs:` -- execution method (node20, docker, composite)
 - `branding:` -- icon and color
 
+## Call Graph and Repository Identity
+
+When a directory is scanned, ActionDoc links `uses:` references across files into a call
+graph: workflow to reusable workflow (job-level `uses:`) and workflow to composite action
+(step-level local `uses:`). Cross-repo references (`owner/repo/.github/workflows/x.yml@ref`)
+are recorded as external nodes and never fetched.
+
+A repository often calls its own reusable workflows in the cross-repo form so the `@ref`
+pin selects a branch or tag rather than the calling commit. To tell such self-calls apart
+from genuinely external workflows, ActionDoc resolves the scanned repository's identity
+(`owner/repo`) in this order:
+
+1. The `--repo owner/name` flag.
+2. The `GITHUB_REPOSITORY` environment variable (set automatically inside GitHub Actions).
+3. The `origin` git remote of the scanned path, when it is a GitHub URL (SSH or HTTPS,
+   with or without a trailing `.git`).
+
+A cross-repo `owner/repo` prefix is treated as the scanned repository itself only when it
+equals the resolved identity (compared case-insensitively). When the identity cannot be
+resolved, it is unknown and **every** `owner/repo` reference is treated as external -- the
+safe default, so a cross-repo call is never silently linked to a same-named local workflow
+(which would otherwise misreport its required secrets and call edges).
+
 ## Design Principles
 
 1. **No CI impact.** ActionDoc comments are standard YAML comments. They are invisible to GitHub Actions and all YAML parsers. Adding them cannot break your CI.
