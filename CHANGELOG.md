@@ -3,6 +3,16 @@
 All notable changes to actiondoc are documented here. This project adheres to
 [Semantic Versioning](https://semver.org).
 
+## [Unreleased]
+
+### Removed
+- **Breaking:** the redacted output mode (`--redact`, `--redact-aggressive`, `--redact-map`)
+  has been removed. The feature claimed its output was safe to share externally, but that
+  guarantee was false and unfixable by design: workflow, job, step, and action names,
+  `uses:` references, and file paths are load-bearing for the call graph and anchors, so
+  they are kept verbatim and can leak organization or tenant names. Secret redaction is out
+  of scope for this tool. The `--redact*` flags are now unknown-flag errors.
+
 ## [0.3.0] - 2026-06-16
 
 A documentation-usability release: the generated output is reorganized for fast scanning
