@@ -6,12 +6,10 @@ All notable changes to actiondoc are documented here. This project adheres to
 ## [Unreleased]
 
 ### Removed
-- **Breaking:** the redacted output mode (`--redact`, `--redact-aggressive`, `--redact-map`)
-  has been removed. The feature claimed its output was safe to share externally, but that
-  guarantee was false and unfixable by design: workflow, job, step, and action names,
-  `uses:` references, and file paths are load-bearing for the call graph and anchors, so
-  they are kept verbatim and can leak organization or tenant names. Secret redaction is out
-  of scope for this tool. The `--redact*` flags are now unknown-flag errors.
+- **Breaking:** the redacted output mode (`--redact`, `--redact-aggressive`, `--redact-map`).
+  Redacted output was not safe to share externally: the identifiers actiondoc depends on -
+  workflow, job, step, and action names, `uses:` references, and file paths - are always
+  emitted verbatim. Redacting secrets is out of scope for this tool.
 
 ## [0.3.0] - 2026-06-16
 
