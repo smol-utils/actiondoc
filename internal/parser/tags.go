@@ -87,11 +87,15 @@ func parseTagLine(line string) (tag, rest string, ok bool) {
 	if !strings.HasPrefix(line, "@") {
 		return "", "", false
 	}
-	// Split "@tagname rest of line"
-	parts := strings.SplitN(line, " ", 2)
-	tag = parts[0][1:] // strip leading "@"
-	if len(parts) == 2 {
-		rest = parts[1]
+	// Split "@tagname rest of line" on the first run of whitespace, so a tag
+	// separated from its value by a tab (or multiple spaces) parses the same as a
+	// single-space separator. The value's internal spacing is preserved; only the
+	// whitespace between the tag name and the value is consumed.
+	if idx := strings.IndexAny(line, " \t"); idx != -1 {
+		tag = line[1:idx] // strip leading "@"
+		rest = strings.TrimLeft(line[idx:], " \t")
+	} else {
+		tag = line[1:]
 	}
 	if _, ok := tagAppliers[tag]; ok {
 		return tag, rest, true

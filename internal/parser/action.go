@@ -87,7 +87,7 @@ func parseActionInputs(node ast.Node) []model.ActionInput {
 				case "description":
 					input.Description = nodeString(field.Value)
 				case "required":
-					input.Required = nodeString(field.Value) == "true"
+					input.Required = isTrue(field.Value)
 				case "default":
 					input.Default = nodeString(field.Value)
 				}

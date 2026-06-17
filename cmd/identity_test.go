@@ -17,11 +17,19 @@ func TestParseGitHubRemote(t *testing.T) {
 		{"https://github.com/owner/repo.git", "owner/repo"},
 		{"https://github.com/owner/repo", "owner/repo"},
 		{"ssh://git@github.com/owner/repo.git", "owner/repo"},
-		{"  https://github.com/owner/repo.git\n", "owner/repo"}, // trailing newline from git
-		{"https://gitlab.com/owner/repo.git", ""},               // not GitHub
-		{"git@example.com:owner/repo.git", ""},                  // not GitHub
-		{"https://notgithub.com/owner/repo.git", ""},            // host merely ends in github.com
-		{"git@notgithub.com:owner/repo.git", ""},                // SSH host merely ends in github.com
+		{"  https://github.com/owner/repo.git\n", "owner/repo"},   // trailing newline from git
+		{"ssh://git@github.com:443/owner/repo.git", "owner/repo"}, // explicit port is stripped
+		{"ssh://git@github.com:22/owner/repo.git", "owner/repo"},
+		{"https://github.com:443/owner/repo.git", "owner/repo"},
+		{"https://gitlab.com/owner/repo.git", ""},            // not GitHub
+		{"git@example.com:owner/repo.git", ""},               // not GitHub
+		{"https://notgithub.com/owner/repo.git", ""},         // host merely ends in github.com
+		{"git@notgithub.com:owner/repo.git", ""},             // SSH host merely ends in github.com
+		{"https://my-github.com/owner/repo.git", ""},         // lookalike host
+		{"https://gitlab.com/github.com/owner/repo.git", ""}, // github.com is a path segment, not the host
+		{"git@github.com.evil.com:owner/repo.git", ""},       // host extends past github.com
+		{"https://github.com.au/owner/repo.git", ""},         // host extends past github.com
+		{"github.company.com:owner/repo.git", ""},            // unrelated host containing "github"
 		{"", ""},
 		{"https://github.com/owner", ""}, // missing repo segment
 	}

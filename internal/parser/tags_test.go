@@ -119,6 +119,29 @@ func TestParseTagsEnv(t *testing.T) {
 	}
 }
 
+func TestParseTagsWhitespaceSeparators(t *testing.T) {
+	// The tag name is separated from its value by a run of whitespace; a tab or multiple
+	// spaces must parse the same as a single space. The value's internal spacing is kept.
+	cases := []struct {
+		name    string
+		comment string
+		want    string
+	}{
+		{"single space", "# @desc Build the app", "Build the app"},
+		{"tab", "# @desc\tBuild the app", "Build the app"},
+		{"multiple spaces", "# @desc    Build the app", "Build the app"},
+		{"tab then internal spaces", "# @desc\tBuild  the  app", "Build  the  app"},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			tags := ParseTags(c.comment)
+			if tags.Desc != c.want {
+				t.Errorf("desc = %q, want %q", tags.Desc, c.want)
+			}
+		})
+	}
+}
+
 func TestParseTagsContinuationIndentation(t *testing.T) {
 	// Continuation lines are commonly indented under their tag for readability; that
 	// source indentation must not leak into the value (it surfaces as '<br>   ' in

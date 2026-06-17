@@ -1,6 +1,8 @@
 package main
 
 import (
+	"errors"
+	"flag"
 	"fmt"
 	"os"
 
@@ -29,6 +31,12 @@ func main() {
 		os.Exit(1)
 	}
 
+	// An explicit help request (generate -h/--help) surfaces as flag.ErrHelp once the flag
+	// package has already printed usage. It is not a failure: exit 0 with no "error:" line,
+	// matching the top-level "help" command.
+	if errors.Is(err, flag.ErrHelp) {
+		return
+	}
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error: %v\n", err)
 		os.Exit(1)
