@@ -154,6 +154,79 @@ func TestParseActionFile(t *testing.T) {
 	}
 }
 
+// TestParseActionInputRequiredBooleanCasing covers the YAML core-schema boolean forms an
+// action input's required: field may take. The YAML node preserves source casing, so the
+// truth test must be case-insensitive (matching the workflow_call path). `yes`/`no` are
+// strings under YAML 1.2 core schema, not booleans, so they are not treated as true.
+func TestParseActionInputRequiredBooleanCasing(t *testing.T) {
+	cases := []struct {
+		literal string
+		want    bool
+	}{
+		{"true", true},
+		{"True", true},
+		{"TRUE", true},
+		{"false", false},
+		{"False", false},
+		{"yes", false},
+		{"no", false},
+	}
+
+	for _, c := range cases {
+		t.Run(c.literal, func(t *testing.T) {
+			src := "name: Casing\n" +
+				"description: d\n" +
+				"inputs:\n" +
+				"  token:\n" +
+				"    description: token\n" +
+				"    required: " + c.literal + "\n" +
+				"runs:\n" +
+				"  using: node20\n" +
+				"  main: index.js\n"
+
+			dir := t.TempDir()
+			path := filepath.Join(dir, "action.yml")
+			if err := os.WriteFile(path, []byte(src), 0o644); err != nil {
+				t.Fatalf("WriteFile: %v", err)
+			}
+			a, err := ParseActionFile(path)
+			if err != nil {
+				t.Fatalf("ParseActionFile: %v", err)
+			}
+			if len(a.Inputs) != 1 {
+				t.Fatalf("expected 1 input, got %d", len(a.Inputs))
+			}
+			if a.Inputs[0].Required != c.want {
+				t.Errorf("required for %q = %v, want %v", c.literal, a.Inputs[0].Required, c.want)
+			}
+		})
+	}
+
+	// Absent required: defaults to not required.
+	t.Run("absent", func(t *testing.T) {
+		src := "name: Casing\n" +
+			"description: d\n" +
+			"inputs:\n" +
+			"  token:\n" +
+			"    description: token\n" +
+			"runs:\n" +
+			"  using: node20\n" +
+			"  main: index.js\n"
+		dir := t.TempDir()
+		path := filepath.Join(dir, "action.yml")
+		if err := os.WriteFile(path, []byte(src), 0o644); err != nil {
+			t.Fatalf("WriteFile: %v", err)
+		}
+		a, err := ParseActionFile(path)
+		if err != nil {
+			t.Fatalf("ParseActionFile: %v", err)
+		}
+		if len(a.Inputs) != 1 || a.Inputs[0].Required {
+			t.Errorf("absent required should be false, got %+v", a.Inputs)
+		}
+	})
+}
+
 // TestResolveAnchors covers YAML anchor/alias indirection across field types: a scalar
 // anchor on runs-on (the syft pattern), an alias reusing it, an anchored mapping reused
 // as a job env: block, and an anchored sequence. Field readers must always see resolved
